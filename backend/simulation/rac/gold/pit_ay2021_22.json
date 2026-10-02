@@ -1,0 +1,217 @@
+{
+  "ay": "2021-22",
+  "law": "ITA1961",
+  "regimes": {
+    "old": {
+      "slabs": {
+        "below_60": [
+          {
+            "lower": 0.0,
+            "upper": 250000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 250000.0,
+            "upper": 500000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ],
+        "60_to_80": [
+          {
+            "lower": 0.0,
+            "upper": 300000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 300000.0,
+            "upper": 500000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ],
+        "80_plus": [
+          {
+            "lower": 0.0,
+            "upper": 500000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ]
+      },
+      "same_for_all_ages": false,
+      "standard_deduction": 50000.0,
+      "rebate": {
+        "max_income": 500000.0,
+        "max_rebate": 12500.0,
+        "marginal_relief": false
+      },
+      "surcharge": [
+        {
+          "threshold": 5000000.0,
+          "rate": 0.1
+        },
+        {
+          "threshold": 10000000.0,
+          "rate": 0.15
+        },
+        {
+          "threshold": 20000000.0,
+          "rate": 0.25
+        },
+        {
+          "threshold": 50000000.0,
+          "rate": 0.37
+        }
+      ],
+      "allows_chapter_via_deductions": true
+    },
+    "new": {
+      "slabs": {
+        "below_60": [
+          {
+            "lower": 0.0,
+            "upper": 250000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 250000.0,
+            "upper": 500000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 500000.0,
+            "upper": 750000.0,
+            "rate": 0.1
+          },
+          {
+            "lower": 750000.0,
+            "upper": 1000000.0,
+            "rate": 0.15
+          },
+          {
+            "lower": 1000000.0,
+            "upper": 1250000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1250000.0,
+            "upper": 1500000.0,
+            "rate": 0.25
+          },
+          {
+            "lower": 1500000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ]
+      },
+      "same_for_all_ages": true,
+      "standard_deduction": 0.0,
+      "rebate": {
+        "max_income": 500000.0,
+        "max_rebate": 12500.0,
+        "marginal_relief": false
+      },
+      "surcharge": [
+        {
+          "threshold": 5000000.0,
+          "rate": 0.1
+        },
+        {
+          "threshold": 10000000.0,
+          "rate": 0.15
+        },
+        {
+          "threshold": 20000000.0,
+          "rate": 0.25
+        },
+        {
+          "threshold": 50000000.0,
+          "rate": 0.37
+        }
+      ],
+      "allows_chapter_via_deductions": false
+    }
+  },
+  "default_regime": "old",
+  "cess_rate": 0.04,
+  "scope": "resident individual; income at normal rates",
+  "citations": {
+    "regimes.old.slabs": {
+      "statute": "FA2020/enacted",
+      "provision": "First Schedule, Part III, Paragraph A",
+      "node_id": null,
+      "note": "Rates for individuals: below 60, 60-80 and 80+ age bands."
+    },
+    "regimes.old.rebate": {
+      "statute": "FA2019 (No. 7 of 2019)",
+      "provision": "s.8 amending s.87A",
+      "node_id": null,
+      "note": "Rebate up to Rs. 12,500 where total income does not exceed Rs. 5 lakh, from AY 2020-21."
+    },
+    "regimes.old.standard_deduction": {
+      "statute": "FA2019 (No. 7 of 2019)",
+      "provision": "amending s.16(ia)",
+      "node_id": null,
+      "note": "Rs. 50,000 standard deduction on salary from AY 2020-21."
+    },
+    "regimes.old.surcharge": {
+      "statute": "FA2019N2/enacted",
+      "provision": "s.2 and First Schedule Part I Para A",
+      "node_id": null,
+      "note": "10% / 15% / 25% / 37% above Rs. 50 lakh / 1 / 2 / 5 crore."
+    },
+    "cess_rate": {
+      "statute": "FA2018 (No. 13 of 2018)",
+      "provision": "s.2(11)-(12)",
+      "node_id": null,
+      "note": "Health and Education Cess at 4% of tax plus surcharge."
+    },
+    "regimes.new.slabs": {
+      "statute": "FA2020/enacted",
+      "provision": "s.53 inserting s.115BAC(1)",
+      "node_id": null,
+      "note": "Optional concessional regime from AY 2021-22."
+    },
+    "regimes.new.rebate": {
+      "statute": "ITA1961",
+      "provision": "s.87A",
+      "node_id": null,
+      "note": "The s.87A rebate applied to income under s.115BAC as well."
+    },
+    "regimes.new.standard_deduction": {
+      "statute": "FA2020/enacted",
+      "provision": "s.53 inserting s.115BAC(2)(i)",
+      "node_id": null,
+      "note": "No standard deduction under the concessional regime before AY 2024-25."
+    }
+  }
+}

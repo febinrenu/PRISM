@@ -27,6 +27,9 @@ LABEL_ONLY_RE = re.compile(r"^\s*[‘“'\"]?(?:\(\s*[0-9A-Za-z]{1,6}\s*\)|\d+[A
 _DIGITS_RE = re.compile(r"\d+")
 _PAGE_NO_RE = re.compile(r"^\s*(?:page\s*)?[\(\[]?[ivxlcdm\d]{1,4}[\)\]]?\s*(?:of\s*\d+)?\s*$", re.I)
 _MARGIN_NO_RE = re.compile(r"^\s*\d{1,3}\s*$")
+_AMENDMENT_NOTE_RE = re.compile(
+    r"^\s*(?:\d{1,3}\s*)?(?:Inserted|Substituted|Omitted|Added|Renumbered|Re-numbered|Ins\.|Subs\.)\b"
+    r"|^\s*\d{1,3}\s*(?:Words?|The\s+words|Clause|Sub-section|Section|Proviso|Explanation)\b")
 
 # Glyphs that some Government PDFs emit through broken font encodings.
 _GLYPH_FIXES = {
@@ -80,7 +83,12 @@ def _raw_segments(page: "fitz.Page", pno: int) -> list[Line]:
             spans = [s for s in ln.get("spans", []) if s.get("text", "").strip()]
             if not spans:
                 continue
-            text = normalise("".join(s["text"] for s in ln["spans"]))
+            # Footnote reference markers are tiny digit-only spans set inside a
+            # body line ("… returns 69 Inserted …"); drop them from the text.
+            big = max(sp["size"] for sp in spans)
+            kept = [sp for sp in ln["spans"]
+                    if not (sp["size"] < 0.75 * big and re.fullmatch(r"\s*\d{1,3}\s*", sp["text"]))]
+            text = normalise("".join(sp["text"] for sp in kept))
             if not text:
                 continue
             chars = sum(len(s["text"]) for s in spans) or 1
@@ -177,10 +185,13 @@ def classify(lines: list[Line], pages: list[PageInfo], col_left: float, col_righ
         seen = band_pages.get(key, set())
         return (page - 1) in seen or (page + 1) in seen
 
+    last_note: Line | None = None
     for ln in lines:
         h = pages[ln.page].height
         in_band = ln.y0 < 0.11 * h or ln.y1 > 0.92 * h
         key = _repeat_key(ln.text)
+        if ln.kind == "footnote":
+            last_note = ln
         if in_band and (band_counts[key] >= repeat_min or _PAGE_NO_RE.match(ln.text)
                         or _adjacent_repeat(key, ln.page)):
             ln.kind = "header" if ln.y0 < 0.5 * h else "footer"
@@ -191,8 +202,17 @@ def classify(lines: list[Line], pages: list[PageInfo], col_left: float, col_righ
         elif (ln.size < small and ln.y0 > 0.65 * h
               and re.match(r"^\s*(?:\d{1,3}\s*\.|\d{1,3}\s+[A-Z]|\*|†|\[)", ln.text)):
             ln.kind = "footnote"
+        elif ln.size < small and (_AMENDMENT_NOTE_RE.match(ln.text) or (
+                last_note is not None and last_note.page == ln.page
+                and abs(last_note.size - ln.size) < 0.6 and 0 <= ln.y0 - last_note.y1 < 2 * ln.size)):
+            # Consolidations print amendment notes in very small type, often
+            # mid-page beside the provision they annotate; a note's wrapped
+            # continuation lines follow it directly in the same small size.
+            ln.kind = "footnote"
         else:
             ln.kind = "body"
+        if ln.kind == "footnote":
+            last_note = ln
     return {
         "body_size": body,
         "col_left": round(col_left, 1),

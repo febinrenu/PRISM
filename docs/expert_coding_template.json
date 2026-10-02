@@ -1,0 +1,599 @@
+{
+  "2020-21": {
+    "ay": "2020-21",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2021-22": {
+    "ay": "2021-22",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2022-23": {
+    "ay": "2022-23",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2023-24": {
+    "ay": "2023-24",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2024-25": {
+    "ay": "2024-25",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2025-26": {
+    "ay": "2025-26",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2026-27": {
+    "ay": "2026-27",
+    "law": "ITA1961",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  },
+  "2027-28": {
+    "ay": "2027-28",
+    "law": "ITA2025",
+    "default_regime": null,
+    "cess_rate": null,
+    "regimes": {
+      "old": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "60_to_80": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ],
+          "80_plus": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": false,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      },
+      "new": {
+        "slabs": {
+          "below_60": [
+            {
+              "lower": null,
+              "upper": null,
+              "rate": null
+            }
+          ]
+        },
+        "same_for_all_ages": true,
+        "standard_deduction": null,
+        "rebate": {
+          "max_income": null,
+          "max_rebate": null,
+          "marginal_relief": null
+        },
+        "surcharge": [
+          {
+            "threshold": null,
+            "rate": null
+          }
+        ],
+        "allows_chapter_via_deductions": null,
+        "source": "",
+        "note": ""
+      }
+    },
+    "source": "",
+    "note": ""
+  }
+}

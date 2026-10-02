@@ -36,6 +36,7 @@ class StatuteSource:
     kind: str
     domain: str
     urls: tuple[str, ...]
+    usable: bool = True        # False when the registered PDF cannot be parsed
 
     @property
     def dir(self) -> Path:
@@ -55,7 +56,7 @@ def load_sources() -> list[StatuteSource]:
     return [
         StatuteSource(
             id=s["id"], title=s["title"], act_no=s["act_no"], version=s["version"],
-            kind=s["kind"], domain=s["domain"], urls=tuple(s["urls"]),
+            kind=s["kind"], domain=s["domain"], urls=tuple(s["urls"]), usable=s.get("usable", True),
         )
         for s in data["statutes"]
     ]

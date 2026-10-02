@@ -186,6 +186,9 @@ def build_paragraphs(lines: list[Line], col_left: float, col_right: float) -> li
             structural = _starts_structurally(ln.text)
             if ln.is_table_row or prev.is_table_row or centred or prev_para.centred:
                 new = True
+            elif _CHAPTER_RE.match(ln.text) or _SCHEDULE_RE.match(ln.text) or \
+                    (_PART_RE.match(ln.text) and len(ln.text) < 80):
+                new = True  # a Chapter/Part/Schedule heading never continues a sentence
             elif structural and (_TERMINAL_RE.search(prev.text) or vgap > 1.25 * spacing
                                  or ln.x0 > prev.x0 + 6):
                 new = True

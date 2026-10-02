@@ -1,0 +1,225 @@
+{
+  "ay": "2027-28",
+  "law": "ITA2025",
+  "regimes": {
+    "old": {
+      "slabs": {
+        "below_60": [
+          {
+            "lower": 0.0,
+            "upper": 250000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 250000.0,
+            "upper": 500000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ],
+        "60_to_80": [
+          {
+            "lower": 0.0,
+            "upper": 300000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 300000.0,
+            "upper": 500000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ],
+        "80_plus": [
+          {
+            "lower": 0.0,
+            "upper": 500000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 500000.0,
+            "upper": 1000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 1000000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ]
+      },
+      "same_for_all_ages": false,
+      "standard_deduction": 50000.0,
+      "rebate": {
+        "max_income": 500000.0,
+        "max_rebate": 12500.0,
+        "marginal_relief": false
+      },
+      "surcharge": [
+        {
+          "threshold": 5000000.0,
+          "rate": 0.1
+        },
+        {
+          "threshold": 10000000.0,
+          "rate": 0.15
+        },
+        {
+          "threshold": 20000000.0,
+          "rate": 0.25
+        },
+        {
+          "threshold": 50000000.0,
+          "rate": 0.37
+        }
+      ],
+      "allows_chapter_via_deductions": true
+    },
+    "new": {
+      "slabs": {
+        "below_60": [
+          {
+            "lower": 0.0,
+            "upper": 400000.0,
+            "rate": 0.0
+          },
+          {
+            "lower": 400000.0,
+            "upper": 800000.0,
+            "rate": 0.05
+          },
+          {
+            "lower": 800000.0,
+            "upper": 1200000.0,
+            "rate": 0.1
+          },
+          {
+            "lower": 1200000.0,
+            "upper": 1600000.0,
+            "rate": 0.15
+          },
+          {
+            "lower": 1600000.0,
+            "upper": 2000000.0,
+            "rate": 0.2
+          },
+          {
+            "lower": 2000000.0,
+            "upper": 2400000.0,
+            "rate": 0.25
+          },
+          {
+            "lower": 2400000.0,
+            "upper": null,
+            "rate": 0.3
+          }
+        ]
+      },
+      "same_for_all_ages": true,
+      "standard_deduction": 75000.0,
+      "rebate": {
+        "max_income": 1200000.0,
+        "max_rebate": 60000.0,
+        "marginal_relief": true
+      },
+      "surcharge": [
+        {
+          "threshold": 5000000.0,
+          "rate": 0.1
+        },
+        {
+          "threshold": 10000000.0,
+          "rate": 0.15
+        },
+        {
+          "threshold": 20000000.0,
+          "rate": 0.25
+        }
+      ],
+      "allows_chapter_via_deductions": false
+    }
+  },
+  "default_regime": "new",
+  "cess_rate": 0.04,
+  "scope": "resident individual; income at normal rates",
+  "citations": {
+    "regimes.new.slabs": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "s.202(1) Table",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.new.rebate": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "s.156(2)-(3)",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.old.rebate": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "s.156(1)",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.new.standard_deduction": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "Schedule on salary deductions, Sl. No. 2(a)",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.old.standard_deduction": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "Schedule on salary deductions, Sl. No. 2(b)",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.old.slabs": {
+      "statute": "FA2026/enacted",
+      "provision": "First Schedule, Part I, Paragraph A",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.old.surcharge": {
+      "statute": "FA2026/enacted",
+      "provision": "First Schedule, Part I",
+      "node_id": null,
+      "note": ""
+    },
+    "regimes.new.surcharge": {
+      "statute": "FA2026/enacted",
+      "provision": "First Schedule, Part I (25% cap for s.202(1) income)",
+      "node_id": null,
+      "note": ""
+    },
+    "default_regime": {
+      "statute": "ITA2025/amended_fa2026",
+      "provision": "s.202(1)-(2)",
+      "node_id": null,
+      "note": ""
+    },
+    "cess_rate": {
+      "statute": "FA2026/enacted",
+      "provision": "s.2, Health and Education Cess",
+      "node_id": null,
+      "note": ""
+    }
+  }
+}

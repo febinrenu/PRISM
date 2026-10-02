@@ -39,3 +39,4 @@ boto3>=1.34.0         # Cloudflare R2 (S3-compatible) file storage
 # image stays slim. See training/README.md.
 # transformers, peft, bitsandbytes, trl, accelerate
 truststore>=0.10  # OS certificate store for government sites (corpus download)
+hypothesis>=6.100  # property tests for the tax calculator

@@ -96,6 +96,9 @@ def cmd_parse(args) -> int:
     sources = [s for s in corpus.load_sources()
                if args.statute in ("all", s.id) and (args.version is None or s.version == args.version)]
     for src in sources:
+        if not src.usable:
+            print(f"skip {src.key}: marked unusable in sources.json")
+            continue
         if not corpus.verify(src):
             print(f"skip {src.key}: PDF missing or hash mismatch (run `python -m cli ingest`)")
             continue
@@ -108,6 +111,110 @@ def cmd_parse(args) -> int:
         st = ast.stats
         print(f"{src.key:28s} sections={st['sections']:4d} chapters={st['chapters']:3d} "
               f"nodes={len(ast.nodes):6d} chars={st['chars']:8d}")
+    return 0
+
+
+def cmd_gold_export(args) -> int:
+    from simulation.rac import gold
+
+    for p in gold.export_json():
+        print(f"wrote {p}")
+    return 0
+
+
+def cmd_calc_vectors(args) -> int:
+    """Write the CSV of taxpayer cases to check against the official
+    Income Tax Department calculator, with PRISM's answer filled in."""
+    import csv
+
+    from simulation.rac import gold
+    from simulation.rac.pit import liability
+
+    G = gold.build_gold()
+    L = 100_000
+    # Salaried individuals below 60: points either side of every rebate limit
+    # and surcharge threshold, plus ordinary mid-range incomes.
+    salaries = {
+        "new": [5 * L, 7.75 * L, 7.85 * L, 10 * L, 12.75 * L, 12.85 * L, 13.5 * L, 18 * L, 25 * L, 50.75 * L, 51 * L, 101 * L],
+        "old": [5.5 * L, 5.6 * L, 8 * L, 10 * L, 15 * L, 50.5 * L, 51 * L, 101 * L],
+    }
+    rows = []
+    for ay in ("2024-25", "2025-26", "2026-27"):
+        for regime, sal_list in salaries.items():
+            for sal in sal_list:
+                ded = 150_000 if regime == "old" else 0
+                lia = liability(G[ay], regime, sal, 0.0, ded, "below_60")
+                rows.append({
+                    "case": len(rows) + 1, "assessment_year": ay, "regime": regime, "age": "below 60",
+                    "residential_status": "resident", "gross_salary": int(sal), "other_income": 0,
+                    "deduction_80C": ded, "prism_total_income": int(lia.total_income[0]),
+                    "prism_tax_payable": int(lia.total_tax[0]), "official_tax_payable": "", "notes": "",
+                })
+    out = args.out
+    with open(out, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    print(f"wrote {len(rows)} cases to {out}")
+    return 0
+
+
+def _strip_notes(obj):
+    if isinstance(obj, dict):
+        return {k: _strip_notes(v) for k, v in obj.items() if k not in ("source", "note")}
+    if isinstance(obj, list):
+        return [_strip_notes(v) for v in obj]
+    return obj
+
+
+def cmd_gold_agree(args) -> int:
+    """Compare a second coder's PIT parameters with the gold coding:
+    parameter-level agreement and execution agreement (same tax on a grid of
+    synthetic taxpayers)."""
+    import numpy as np
+
+    from simulation.rac import gold
+    from simulation.rac.pit import liability
+    from simulation.rac.types import PITParams, _flatten
+
+    G = gold.build_gold()
+    coder2 = json.loads(open(args.coder2, encoding="utf-8").read())
+    rng = np.random.default_rng(0)
+    incomes = np.concatenate([rng.uniform(0, 30e5, 1500), rng.uniform(30e5, 6e7, 500)])
+    total_params = total_diff = 0
+    exec_total = exec_same = 0
+    report = {}
+    for ay, gp in G.items():
+        if ay not in coder2:
+            print(f"{ay}: missing from coder 2")
+            continue
+        try:
+            cp = PITParams.model_validate(_strip_notes(coder2[ay]))
+        except Exception as e:  # noqa: BLE001 - report any malformed entry
+            print(f"{ay}: coder 2 entry is incomplete or malformed: {str(e)[:200]}")
+            continue
+        n_params = len(_flatten(gp.model_dump(exclude={"citations", "scope"})))
+        diffs = gp.diff(cp)
+        total_params += n_params
+        total_diff += len(diffs)
+        same_exec = 0
+        for regime in gp.regimes:
+            if regime not in cp.regimes:
+                continue
+            a = liability(gp, regime, incomes).total_tax
+            b = liability(cp, regime, incomes).total_tax
+            same_exec += int(np.sum(np.abs(a - b) <= 10))
+            exec_total += len(incomes)
+        exec_same += same_exec
+        report[ay] = diffs
+        print(f"{ay}: {n_params - len(diffs)}/{n_params} parameters agree"
+              + (f"; differ: {', '.join(diffs[:8])}{' …' if len(diffs) > 8 else ''}" if diffs else ""))
+    if total_params:
+        print(f"\nParameter agreement: {1 - total_diff / total_params:.4f} "
+              f"({total_params - total_diff}/{total_params})")
+    if exec_total:
+        print(f"Execution agreement (tax within ₹10 on {exec_total} taxpayer-regime cases): "
+              f"{exec_same / exec_total:.4f}")
     return 0
 
 
@@ -136,6 +243,17 @@ def main(argv=None) -> int:
     p.add_argument("--statute", default="all")
     p.add_argument("--version", default=None)
     p.set_defaults(func=cmd_parse)
+
+    sub.add_parser("gold-export", help="write expert PIT parameters to simulation/rac/gold/*.json") \
+        .set_defaults(func=cmd_gold_export)
+
+    p = sub.add_parser("calc-vectors", help="cases to check against the official tax calculator")
+    p.add_argument("--out", default="../docs/official_calculator_check.csv")
+    p.set_defaults(func=cmd_calc_vectors)
+
+    p = sub.add_parser("gold-agree", help="agreement between gold and a second coder's PIT parameters")
+    p.add_argument("--coder2", required=True)
+    p.set_defaults(func=cmd_gold_agree)
 
     args = parser.parse_args(argv)
     return args.func(args)
