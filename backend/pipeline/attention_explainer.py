@@ -14,6 +14,7 @@ alongside LIME as a distinct lens. Cached like LIME under mode="attention".
 
 CPU-only, ~50-150ms per clause; no extra model download.
 """
+import hashlib
 import re
 import time
 from typing import Optional
@@ -53,7 +54,8 @@ def explain_attention(doc_id: str, clause_id: str, clause_text: str) -> dict:
     same token shape as LIME ({token, weight, normalized_weight, position}) so
     the frontend heatmap can render it directly. Cached on disk."""
     cached = store.load_lime(doc_id, clause_id, "attention")
-    if cached is not None and cached.get("text_len") == len(clause_text):
+    text_sha = hashlib.sha1(clause_text.encode("utf-8")).hexdigest()
+    if cached is not None and cached.get("text_sha1") == text_sha:
         return {**cached, "cached": True}
 
     started = time.perf_counter()
@@ -105,6 +107,7 @@ def explain_attention(doc_id: str, clause_id: str, clause_text: str) -> dict:
         "model": "all-MiniLM-L6-v2",
         "explains": "sentence-embedding encoder (not the Phi-3.5 generator)",
         "text_len": len(clause_text),
+        "text_sha1": text_sha,
         "lime_tokens": tokens,
         "top_tokens": [[t["token"], t["weight"]] for t in top],
         "prediction": None,

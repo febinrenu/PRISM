@@ -11,13 +11,14 @@ Layout on disk (all writes atomic: tmp file + os.replace):
 """
 import json
 import os
+import re
 import threading
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
 
-from config import STORE_DIR
+from config import BASE_DIR, STORE_DIR
 from models.schemas import AnalysisResult, DocumentMeta, SimulationResult
 
 _meta_store: dict[str, DocumentMeta] = {}
@@ -28,8 +29,55 @@ _embeddings_cache: dict[str, np.ndarray] = {}
 _write_lock = threading.Lock()
 
 
+# doc_ids are UUIDs or slugs like "demo_income_tax_2025". Anything else
+# (dots, slashes, backslashes, "..") could escape STORE_DIR.
+_DOC_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+
+class InvalidDocId(ValueError):
+    """Raised for a doc_id that could not have been issued by this store.
+    main.py maps it to a 404."""
+
+
+def is_valid_doc_id(doc_id: str) -> bool:
+    return bool(doc_id) and bool(_DOC_ID_RE.match(doc_id))
+
+
 def _doc_dir(doc_id: str) -> Path:
+    if not is_valid_doc_id(doc_id):
+        raise InvalidDocId(f"Invalid doc_id: {doc_id!r}")
     return STORE_DIR / doc_id
+
+
+def to_stored_path(path: str) -> str:
+    """Paths under the backend directory are stored relative to it (POSIX
+    separators), so a store copied to another machine or a fresh clone
+    still resolves its PDFs."""
+    p = Path(path)
+    try:
+        return p.resolve().relative_to(BASE_DIR.resolve()).as_posix()
+    except ValueError:
+        return str(p)
+
+
+def resolve_stored_path(stored: Optional[str]) -> Optional[str]:
+    """Inverse of to_stored_path. Also repairs absolute paths recorded on a
+    different machine: if the path doesn't exist but contains a `data/`
+    segment, it is re-rooted under this checkout's backend directory."""
+    if not stored:
+        return None
+    p = Path(stored)
+    if not p.is_absolute() and not re.match(r"^[A-Za-z]:[\\/]", stored):
+        return str(BASE_DIR / p)
+    if p.exists():
+        return str(p)
+    parts = re.split(r"[\\/]+", stored)
+    if "data" in parts:
+        idx = len(parts) - 1 - parts[::-1].index("data")
+        candidate = BASE_DIR.joinpath(*parts[idx:])
+        if candidate.exists():
+            return str(candidate)
+    return str(p)
 
 
 def _atomic_write_text(path: Path, text: str) -> None:
@@ -69,6 +117,8 @@ def save_meta(meta: DocumentMeta) -> None:
 
 
 def get_meta(doc_id: str) -> Optional[DocumentMeta]:
+    if not is_valid_doc_id(doc_id):
+        return None
     if doc_id in _meta_store:
         return _meta_store[doc_id]
     path = _doc_dir(doc_id) / "meta.json"
@@ -82,13 +132,14 @@ def get_meta(doc_id: str) -> Optional[DocumentMeta]:
 def save_path(doc_id: str, path: str) -> None:
     meta = get_meta(doc_id)
     if meta is not None:
-        meta.pdf_path = path
+        meta.pdf_path = to_stored_path(path)
         save_meta(meta)
 
 
 def get_path(doc_id: str) -> Optional[str]:
+    """Absolute, existing-on-this-machine path of the document's PDF."""
     meta = get_meta(doc_id)
-    return meta.pdf_path if meta else None
+    return resolve_stored_path(meta.pdf_path) if meta else None
 
 
 def set_status(doc_id: str, status: str) -> None:
@@ -118,6 +169,8 @@ def save_result(result: AnalysisResult) -> None:
 
 
 def get_result(doc_id: str) -> Optional[AnalysisResult]:
+    if not is_valid_doc_id(doc_id):
+        return None
     if doc_id in _result_store:
         return _result_store[doc_id]
     path = _doc_dir(doc_id) / "result.json"

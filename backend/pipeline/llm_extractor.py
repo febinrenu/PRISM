@@ -7,8 +7,10 @@ Design notes:
   priority-ranked and capped at LLM_MAX_CANDIDATES (a 600-page bill has
   hundreds of candidates; at ~5-10s/clause on a 4GB GPU that would be
   30-60+ minutes uncapped). scope="all" or explicit clause_ids override.
-- Results are cached on disk keyed by sha1(clause_text) + model, so
-  re-runs and resumed jobs are instant.
+- Results are cached on disk keyed by sha1(clause_text) + model + prompt
+  version + decoding settings, so re-runs and resumed jobs are instant and a
+  prompt or model change never replays a stale extraction. An entry is only
+  ever merged onto the clause whose text produced it.
 - Ollama serializes GPU inference (OLLAMA_NUM_PARALLEL=1 by default);
   batching overlaps HTTP/queueing, not compute.
 """
@@ -22,11 +24,16 @@ from typing import Callable, Optional
 import httpx
 
 from config import (
+    EXTRACTION_TEMPERATURE,
+    LLM_BACKEND,
     LLM_BATCH_SIZE,
     LLM_MAX_CANDIDATES,
+    LLM_MAX_CLAUSE_CHARS,
+    LLM_NUM_CTX,
     LLM_NUM_PREDICT,
-    LLM_TEMPERATURE,
+    LLM_SEED,
     LLM_TIMEOUT_S,
+    OLLAMA_FT_MODEL,
     OLLAMA_MODEL,
     OLLAMA_URL,
 )
@@ -51,28 +58,49 @@ Legal clause: {clause_text}"""
 
 _REPAIR_SUFFIX = "\n\nYour previous answer was not valid JSON. Return ONLY the JSON object."
 
-_MAX_CLAUSE_CHARS = 1200
+# Bump whenever _PROMPT_TEMPLATE or the parsing contract changes, so cached
+# extractions from the old prompt are not replayed.
+PROMPT_VERSION = 2
 
 
-def _cache_key(clause_text: str) -> str:
+def extraction_model() -> str:
+    """The Ollama model that performs structured extraction. Follows the
+    LLM_BACKEND switch so `ollama_finetuned` really evaluates the fine-tuned
+    model (the cloud backends are not wired into this extractor)."""
+    if LLM_BACKEND == "ollama_finetuned":
+        return OLLAMA_FT_MODEL
+    return OLLAMA_MODEL
+
+
+def _cache_key(clause_text: str, model: Optional[str] = None) -> str:
     digest = hashlib.sha1(clause_text.encode("utf-8")).hexdigest()
-    return f"{digest}:{OLLAMA_MODEL}"
+    model = model or extraction_model()
+    return (
+        f"{digest}:{model}:p{PROMPT_VERSION}:t{EXTRACTION_TEMPERATURE}"
+        f":s{LLM_SEED}:c{LLM_MAX_CLAUSE_CHARS}"
+    )
 
 
 async def call_ollama(
     prompt: str,
     client: httpx.AsyncClient,
     num_predict: int = LLM_NUM_PREDICT,
+    model: Optional[str] = None,
 ) -> str:
     """Single Ollama generate call. Returns the raw response text."""
     response = await client.post(
         f"{OLLAMA_URL}/api/generate",
         json={
-            "model": OLLAMA_MODEL,
+            "model": model or extraction_model(),
             "prompt": prompt,
             "stream": False,
             "format": "json",
-            "options": {"temperature": LLM_TEMPERATURE, "num_predict": num_predict},
+            "options": {
+                "temperature": EXTRACTION_TEMPERATURE,
+                "seed": LLM_SEED,
+                "num_ctx": LLM_NUM_CTX,
+                "num_predict": num_predict,
+            },
         },
         timeout=LLM_TIMEOUT_S,
     )
@@ -147,13 +175,14 @@ def _coerce_rule(parsed: dict, elapsed_ms: int) -> LLMCausalRule:
         # a model that returns a fuller justification (deep reasoning is separate).
         reasoning=str(parsed.get("reasoning", "")).strip()[:2000],
         extraction_time_ms=elapsed_ms,
-        model=OLLAMA_MODEL,
+        model=extraction_model(),
     )
 
 
 async def extract_clause(clause_text: str, client: httpx.AsyncClient) -> LLMCausalRule:
     """Extract one clause: prompt → parse → one repair retry → fallback record."""
-    prompt = _PROMPT_TEMPLATE.format(clause_text=clause_text[:_MAX_CLAUSE_CHARS])
+    truncated = len(clause_text) > LLM_MAX_CLAUSE_CHARS
+    prompt = _PROMPT_TEMPLATE.format(clause_text=clause_text[:LLM_MAX_CLAUSE_CHARS])
     started = time.perf_counter()
 
     raw = await call_ollama(prompt, client)
@@ -169,10 +198,13 @@ async def extract_clause(clause_text: str, client: httpx.AsyncClient) -> LLMCaus
             confidence=0.0,
             reasoning="",
             extraction_time_ms=elapsed_ms,
-            model=OLLAMA_MODEL,
+            model=extraction_model(),
             parse_error=raw[:200] if raw else "empty response",
+            input_truncated=truncated,
         )
-    return _coerce_rule(parsed, elapsed_ms)
+    rule = _coerce_rule(parsed, elapsed_ms)
+    rule.input_truncated = truncated
+    return rule
 
 
 def select_candidates(
@@ -228,7 +260,7 @@ def compute_extraction_method(
         return "both" if has_rule_pattern else "llm"
     if llm_is_causal is False:
         return "conflict" if has_rule_pattern else "rule_based"
-    return "rule_based"  # LLM extraction failed to parse
+    return "failed"  # LLM extraction failed to parse
 
 
 async def warmup(client: httpx.AsyncClient) -> None:
@@ -237,7 +269,7 @@ async def warmup(client: httpx.AsyncClient) -> None:
         await client.post(
             f"{OLLAMA_URL}/api/generate",
             json={
-                "model": OLLAMA_MODEL,
+                "model": extraction_model(),
                 "prompt": "ok",
                 "stream": False,
                 "options": {"num_predict": 1},
@@ -279,7 +311,7 @@ async def extract_document(
         "selected": len(selected),
         "capped": scope == "auto" and not clause_ids and total_candidates > len(selected),
         "cached": cached_count,
-        "model": OLLAMA_MODEL,
+        "model": extraction_model(),
     })
 
     summary = {"selected": len(selected), "causal_found": 0, "failed": 0,
@@ -361,18 +393,35 @@ async def extract_document(
                 })
 
             # Persist after every batch — resume-safe.
-            store.save_llm_extractions(doc_id, {"model": OLLAMA_MODEL, "entries": entries})
+            store.save_llm_extractions(doc_id, {"model": extraction_model(), "entries": entries})
 
     # Merge into the stored analysis result (single-writer via store lock).
-    def _merge(analysis):
-        for clause in analysis.clauses:
-            entry = entries.get(clause.clause_id)
-            if entry is not None:
-                clause.llm_extraction = LLMCausalRule(**entry["extraction"])
-                clause.extraction_method = entry["extraction_method"]
-
-    store.update_result(doc_id, _merge)
+    store.update_result(doc_id, lambda analysis: merge_extractions(analysis, entries))
 
     summary["total_time_ms"] = int((time.perf_counter() - started) * 1000)
     publish({"stage": "llm_complete", "doc_id": doc_id, "summary": summary})
     return summary
+
+
+def merge_extractions(analysis, entries: dict[str, dict]) -> dict[str, int]:
+    """Attach cached extractions to clauses, but only where the entry's key
+    matches the clause's *current* text. Clause IDs are positional, so after a
+    re-segmentation an ID can point at a different clause; merging by ID alone
+    once put 39 of 78 extractions on the wrong clause. A clause whose stored
+    extraction no longer matches its text has that stale extraction removed.
+    Returns counts of attached and stale-cleared clauses."""
+    counts = {"attached": 0, "cleared": 0}
+    for clause in analysis.clauses:
+        entry = entries.get(clause.clause_id)
+        if entry is not None:
+            model = entry.get("extraction", {}).get("model") or None
+            if entry.get("key") == _cache_key(clause.text, model):
+                clause.llm_extraction = LLMCausalRule(**entry["extraction"])
+                clause.extraction_method = entry["extraction_method"]
+                counts["attached"] += 1
+                continue
+        if clause.llm_extraction is not None:
+            clause.llm_extraction = None
+            clause.extraction_method = "rule_based"
+            counts["cleared"] += 1
+    return counts

@@ -30,15 +30,14 @@ _PATTERNS: list[tuple[str, re.Pattern, str]] = [
         re.DOTALL,
     ), "4group"),
 
-    # WHERE-clause: "where X, Y shall" — the action must actually reach a
-    # modal verb; without the "|$" fallback the old regex used, this no
-    # longer matches trailing boilerplate that never states a consequence.
+    # WHERE-clause: "where X, Y shall [not] Z" — the action must reach a modal
+    # verb and runs on through it to the end of the sentence, so the
+    # consequence (and any negation: "shall not be allowed") stays in the span.
     ("IF_THEN", re.compile(
         r"(?i)\b(where)\b"
         r"(.{10,200}?)"
         r",\s*"
-        r"(.{5,300}?)"
-        r"(?=\bshall\b|\bmust\b|\bwill\b)",
+        r"(.{0,300}?\b(?:shall|must|will)\b.{3,300})",
         re.DOTALL,
     ), "3group_where"),
 
@@ -85,11 +84,12 @@ _CRITICAL_KEYWORDS = re.compile(
     r"jail|arrest|seized|confiscated"
     r")\b"
 )
+# Money/rate markers sit outside the \b group: "Rs." ends in a non-word char
+# and "₹"/"%" are non-word chars, so a trailing/leading \b would never match
+# them next to whitespace.
 _HIGH_KEYWORDS = re.compile(
-    r"(?i)\b("
-    r"penalty|fine|liable|forfeiture|surcharge|interest|"
-    r"Rs\.|lakh|crore|percent|%"
-    r")\b"
+    r"(?i)(\b(?:penalty|fine|liable|forfeiture|surcharge|interest|lakhs?|crores?|percent)\b"
+    r"|\bRs\.?(?=\s*\d)|₹|\d\s*%|\bper\s+cent\b)"
 )
 _OBLIGATION_KEYWORDS = re.compile(
     r"(?i)\b(shall|must|required|obliged|mandatory)\b"
@@ -228,35 +228,16 @@ def detect_causal_patterns(clause_text: str, clause_id: str) -> list[CausalPatte
     for sent_start, sentence in _sentence_spans(clause_text):
         for pattern_type, regex, group_mode in _PATTERNS:
             for m in regex.finditer(sentence):
-                groups = m.groups()
-                condition = ""
-                action = ""
+                # Each mode names which capture groups make up the condition
+                # and the action. Spans are sliced straight out of the source
+                # sentence (never re-joined from groups), so they stay exact
+                # substrings of the clause and their offsets can be stored.
+                cond_groups, act_groups = _GROUP_LAYOUT[group_mode]
+                cs, ce = _trim(sentence, m.start(cond_groups[0]), m.end(cond_groups[-1]))
+                as_, ae = _trim(sentence, m.start(act_groups[0]), m.end(act_groups[-1]))
+                condition = sentence[cs:ce]
+                action = sentence[as_:ae]
 
-                if group_mode == "4group":
-                    condition = (groups[0] + " " + groups[1]).strip()
-                    action = (groups[2] + " " + groups[3]).strip()
-
-                elif group_mode == "3group":
-                    condition = (groups[0] + " " + groups[1]).strip()
-                    action = groups[2].strip()
-
-                elif group_mode == "3group_where":
-                    condition = (groups[0] + " " + groups[1]).strip()
-                    action = groups[2].strip()
-
-                elif group_mode == "3group_failing":
-                    condition = groups[0].strip()
-                    action = (groups[1] + " " + groups[2]).strip()
-
-                elif group_mode == "penalty":
-                    condition = (groups[0] + " " + groups[1]).strip()
-                    action = (groups[2] + " " + (groups[3] if len(groups) > 3 else "")).strip()
-
-                condition = _clean_span(condition)
-                action = _clean_span(action)
-
-                if not condition or not action:
-                    continue
                 if len(condition) < 10 or len(action) < 5:
                     continue
 
@@ -270,6 +251,8 @@ def detect_causal_patterns(clause_text: str, clause_id: str) -> list[CausalPatte
                     "pattern_type": pattern_type,
                     "condition": condition,
                     "action": action,
+                    "cond_off": (sent_start + cs, sent_start + ce),
+                    "act_off": (sent_start + as_, sent_start + ae),
                     "risk_tier": risk_tier,
                     "impact_score": impact_score,
                 })
@@ -281,6 +264,10 @@ def detect_causal_patterns(clause_text: str, clause_id: str) -> list[CausalPatte
             pattern_type=c["pattern_type"],  # type: ignore
             condition_span=c["condition"][:400],
             action_span=c["action"][:400],
+            condition_start=c["cond_off"][0],
+            condition_end=min(c["cond_off"][1], c["cond_off"][0] + 400),
+            action_start=c["act_off"][0],
+            action_end=min(c["act_off"][1], c["act_off"][0] + 400),
             confidence=c["confidence"],
             source_clause_id=clause_id,
             risk_tier=c["risk_tier"],  # type: ignore
@@ -293,9 +280,24 @@ def detect_causal_patterns(clause_text: str, clause_id: str) -> list[CausalPatte
     ]
 
 
-def _clean_span(text: str) -> str:
-    """Remove leading/trailing whitespace, commas, and connectors."""
-    text = text.strip()
-    text = re.sub(r"^[,;\s]+", "", text)
-    text = re.sub(r"[,;\s]+$", "", text)
-    return text.strip()
+# Capture groups (1-based, contiguous range) forming the condition / action
+# span for each group mode.
+_GROUP_LAYOUT: dict[str, tuple[tuple[int, ...], tuple[int, ...]]] = {
+    "4group": ((1, 2), (3, 4)),
+    "3group": ((1, 2), (3,)),
+    "3group_where": ((1, 2), (3,)),
+    "3group_failing": ((1,), (2, 3)),
+    "penalty": ((1, 2), (3, 4)),
+}
+
+_TRIM_CHARS = " \t\r\n,;"
+
+
+def _trim(text: str, start: int, end: int) -> tuple[int, int]:
+    """Shrink [start, end) past leading/trailing whitespace and connectors
+    (commas, semicolons) without changing what the offsets point at."""
+    while start < end and text[start] in _TRIM_CHARS:
+        start += 1
+    while end > start and text[end - 1] in _TRIM_CHARS:
+        end -= 1
+    return start, end

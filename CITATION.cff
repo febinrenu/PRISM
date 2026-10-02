@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use PRISM, please cite it using the metadata below."
+title: "PRISM: Policy Rule Interpretation and Socioeconomic Impact Modelling"
+type: software
+authors:
+  - given-names: Febin
+    family-names: Renu
+    affiliation: "Karunya Institute of Technology and Sciences"
+repository-code: "https://github.com/febinrenu/PRISM"
+license: Apache-2.0
+version: 3.0.0-dev
+keywords:
+  - legal NLP
+  - rules as code
+  - microsimulation
+  - explainable AI
+  - provenance
+  - Indian statutes

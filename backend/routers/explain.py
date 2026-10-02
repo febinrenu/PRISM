@@ -11,6 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 
+from config import LIME_NUM_SAMPLES
 from pipeline.lime_explainer import explain_clause, _cache_fingerprint
 from services import job_manager
 from storage import store
@@ -49,7 +50,7 @@ def _find_clause(doc_id: str, clause_id: str):
 
 
 def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str, num_samples: Optional[int]):
-    job_key = f"lime:{doc_id}:{clause_id}:{mode}"
+    job_key = f"lime:{doc_id}:{clause_id}:{mode}:{num_samples or LIME_NUM_SAMPLES}"
     job = job_manager.get_job(job_key)
     if job is not None and job.status == "running":
         return job_key, job
@@ -79,7 +80,7 @@ async def get_explanation(
     doc_id: str,
     clause_id: str,
     mode: str = Query("proxy", pattern="^(proxy|llm)$"),
-    num_samples: Optional[int] = Query(None, ge=10, le=200),
+    num_samples: Optional[int] = Query(None, ge=10, le=2000),
 ):
     clause = _find_clause(doc_id, clause_id)
 
@@ -218,7 +219,7 @@ async def stream_explanation(
     doc_id: str,
     clause_id: str,
     mode: str = Query("proxy", pattern="^(proxy|llm)$"),
-    num_samples: Optional[int] = Query(None, ge=10, le=200),
+    num_samples: Optional[int] = Query(None, ge=10, le=2000),
 ):
     clause = _find_clause(doc_id, clause_id)
 

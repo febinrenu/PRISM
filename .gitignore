@@ -30,3 +30,8 @@ nextphase.md
 gap.md
 TODO.md
 paper/NOTES_before_submission.md
+
+# Licensed survey microdata (never redistribute), scratch run manifests, LLM cache
+backend/data/raw/
+backend/data/runs/
+backend/data/cache/

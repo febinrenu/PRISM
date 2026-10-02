@@ -59,4 +59,4 @@ def test_extraction_method_matrix():
     assert compute_extraction_method(False, True) == "llm"
     assert compute_extraction_method(True, False) == "conflict"
     assert compute_extraction_method(False, False) == "rule_based"
-    assert compute_extraction_method(True, None) == "rule_based"  # parse failure
+    assert compute_extraction_method(True, None) == "failed"  # parse failure

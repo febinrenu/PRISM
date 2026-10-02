@@ -25,12 +25,13 @@ services:
       - "host.docker.internal:host-gateway"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      # Inlined into the client bundle at build time (a runtime env var would
+      # be ignored by Next.js).
+      args:
+        NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8000}
     ports: ["3000:3000"]
-    environment:
-      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-prism-dev-secret}
     depends_on:
       - backend
 

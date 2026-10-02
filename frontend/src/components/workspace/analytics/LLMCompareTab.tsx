@@ -13,6 +13,7 @@ const METHOD_STYLE: Record<ExtractionMethod, { label: string; color: string; ico
   llm: { label: "LLM only", color: tokens.status.info, icon: Bot },
   rule_based: { label: "Rules only", color: tokens.accent.primary, icon: Cpu },
   conflict: { label: "Conflict", color: tokens.status.warning, icon: TriangleAlert },
+  failed: { label: "Parse failed", color: tokens.status.error, icon: CircleSlash },
 };
 
 /**

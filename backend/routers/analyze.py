@@ -17,6 +17,7 @@ from typing import Callable
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
+from services import job_manager
 from storage import store
 from models.schemas import Clause, AnalysisResult
 from pipeline.pdf_parser import extract_pages
@@ -289,29 +290,34 @@ def _pipeline_worker(
         emit({"stage": "error", "message": f"Analysis failed: {e}"})
 
 
-async def _analysis_generator(doc_id: str, pdf_path: str, filename: str):
-    """Drain pipeline events from the worker thread; heartbeat while idle."""
-    queue: asyncio.Queue = asyncio.Queue()
-    loop = asyncio.get_running_loop()
+def _start_analysis_job(doc_id: str, pdf_path: str, filename: str) -> str:
+    """Run the pipeline as a background job keyed by doc_id. A reconnecting
+    client or a second tab attaches to the running job instead of starting a
+    second pipeline that would race the first on result.json."""
+    key = f"analyze:{doc_id}"
 
-    def emit(ev: dict) -> None:
-        loop.call_soon_threadsafe(queue.put_nowait, ev)
+    async def _run():
+        loop = asyncio.get_running_loop()
 
-    fut = loop.run_in_executor(None, _pipeline_worker, doc_id, pdf_path, filename, emit)
+        def emit(ev: dict) -> None:
+            loop.call_soon_threadsafe(job_manager.publish, key, ev)
 
-    try:
-        while True:
-            try:
-                ev = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_INTERVAL_S)
-            except asyncio.TimeoutError:
-                yield _heartbeat()
-                continue
-            yield _sse(ev)
-            if ev.get("stage") in ("complete", "error"):
-                break
-    finally:
-        # Let the worker finish writing its result even if the client left.
-        await fut
+        await loop.run_in_executor(None, _pipeline_worker, doc_id, pdf_path, filename, emit)
+
+    job_manager.start(key, _run)
+    return key
+
+
+async def _analysis_generator(job_key: str):
+    """Stream the job's events (history replay first, then live); heartbeat
+    while idle. Disconnecting does not stop the job."""
+    async for ev in job_manager.subscribe(job_key):
+        if ev is None:
+            yield _heartbeat()
+            continue
+        yield _sse(ev)
+        if ev.get("stage") in ("complete", "error"):
+            break
 
 
 async def _replay_generator(result: AnalysisResult):
@@ -367,9 +373,6 @@ async def stream_analysis(doc_id: str, force: bool = False):
     if not pdf_path or not meta:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found.")
 
-    if not os.path.exists(pdf_path):
-        raise HTTPException(status_code=404, detail="PDF file not found on disk.")
-
     headers = {
         "Cache-Control": "no-cache",
         "X-Accel-Buffering": "no",
@@ -387,8 +390,18 @@ async def stream_analysis(doc_id: str, force: bool = False):
                 headers=headers,
             )
 
+    # Only a fresh run needs the PDF itself; a cached result replays without it.
+    if not os.path.exists(pdf_path):
+        raise HTTPException(status_code=404, detail="PDF file not found on disk.")
+
+    running = job_manager.get_job(f"analyze:{doc_id}")
+    if running is not None and running.status == "running":
+        job_key = running.key
+    else:
+        job_key = _start_analysis_job(doc_id, pdf_path, meta.filename)
+
     return StreamingResponse(
-        _analysis_generator(doc_id, pdf_path, meta.filename),
+        _analysis_generator(job_key),
         media_type="text/event-stream",
         headers=headers,
     )

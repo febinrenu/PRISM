@@ -55,7 +55,7 @@ async def switch_backend(body: BackendBody, _admin: dict = Depends(require_admin
 
 
 @router.post("/admin/corpus/reindex")
-async def reindex(_admin: dict = Depends(require_admin)):
+def reindex(_admin: dict = Depends(require_admin)):
     results = []
     for meta in store.list_documents():
         if store.get_result(meta.doc_id) is None:

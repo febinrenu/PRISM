@@ -80,6 +80,15 @@ from auth.rate_limiter import limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(store.InvalidDocId)
+async def _invalid_doc_id(request: Request, exc: store.InvalidDocId):
+    return JSONResponse(status_code=404, content={"detail": "Document not found."})
+
 app.include_router(upload.router, prefix="/api", tags=["upload"])
 app.include_router(analyze.router, prefix="/api", tags=["analyze"])
 app.include_router(data.router, prefix="/api", tags=["data"])

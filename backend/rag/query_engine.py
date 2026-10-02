@@ -6,6 +6,7 @@ answer from the active LLM backend (Ollama local / Groq cloud). Every answer is
 grounded in retrieved corpus clauses with [Source N] citations, so the chat is
 the properly-cited successor to the Phase 1 stitched/extractive search.
 """
+import re
 from typing import AsyncIterator, Optional
 
 from config import RAG_TOP_K
@@ -42,6 +43,33 @@ def build_prompt(question: str, context: str) -> str:
         f"Legal Clauses:\n{context}\n\n"
         f"Question: {question}\n\nAnswer (cite sources as [Source N]):"
     )
+
+
+_CITE_RE = re.compile(r"\[\s*Sources?\s+([\d,\s]+)\]", re.IGNORECASE)
+_ABSTAIN_RE = re.compile(r"not\s+found\s+in\s+the\s+loaded\s+corpus", re.IGNORECASE)
+
+
+def assess_grounding(answer: str, n_sources: int) -> dict:
+    """Structural grounding check of a generated answer against the sources it
+    was given. An answer counts as grounded only when it cites at least one
+    real source and every [Source N] marker points at a source that exists.
+    An explicit "Not found" is an abstention, not a grounded answer. This
+    checks citation validity only; whether each cited source actually
+    supports its claim needs a separate entailment check."""
+    cited: set[int] = set()
+    for group in _CITE_RE.findall(answer or ""):
+        for part in re.split(r"[,\s]+", group.strip()):
+            if part.isdigit():
+                cited.add(int(part))
+    valid = sorted(i for i in cited if 1 <= i <= n_sources)
+    invalid = sorted(i for i in cited if not 1 <= i <= n_sources)
+    abstained = bool(_ABSTAIN_RE.search(answer or ""))
+    return {
+        "grounded": bool(valid) and not invalid and not abstained,
+        "abstained": abstained,
+        "cited_sources": valid,
+        "invalid_citations": invalid,
+    }
 
 
 def retrieve(question: str, doc_ids: Optional[list[str]] = None, top_k: int = RAG_TOP_K) -> list[dict]:
@@ -110,7 +138,7 @@ async def answer_stream(
         return
 
     answer = "".join(parts).strip()
-    yield {"stage": "done", "answer": answer, "grounded": True,
+    yield {"stage": "done", "answer": answer, **assess_grounding(answer, len(cites)),
            "n_sources": len(cites), "retrieval_confidence": conf}
 
 
@@ -119,6 +147,7 @@ async def answer(question: str, doc_ids: Optional[list[str]] = None, strict: boo
     hits = retrieve(question, doc_ids=doc_ids)
     if not hits:
         return {"answer": "Not found in the loaded corpus.", "grounded": False,
+                "abstained": True, "cited_sources": [], "invalid_citations": [],
                 "citations": [], "retrieval_confidence": 0.0}
     context = build_context(hits)
     system = _SYSTEM if strict else _SYSTEM_EXTENDED
@@ -126,7 +155,7 @@ async def answer(question: str, doc_ids: Optional[list[str]] = None, strict: boo
                                       temperature=0.1, num_predict=1024)
     return {
         "answer": text.strip(),
-        "grounded": True,
+        **assess_grounding(text, len(hits)),
         "citations": citations(hits),
         "retrieval_confidence": retrieval_confidence(hits),
     }

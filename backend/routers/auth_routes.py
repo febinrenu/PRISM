@@ -44,7 +44,7 @@ def _auth_response(user: dict) -> dict:
 
 
 @router.post("/auth/register")
-async def register(body: RegisterBody):
+def register(body: RegisterBody):
     if len(body.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
     try:
@@ -55,7 +55,7 @@ async def register(body: RegisterBody):
 
 
 @router.post("/auth/login")
-async def login(body: LoginBody):
+def login(body: LoginBody):
     user = users.get_user_by_email(body.email)
     if not user or not user.get("password_hash") or not security.verify_password(
         body.password, user["password_hash"]

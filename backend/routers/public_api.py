@@ -46,9 +46,9 @@ def _require_result(doc_id: str):
 @router.post("/v1/documents/upload")
 @limiter.limit(PUBLIC_RATE_LIMIT)
 async def v1_upload(request: Request, file: UploadFile = File(...), user: dict = Depends(api_key_user)):
-    from routers.upload import ingest_pdf  # reuse the app's ingest path
+    from routers.upload import ingest_pdf, read_capped  # reuse the app's ingest path
 
-    data = await file.read()
+    data = await read_capped(file)
     doc_id, meta = await ingest_pdf(file.filename or "upload.pdf", data)
     users.record_document(user["id"], doc_id, meta.filename)
     _meter(user, "documents/upload")
@@ -160,7 +160,7 @@ async def v1_corpus(request: Request, user: dict = Depends(api_key_user)):
 
 @router.post("/v1/simulate/{doc_id}")
 @limiter.limit(PUBLIC_RATE_LIMIT)
-async def v1_simulate(request: Request, doc_id: str, config: SimulationConfig | None = None,
+def v1_simulate(request: Request, doc_id: str, config: SimulationConfig | None = None,
                       user: dict = Depends(api_key_user)):
     result = _require_result(doc_id)
     config = config or SimulationConfig()

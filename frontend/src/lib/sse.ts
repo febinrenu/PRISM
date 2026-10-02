@@ -38,28 +38,35 @@ export function openSSE(
       const decoder = new TextDecoder();
       let buffer = "";
 
+      const dispatch = (frame: string) => {
+        for (const line of frame.split("\n")) {
+          if (!line.startsWith("data:")) continue; // comments/heartbeats
+          const payload = line.slice(5).trim();
+          if (!payload) continue;
+          try {
+            onEvent(JSON.parse(payload));
+          } catch {
+            // malformed frame — skip
+          }
+        }
+      };
+
       while (true) {
         const { done: finished, value } = await reader.read();
         if (finished) break;
-        buffer += decoder.decode(value, { stream: true });
+        // Normalise CRLF so "\r\n\r\n" frame separators are recognised too.
+        buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
 
         // SSE frames are separated by a blank line.
         let sep: number;
         while ((sep = buffer.indexOf("\n\n")) !== -1) {
-          const frame = buffer.slice(0, sep);
+          dispatch(buffer.slice(0, sep));
           buffer = buffer.slice(sep + 2);
-          for (const line of frame.split("\n")) {
-            if (!line.startsWith("data:")) continue; // comments/heartbeats
-            const payload = line.slice(5).trim();
-            if (!payload) continue;
-            try {
-              onEvent(JSON.parse(payload));
-            } catch {
-              // malformed frame — skip
-            }
-          }
         }
       }
+      // A final frame without a trailing blank line is still a complete event.
+      buffer += decoder.decode();
+      if (buffer.trim()) dispatch(buffer);
       options?.onClose?.();
     } catch (error) {
       if (controller.signal.aborted) {

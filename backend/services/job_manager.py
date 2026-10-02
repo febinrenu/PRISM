@@ -8,8 +8,13 @@ re-attaching to a running job is seamless and duplicate-free (each subscriber
 reads history by index; `publish` appends and edge-notifies).
 """
 import asyncio
+import time
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Optional
+
+# Finished jobs (and their full event history) are kept this long so a client
+# that reconnects just after completion can still replay, then dropped.
+FINISHED_JOB_TTL_S = 15 * 60
 
 
 @dataclass
@@ -22,6 +27,7 @@ class Job:
     history: list[dict] = field(default_factory=list)
     changed: asyncio.Event = field(default_factory=asyncio.Event)
     task: Optional[asyncio.Task] = None
+    finished_at: Optional[float] = None
 
     def _notify(self) -> None:
         # Edge notification: wake current waiters, hand out a fresh Event.
@@ -50,8 +56,18 @@ def publish(key: str, event: dict) -> None:
     job._notify()
 
 
+def _evict_finished(now: Optional[float] = None) -> None:
+    now = now or time.monotonic()
+    stale = [k for k, j in _jobs.items()
+             if j.status != "running" and j.finished_at is not None
+             and now - j.finished_at > FINISHED_JOB_TTL_S]
+    for k in stale:
+        del _jobs[k]
+
+
 def start(key: str, coro_fn: Callable[[], Awaitable[Any]]) -> Job:
     """Start a job unless one with this key is already running."""
+    _evict_finished()
     existing = _jobs.get(key)
     if existing is not None and existing.status == "running":
         return existing
@@ -64,11 +80,19 @@ def start(key: str, coro_fn: Callable[[], Awaitable[Any]]) -> Job:
             job.result = await coro_fn()
             job.status = "complete"
             job.progress = 1.0
+        except asyncio.CancelledError:
+            # Without this a cancelled job stayed "running" forever and its
+            # key could never be restarted.
+            job.status = "error"
+            job.error = "cancelled"
+            job.history.append({"stage": "error", "message": "Job was cancelled."})
+            raise
         except Exception as e:  # surface the failure to subscribers
             job.status = "error"
             job.error = str(e)
             job.history.append({"stage": "error", "message": str(e)})
         finally:
+            job.finished_at = time.monotonic()
             job._notify()
 
     job.task = asyncio.create_task(_runner())

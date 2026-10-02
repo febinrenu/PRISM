@@ -3,10 +3,17 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-data/store/
+.env
+
+# Runtime state is not baked into the image, except the bundled demo statute
+# and its precomputed analysis so the demo works on first start.
+data/store/*
+!data/store/demo_income_tax_2025/
 data/uploads/
 data/chromadb/
 data/prism.db
-data/eval/
-.env
-eval/results/
+data/runs/
+data/cache/
+data/_quarantine_v1/
+# Survey microdata is licensed for registered users only; never redistribute.
+data/raw/

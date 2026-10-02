@@ -22,15 +22,17 @@ import numpy as np
 from lime.lime_text import LimeTextExplainer
 
 from config import (
+    EXTRACTION_TEMPERATURE,
     LIME_NUM_FEATURES,
     LIME_NUM_SAMPLES,
-    LLM_TEMPERATURE,
+    LLM_MAX_CLAUSE_CHARS,
+    LLM_NUM_CTX,
+    LLM_SEED,
     LLM_TIMEOUT_S,
-    OLLAMA_MODEL,
     OLLAMA_URL,
 )
 from pipeline.causal_detector import detect_causal_patterns
-from pipeline.llm_extractor import parse_llm_json
+from pipeline.llm_extractor import extraction_model, parse_llm_json
 from storage import store
 
 _CLASSIFY_PROMPT = """You are a legal AI. Does the following legal text describe a causal rule
@@ -42,7 +44,7 @@ Legal text: {text}"""
 
 def _cache_fingerprint(text: str, mode: str, num_samples: int) -> str:
     digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
-    return f"{digest}:{mode}:{num_samples}:{OLLAMA_MODEL if mode == 'llm' else 'rules'}"
+    return f"{digest}:{mode}:{num_samples}:{extraction_model() if mode == 'llm' else 'rules'}"
 
 
 def _proxy_proba(texts: list[str]) -> np.ndarray:
@@ -62,8 +64,10 @@ def _proxy_proba(texts: list[str]) -> np.ndarray:
 
 
 def _llm_proba_factory(progress: Callable[[int, int], None], expected_total: int):
-    """Sequential sync Ollama classifier for LIME perturbations."""
-    counter = {"done": 0}
+    """Sequential sync Ollama classifier for LIME perturbations. Samples whose
+    call fails or does not parse fall back to an uninformative 0.5; how many
+    did is counted in `counter["failed"]` and reported with the explanation."""
+    counter = {"done": 0, "failed": 0}
 
     def _classify(texts: list[str]) -> np.ndarray:
         rows = []
@@ -74,11 +78,16 @@ def _llm_proba_factory(progress: Callable[[int, int], None], expected_total: int
                     response = client.post(
                         f"{OLLAMA_URL}/api/generate",
                         json={
-                            "model": OLLAMA_MODEL,
-                            "prompt": _CLASSIFY_PROMPT.format(text=text[:1200]),
+                            "model": extraction_model(),
+                            "prompt": _CLASSIFY_PROMPT.format(text=text[:LLM_MAX_CLAUSE_CHARS]),
                             "stream": False,
                             "format": "json",
-                            "options": {"temperature": LLM_TEMPERATURE, "num_predict": 48},
+                            "options": {
+                                "temperature": EXTRACTION_TEMPERATURE,
+                                "seed": LLM_SEED,
+                                "num_ctx": LLM_NUM_CTX,
+                                "num_predict": 48,
+                            },
                         },
                     )
                     response.raise_for_status()
@@ -90,13 +99,16 @@ def _llm_proba_factory(progress: Callable[[int, int], None], expected_total: int
                         if isinstance(is_causal, str):
                             is_causal = is_causal.strip().lower() in ("true", "yes", "1")
                         p_causal = conf if is_causal else 1.0 - conf
+                    else:
+                        counter["failed"] += 1
                 except Exception:
-                    pass  # keep the uninformative 0.5 prior for failed samples
+                    counter["failed"] += 1  # keep the uninformative 0.5 prior
                 rows.append([1.0 - p_causal, p_causal])
                 counter["done"] += 1
                 progress(counter["done"], expected_total)
         return np.array(rows)
 
+    _classify.counter = counter
     return _classify
 
 
@@ -195,14 +207,20 @@ def explain_clause(
         "clause_id": clause_id,
         "mode": mode,
         "num_samples": num_samples,
-        "model": OLLAMA_MODEL if mode == "llm" else "rule_based_proxy",
+        "model": extraction_model() if mode == "llm" else "rule_based_proxy",
         "prediction": {
             "is_causal": bool(proba[1] >= 0.5),
             "p_causal": round(float(proba[1]), 4),
         },
         "lime_tokens": lime_tokens,
         "top_tokens": [[t, round(float(w), 4)] for t, w in token_weights],
+        # LIME surrogate's local R^2. It measures how well the linear surrogate
+        # fits the perturbation samples, NOT faithfulness to the model; kept
+        # under its old key for the UI. Faithfulness is evaluated separately.
         "fidelity": fidelity,
+        "surrogate_r2": fidelity,
+        # Perturbations whose LLM call failed or did not parse (scored 0.5).
+        "failed_samples": getattr(classifier, "counter", {}).get("failed", 0),
         "elapsed_ms": int((time.perf_counter() - started) * 1000),
         "cached": False,
     }

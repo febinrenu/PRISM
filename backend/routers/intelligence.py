@@ -40,7 +40,7 @@ class SearchRequest(BaseModel):
 
 
 @router.post("/search/{doc_id}")
-async def semantic_search(doc_id: str, req: SearchRequest):
+def semantic_search(doc_id: str, req: SearchRequest):
     """
     Semantic clause search using cosine similarity on MiniLM embeddings.
     Returns top-k most relevant clauses with similarity scores.
@@ -450,7 +450,7 @@ class CompareRequest(BaseModel):
 
 
 @router.post("/compare")
-async def compare_documents(req: CompareRequest):
+def compare_documents(req: CompareRequest):
     """
     Compare two analyzed documents.
     Returns: new/removed obligations, entity deltas, shared vs unique entities.

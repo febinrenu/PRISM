@@ -23,6 +23,8 @@ from config import (
     GROQ_URL,
     LLM_BACKEND,
     LLM_GEN_TIMEOUT_S,
+    LLM_NUM_CTX,
+    LLM_SEED,
     LLM_TEMPERATURE,
     OLLAMA_FT_MODEL,
     OLLAMA_MODEL,
@@ -66,7 +68,8 @@ async def _ollama_generate(
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": temperature, "num_predict": num_predict},
+        "options": {"temperature": temperature, "num_predict": num_predict,
+                    "num_ctx": LLM_NUM_CTX, "seed": LLM_SEED},
     }
     if system:
         payload["system"] = system
@@ -85,7 +88,8 @@ async def _ollama_stream(
         "model": model,
         "prompt": prompt,
         "stream": True,
-        "options": {"temperature": temperature, "num_predict": num_predict},
+        "options": {"temperature": temperature, "num_predict": num_predict,
+                    "num_ctx": LLM_NUM_CTX, "seed": LLM_SEED},
     }
     if system:
         payload["system"] = system

@@ -30,7 +30,7 @@ export interface CausalPattern {
   explanation?: string;  // deterministic rationale for why it was flagged
 }
 
-export type ExtractionMethod = "rule_based" | "llm" | "both" | "conflict";
+export type ExtractionMethod = "rule_based" | "llm" | "both" | "conflict" | "failed";
 
 export interface LLMCausalRule {
   is_causal: boolean | null;

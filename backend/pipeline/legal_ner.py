@@ -20,27 +20,26 @@ from models.schemas import Entity
 
 
 # ─── THRESHOLD regex patterns ─────────────────────────────────────────────────
+# "₹" and "%" are not word characters, so a `\b` next to them never matches
+# when they sit beside whitespace ("a fee of ₹50,000", "20% of"). Those edges
+# use explicit (?<!\w) / (?!\w) lookarounds instead.
+
+_UNIT = r"(?:\s*(?:lakhs?|crores?|thousand|million|billion)\b)?"
 
 _THRESHOLD_PATTERNS: list[tuple[re.Pattern, str]] = [
-    # Rs. with amount + optional unit → HIGH (very specific)
+    # Rs./Rs/INR/₹ with amount + optional unit → HIGH (very specific)
     (re.compile(
-        r"(?i)\bRs\.\s*[\d,]+(?:\.\d+)?\s*"
-        r"(?:lakh|lakhs|crore|crores|thousand|million|billion)?"
-    ), "HIGH"),
-    # INR/₹ + amount → HIGH
-    (re.compile(
-        r"(?i)\b(?:INR|₹)\s*[\d,]+(?:\.\d+)?\s*"
-        r"(?:lakh|lakhs|crore|crores|thousand|million)?"
+        r"(?i)(?:\bRs\.?|\bINR|₹)\s*\d[\d,]*(?:\.\d+)?" + _UNIT
     ), "HIGH"),
     # digits + lakh/crore standalone → HIGH
-    (re.compile(r"(?i)\b[\d,]+(?:\.\d+)?\s*(?:lakh|lakhs|crore|crores)\b"), "HIGH"),
-    # percentage → HIGH
-    (re.compile(r"(?i)\b\d+(?:\.\d+)?\s*(?:percent|per\s*cent|%)\b"), "HIGH"),
+    (re.compile(r"(?i)\b\d[\d,]*(?:\.\d+)?\s*(?:lakhs?|crores?)\b"), "HIGH"),
+    # percentage → HIGH ("20%", "20 per cent.", "7.5 percent")
+    (re.compile(r"(?i)\b\d+(?:\.\d+)?\s*(?:percent|per\s*cent|%)(?!\w)"), "HIGH"),
     # "exceeds/not exceeding/up to X" with amount → MEDIUM
     (re.compile(
         r"(?i)\b(?:exceeds?|not\s+exceeding|above|below|more\s+than|"
-        r"less\s+than|up\s+to|at\s+least)\s+(?:Rs\.\s*)?[\d,]+(?:\.\d+)?"
-        r"(?:\s*(?:lakh|lakhs|crore|crores))?"
+        r"less\s+than|up\s+to|at\s+least)\s+(?:(?:Rs\.?|INR|₹)\s*)?\d[\d,]*(?:\.\d+)?"
+        r"(?:\s*(?:lakhs?|crores?)\b)?"
     ), "MEDIUM"),
     # time thresholds → MEDIUM
     (re.compile(

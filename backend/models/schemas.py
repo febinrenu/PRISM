@@ -14,6 +14,12 @@ class CausalPattern(BaseModel):
     pattern_type: Literal["IF_THEN", "CONDITION_ACTION", "PENALTY_TRIGGER"]
     condition_span: str
     action_span: str
+    # Character offsets of the spans within the clause text (exact substrings).
+    # None for results produced before offsets were recorded.
+    condition_start: Optional[int] = None
+    condition_end: Optional[int] = None
+    action_start: Optional[int] = None
+    action_end: Optional[int] = None
     confidence: float
     source_clause_id: str
     risk_tier: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"] = "LOW"
@@ -36,6 +42,9 @@ class LLMCausalRule(BaseModel):
     extraction_time_ms: int = 0
     model: str = ""
     parse_error: Optional[str] = None
+    # True when the clause was longer than the extractor's input budget, so
+    # the model never saw its tail (provisos/penalties often sit there).
+    input_truncated: bool = False
 
 
 class LIMEToken(BaseModel):
@@ -61,7 +70,8 @@ class Clause(BaseModel):
     clause_type: Literal["prose", "table"] = "prose"  # tables skip prose analysis
     # Phase 2
     llm_extraction: Optional[LLMCausalRule] = None
-    extraction_method: Literal["rule_based", "llm", "both", "conflict"] = "rule_based"
+    # "failed" = the LLM was run but its output never parsed.
+    extraction_method: Literal["rule_based", "llm", "both", "conflict", "failed"] = "rule_based"
     lime_available: bool = False
 
 

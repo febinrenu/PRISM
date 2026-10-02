@@ -47,7 +47,7 @@ async def get_corpus():
 
 
 @router.post("/rag/ingest/{doc_id}")
-async def ingest(doc_id: str):
+def ingest(doc_id: str):
     if store.get_result(doc_id) is None:
         raise HTTPException(status_code=404, detail=f"No analysis results for {doc_id}.")
     try:
@@ -57,7 +57,7 @@ async def ingest(doc_id: str):
 
 
 @router.post("/rag/ingest-all")
-async def ingest_all():
+def ingest_all():
     results = []
     for meta in store.list_documents():
         if store.get_result(meta.doc_id) is None:
@@ -70,7 +70,7 @@ async def ingest_all():
 
 
 @router.delete("/rag/corpus/{doc_id}")
-async def remove(doc_id: str):
+def remove(doc_id: str):
     corpus_builder.remove_document(doc_id)
     return {"removed": doc_id, "corpus": corpus_builder.corpus_stats()}
 

@@ -51,7 +51,32 @@ def test_meta_and_result_roundtrip(isolated_store):
     assert reloaded_meta.status == "complete"  # save_result marks complete
     reloaded = store.get_result("t1")
     assert reloaded is not None and reloaded.clauses[0].clause_id == "t1_c0000"
-    assert store.get_path("t1") == "p.pdf"
+    import config
+    # Relative stored paths resolve against the backend directory.
+    assert store.get_path("t1") == str(config.BASE_DIR / "p.pdf")
+
+
+def test_pdf_paths_are_portable(isolated_store):
+    store = isolated_store
+    import config
+
+    inside = config.BASE_DIR / "data" / "demo" / config.DEMO_PDF_NAME
+    assert store.to_stored_path(str(inside)) == f"data/demo/{config.DEMO_PDF_NAME}"
+    # An absolute path recorded on another machine is re-rooted under this
+    # checkout when the file exists here.
+    foreign = rf"D:\elsewhere\prism\backend\data\demo\{config.DEMO_PDF_NAME}"
+    assert store.resolve_stored_path(foreign) == str(config.BASE_DIR / "data" / "demo" / config.DEMO_PDF_NAME)
+    assert store.resolve_stored_path(None) is None
+
+
+@pytest.mark.parametrize("bad", ["..", "../etc", "a/b", "a\\b", "x.y", "", "a" * 65])
+def test_invalid_doc_ids_are_rejected(isolated_store, bad):
+    store = isolated_store
+    assert not store.is_valid_doc_id(bad)
+    assert store.get_meta(bad) is None
+    assert store.get_result(bad) is None
+    with pytest.raises(store.InvalidDocId):
+        store.load_embeddings(bad)
 
 
 def test_embeddings_roundtrip(isolated_store):

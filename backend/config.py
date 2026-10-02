@@ -14,7 +14,7 @@ DEMO_PDF_NAME = "income_tax_2025.pdf"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 STORE_DIR.mkdir(parents=True, exist_ok=True)
 
-CORS_ORIGINS = [
+_DEFAULT_CORS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
@@ -22,8 +22,14 @@ CORS_ORIGINS = [
     "http://localhost:3002",
     "http://127.0.0.1:3002",
 ]
+# Comma-separated extra origins for deployments (e.g. the Vercel frontend URL).
+CORS_ORIGINS = _DEFAULT_CORS + [
+    o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()
+]
 
 MAX_FILE_SIZE_MB = 50
+# Uploads with more pages than this are rejected before analysis starts.
+MAX_PDF_PAGES = int(os.getenv("MAX_PDF_PAGES", "2000"))
 
 # --- Phase 2: LLM extraction (Ollama) ---
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
@@ -36,9 +42,20 @@ LLM_MAX_CANDIDATES = int(os.getenv("LLM_MAX_CANDIDATES", "40"))
 # mid-string (condition+action+consequence+reasoning+lists), which broke
 # json.loads and surfaced as "extraction failed to parse".
 LLM_NUM_PREDICT = int(os.getenv("LLM_NUM_PREDICT", "800"))
+# Structured extraction is decoded greedily with a fixed seed so a rerun of the
+# same (model, prompt, clause) reproduces the same rule.
+EXTRACTION_TEMPERATURE = float(os.getenv("EXTRACTION_TEMPERATURE", "0.0"))
+LLM_SEED = int(os.getenv("LLM_SEED", "42"))
+# Ollama's default context (2048) silently drops the start of long prompts.
+LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
+# Clause characters sent to the extractor; longer clauses are flagged
+# `input_truncated` on the extraction record.
+LLM_MAX_CLAUSE_CHARS = int(os.getenv("LLM_MAX_CLAUSE_CHARS", "3000"))
 
 # --- Phase 2: LIME explainability ---
-LIME_NUM_SAMPLES = int(os.getenv("LIME_NUM_SAMPLES", "50"))
+# 50 samples gave seed-to-seed top-8 token overlap of only 0.10-0.18 (Jaccard);
+# 500 is the floor for a stable explanation on 70-110 word clauses.
+LIME_NUM_SAMPLES = int(os.getenv("LIME_NUM_SAMPLES", "500"))
 LIME_NUM_FEATURES = int(os.getenv("LIME_NUM_FEATURES", "12"))
 
 # --- Phase 3: simulation calibration ---

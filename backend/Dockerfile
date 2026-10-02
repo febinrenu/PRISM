@@ -5,18 +5,23 @@ ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-# System deps for pymupdf, sentence-transformers, chromadb.
+# curl for the healthcheck; build-essential for wheels without prebuilt binaries.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl && rm -rf /var/lib/apt/lists/*
 
+# CPU-only torch first: the default wheel bundles several GB of CUDA libraries
+# the API server never uses.
+RUN pip install --upgrade pip && \
+    pip install --index-url https://download.pytorch.org/whl/cpu torch
+
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install -r requirements.txt
 RUN python -m spacy download en_core_web_sm
 
-COPY . .
+# Bake the MiniLM encoder into the image so the first request needs no network.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
-# Pre-download the MiniLM encoder into the image so first request is fast.
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" || true
+COPY . .
 
 EXPOSE 8000
 
