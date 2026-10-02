@@ -1,0 +1,1309 @@
+{
+  "meta": {
+    "doc_id": "demo_income_tax_2025",
+    "seed": 42,
+    "note": "LLM-assisted bootstrap; set reviewed=true after human check."
+  },
+  "items": [
+    {
+      "clause_id": "demo_income_tax_2025_c1910",
+      "page": 403,
+      "text": "383\n43 of 1961. 43 of 1961.\n5 10 15 20\n25 30 35 40\n(a) the same assessee for any other tax year; or\n(b) any other assessee for the same or any other tax year.\n(3) Where even when no appeal has been filed by an income-tax authority pursuant to the orders or instructions or directions issued under sub-section (1), it shall not be lawful for an assessee, being a party in any appeal, to contend that the income-tax authority has acquiesced in the decision on the disputed issue by not filing an appeal in any case.\n(4) The Appellate Tribunal or Court, hearing such appeal, shall have regard to the orders, instructions or directions issued under sub-section (1) and the circumstances under which such appeal was filed or not filed in respect of any case.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1079",
+      "page": 204,
+      "text": "in this section, no deduction in respect of such income shall be allowed under any other provision of this Act in any tax year.\n(8)",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2292",
+      "page": 493,
+      "text": "511. (1) Every constituent entity resident in India, shall, if it is constituent of an international group, the parent entity of which is not resident in India, notify the prescribed income-tax authority in the form and manner, on or before such date, as prescribed,-\n(a) whether it is the alternate reporting entity of the international group; or\n(b) the details of the parent entity or the alternate reporting entity, if any, of the international group, and the country or territory of which the said entities are resident.\n(2) Every parent entity or the alternate reporting entity, resident in India, shall, for every reporting accounting year, in respect of the international group of which it is a constituent, furnish a report, to the prescribed income-tax authority within twelve months from the end of the said reporting accounting year, in such form and manner, as prescribed.\n(3) In sub-sections (2) and (4), the report in respect of an international group shall include-\n(a) the aggregate information in respect of the amount of revenue, profit or loss before income-tax, amount of income-tax paid, amount of income-tax accrued, stated capital, accumulated earnings, number of employees an",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0938",
+      "page": 167,
+      "text": "Where any amount (including interest thereof) is borrowed or repaid through a negotiable instrument or a hundi, other than an account payee cheque, or through any mode as specified by the Board in this behalf, the amount so borrowed or repaid shall be deemed to be the income of the person borrowing or repaying, as the case maybe, for the tax year in which the amount was borrowed or repaid.\n(2) Where the amount borrowed under sub-section (1) has been deemed to be the income of any person, such person shall not be liable to be assessed again in respect of such amount under that sub-section on repayment of such amount.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0231",
+      "page": 10,
+      "text": "261. Interpretation.\nCHAPTER XV RETURN OF INCOME A.--Allotment of Permanent Account Number",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1467",
+      "page": 302,
+      "text": "in this Act.\n(7) Any assets or proceeds thereof, which remain after the liabilities referred to in sub-section (1) are discharged shall be forthwith made over or paid to the concerned person.\n(8) The Central Government shall pay simple interest at the rate of 0.5% for every month or part of a month for the period on the amount determined in accordance with the following formula:--\n(A-B)+(C-D)\nwhere -\nA = the aggregate amount of money seized under section 247 or requisitioned under section 248;\nB = the amount of money, if any, released under sub-section (2);\nC = the proceeds, if any, of the assets sold towards the discharge of the liability under sub-section (1); and\nD = the aggregate amount required to meet the liabilities referred to in sub-section (1).\n(9) The interest referred to in sub-section (8) shall run from the date immediately following the expiry of one hundred and twenty days from the date on which the last of the authorisations for the search under section 247 or requisition under section 248, was executed to the date of completion of the assessment or reassessment or recomputation.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": "The tax and interest payable under section 270(10) or section 279 must have been paid within the specified period in the notice of demand.",
+        "action": "An assessee may make an application for granting immunity from penalty as per section 439, along with initiation proceedings under sections 478 and/or 479.",
+        "consequence": "Upon fulfillment of the conditions specified in sub-section (1), assessees may be granted relief from penalties if they comply within a month after receiving notice, provided no appeal has been filed against their order for tax and interest payment."
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2350",
+      "page": 509,
+      "text": "where a search has been initiated under section 132 or requisition is made under section 132A prior to the 1st April, 2026, the provisions of repealed Income-tax Act, shall continue to apply to any proceedings connected in respect of such search or requisition, as the case may be, as if this Act has not been enacted.\n(3) Without prejudice to the provisions of sub-section (2), the provisions of section 6 of the General Clauses Act, 1897 shall apply with regard to the effect of repeal.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1836",
+      "page": 384,
+      "text": "347. Where the total income of a registered non-profit organisation, without giving effect to the provisions of this Part, exceeds the maximum amount which is not chargeable to income-tax in any tax year, such registered non-profit organisation shall be required to keep and maintain the books of account and other documents in such form and manner and at such place, as prescribed.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1111",
+      "page": 212,
+      "text": "163. (1) In this Chapter, \"international transaction\" means a transaction between two or more associated enterprises, one of which is necessarily a non-resident, and includes-\n(a) the purchase, sale, transfer, lease or use of tangible property, including building, transportation vehicle, machinery, equipment, tools, plant, furniture, commodity or any other article, product or thing;\n(b) the purchase, sale, transfer, lease or use of intangible property, including the transfer of ownership or the provision of use of rights regarding land use, copyrights, patents, trademarks, licences, franchises, customer list, marketing channel, brand, commercial secret, know-how, industrial property right, exterior design or practical and new design or any other business or commercial rights of similar nature;\n(c) capital financing, lending and borrowing of money, including,--\n(i) any type of long-term or short-term borrowing, lending or guarantee; or\n(ii) purchase or sale of marketable securities; or\n(iii) any type of advance, payments or deferred payment or receivable or any other debt arising during the course of business;\n5 10 15 20 25\n30\n35 40",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0924",
+      "page": 164,
+      "text": "144\n(b) to the son's wife,--\n(i) from assets transferred directly or indirectly on or after the 1st June, 1973, to her by such individual, otherwise than for adequate consideration; or\n(ii) from assets transferred directly or indirectly on or after the 1st June, 1973, to any person or association of persons otherwise than for adequate consideration to the extent to which the income from such assets is for the immediate or deferred benefit of the son's wife;\n(c) to the minor child of the individual but shall not include in the total income of the individual where the income arising or accruing to the minor child is from manual work done by such child, or from activities where his skill, talent, specialised knowledge or experience is applied, or where such minor child is suffering from disability of the nature specified in section 154.\n(2) If the asset transferred under sub-section (1)(a) or (b) is invested by the spouse or son's wife, in any business or capital contributed as a partner in a firm, or, as the case may be, for being admitted to the benefits of partnership in a firm, then, the income to be included in the hands of the individual for the tax year shall be as follows:--\nA",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1639",
+      "page": 341,
+      "text": "10. Order giving effect to an order under section 359 or 363 or 365(10) or 368 or 377 or 378 otherwise than by making a fresh assessment or reassessment or fresh order under section 166.\nEnd of the month in which order under section 359 or 363 or 365(10) or 368 is received, or order under section 377 or 378 is passed by the jurisdictional Principal Commissioner or Commissioner.\nSix months, extendable to nine months with the approval of authorities as per section 2(62) and (64)",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0873",
+      "page": 146,
+      "text": "Where any capital asset was, on any previous occasion, the subject of negotiations for its transfer, any advance or other money received and retained by the assessee in respect of such negotiations--\n(a) shall be deducted from the cost for which the asset was acquired or the written down value or the fair market value, as the case may be, in computing the cost of acquisition;\n(b) shall not be deducted from the said cost, where such advance or other money has been included in the total income of the assessee for any tax year as per the provisions of section 92(2)(h).",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1976",
+      "page": 420,
+      "text": "400\n(d) irrespective of anything contained in this Chapter, if-\n(i) tax has been deducted on a transaction under this serial number; or\n(ii) a transaction is not liable for tax deduction as provided in section 393(4) (Table: Sl. No. 11),\nthen tax shall not be deducted on such transaction under any other provision of this Chapter;\n(e) clause (d) shall not apply to any amount or aggregate of amounts received or receivable by an e-commerce operator for-\n(i) hosting advertisements; or\n(ii) providing any other services,\nwhich are not in connection with the sale or services referred to in this serial number.\nNote 4.--In case of a transaction on which provisions of serial number 8(v) are applicable along with the provisions of serial number 8(vi) for deduction of tax, then tax on such transaction shall be deducted only under the provisions of serial number 8(vi).\nNote 5.-The provisions of serial number 8(iii) shall take precedence over any other provisions of this Chapter and tax shall be deducted under this provision.\nNote 6.-For serial numbers 8(iv) and (vi),-\n(a) where the consideration or benefit or perquisite is-\n(i) in exchange of another virtual digital asset where there is no part",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2404",
+      "page": 525,
+      "text": "26. Any income from the activity of securitisation.\nA securitisation trust.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2339",
+      "page": 506,
+      "text": "536. (1) The Income-tax Act, 1961 is hereby repealed.\n(2) Irrespective of the repeal of the Income-tax Act, 1961 (hereinafter referred to as the repealed Income-tax Act), and subject to sub-section (3)-\n(a) affect the previous operation of the repealed Act and orders or anything duly done or suffered thereunder; or\n(b) affect any right, privilege, obligation or liability acquired, accrued or incurred under the repealed Act or orders under such repealed Act;\n(c) the provisions of the repealed Income-tax Act shall continue to apply to any proceedings (including notices, assessment, re-assessment, rectification, penalty, reference, revision and appeals) in respect of any tax year beginning before the 1st April, 2026 and such proceedings shall be carried out as per the procedure specified in the repealed Income-tax Act;\n(d) any proceeding for the imposition of a penalty in respect of any tax year beginning before the 1st April, 2026, may be initiated and any such penalty may be imposed under the repealed Income-tax Act, as if this Act had not been enacted;\n(e) any proceeding pending on the commencement of this Act before any income-tax authority or any other authority constituted under",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": "the repealed Income-tax Act shall continue to apply",
+        "action": "carry out proceedings as per the procedure specified in the repealed Income-tax Act",
+        "consequence": "any penalty may be imposed under the provisions of the repealed act for tax years beginning before April 1, 2026"
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1466",
+      "page": 302,
+      "text": "282\nCopying, extraction, retention and release of books of account and documents seized or requisitioned.\n(6) The mode of recovery of liabilities under sub-section (1) shall not preclude the recovery of liabilities aforesaid by any other mode laid down",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1632",
+      "page": 339,
+      "text": "4. Assessment, reassessment or recomputation order under section 279.\nEnd of the financial year in which notice under section 280 was served.\nOne year.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1590",
+      "page": 331,
+      "text": "(7) No direction under sub-section (6) shall be issued unless an opportunity of being heard is given to the assessee and the Assessing Officer on such directions which are prejudicial to the interest of the assessee or the interests of the revenue, as the case may be.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1964",
+      "page": 414,
+      "text": "1. Commission or brokerage\n(i) Income by way of remuneration or reward, whether by way of commission or otherwise, for soliciting or procuring insurance business (including business relating to the continuance, renewal or revival of insurance policies).\nAny person.\nRate: Rates in force.\n--\nThreshold limit: ₹ 20,000\n(ii) Income by way of commission [not being insurance commission referred to in serial number 1(i)] or brokerage.\nSpecified person.\nRate: 2%\n--\nThreshold limit:\n₹ 20,000",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0496",
+      "page": 44,
+      "text": "Subject to the provisions of this Act, the total income of any tax year of a person, who is a resident, includes all income from whatever source derived, which-\n5\n10\n15\n20\n25\n30\n35\n40\n45",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1016",
+      "page": 186,
+      "text": "Where a deduction under this section is allowed for any interest referred to in sub-section (1), deduction shall not be allowed in respect of such interest under any other provision of this Act for the same or any other tax year.\n(4)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1626",
+      "page": 338,
+      "text": "Where a claim has been made by an assessee under sub-section (2), he shall not be entitled to reopen matters concluded by an order under section 287 or 288 or 365(10) or 368 or 377.\n5 10 15 20 25 30\n35 40 45",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1084",
+      "page": 205,
+      "text": "In this section,--\n(a) \"Controller\" means the authority as defined in section 2(1)(b) of the Patents Act, 1970;\n(b) \"lump sum\" includes a non-refundable advance payment for royalties;\n(c) \"patent\" means any patent granted, including a patent of addition, under the Patents Act, 1970;\n(d) \"patentee\" means the true and first inventor recorded as the patentee under the Patents Act, 1970, including joint patentees recorded as such true and first inventors;\n(e) \"patent of addition\" shall have the same meaning as assigned to it in section 2(1)(q) of the Patents Act, 1970;\n(f) \"patented article\" and \"patented process\" shall have the same meanings as assigned to them in section 2(1)(o) of the Patents Act, 1970;\n(g) \"royalty\" in respect of a patent, means consideration for-\n(i) the transfer of all or any rights (including the granting of a licence) in respect of a patent; or\n(ii) the imparting of any information concerning the working of, or the use of, a patent; or\n(iii) the use of any patent; or\n(iv) the rendering of any services in connection with the activities referred to in sub-clauses (i) to (iii), but does not include any consideration,--\n(A) which would be the income of the recipien",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2298",
+      "page": 496,
+      "text": "513. (1) Any assessee, entitled or required to attend before any income-tax authority or the Appellate Tribunal in matters relating to the valuation of any asset, may attend through a registered valuer.\n(2) The provisions of sub-section (1) shall not apply, where the assessee is required to attend personally for examination on oath or affirmation under section 246.\n(3)",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2424",
+      "page": 528,
+      "text": "39. Any income falling under section 10(15)(iic) or (15)(iv)(i) or (19A) or (40) of the Income-tax Act, 1961(43 of 1961), shall be subject to the conditions as provided therein.\nNote 1: For the purposes of Sl. No. 3,--\n\"disaster\" shall have the same meaning as assigned to it in section 2(d) of the Disaster Management Act, 2005.\nNote 2: For the purposes of Sl. No. 8 and 15,--\n\"family\" in relation to an individual, means-\n(i) the spouse and children of the individual; and\n(ii) the parents, brothers and sisters of the individual or any of them, wholly or mainly dependent on the individual.\nNote 3: For the purposes of Sl. No. 18,--\n\"compensation or consideration\" includes the compensation or consideration enhanced or further enhanced by any court, Tribunal or other authority.\nNote 4: For the purposes of Sl. No. 20,--\n\"Sikkimese\" means-\n(i) an individual, whose name is recorded in the register maintained under the Sikkim Subjects Regulation, 1961 read with the Sikkim Subject Rules, 1961 (hereinafter referred to as the \"Register of Sikkim Subjects\"), immediately before the 26th April, 1975; or\n(ii) an individual, whose name is included in the Register of Sikkim Subjects by virtue of the ",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1277",
+      "page": 256,
+      "text": "5. Where total income includes income by way of royalty in respect of a patent which is chargeable to tax under section 194(1)(Table: Sl. No. 2).\nThe amount or amounts of expenditure relatable to such royalty income, if any such amount is debited to the statement of profit and loss\nIncome by way of such royalty.\n5 10 15\n20 25 30\n35 40",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2227",
+      "page": 481,
+      "text": "478. (1) If a person wilfully attempts in any manner to evade payment of any tax, penalty or interest chargeable or imposable, or under-reports his income, under this Act, he shall be punishable,-\n(a) in a case, where the amount sought to be evaded or tax on under-reported income exceeds twenty-five lakh rupees, with rigorous imprisonment for a term which shall not be less than six months but which may extend to seven years and shall also be liable to fine;\n(b) in any other case, with rigorous imprisonment for a term which shall not be less than three months but which may extend to two years and shall also be liable to fine, and shall also be liable for penalty that may be imposable on him under any other provision of this Act.\n(2) If a person wilfully attempts in any manner to evade the payment of any tax, penalty or interest under this Act, he shall be punishable with rigorous imprisonment for a term which shall not be less than three months but which may extend to two years and shall, in the discretion of the court, also be liable to fine.\nContravention of order made under section 247. Failure to comply with section 247(1)(b)(ii). Removal, concealment, transfer or delivery of pr",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": "a person wilfully attempts in any manner to evade payment of taxes",
+        "action": "punishable with rigorous imprisonment and fine",
+        "consequence": "rigorous imprisonment for a term not less than three months but may extend up to two years, along with fines as per court discretion or penalties under other provisions of the Act."
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0371",
+      "page": 17,
+      "text": "433. Form of claim for refund and limitation.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0148",
+      "page": 7,
+      "text": "169. Effect to advance pricing agreement.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1685",
+      "page": 353,
+      "text": "(6) For the purposes of sub-sections (1) and (5), the following shall be ignored:--\n(a) the undisclosed income declared under sub-section (1)(a) is a loss; or\n(b) the income disclosed in respect of any tax year comprising the block period is a loss; or\n(c) the returned income or assessed income under sub-section (1)(b) or (c) is a loss; or\n(d) the income as determined under of sub-section (1)(d) is a loss.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1361",
+      "page": 275,
+      "text": "255\n5\n10 15 20\n25\n30 35 40 45\n(2) The person responsible for crediting or making payment of the income on behalf of a venture capital company or a venture capital fund and the venture capital company or venture capital fund shall furnish, within such time, as prescribed, to the person who is liable to tax in respect of such income and to the prescribed income-tax authority, a statement in the prescribed form and verified in the prescribed manner, giving details of the nature of the income paid or credited during the tax year and such other relevant details, as prescribed.\n(3) The income paid or credited by the venture capital company and the venture capital fund shall be deemed to be of the same nature and in the same proportion in the hands of the person referred to in sub-section (1) as it had been received by, or had accrued or arisen to, the venture capital company or the venture capital fund, as the case may be, during the tax year.\n(4) The provisions of Chapter XIX-B shall not apply to the income paid by a venture capital company or venture capital fund under this Chapter.\n(5) The income accruing or arising to or received by the venture capital company or venture capital fund",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0437",
+      "page": 19,
+      "text": "504. Service of notice in case of discontinued business.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1435",
+      "page": 293,
+      "text": "Where a question arises under this section as to whether an Assessing Officer has jurisdiction to assess any person, the question shall be determined by the specified income-tax authority.\nJurisdiction of Assessing Officers.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0705",
+      "page": 101,
+      "text": "50. (1) Irrespective of anything to the contrary contained",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1866",
+      "page": 391,
+      "text": "3. Where the applicant has provisional approval and activities have commenced.\nWithin six months of the commencement of activities.\nSix months from the end of the quarter in which application is made.\nFive tax years commencing from the tax year in which such application is made.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2525",
+      "page": 552,
+      "text": "48. A developmental financing institution, licensed by the Reserve Bank of India under an Act of Parliament referred to against serial number 47.\n(a) Such institution is notified by the Central Government;\n(b) exclusion of such income from the total income is for five consecutive tax years beginning from the tax year in which the developmental financing institution is set up; and\n(c) the Central Government may, by notification extend the period of exclusion for a further period, not exceeding five more consecutive tax years, subject to fulfilment of such conditions as specified in the said notification.\nNote 1: For the purposes of Sl. No 3,--\n\"Controller of Insurance\" shall have the same meaning as assigned to it in section 2(5B) of the Insurance Act, 1938 (4 of 1938).\nNote 2: For the purposes of Sl. No 4,--\n\"khadi\" and \"village industries\" shall have the meanings respectively assigned to them in the Khadi and Village Industries Commission Act, 1956 (61 of 1956).\nNote 3: For the purposes of Sl. No 21,--\n\"public financial institution\" shall have the same meaning as assigned to it in section 2(72) of the Companies Act, 2013 (18 of 2013).\nNote 4: For the purposes of Sl. No 29,--\n(a) S",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2539",
+      "page": 559,
+      "text": "539\nSCHEDULE-X\n(See section 49)\nDEDUCTION FOR SITE RESTORATION FUND FOR COMPUTING INCOME UNDER THE HEAD\n\"PROFITS AND GAINS OF BUSINESS OR PROFESSION",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0911",
+      "page": 161,
+      "text": "141\n5 10 15 20 25 30 35\n(vi) paintings;\n(vii) sculptures;\n(viii) any work of art;\n(ix) bullion; or\n(x) virtual digital asset;\n(g) \"relative\" means-\n(i) in case of an individual-\n(A) spouse;\n(B) brother or sister;\n(C) brother or sister of the spouse;\n(D) brother or sister of either of the parents;\n(E) any lineal ascendant or descendant (maternal as well as paternal);\n(F) any lineal ascendant (maternal as well as paternal) or descendant (maternal as well as paternal) of the spouse;\n(G) spouse of the person referred to in items (B) to (F); and\n(ii) for a Hindu undivided family, any member thereof;\n(h) \"unit linked insurance policy\" shall have the meaning assigned to it in Schedule II (Note 1).",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1549",
+      "page": 322,
+      "text": "268. (1) For the purpose of making an assessment under this Act, the Assessing Officer may serve on any person who has made a return under section 263 or in whose case the time allowed under section 263(1) for furnishing the return has expired, a notice requiring him, on a date to be specified therein,-\n(a) where such person has not made a return within the time allowed under section 263(1) or before the end of the financial year succeeding the relevant tax year, to furnish a return of his income or the income of any other person in respect of which he is assessable under this Act, in such form and verified in such manner and setting forth such other particulars as prescribed;\n(b) to produce, or cause to be produced, such accounts or documents as the Assessing Officer may require;\n(c) to furnish in writing and verified in the manner as prescribed information in such form and on such points or matters (including a statement of all assets and liabilities of the assessee, whether included in the accounts or not) as the Assessing Officer may require.\n(2) For the purposes of sub-section (1),--\n(a) the previous approval of the Joint Commissioner shall be obtained by the Assessing Officer",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2121",
+      "page": 458,
+      "text": "423. (1) Where the return of income for any tax year is furnished after the due date or is not furnished, the assessee shall be liable to pay simple interest as per the following formula:-\nI = 1% x A x T\nwhere,-\nI = the interest payable;\nA = the amount of tax on which interest is payable, as specified in sub-section (2);\nT = number of months comprised in the period commencing on the date immediately following the starting date and ending on the end date, both specified in sub-section (2).\n(2) For sub-section (1), in respect of the circumstances specified in column B of the Table below, the starting date shall be the date specified in column C, the ending date shall be the date as specified in column D and the amount of tax on which interest is payable is specified in column E.\nTable\nSl. No. Circumstances Starting\ndate\nEnding date The amount of tax on\nwhich interest is\npayable\nA B C D E",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1106",
+      "page": 210,
+      "text": "In this section,-\n(a) \"income-tax\" in relation to any country includes any excess profits tax or business profits tax charged on the profits by the Government of any part of that country or a local authority in that country;\n(b) \"Indian income-tax\" means income-tax charged as per this Act;\n(c) \"Indian rate of tax\" means the rate determined by dividing Indian income-tax after deduction of any relief due under the provisions of this Act but before deduction of any relief due under this section, by the total income; and\n(d) \"rate of tax of the said country\" means income-tax and super-tax actually paid in the said country as per the corresponding laws in force in the said country after deduction of all relief due, but before deduction of any relief due in the said country in respect of double taxation, divided by the whole amount of the income as assessed in the said country.\nCHAPTER X\nSPECIAL PROVISIONS RELATING TO AVOIDANCE OF TAX",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2028",
+      "page": 431,
+      "text": "1. An individual, who is a resident of India.\nDividend referred to in section 393(1)(Table: Sl. No. 7).",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0498",
+      "page": 45,
+      "text": "Subject to the provisions of this Act, the total income of a tax year of a person, who is a non-resident, includes all income from whatever source derived, which--\n(a) is received or deemed to be received in India in that year by or on behalf of the person; or\n(b) accrues or arises, or is deemed to accrue or arise, to the person in India in that year.\n(3) Income accruing or arising outside India shall not be deemed to be received in India under this section by reason only of the fact that it is taken into account in a balance sheet prepared in India.\n(4) If an income has been included in a person's total income on the basis that it--\n(a) has accrued or arisen; or\n(b) is deemed to have accrued or arisen,\nto the person, it shall not again be included on the basis that it is received or deemed to be received by the person in India.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2570",
+      "page": 567,
+      "text": "14. Treatment of fund transferred by employer to trustee.-(1) When an employer who maintains a provident fund, whether recognised or not, for the benefit of his employees and has not transferred the fund or portion of it, transfers such fund or portion to trustees in trust for the participating employees, the transferred amount shall be deemed to be of the nature of capital expenditure.\n(2) When an employee receives the accumulated balance due to him from the fund, any portion of such balance representing the employee's share of the amount transferred to the trustees (without addition of interest and exclusive of employee's contributions and interest thereon) shall be deemed to be,-\n(a) employer's expenditure under 34;\n(b) incurred in the tax year in which the accumulated balance due to the employee is paid,\nprovided an arrangement for deduction of tax at source has been made from the amount of such share by the employer.\nPART B\nAPPROVED SUPERANNUATION FUNDS AND GRATUITY FUNDS\n[See sections 2(9) and (10)]",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0867",
+      "page": 145,
+      "text": "78. (1) If the consideration received or accruing from the transfer of a capital asset, being land or building or both, is less than the stamp duty value, then, for the purposes of section 72, the stamp duty value shall be deemed to be the full value of the consideration received or accruing as a result of such transfer, subject to the following:--\n(a) the stamp duty value on the date of agreement may be taken as the full value of consideration, if--\n(i) the date of the agreement fixing the consideration and the date of registration for the transfer of the capital asset are not the same; and\n(ii) part or full consideration is received on or before the date of the agreement by an account payee cheque or account payee bank draft or electronic clearing system through a bank account or any other electronic mode, as prescribed;\n(b) if the stamp duty value does not exceed 110% of the consideration received or accruing, such consideration shall be deemed to be the full value of the consideration for section 72.\n(2) Without prejudice to the provisions of sub-section (1), the Assessing Officer may refer the valuation of the capital asset to a Valuation Officer, and the provisions of section",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0643",
+      "page": 87,
+      "text": "Where a capital asset, which previously belonged to the assessee, is reacquired by the assessee.\n(a) Actual cost of the asset in the hands of assessee, when it was first acquired, as reduced by the depreciation allowable up to the immediately preceding tax year, as if such asset was the only asset in the relevant block of asset; or\n(b) actual price for which such asset is reacquired by the assesse,\nwhichever is lower.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1094",
+      "page": 207,
+      "text": "157. (1) Where the total income of an assessee is assessed at a rate higher than the rate at which it would otherwise have been assessed, due to the following receipts,-\n(a) a sum in the nature of arrear or advance salary; or\n(b) salary for more than twelve months in any one tax year; or\n(c) a payment in the nature of \"profits in lieu of salary\" under section 18(1); or\n(d) arrears of \"family pension\" as defined in section 93(1)(d),\nthe Assessing Officer shall on an application made to him by the assessee in this behalf, grant such relief, as prescribed.\n(2) No relief shall be granted on any income on which deduction has been claimed by the assessee in section 19(1)(Table: Sl. No. 12) for any amount mentioned therein, for such, or any other, tax year.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0233",
+      "page": 10,
+      "text": "264. Scheme for submission of returns through tax return preparers.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1232",
+      "page": 244,
+      "text": "subject to the provisions of Parts A, B and this Part, other than sections 199 and 201, the income-tax payable for a tax year shall be at the rate of 22%, at the option of a person being a domestic company, in respect of the total income of such person computed in the following manner:--\n(a) without any deduction under--\n(i) sections 45(2)(c) and 47(1)(b); or\n(ii) Chapter VIII other than the provisions of section 146; or\n(iii) sections specified in section 205(1)(a) to (g);\n(b) without set off of any loss carried forward or depreciation from any earlier tax year, if such loss or depreciation is attributable to any of the deductions referred to in clause (a);\n5 10 15 20 25\n30\n35 40",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2071",
+      "page": 447,
+      "text": "405. (1) The amount of advance tax payable by an assessee under section 404, on his own accord under section 406, or in pursuance of an order of an Assessing Officer under section 407, in the tax year shall,",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0877",
+      "page": 148,
+      "text": "128\nCapital gains on compulsory acquisition of lands and buildings not to be charged in certain cases.\n(b) has, within two years after that date, purchased any other land for being used for agricultural purposes (new asset),\nthen, instead of the capital gains being charged to income-tax as income of the tax year in which the transfer took place, it shall be dealt with as follows:-\n(i) if the capital gains exceed the cost of the new asset, such excess shall be charged under section 67, and for computing any capital gains arising from the transfer of the new asset within three years of its purchase, the cost shall be nil; or\n(ii) if the capital gains is equal to or less than the cost of the new asset, no capital gains shall be charged under section 67, and for computing any capital gains arising from the transfer of the new asset within three years of its purchase, the cost shall be reduced by the amount of the capital gains.\n(2) If the capital gains is not utilised by the assessee to purchase the new asset before filing the return of income under section 263, then--\n(a) the unutilised amount shall be deposited in a specified bank or institution and utilised as per the scheme notifie",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2485",
+      "page": 548,
+      "text": "8. Central Electricity Regulatory Commission constituted under section 76(1) of the Electricity Act, 2003 (36 of 2003).",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0984",
+      "page": 179,
+      "text": "Where a deduction under Part C of this Chapter, is claimed and allowed in respect of profits of a specified business as referred to in section 46(11)(d) for any tax year, no deduction shall be allowed for such specified business under section 46 for the same or any other tax year.\n(9)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0304",
+      "page": 14,
+      "text": "358. Form of appeal and limitation.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1766",
+      "page": 372,
+      "text": "Where any business or profession carried on by an association of persons has been discontinued or",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0694",
+      "page": 98,
+      "text": "11. Setting up and operating a semiconductor wafer fabrication manufacturing unit, as notified by the Board, and as per such guidelines as notified by the Board.\n1st April, 2014.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0727",
+      "page": 106,
+      "text": "53. (1) In case of transfer of an asset (other than a capital asset), being land or building or both, if the consideration received or accrued from such transfer is less than the stamp duty, then such stamp duty value for computing profits and gains from transfer of such asset shall be deemed to be the full value of consideration.\n(2) The provisions of sub-section (1) shall not apply if the stamp duty value does not exceed 110% of the consideration received or accrued and in such a case, the consideration received or accrued shall be deemed to be the full value of consideration.\n(3) If the date of agreement fixing the value of consideration for transfer of asset and date of registration for transfer of such asset are different, then the stamp duty value as on date of agreement may be taken to be the full value of consideration under sub-section (1).\n(4) The provisions of sub-section (3) shall apply only in a case where the amount of consideration or a part thereof has been received by specified banking or online mode on or before the date of agreement for transfer of such asset.\n(5) For the determination of the value adopted or assessed or assessable under sub-section (1), the prov",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2165",
+      "page": 467,
+      "text": "447\n5 10 15 20\n25 30\n35 40\n(5) For the purposes of sub-section (4)(b), in a case where proceedings for assessment or reassessment is pending, in computing the period for determining the additional interest payable, the period beginning from the date on which such refund is withheld by the Assessing Officer as per and subject to provisions of section 438(3) and ending with the date on which such assessment or reassessment is made, shall be excluded.\n(6) Where refund of any amount becomes due to the deductor in respect of any amount paid to the credit of the Central Government under Chapter XIX-B, such deductor shall be entitled to receive, in addition to the said amount, simple interest thereon calculated at the rate of 0.5% for every month or part of a month comprised in the period, from the date on which-\n(a) claim for refund is made in the form as prescribed; or\n(b) tax is paid, where refund arises on account of giving effect to an order under section 359 or 363 or 365(10) or 368,\nto the date on which the refund is granted.\n(7) If the proceedings resulting in the refund are delayed for reasons attributable to the assessee or the deductor, whether wholly or in part, the period of ",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0589",
+      "page": 73,
+      "text": "32. (1) The following amounts shall be allowed as deduction in computing income chargeable under section 26:--\n(a) bonus or commission paid to an employee for services rendered, but only when such sum would not have been payable to the employee as profits or dividend if it had not been paid as bonus or commission;\n(b) interest paid in respect of capital borrowed for the purposes of business or profession, where--\n(i) interest shall not include interest on capital borrowed for acquisition of an asset, whether capitalised in the books of account or not, for any period beginning from the date the capital was borrowed for acquisition of the asset till the date that asset was first put to use;\n(ii) recurring subscriptions paid periodically by shareholders or subscribers in Mutual Benefit Societies fulfilling the conditions as prescribed, shall be deemed to be capital borrowed;\n(c) contribution paid by a public financial institution to the credit guarantee fund trust for small industries as the Central Government may, by notification, specify;\nOther deductions.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1859",
+      "page": 389,
+      "text": "Subject to the provisions of sub-section (8), the liability of the person referred to in clause (b) of the said sub-section shall be limited to the extent to which the asset received by him is capable of meeting the liability.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2354",
+      "page": 511,
+      "text": "491\n(ii) this clause shall not apply to a fund which has been wound up in the tax year;\n(k) the fund shall not carry on or control and manage, directly or indirectly, any business in India;\n(l) the fund is neither engaged in any activity which constitutes a business connection in India nor has any person acting on its behalf whose activities constitute a business connection in India other than the activities undertaken by the eligible fund manager on its behalf;\n(m) the remuneration paid by the fund to an eligible fund manager in respect of fund management activity undertaken by him on its behalf is not less than the amount calculated in such manner, as prescribed.\n(2) The conditions specified in paragraph (1)(e), (f) and (g) shall not apply, in case of--\n(a) an investment fund set up by the Government or the Central Bank of a foreign State or a sovereign fund; or\n(b) such other fund as the Central Government may, by notification, specify in this behalf, subject to conditions, if any.\n(3) The eligible fund manager, referred to in section 9(12), in respect of an eligible investment fund, means any person who is engaged in the activity of fund management and fulfils the following con",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1740",
+      "page": 367,
+      "text": "315. (1) A Hindu family, hitherto assessed as undivided, shall be deemed",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2171",
+      "page": 469,
+      "text": "where an assessment or reassessment has the effect of reducing the loss declared in the return or converting that loss into income, the amount of under-reported income shall be the difference between the loss claimed and the income or loss, assessed or reassessed.\n(6) Subject to sub-section (8), where the source of any receipt, deposit or investment in any tax year is claimed to be an amount added to income or deducted while computing loss, in the assessment of such person in any year prior to the tax year in which such receipt, deposit or investment appears (herein referred to as \"the preceding year\") and no penalty was levied for such preceding year, then, the under-reported income shall include such amount as is sufficient to cover such receipt, deposit or investment.\n(7) The amount referred to in sub-section (6) shall be deemed to be income under-reported for the preceding year in the following order-\n(a) the preceding year immediately before the year in which the receipt, deposit or investment appears, being the first preceding year; and\n(b) where the amount added or deducted in the first preceding year is not sufficient to cover the receipt, deposit or investment, the year im",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2039",
+      "page": 433,
+      "text": "9. Use of parking lot or toll plaza or mine or quarry for the purpose of business, excluding mining and quarrying of mineral oil (including petroleum and natural gas).\nLicensor or Lessor.\n2%.\n(2) The collection of tax shall not to be made in respect of receipts specified in sub-section (1) (Table: Sl. No. 1 to 5) in respect of the buyer, who is a resident in India, if he furnishes a written declaration in duplicate in such form and manner, as prescribed, to the person responsible for collecting tax, mentioning that such goods are to be utilised--\n(a) for the purposes of manufacturing, processing or producing articles or things or for generating power; and\n(b) not for trading purposes.\n(3) Where no collection of tax is to be made under sub-section (2), the person responsible for collecting tax shall deliver, one copy of the declaration referred to in that sub-section, to the Principal Chief Commissioner or Chief Commissioner or Principal Commissioner or Commissioner, on or before the seventh day of the month following the month of receipt of that declaration.\n(4) The collection of tax shall not be made by the authorised dealer in respect of receipt specified in serial number 7 of th",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2024",
+      "page": 430,
+      "text": "17. Income of Specified Fund from securities referred to in section 393(2)(Table: Sl. No. 16).\nIncome exempt at Schedule VI (Table: Sl. No. 1) to (Table: Sl. No. 4).",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0537",
+      "page": 57,
+      "text": "15. (1) The following income shall be chargeable to income-tax under the head \"Salaries\":-\n(a) any salary due from an employer to an assessee in the tax year, whether paid or not;\n(b) any salary paid or allowed to him in the tax year by or on behalf of an employer though not due or before it became due to him;\n(c) any arrears of salary paid or allowed to him in the tax year by or on behalf of an employer, if not charged to income-tax for any earlier tax year.\n(2) For the purposes of sub-section (1), employer includes former employer.\n(3) If any salary paid in advance is included in the total income of any person for any tax year, it shall not be included again in the total income of such person when the salary becomes due.\n(4) Any salary, bonus, commission or remuneration, by whatever name called, due to, or received by, a partner of a firm from the firm shall not be regarded as salary",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1712",
+      "page": 360,
+      "text": "304. (1) Every representative assessee, as regards the income in respect of which he is a representative assessee, shall be subject to the same duties, responsibilities and liabilities as if the income were income received by or accruing to or in favour of him beneficially and for this purpose,--\n5 10 15\n20 25\n30 35 40 45\n6 of 1913. 6 of 1913. 6 of 1913.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0607",
+      "page": 81,
+      "text": "In this clause--\n(A) \"book profit\" means the net profit, as shown in the profit and loss account for the relevant tax year, computed as per Chapter IV-D as increased by the aggregate amount of the remuneration to all the partners of the firm, if such amount has been deducted while computing the net profit;\n(B) \"working partner\" means an individual who is actively engaged in conducting the affairs of the business or profession of the firm of which he is a partner;\n(g) the expenditure incurred by an association of persons or a body of individuals (other than a company, or a co-operative society or society registered under the Societies Registration Act, 1860, or under any law corresponding to that Act in force in any part of India)--\n(i) in the nature of interest, salary, bonus, commission or remuneration, by whatever name called, made to a member of such association or body;\n(ii) where the interest has been paid by the association or the body to its member and such member has also paid interest to the association or the body, then only such excess interest, if any, paid by the association or body shall not be allowed under sub-clause (i);\n(iii)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1678",
+      "page": 351,
+      "text": "292. (1) Irrespective of any other provision of this Act, where on or after the commencement of this Act, in the case of any person, search is initiated or requisition is made, then, the Assessing Officer shall proceed to assess or reassess the total income of the block period as per this Chapter.\n(2) The assessment or reassessment or recomputation proceedings under the provisions of this Act (other than this Chapter), if any, pertaining to any tax year falling in the block period, pending on the date of initiation of search, or the date of making of requisition, shall abate and shall be deemed to have been abated on such date.\n(3) If any reference has been made under section 166(1) or order has been passed under section 166(6), the assessment or reassessment or recomputation proceedings, referred to in sub-section (2) together with such reference or order shall abate on the date referred to in sub-section (2).\n(4) If any assessment under the provisions of this Chapter is required to be made in the case of an assessee, in whose case a search is initiated or a requisition is made subsequently--\n(a) such pending assessment shall be duly completed;\n(b) assessment in respect of such su",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1869",
+      "page": 392,
+      "text": "Where an application has been made in any of the cases specified under sub-section (2) (Table: Sl. No. 2) to (Table: Sl. No. 5), the Principal Commissioner or Commissioner shall call for such documents or information or make such inquiries as he thinks necessary in order to satisfy himself as to the compliance of such requirements of any other law in force, as are material for the purpose of achieving its objects, and the genuineness of activities and--\n(a) if he is so satisfied about the objects and the genuineness of the activities and compliance of the requirements of any other law in force, he shall pass an order in writing approving it; or\n(b) if he is not so satisfied, after affording a reasonable opportunity of being heard,--\n(i) shall pass an order in writing rejecting the application, where the application was made in any of the cases specified in sub-section (2) (Table: Sl. No. 2); and\n(ii) in any other case, shall pass an order rejecting the application and also cancelling the approval,\nand send a copy of the order to the applicant and the Assessing Officer.\n(4)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1960",
+      "page": 413,
+      "text": "Where any contribution made by an employer, including interest on such contributions, if any, in an approved superannuation fund is paid to the employee, tax on the amount so paid shall be deducted by the trustees of the fund to the extent provided in paragraph 7 of Part B of Schedule XI.\n(7)(a) The trustees of the Employees' 'Provident Funds Scheme, 1952, made under section 5 of the Employees' Provident Funds and Miscellaneous Provisions Act, 1952; or\n(b) any person authorised under such scheme to make payment of accumulated balance due to employees,\nshall at the time of payment of accumulated balance due to the employee participating in a recognised provident fund, deduct income-tax thereon at the rate of 10%, where the aggregate amount of such payment is fifty thousand rupees or more, and such accumulated balance is includible in his total income owing to the provisions of paragraph 8 of Part A of Schedule XI not being applicable.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1182",
+      "page": 231,
+      "text": "211\n5 10 15 20 25 30 35 40 45\n(f) a company, firm or an association of persons or a body of individuals, whether incorporated or not, or a Hindu undivided family having a substantial interest in the business of the person or any director, partner, or member of the company, firm or association of persons or body of individuals or family, or any relative of such director, partner or member;\n(g) a company, firm or association of persons or body of individuals, whether incorporated or not, or a Hindu undivided family, whose director, partner, or member has a substantial interest in the business of the person, or family or any relative of such director, partner or member;\n(h) any other person who carries on a business, if-\n(i) the person being an individual, or any relative of such person, has a substantial interest in the business of that other person; or\n(ii) the person being a company, firm, association of persons, body of individuals, whether incorporated or not, or a Hindu undivided family, or any director, partner or member of such company, firm or association of persons or body of individuals or family, or any relative of such director, partner or member, has a substantial intere",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1535",
+      "page": 317,
+      "text": "12. Any other association. (i) By any member of the association; or\n(ii) by the principal officer of the association.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0707",
+      "page": 102,
+      "text": "82\nAmortisation of expenditure for prospecting certain minerals.\n(3) The effect of other provisions of this Act relating to carry forward and set off of brought forward losses or allowances shall be given before allowing deduction under sub-section (1).\n(4) The maximum allowable deduction under this section shall not exceed 50% of the total income as computed before allowing deduction under this section.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1587",
+      "page": 331,
+      "text": "(4) In case the assessee objects to the proposed action, and the Principal Commissioner or Commissioner, after hearing the assessee in the matter, is not satisfied by the explanation of the assessee, then, he shall make a reference in the matter to the Approving Panel for the purpose of declaration of the arrangement as an impermissible avoidance arrangement.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1763",
+      "page": 371,
+      "text": "Where any profession is discontinued in any year on account of the cessation of the profession by, or the retirement or death of, the person carrying on the profession, any sum received after the discontinuance shall be deemed to be the income of the recipient and charged to tax accordingly in the year of receipt, if such sum would have been included in the total income of the said person, had it been received before such discontinuance.\n(6)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2360",
+      "page": 515,
+      "text": "3. Any payment from a provident fund to which the Provident Funds Act, 1925 (19 of 1925) applies, or from any other provident fund set up by the Central Government and notified by it in this behalf.\n(a) The income by way of interest accrued during the tax year shall not be eligible for exclusion from total income where,--\n(i) it is attributable to the contribution (including aggregate thereof) made on or after the 1st April, 2021; and\n(ii) such contribution exceeds--\n(A) ₹5,00,000 in a tax year in such fund where no contribution is made by the employer of such person;\n(B) ₹2,50,000 in other cases; and\n(b) the amount of income to be excluded from total income as referred to in clause (a) shall be computed in such manner, as prescribed.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2562",
+      "page": 565,
+      "text": "Subject to the provisions of sub-paragraph (2), the accumulated balance due and payable to an employee shall be excluded from the computation of his total income-\n(a) if the employee has rendered continuous service with his employer for five years or more;\n(b) even if, the employee has not served continuously, the service was terminated due to--\n(i) the employee's ill-health; or\n(ii) by the contraction or closure of the employer's business; or\n(iii) other cause beyond the control of the employee;\n(c) if, on the cessation of his employment, the employee obtains employment with any other employer, to the extent the accumulated balance due and becoming payable to him is transferred to his individual account in any recognised provident fund maintained by such other employer; or\n(d) the entire balance standing to the employee's credit is transferred to his account under a pension scheme referred to in section 124 and notified by the Central Government;\n(2) Where the accumulated balance due and payable to an employee includes any amount transferred from another recognised provident fund or funds of a previous employer or employers, the continuous service period for the purposes of sub-pa",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1517",
+      "page": 314,
+      "text": "In this section,--\n(a) \"beneficial owner\", in respect of an asset means an individual who has\n5 10 15 20 25 30\n35 40 45 50",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": "before the Assessing Officer detected any concealment of particulars of income",
+        "action": "has made a full and true disclosure of such particulars voluntarily and in good faith; has cooperated in any enquiry relating to the assessment of his income, and paid or made satisfactory arrangements to pay any tax or interest payable.",
+        "consequence": "No penalties under section 439"
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1941",
+      "page": 410,
+      "text": "383. (1) An applicant desirous of obtaining an advance ruling under this Chapter, may make an application in such form and manner, as prescribed, stating the question on which the advance ruling is sought.\n(2) The application shall be made in quadruplicate and be accompanied by a fee of ten thousand rupees or such fee, as prescribed.\n(3) An applicant may withdraw an application within thirty days from the date of the application.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0487",
+      "page": 40,
+      "text": "20\n(98) \"scheduled bank\" shall have the same meaning as assigned to it in section 2(e) of the Reserve Bank of India Act, 1934;\n(99) \"Securities and Exchange Board of India\" shall have the same meaning as assigned to it in section 2(1)(a) of the Securities and Exchange Board of India Act, 1992;\n(100) \"senior citizen\" means an individual resident in India who is of the age of sixty years or more at any time during the relevant tax year;\n(101)(a) \"short-term capital asset\" means a capital asset held by an assessee for not more than twenty-four months immediately preceding the date of its transfer;\n(b) in respect of the following capital assets:--\n(i) security listed in a recognised stock exchange in India; or\n(ii) unit of the Unit Trust of India;\n(iii) units of an equity-oriented fund; or\n(iv) zero-coupon bonds,\nthe provisions of sub-clause (a) shall have effect, as if for the words \"twenty-four months\", the words \"twelve months\" had been substituted;\n(c) in determining the period for which capital asset is held by the assessee-\n(A) there shall be excluded the period subsequent to the date on which the company goes into liquidation;\n(B) there shall be included,--\n(I) the period for wh",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2334",
+      "page": 504,
+      "text": "484\n(d) the percentage on the written down value which may be allowed as depreciation for buildings, machinery, plant or furniture;\n(e) the matters specified in section 62;\n(f) the conditions or limitations subject to which any payment of rent made by an assessee shall be deducted under section 134;\n(g) the matters specified in Chapter XI;\n(h) the time within which any person may apply for the allotment of a Permanent Account Number, the form and the manner in which such application may be made and the particulars which such application shall contain and the transactions with respect to which Permanent Account Number shall be quoted on documents relating to such transactions under section 262;\n(i) the documents, statements, receipts, certificates or audited reports which may not be furnished along with the return but shall be produced before the Assessing Officer on demand under section 263(2)(a);\n(j) the class or classes of persons who shall be required to furnish the return of income in electronic form; the form and the manner of furnishing the said return in electronic form; documents, statements, receipts, certificates or reports which shall not be furnished with the return in ",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0669",
+      "page": 91,
+      "text": "42. (1) Irrespective of anything contained in any other provision of this Act, where at the time of making payment during the tax year, there is a variation in liability of an assessee as expressed in Indian currency due to change in rate of exchange in relation to an asset acquired for the purpose of business or profession in foreign currency from a country outside India, it shall be dealt with in the manner specified in sub-sections (2) and (3).\n(2) For this section, \"variation in liability\" shall be computed as-\nA = B-C\nwhere,-\nA = variation in the liability;\nB = amount paid in Indian currency (excluding any part met, directly or indirectly, by any other person or authority) during the tax year for acquisition of the asset for-\n(a) the whole or part of the cost of asset; or\n(b) repayment of money borrowed along with interest in foreign currency, specifically for acquiring such asset;\nCapitalising the impact of foreign exchange fluctuation.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0058",
+      "page": 3,
+      "text": "71. Withdrawal of exemption in certain cases.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0831",
+      "page": 138,
+      "text": "1. If the capital asset became the property of the assessee--\n(a) under a gift or will; or\n(b) by succession, inheritance or devolution; or\nThe cost for which the previous owner of the property acquired it, as increased by the cost of any improvement incurred or borne by the previous owner or the assessee.\n5 10 15\n20 25 30\n35\n40 45",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1413",
+      "page": 287,
+      "text": "233. (1) Where there has been an amalgamation of a company with another company or companies, then, subject to the other provisions of this section, the provisions relating to the tonnage tax scheme shall, as far as may be, apply to the amalgamated company, if it is a qualifying company.\n(2) Where the amalgamated company is not a tonnage tax company, it shall exercise an option for tonnage tax scheme under section 231(1) within three months from the date of the approval of the scheme of amalgamation.\n(3) Where the amalgamating companies are tonnage tax companies, the provisions of this Part shall, as far as may be, apply to the amalgamated company for such period as the option for tonnage tax scheme which has the longest unexpired period continues to be in force.\nAmalgamation and demerger.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0821",
+      "page": 136,
+      "text": "9. (zi) \"special purpose vehicle\" shall have the meaning assigned to it in Schedule V (Note 2).",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2244",
+      "page": 484,
+      "text": "where an offence under this Act has been committed by a Hindu undivided family, a member of such Hindu undivided family shall also be deemed to be guilty of that offence and shall be liable to be proceeded against and punished accordingly, if it is proved that-\n(a) the offence has been committed with the consent or connivance of such member; or\n(b) the offence is attributable to any neglect on the part of such member.\n5 10\n15 20 25 30 35 40 45",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0963",
+      "page": 173,
+      "text": "In this section,-\n(a) \"accumulated loss\" means so much of the loss of the predecessor firm or the proprietary concern or the private company or unlisted public company before conversion into limited liability partnership or the amalgamating company or the demerged company, under the head \"Profits and gains of business or profession\" (excluding loss in a speculation business) which would have been eligible for carry forward and set off to such predecessor under section 112, had the reorganisation of business or conversion or amalgamation or demerger not occurred.\n(b) \"industrial undertaking\" means any undertaking which is engaged in-\n(i) the manufacture or processing of goods; or\n(ii) the manufacture of computer software; or\n(iii) the business of generation or distribution of electricity or any other form of power; or\n(iv) the business of providing telecommunication services, whether basic or cellular, including radio paging, domestic satellite service, network of trunking, broadband network and internet services; or\n(v) mining; or\n(vi) the construction of ships, aircrafts or rail systems;\n(c) \"original predecessor entity\" means predecessor entity in respect of the first amalgamatio",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0110",
+      "page": 6,
+      "text": "132. Deduction in respect of purchase of electric vehicle.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0520",
+      "page": 54,
+      "text": "34\n(ii) all the assets owned by that company or entity are not located in India,\nthen the income referred to in sub-section (2)(d) shall be only such part of the income attributable to assets located in India and determined in the manner, as prescribed;\n(g) the income referred to in sub-section (2)(d) shall not include income from transfer, outside India, of any share of, or interest in, a company or an entity registered or incorporated outside India,--\n(i) if such share of, or interest in, a company or an entity registered or incorporated outside India is held by a non-resident by way of investment, directly or indirectly,--\n(A) in Category I or Category II foreign portfolio investor under the Securities and Exchange Board of India (Foreign Portfolio Investors) Regulations, 2014, prior to their repeal, made under the Securities and Exchange Board of India Act, 1992;\n(B) in Category I foreign portfolio investor under the Securities and Exchange Board of India (Foreign Portfolio Investors) Regulations, 2019, made under the Securities and Exchange Board of India Act, 1992;\n(ii) if such company or entity directly owns the assets situated in India and the transferor (whether individual",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2739",
+      "page": 617,
+      "text": "597\nClause 522 of the Bill seeks to that no return of income, assessment, notice, summons or other proceeding shall be invalid merely by reason of any mistake, defect or omission.\nClause 523 of the Bill seeks to provide that",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c1883",
+      "page": 396,
+      "text": "where an application has been made under section 440(1), the period beginning from the date on which the application is made, to the date on which the order rejecting the application is served on the assessee, shall be excluded.\n(5) The Joint Commissioner (Appeals) or the Commissioner (Appeals) may admit an appeal after the expiration of the said period if he is satisfied that the appellant had sufficient cause for not presenting it within that period.\n(6) No appeal under this Chapter shall be admitted unless at the time of filing of the appeal,-\n(a)",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0822",
+      "page": 136,
+      "text": "10. (zj) (a) \"consolidated scheme\" means the scheme with which the consolidating scheme merges or which is formed as a result of such merger;\n(b) \"consolidating scheme\" means the scheme of a mutual fund which merges under the process of consolidation of the schemes of mutual fund as per the Securities and Exchange Board of India (Mutual Funds) Regulations, 1996 made under the Securities and Exchange Board of India Act, 1992 (15 of 1992);\n(c) \"equity oriented fund\" means a fund-\n(i) where the investible funds are invested by way of equity shares in domestic companies to the extent of more than 65% of the total proceeds of such fund, for which the percentage of equity shareholding shall be computed with reference to the annual average of the monthly averages of the opening and closing figures; and\n(ii) which has been set up under a scheme of Mutual Fund specified in Schedule VII (Table: Sl. No. 20 or 21);\n(d) \"mutual fund\" means a mutual fund specified in Schedule VII (Table: Sl. No. 20 or 21).",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0111",
+      "page": 6,
+      "text": "133. Deduction in respect of donations to certain funds, charitable\ninstitutions, etc.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": "the service of a worker has been interrupted by transfer or terms and conditions after such transfer are less favourable to him",
+        "action": "compensation received at time of retrenchment shall be deemed as compensation for the entries against serial numbers 10 and 11.",
+        "consequence": "The amount considered is part of the severance pay or redundancy package due upon termination under these circumstances."
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2170",
+      "page": 469,
+      "text": "449\n5 10 15 20 25 30\n35 40 45 50\n(b) in any other case, the difference between the amount of income reassessed or recomputed and the amount of income assessed, reassessed or recomputed in a preceding order.\n(4) If under-reported income arises out of determination of deemed total income as per section 206, the amount of total under-reported income shall be determined as under-\n(A-B) + (C-D)\nwhere,-\nA = the total income assessed as per the provisions other than the provisions contained in section 206 (herein referred to as \"general provisions\");\nB = the total income that would have been chargeable had the total income assessed as per the general provisions been reduced by the amount of under-reported income;\nC = the total income assessed as per section 206;\nD = the total income that would have been chargeable had the total income assessed as per section 206 been reduced by the amount of under-reported income.\n(5) (a) If the amount of under-reported income on any issue is considered both under section 206 and under general provisions, such amount shall not be reduced from total income assessed while determining the amount under D referred to in sub-section (4);\n(b) in a case",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0800",
+      "page": 129,
+      "text": "subject to the provisions of section 72, the difference between the cost of acquisition and the value of consideration so received shall be deemed to be the \"Capital gains\" arising to such shareholder or the holder in the year in which the company purchases the shares or other specified securities.\n(2) If the shareholder receives any consideration of the nature referred to in section 2(40)(f), from any company in respect of buy-back of shares, then",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2053",
+      "page": 439,
+      "text": "401. Where tax is deductible at the source under this Chapter, the assessee shall not be called upon to pay the tax himself to the extent to which tax has been deducted from that income.\nPower of Central Government to relax provisions of this Chapter.\nBar against direct demand on assessee.",
+      "candidate_is_causal": true,
+      "gold_is_causal": true,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c2567",
+      "page": 566,
+      "text": "12. Accounts of recognised provident funds.-(1) The accounts of a recognised provident fund shall be maintained by the trustees of the fund in such form, for such period, and contain such particulars, as prescribed.",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    },
+    {
+      "clause_id": "demo_income_tax_2025_c0493",
+      "page": 43,
+      "text": "where any land or any building or part of a building is to be transferred together with any machinery, plant, furniture, fittings or other things, such machinery, plant, furniture, fittings or other things also, such that the land, building, part of a building, machinery, plant, furniture, fittings and other things include any rights therein;\n(ii) any rights in or with respect to any land or any building or a part of a building (whether or not including any machinery, plant, furniture, fittings or other things therein), which has been constructed or which is to be constructed, accruing or arising from any transaction (whether by way of becoming a member of, or acquiring shares in, a cooperative society, company or other association of persons or by way of any agreement or any arrangement of whatever nature), not being a transaction by way of sale, exchange or lease of such land, building or part of a building;\n(110) \"Valuation Officer\" means a person appointed by the Central Government as a Valuation Officer who shall exercise powers as specified in section 269(3), and includes a Regional Valuation Officer, a District Valuation Officer and an Assistant Valuation Officer;\n(111) \"vir",
+      "candidate_is_causal": null,
+      "gold_is_causal": null,
+      "candidate_spans": {
+        "condition": null,
+        "action": null,
+        "consequence": null
+      },
+      "reviewed": true
+    }
+  ]
+}

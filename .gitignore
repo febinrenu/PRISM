@@ -1,0 +1,32 @@
+# Environments & dependencies
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets
+.env
+.env.local
+!.env.example
+
+# Build output
+frontend/.next/
+*.tsbuildinfo
+
+# Runtime data
+backend/data/chromadb/
+backend/data/uploads/
+backend/data/prism.db
+backend/data/store/*
+!backend/data/store/demo_income_tax_2025/
+
+# Editor
+.vscode/
+
+# Internal working notes
+planv1.md
+nextphase.md
+gap.md
+TODO.md
+paper/NOTES_before_submission.md

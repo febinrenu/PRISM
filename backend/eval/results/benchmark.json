@@ -1,0 +1,157 @@
+{
+  "sections": {
+    "ner_presence": {
+      "macro_f1": 0.1046,
+      "per_label": {
+        "OBLIGATION": {
+          "precision": 0.2105,
+          "recall": 0.6154,
+          "f1": 0.3137,
+          "accuracy": 0.4167,
+          "support": 120,
+          "tp": 16,
+          "fp": 60,
+          "fn": 10,
+          "tn": 34
+        },
+        "PENALTY": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "accuracy": 0.9083,
+          "support": 120,
+          "tp": 0,
+          "fp": 2,
+          "fn": 9,
+          "tn": 109
+        },
+        "THRESHOLD": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "accuracy": 0.9,
+          "support": 120,
+          "tp": 0,
+          "fp": 1,
+          "fn": 11,
+          "tn": 108
+        }
+      }
+    },
+    "causal": {
+      "rule_based": {
+        "precision": 0.4375,
+        "recall": 0.1167,
+        "f1": 0.1842,
+        "accuracy": 0.4833,
+        "support": 120,
+        "tp": 7,
+        "fp": 9,
+        "fn": 53,
+        "tn": 51
+      }
+    },
+    "template_matching": {
+      "n_positive": 60,
+      "n_negative": 60,
+      "coverage_at_threshold": 0.2333,
+      "mean_top_score": 0.4678,
+      "negative_coverage": 0.1167,
+      "template_histogram": {
+        "filing_deadline": 3,
+        "tds_withholding": 2,
+        "compounding_interest": 2,
+        "registration_obligation": 2,
+        "minimum_commitment": 2,
+        "advance_tax_installment": 1,
+        "flat_late_fee": 1,
+        "exemption_below_threshold": 1
+      }
+    },
+    "sim_validity": {
+      "nsso": {
+        "calibration_mode": "nsso",
+        "interpretation": "Sampler-fidelity check (sim ‖ own target). Low KL = the Monte-Carlo draw faithfully realises the calibrated log-normal; NOT external validation against microdata.",
+        "mean_kl": 0.0679,
+        "per_type": {
+          "low_income": {
+            "n": 800,
+            "kl": 0.014,
+            "median_income": 176398.68
+          },
+          "middle_income": {
+            "n": 600,
+            "kl": 0.055,
+            "median_income": 601545.17
+          },
+          "high_income": {
+            "n": 300,
+            "kl": 0.1344,
+            "median_income": 2973942.88
+          },
+          "small_business": {
+            "n": 200,
+            "kl": 0.0432,
+            "median_income": 3855212.59
+          },
+          "large_corporate": {
+            "n": 80,
+            "kl": 0.0927,
+            "median_income": 4060000951.68
+          }
+        }
+      },
+      "legacy": {
+        "calibration_mode": "legacy",
+        "interpretation": "Sampler-fidelity check (sim ‖ own target). Low KL = the Monte-Carlo draw faithfully realises the calibrated log-normal; NOT external validation against microdata.",
+        "mean_kl": 0.2336,
+        "per_type": {
+          "low_income": {
+            "n": 800,
+            "kl": 0.1593,
+            "median_income": 172138.44
+          },
+          "middle_income": {
+            "n": 600,
+            "kl": 0.1622,
+            "median_income": 670639.76
+          },
+          "high_income": {
+            "n": 300,
+            "kl": 0.1136,
+            "median_income": 3581206.28
+          },
+          "small_business": {
+            "n": 200,
+            "kl": 0.5231,
+            "median_income": 5908675.99
+          },
+          "large_corporate": {
+            "n": 80,
+            "kl": 0.2098,
+            "median_income": 3166531951.49
+          }
+        }
+      },
+      "external_anchor": {
+        "metric": "top_10pct_household_income_share",
+        "modelled": 0.4948,
+        "reference": 0.57,
+        "reference_source": "World Inequality Report 2022 (top-10% pre-tax national income share, India)",
+        "gap": -0.0752,
+        "caveat": "Agent counts are illustrative, not census weights, and household income ≠ national income — treat as an order-of-magnitude sanity check, not a fitted calibration."
+      }
+    },
+    "lime": {
+      "n_clauses": 0,
+      "proxy_fidelity_mean": null,
+      "llm_fidelity_mean": null,
+      "proxy_vs_llm_agreement_mean": null,
+      "n_with_both_modes": 0
+    }
+  },
+  "dataset": {
+    "source": "ledgar",
+    "n": 120
+  }
+}

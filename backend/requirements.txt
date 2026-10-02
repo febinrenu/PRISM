@@ -1,0 +1,40 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+pymupdf>=1.24.0
+spacy>=3.7.4
+sentence-transformers>=2.7.0
+umap-learn>=0.5.6
+scikit-learn>=1.4.0
+networkx>=3.3
+numpy>=1.26.0
+pydantic>=2.7.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
+lime>=0.2.0.1
+mesa>=3.1,<4
+pandas>=2.2.0
+scipy>=1.13.0
+pytest>=8.0.0
+# --- Phase 3: evaluation harness (Module G) ---
+seqeval>=1.2.2
+datasets>=2.19.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# --- Phase 3: RAG assistant (Module D) ---
+chromadb>=0.5.0
+
+# --- Phase 3: production LLM backend + API (Module F) ---
+groq>=0.11.0          # cloud LLM backend (llama-3.1-8b-instant free tier)
+slowapi>=0.1.9        # per-API-key rate limiting
+PyJWT>=2.8.0          # API-key / session tokens
+bcrypt>=4.1.0         # password hashing (used directly; passlib 1.7.4 mis-detects bcrypt 4.x)
+email-validator>=2.0.0  # pydantic EmailStr validation
+psycopg[binary]>=3.1.0  # Neon Postgres driver (falls back to SQLite if unset)
+boto3>=1.34.0         # Cloudflare R2 (S3-compatible) file storage
+
+# --- Phase 3: QLoRA fine-tuning (Module E) — install on the training host ---
+# Heavy GPU deps; kept separate in training/requirements-train.txt so the API
+# image stays slim. See training/README.md.
+# transformers, peft, bitsandbytes, trl, accelerate

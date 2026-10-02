@@ -1,0 +1,26 @@
+{
+  "reviewed": 100,
+  "total": 100,
+  "rule_based": {
+    "precision": 1.0,
+    "recall": 0.92,
+    "f1": 0.9583,
+    "accuracy": 0.96,
+    "support": 100,
+    "tp": 46,
+    "fp": 0,
+    "fn": 4,
+    "tn": 50
+  },
+  "llm": {
+    "precision": 0.5444,
+    "recall": 0.98,
+    "f1": 0.7,
+    "accuracy": 0.58,
+    "support": 100,
+    "tp": 49,
+    "fp": 41,
+    "fn": 1,
+    "tn": 9
+  }
+}

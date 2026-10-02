@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Color custom properties are injected into :root by the Tailwind plugin
+   from src/lib/tokens.ts — the single source of truth. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg-base);
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-manrope), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.025%22/%3E%3C/svg%3E");
+}
+
+.font-display {
+  font-family: var(--font-playfair), serif;
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+@layer components {
+  .app-shell {
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+  }
+
+  .content-layer {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Sharp, elegant editorial cards */
+  .glass-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .glass-card-hover {
+    transition: border-color 250ms ease, background-color 250ms ease, box-shadow 250ms ease;
+  }
+
+  .glass-card-hover:hover {
+    border-color: var(--border-glow);
+    background-color: var(--bg-elevated);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-light) inset;
+  }
+
+  /* Subdued ivory→taupe gradient for hero display type */
+  .hero-gradient {
+    background: linear-gradient(to right, var(--text-primary) 0%, var(--accent-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .animated-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-size: 60px 60px;
+    background-image:
+      linear-gradient(to right, rgba(197, 168, 128, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(197, 168, 128, 0.05) 1px, transparent 1px);
+    @apply animate-grid-pulse;
+  }
+
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E");
+  }
+
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    width: max-content;
+    @apply animate-ticker;
+  }
+
+  /* Entity pills — colors are supplied inline per entity type */
+  .entity-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  /* Loading skeleton sweep */
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      var(--bg-surface) 40%,
+      var(--bg-elevated) 50%,
+      var(--bg-surface) 60%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+    border-radius: 4px;
+  }
+
+  /* Ambient background glows */
+  .gradient-orb-1,
+  .gradient-orb-2,
+  .gradient-orb-3 {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .gradient-orb-1 {
+    width: 480px;
+    height: 480px;
+    top: -120px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(197, 168, 128, 0.14), transparent 70%);
+  }
+
+  .gradient-orb-2 {
+    width: 420px;
+    height: 420px;
+    bottom: -140px;
+    left: -120px;
+    background: radial-gradient(circle, rgba(52, 92, 75, 0.35), transparent 70%);
+  }
+
+  .gradient-orb-3 {
+    width: 360px;
+    height: 360px;
+    top: 40%;
+    left: 55%;
+    background: radial-gradient(circle, rgba(63, 104, 96, 0.25), transparent 70%);
+  }
+
+  /* Small editorial label above headings */
+  .kicker {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent-primary);
+  }
+
+  /* Oversized Playfair display sizing */
+  .display-hero {
+    font-family: var(--font-playfair), serif;
+    font-weight: 600;
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+  }
+}

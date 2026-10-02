@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+data/store/
+data/uploads/
+data/chromadb/
+data/prism.db
+data/eval/
+.env
+eval/results/

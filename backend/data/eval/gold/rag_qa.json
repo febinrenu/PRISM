@@ -1,0 +1,509 @@
+{
+  "meta": {
+    "doc_id": "demo_income_tax_2025",
+    "seed": 42,
+    "note": "LLM-assisted bootstrap; set reviewed=true after human check."
+  },
+  "items": [
+    {
+      "question": "What specific amount or range of salary can an assessee claim a deduction for under clause (1)(a) related to employees engaged in scientific business-related research within three years preceding commencement, as certified by prescribed authority? ",
+      "answer_excerpt": "45. (1) A deduction shall be allowed for any expenditure, being in the nature of--\n(a) capital expenditure, but not on acquisition of land, as such or as part of any property; or\n(b) revenue expenditure; or\n(c) both,\nincurred on scientific research related to the business of the assessee subject to provisions of this section.\n(2)(a) A deduction shall be allowed under sub-section (1) in respect of ",
+      "gold_clause_id": "demo_income_tax_2025_c0677",
+      "gold_page": 94,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be allowed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "In how many months does the Valuation officer have to send the report after it is referenced?",
+      "answer_excerpt": "(9) The Valuation officer shall send the report referred to in sub-section (6) within six months from the end of the month in which the reference is made under sub-section (1).\n5 10 15 20 25\n30\n35 40 45",
+      "gold_clause_id": "demo_income_tax_2025_c1563",
+      "gold_page": 324,
+      "based_on": "OBLIGATION",
+      "anchor": "shall send",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What portion of an eligible investment fund's income is excluded from total taxable income due to its status as a separate entity, regardless of whether the activity of the fund manager has a direct business presence in India?",
+      "answer_excerpt": "in this section shall apply to exclude any income from the total income of the eligible investment fund, which would have been so included irrespective of whether the activity of the eligible fund manager constituted the business connection in India of such fund or not;\n(d) nothing contained",
+      "gold_clause_id": "demo_income_tax_2025_c0523",
+      "gold_page": 55,
+      "based_on": "OBLIGATION",
+      "anchor": "shall apply",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What form and manner must the annual information statement take when uploaded to a registered account within specified time limits according to sub-section (1) of Section 510?",
+      "answer_excerpt": "510. (1) The prescribed income-tax authority or the person authorised by such authority, shall upload in the registered account of the assessee an annual information statement in such form and manner, within such time and along with such information, which is in the possession of an income-tax authority, as prescribed.\n(2) In sub-section (1), \"registered account\" means the electronic filing accoun",
+      "gold_clause_id": "demo_income_tax_2025_c2291",
+      "gold_page": 493,
+      "based_on": "OBLIGATION",
+      "anchor": "shall upload",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What method does Section 168 specify for determining and setting arm's length prices in international transactions involving a non-resident entity operating in India?",
+      "answer_excerpt": "168. (1) The Board, with the approval of the Central Government, may enter into an advance pricing agreement with any person, determining the-\n(a) arm's length price or specifying the manner in which the arm's length price is to be determined, in relation to an international transaction to be entered into by that person;\n(b) income referred to in section 9(2), or specifying the manner in which the",
+      "gold_clause_id": "demo_income_tax_2025_c1126",
+      "gold_page": 218,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be determined",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What conditions must be met for a debt issued by a lender (not an associated enterprise) to be considered as having been issued by an associated enterprise?",
+      "answer_excerpt": "Where a lender, not being an associated enterprise, has issued a debt referred to in sub-section (1), such debt shall be deemed to have been issued by an associated enterprise if an associated enterprise has-\n(a) provided an implicit or explicit guarantee to the lender in respect of such debt; or\n(b) deposited a corresponding and matching funds with such lender.\n(3) The provisions of this section ",
+      "gold_clause_id": "demo_income_tax_2025_c1167",
+      "gold_page": 227,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be deemed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What definitions are given to \"venture capital company,\" \"venture capital fund,\" and \"venture capital undertaking\" according to Section X, as outlined in Schedule V Note 4?",
+      "answer_excerpt": "For the purposes of this section, \"venture capital company\", \"venture capital fund\" and \"venture capital undertaking\" shall have the meanings respectively assigned to them in Schedule V (Note 4).",
+      "gold_clause_id": "demo_income_tax_2025_c1363",
+      "gold_page": 275,
+      "based_on": "OBLIGATION",
+      "anchor": "shall have",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What specific conditions must be met by an assessee with income from eligible start-up security or sweat equity shares, as per Section 17(1)(d), for them to make a direct payment of tax according to the provisions outlined in subsection (1",
+      "answer_excerpt": "391. (1) The income-tax on any income shall be payable directly by the assessee if-\n(a) there is no provision under this Chapter to deduct income-tax on such income at the time of payment; or\n(b) income-tax has not been deducted as per the provisions of this Chapter. (2) If an assessee has any income of the nature of specified security or sweat equity shares as specified in section 17(1)(d) allott",
+      "gold_clause_id": "demo_income_tax_2025_c1954",
+      "gold_page": 412,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be payable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "How should profits for computing tonnage income under Section 258 be calculated in relation to the application of other businesses' profits and gains?",
+      "answer_excerpt": "258\nComputation of tonnage income.\n(4) The profits referred to in sub-section (2) shall be computed separately from the profits and gains from any other business.\n(5) The tonnage tax scheme shall apply only if an option to that effect is made as per section 231.\n(6)",
+      "gold_clause_id": "demo_income_tax_2025_c1375",
+      "gold_page": 278,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be computed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "At what age are contributions made by an employer for employee retirement purposes mandated according to clause (i)?",
+      "answer_excerpt": "548\n(b) the sole purpose of the fund shall be to the provision of annuities or gratuity, as the case may be, for employees in the trade or undertaking--\n(i) upon their retirement at or after a specified age;\n(ii) upon incapacitation before retirement;\n(iii) on termination of employment after a minimum period of service specified in the rules of the gratuity fund; or\n(iv) for the widows, children o",
+      "gold_clause_id": "demo_income_tax_2025_c2574",
+      "gold_page": 568,
+      "based_on": "OBLIGATION",
+      "anchor": "shall contribute",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What are the legal consequences, including potential imprisonment duration and fines, for a public servant who violates Section 258(3)?",
+      "answer_excerpt": "494. (1) A public servant, who furnishes any information or produces any document in contravention of the provisions of section 258(3), shall be punishable with imprisonment which may extend to six months and shall also be liable to fine.\n(2) No prosecution shall be instituted under this section except with the previous sanction of the Central Government.",
+      "gold_clause_id": "demo_income_tax_2025_c2256",
+      "gold_page": 486,
+      "based_on": "PENALTY",
+      "anchor": "shall be punishable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What are the specific sections outlined under Chapter XXII concerning Offences and Prosecution in legal document numbered as clause 461?",
+      "answer_excerpt": "461\n5 10 15 20\n25 30 35 40 45 50\nCHAPTER XXII\nOFFENCES AND PROSECUTION",
+      "gold_clause_id": "demo_income_tax_2025_c2221",
+      "gold_page": 481,
+      "based_on": "PENALTY",
+      "anchor": "PROSECUTION",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the maximum allowable aggregate amount for deductions relative to gross total income in this Chapter?",
+      "answer_excerpt": "subject to the provisions of this Chapter.\n(2) The aggregate amount of the deductions under this Chapter shall not, in any case, exceed the gross total income of the assessee.\n(3) If the deduction under section 133 or 135 or 137 or 138 or 141 or 142 or 143 is admissible in computing the total income of an association of persons or a body of individuals, no deduction under the same provision shall ",
+      "gold_clause_id": "demo_income_tax_2025_c0982",
+      "gold_page": 178,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be made",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What modifications can the Central Government specify for the conditions applying to an eligible investment fund and its manager located in an International Financial Services Centre, starting operations before March 31, 2030?",
+      "answer_excerpt": "in this section shall have any effect on the scope of total income or determination of total income in the case of the eligible fund manager;\n(e) the conditions for being an eligible investment fund or an eligible fund manager, or furnishing of requisite statements shall be subject to the provision of Schedule I;\n(f) the Central Government may, by notification, specify that any one or more of the ",
+      "gold_clause_id": "demo_income_tax_2025_c0524",
+      "gold_page": 55,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be subject",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What methods can an Assessing Officer use to make an assessment if he doubts the regularity of account following Section 271?",
+      "answer_excerpt": "subject to the provisions of sub-section (2), be computed as per either cash or mercantile system of accounting regularly employed by the assessee.\n(2) The Central Government may notify income computation and disclosure standards to be followed by any class of assessees or in respect of any class of income.\n(3) The Assessing Officer may make an assessment in the manner provided in section 271, whe",
+      "gold_clause_id": "demo_income_tax_2025_c1606",
+      "gold_page": 335,
+      "based_on": "RIGHT",
+      "anchor": "may notify",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "At what point after a fiscal year can an assessment subject to penalty imposition be appealed according to clause (c)(i)?",
+      "answer_excerpt": "(5) The order imposing a penalty under sub-section (2) shall not be made-\n(a) unless an assessee has been given a reasonable opportunity of being heard;\n(b) by the Deputy Commissioner or Assistant Commissioner or the Deputy Director or Assistant Director, where penalty exceeds two lakh rupees except with the previous approval of the Additional Commissioner or the Additional Director or the Joint C",
+      "gold_clause_id": "demo_income_tax_2025_c1700",
+      "gold_page": 357,
+      "based_on": "PENALTY",
+      "anchor": "penalty",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What percentage of profits and gains derived from eligible business can a Producer Company with annual turnover less than one hundred crore rupees claim as a deduction for the tax year starting April 1, 2018, until April 1, 20",
+      "answer_excerpt": "150. (1) An assessee, who,--\n(a) is a Producer Company;\n(b) has a total turnover of less than one hundred crore rupees in any tax year; and\n(c) has any profits and gains derived from eligible business included in its gross total income,\nshall be allowed a deduction of 100% of the profits and gains attributable to such business for the tax year commencing on or after the 1st April, 2018, but before",
+      "gold_clause_id": "demo_income_tax_2025_c1073",
+      "gold_page": 203,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be allowed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What expenses are deductible when computing income chargeable under the head \"Capital gains\" in relation to a capital asset transfer?",
+      "answer_excerpt": "72. (1) Income chargeable under the head \"Capital gains\" shall be computed, by deducting from the full value of the consideration received or accruing as a result of the transfer of the capital asset, the following amounts:-\n(a) expenditure incurred wholly and exclusively in connection with such transfer; and\n(b) the cost of acquisition of the asset and the cost of any improvement thereto.\n(2) In ",
+      "gold_clause_id": "demo_income_tax_2025_c0827",
+      "gold_page": 137,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be computed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What proportionate calculation method is used for income accrued from investments below 1lausel mandates the tax treatment of certain types of infrastructure and domestic company investments within Alternate Investment Funds?",
+      "answer_excerpt": "where an eligible Alternate Investment Fund has investment of less than 100% in one or more of eligible infrastructure entity or eligible domestic company or eligible Non-Banking Financial Company or in an eligible InvIT, income accrued or arisen or received or attributable to such investment, directly or indirectly, which is exempt shall be calculated proportionately to that investment made in on",
+      "gold_clause_id": "demo_income_tax_2025_c2453",
+      "gold_page": 537,
+      "based_on": "THRESHOLD",
+      "anchor": "less than 100",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What actions is the Assessing Officer required to take upon receiving directives from either the Principal Commissioner or Approving Panel regarding the completion of proceedings under Section 1?",
+      "answer_excerpt": "(10) The Assessing Officer, on receipt of directions of the Principal Commissioner or Commissioner under sub-section (3) or of the Approving Panel under sub-section (6), shall proceed to complete the proceedings referred to in sub-section (1) as per such directions and the provisions of Chapter XI.",
+      "gold_clause_id": "demo_income_tax_2025_c1593",
+      "gold_page": 331,
+      "based_on": "OBLIGATION",
+      "anchor": "shall proceed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What provisions continue to apply from the repealed Income-tax Act, 1961 regarding ongoing proceedings related to tax years beginning before April 1st, 2026?",
+      "answer_excerpt": "536. (1) The Income-tax Act, 1961 is hereby repealed.\n(2) Irrespective of the repeal of the Income-tax Act, 1961 (hereinafter referred to as the repealed Income-tax Act), and subject to sub-section (3)-\n(a) affect the previous operation of the repealed Act and orders or anything duly done or suffered thereunder; or\n(b) affect any right, privilege, obligation or liability acquired, accrued or incur",
+      "gold_clause_id": "demo_income_tax_2025_c2339",
+      "gold_page": 506,
+      "based_on": "PENALTY",
+      "anchor": "penalty",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What procedures does Section 550 outline for withdrawing approval from a superannuation fund that no longer meets requirements?",
+      "answer_excerpt": "550\n(f) to provide for the assessment by way of penalty of any consideration received by an employee for an assignment of, or creation of a charge upon, his beneficial interest in a recognised or an approved fund;\n(g) to determine the extent and manner of exemption from payment of tax on contributions and interest credited to the individual account of the employee in a provident fund from which re",
+      "gold_clause_id": "demo_income_tax_2025_c2586",
+      "gold_page": 570,
+      "based_on": "PENALTY",
+      "anchor": "penalty",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What are the conditions under which an assessee can be represented by a legal proxy when attending before income tax authorities or Appellate Tribunal according to Section 515?",
+      "answer_excerpt": "515. (1) An assessee, entitled or required to attend before any income-tax authority or the Appellate Tribunal for any proceeding under this Act, may attend through an authorised representative.\n(2) The provisions of sub-section (1) shall not apply",
+      "gold_clause_id": "demo_income_tax_2025_c2302",
+      "gold_page": 497,
+      "based_on": "OBLIGATION",
+      "anchor": "required to attend",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the penalty imposed by Section 172 for failing to provide an accountant'se report?",
+      "answer_excerpt": "447. If any person fails to furnish a report from an accountant as required by section 172, the Assessing Officer may impose a penalty of one lakh rupees on such person.",
+      "gold_clause_id": "demo_income_tax_2025_c2185",
+      "gold_page": 473,
+      "based_on": "PENALTY",
+      "anchor": "penalty",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "At what percentage must equity shareholding or unit holding in a fund' extraneous scheme with an insurance company satisfy for compliance during its entirety if exemption under Schedule II (Table: Sl. No. 2) does not apply?",
+      "answer_excerpt": "for the purposes of this clause,--\n(I) the percentage of equity shareholding or unit held in respect of the fund, shall be computed with reference to the annual average of the monthly averages of the opening and closing figures;\n(II) in case of a scheme of an insurance company comprising unit linked insurance policies to which exemption in Schedule II (Table: Sl. No. 2) does not apply, the minimum",
+      "gold_clause_id": "demo_income_tax_2025_c1227",
+      "gold_page": 243,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be computed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What portion of income from transferring virtual digital assets is disallowed for deduction in computing assessee'thy income under this Act?",
+      "answer_excerpt": "4. Any person.\nAny income from the transfer of any virtual digital asset.\n30% (a) No deduction in respect of any expenditure (other than cost of acquisition, if any) or allowance or set off of any loss shall be allowed to the assessee under any provision of this Act in computing the income referred to in column C; and\n(b) no set off of loss from transfer of the virtual digital asset computed herei",
+      "gold_clause_id": "demo_income_tax_2025_c1207",
+      "gold_page": 238,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be allowed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the penalty rate per month an assessee must pay in case they fail to deduce, collect, and remit the full or partial tax as required by this Act?",
+      "answer_excerpt": "418\nProcessing.\nthe whole or any part of the tax, as required under this Chapter, shall not be deemed\nto be an assessee in default if the payee or buyer or licensee or lessee has -\n(i) furnished his return of income under section 263;\n(ii) taken into account the amount for computing income in that return of income; and\n(iii) paid the tax due on the income declared by him in such return of income,\n",
+      "gold_clause_id": "demo_income_tax_2025_c2049",
+      "gold_page": 438,
+      "based_on": "PENALTY",
+      "anchor": "shall be liable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What are the methods through which income tax is required to be paid according to section 390?  ",
+      "answer_excerpt": "390. (1) The tax on income shall be payable as per this Chapter by way of--\n(a) deduction or collection at source; or\n(b) advance payment; or\n(c) payment under section 392(2)(a).\n(2) The tax referred to in sub-section (1) shall be payable as per the provisions of this Chapter, irrespective of the assessment to be made later than the relevant tax year.\n(3) Nothing contained",
+      "gold_clause_id": "demo_income_tax_2025_c1951",
+      "gold_page": 411,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be payable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the tax charge for profits and gains deemed from withdrawal amounts on account closure during a specific tax year according to Section 54?",
+      "answer_excerpt": "Where any amount standing to the credit of the assessee in specified account is withdrawn on closure of such account in any tax year, then the amount computed as under shall be deemed to be the profits and gains of business or profession for the tax year and accordingly the following sum shall be charged to income-tax for that tax year:\nA = B-C\nwhere,-\nA = deemed profits and gains of business or p",
+      "gold_clause_id": "demo_income_tax_2025_c2544",
+      "gold_page": 560,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be charged",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the tax computation method for short-term capital gains that fall below the maximum non-taxable income amount, as per section 221 of the legal document?",
+      "answer_excerpt": "221\n5 10 15 20 25 30 35 40 45\n(ii) income-tax payable on the balance amount of the total income as if such balance amount were the total income of the assessee.\n(2) In the case of an individual or a Hindu undivided family, being a resident, where the total income, as reduced by short-term capital gains computed under sub-section (1), is below the maximum amount which is not chargeable to incometax",
+      "gold_clause_id": "demo_income_tax_2025_c1218",
+      "gold_page": 241,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be computed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What types of loans and deposits are exempt from tax under sub-section (1) when repaid by a banking company's branch to an individual?",
+      "answer_excerpt": "214\nInterpretation.\nDetermination of tax where total income includes income on which no tax is payable.\nTax on accumulated balance of recognised provident fund.\n(2) Irrespective of the provision in sub-section (1), a branch of a banking company or co-operative bank, may also make the repayment by crediting such loan or deposit to the savings bank account or current account, if any, with such branc",
+      "gold_clause_id": "demo_income_tax_2025_c1187",
+      "gold_page": 234,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be substituted",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What portion of an acquired asset' extraneous costs should be considered profit for calculating income-tax if it is sold within eight years from acquisition, according to sub-section (1)?",
+      "answer_excerpt": "Where any asset acquired as per the scheme or the deposit scheme is sold or otherwise transferred in any tax year by the assessee to any person at any time before the expiry of eight years from the end of the tax year in which it was acquired, such part of the cost of such asset as is relatable to the deduction allowed under sub-section (1) shall be deemed to be the profits and gains of business o",
+      "gold_clause_id": "demo_income_tax_2025_c0704",
+      "gold_page": 101,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be deemed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the penalty imposed on an individual who fails to submit a required statement as per Section 505 within the prescribed period?",
+      "answer_excerpt": "460. If a person required to furnish statement under section 505, fails to do so within the period prescribed under that section, the Assessing Officer may impose on him, a penalty of-\nPenalty for failure to furnish information or document under section 171. Penalty for failure to furnish information or document under section 506. Penalty for failure to furnish report or for furnishing inaccurate ",
+      "gold_clause_id": "demo_income_tax_2025_c2199",
+      "gold_page": 475,
+      "based_on": "PENALTY",
+      "anchor": "penalty",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What does \"life insurance business\" encompass according to this Schedule when referencing sections of the Insurance Act, 1938?",
+      "answer_excerpt": "6. Interpretation.-(1) In this schedule,--\n(a) \"investments\" includes securities, stocks and shares; and\n(b) \"life insurance business\" means life insurance business as defined in section 2(11) of the Insurance Act, 1938 (4 of 1938).\n(2) References of the Insurance Act, 1938 (4 of 1938) in this Schedule regarding the Life Insurance Corporation of India shall be treated as references to that Act or ",
+      "gold_clause_id": "demo_income_tax_2025_c2631",
+      "gold_page": 575,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be treated",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What portion of loss, not from speculation but arising during the tax year when a business ceased to exist, can be set off against income chargeable for that specific sub-section?",
+      "answer_excerpt": "in this section is no longer in existence and there is income chargeable to tax under of sub-section (1)(a), (c), (d) and (e), in respect of that business or profession, any loss, not being a loss sustained in speculation business, which arose in that business or profession during the tax year in which it ceased to exist and which could not be set off against any other income of that tax year shal",
+      "gold_clause_id": "demo_income_tax_2025_c0631",
+      "gold_page": 85,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be chargeable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the latest deadline for an individual to submit a corrected tax return after discovering omissions or wrong statements in their original filing under sub-section (1) within nine months following the end of the relevant tax year?",
+      "answer_excerpt": "(5) If any person, having furnished a return under sub-section (1) or sub-section (4), discovers any omission or any wrong statement therein, he may furnish a revised return at any time within nine months from the end of the relevant tax year, or before the completion of the assessment, whichever is earlier.",
+      "gold_clause_id": "demo_income_tax_2025_c1513",
+      "gold_page": 313,
+      "based_on": "RIGHT",
+      "anchor": "may furnish",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the maximum allowable deduction for interest paid by an individual assessee on their tax return according to Section 129?",
+      "answer_excerpt": "129. (1) An assessee, being an individual, shall be allowed a deduction of amount paid as interest during a tax year,",
+      "gold_clause_id": "demo_income_tax_2025_c1008",
+      "gold_page": 185,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be allowed",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What powers does the Valuation Officer possess when an individual refuses or evades to provide facility as required under this sub-section, in accordance with Section (d), Code of Civil Procedure, for matters including discovery and inspection?",
+      "answer_excerpt": "(d) If a person who, under this sub-section, is required to afford any facility to the Valuation Officer or the engineer, overseer, surveyor, or assessor, either refuses or evades to afford such facility, the Valuation Officer shall have all the powers as are vested in a court under the Code of Civil Procedure, 1908, when trying a suit in respect of the following matters,-\n(i) discovery and inspec",
+      "gold_clause_id": "demo_income_tax_2025_c1557",
+      "gold_page": 324,
+      "based_on": "OBLIGATION",
+      "anchor": "is required to afford",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What specific deduction can an assessee claim for amounts included in their total income that are exempt from income tax under this Act, and how is it calculated?",
+      "answer_excerpt": "190. Where there is included in the total income of an assessee any income on which no income-tax is payable under the provisions of this Act, the assessee shall be entitled to a deduction, from income-tax with which he is chargeable on his total income, of an amount equal to the income-tax calculated at the average rate of income-tax on the amount on which no income-tax is payable.",
+      "gold_clause_id": "demo_income_tax_2025_c1190",
+      "gold_page": 234,
+      "based_on": "RIGHT",
+      "anchor": "shall be entitled",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What penalties does Section 497 prescribe for offences under this Chapter that are tried by The Special Court and punishable with imprisonment not exceeding two years or fine?",
+      "answer_excerpt": "497. The Special Court, irrespective of anything contained in the Bharatiya Nagarik Suraksha Sanhita, 2023, shall try an offence under this Chapter punishable with imprisonment not exceeding two years or with fine, or with both, as a summons case, and the provisions of the Bharatiya Nagarik Suraksha Sanhita, 2023 as applicable in the case of trial of summons case, shall apply accordingly.",
+      "gold_clause_id": "demo_income_tax_2025_c2261",
+      "gold_page": 487,
+      "based_on": "PENALTY",
+      "anchor": "punishable with",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "At what point must a registered non-prozymin_organisation'mandatory provide an audited report on their total income exceeding taxable limits for that specific year?",
+      "answer_excerpt": "348. Where the total income of a registered non-profit organisation, without giving effect to the provisions of this Part, exceeds the maximum amount which is not chargeable to income-tax in any tax year, the accounts of such registered non-profit organisation for that tax year shall be audited by an accountant and the person in receipt of the income shall be required to furnish a report of an aud",
+      "gold_clause_id": "demo_income_tax_2025_c1837",
+      "gold_page": 384,
+      "based_on": "OBLIGATION",
+      "anchor": "required to furnish",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What specific periods are excluded from the computation under Section 244(2) when determining the time limit for completion according to this legal clause?",
+      "answer_excerpt": "388\nDispute Resolution Committee.\n(8) In computing the period of limitation under sub-section (7), the following period shall be excluded:-\n(a) the time taken in giving an opportunity to the assessee to be reheard under section 244(2); and\n(b) the period commencing on the date on which stay on any proceeding under this section has been granted by an order or injunction of any court and ending on t",
+      "gold_clause_id": "demo_income_tax_2025_c1933",
+      "gold_page": 408,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be extended",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What are the conditions under which an individual is eligible for a deduction in respect of interest on a home loan taken within April 2016 to March 2017, and purchase of an electric vehicle? ",
+      "answer_excerpt": "166\nDeduction in respect of interest on loan taken for certain house property. Deduction in respect of purchase of electric vehicle.\n(3) The deduction under sub-section (1) shall be subject to the following conditions:-\n(a) the loan has been sanctioned by the financial institution during the period beginning on the 1st April, 2016 and ending on the 31st March, 2017;\n(b) the amount of loan sanction",
+      "gold_clause_id": "demo_income_tax_2025_c1012",
+      "gold_page": 186,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be subject",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "At what rate should the income mentioned in section 307 be charged if it's receivable on behalf of individuals with indeterminate shares and none exceed maximum tax-exempt amounts?  ",
+      "answer_excerpt": "307. (1) Subject to the other provisions of this section, the income or any part thereof, in respect of the person mentioned in sections 303(1)(c) and (d) shall be chargeable to tax at the maximum marginal rate, if--\n(a) such income or such part thereof is not specifically receivable on behalf or for the benefit of any one person; or\n(b) the individual shares of the persons on whose behalf or for ",
+      "gold_clause_id": "demo_income_tax_2025_c1718",
+      "gold_page": 362,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be chargeable",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What procedure must one follow to make a valid claim for refund according to Section 263?",
+      "answer_excerpt": "433. Every claim for refund under this Part shall be made by furnishing return as per section 263.",
+      "gold_clause_id": "demo_income_tax_2025_c2154",
+      "gold_page": 465,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be made",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the period for recalculating an assessee'thy total income as per Section 287, and when does it begin according to the given legal clause?",
+      "answer_excerpt": "in this Act, re-compute the total income of the assessee for the said tax year and make the necessary amendment; and\n(c) the provisions of section 287 shall, so far as may be, apply thereto and the period of four years specified in sub-section (8) of that section being reckoned from the end of the tax year in which the failure to comply with the condition referred to in sub-section (1) takes place",
+      "gold_clause_id": "demo_income_tax_2025_c1350",
+      "gold_page": 272,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be laid",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What happens if after excluding a specific period mentioned in sub-section (3), there are fewer than sixty days left as specified by section (1) for an Assessing Officer'thy actions, and how is the remaining timeframe adjusted?",
+      "answer_excerpt": "(4) Where immediately after exclusion of the period as mentioned in sub-section (3), the remaining period for completion available to the Assessing Officer, as specified in sub-section (1), for making an order of assessment, reassessment or recomputation, is less than sixty days, such remaining period shall be extended to sixty days and the aforesaid time limits for completion shall be deemed to h",
+      "gold_clause_id": "demo_income_tax_2025_c1643",
+      "gold_page": 342,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be extended",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the maximum duration an order from an authorized officer can remain in force before requiring renewal to continue preventing removal or dealing with seized items?  ",
+      "answer_excerpt": "(4) The authorised officer may, where it is not practicable to seize, any such books of account, other documents, computer systems, asset, bank locker, bank account, for reasons other than deemed seizure under of sub-section (1) (viii),--\n(a) serve an order on the owner or the person who is in immediate possession or control thereof, not to remove, part with or otherwise deal with it except with t",
+      "gold_clause_id": "demo_income_tax_2025_c1455",
+      "gold_page": 298,
+      "based_on": "RIGHT",
+      "anchor": "may requisition",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What requirement must every Central Government notification meet regarding parliamentary oversight immediately following its issuance concerning amendments to income tax schemes?",
+      "answer_excerpt": "Where a scheme has been notified under the provisions of the Income-tax Act, 1961 with a view to eliminating the interface with the assessee or any other person, the Central Government may by notification amend or modify the said scheme as per the provisions of sub-section (1), and the provisions of sub-section (2) shall apply accordingly.\n(4) Every notification issued under sub-sections (1), (2) ",
+      "gold_clause_id": "demo_income_tax_2025_c2332",
+      "gold_page": 503,
+      "based_on": "OBLIGATION",
+      "anchor": "shall apply",
+      "question_source": "llm",
+      "reviewed": true
+    },
+    {
+      "question": "What is the required action by an Indian company undergoing a scheme of amalgamation or demerger regarding deductions claimed, according to clause (8)?",
+      "answer_excerpt": "83\n5 10 15 20\n25 30 35 40 45\n(a) the accounts of the assessee for the year or years in which the expenditure specified in sub-sections (2) and (3) are incurred have been audited by an accountant, before the specified date referred to in section 63; and\n(b) the assessee furnishes for the first year in which the deduction under this section is claimed, the report of such audit, by such date, in such",
+      "gold_clause_id": "demo_income_tax_2025_c0715",
+      "gold_page": 103,
+      "based_on": "OBLIGATION",
+      "anchor": "shall be allowed",
+      "question_source": "llm",
+      "reviewed": true
+    }
+  ]
+}

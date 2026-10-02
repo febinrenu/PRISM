@@ -1,0 +1,235 @@
+
+RESEARCH PROPOSAL
+PRISM: Policy Rule Interpretation and Socioeconomic Impact Modeling Through Explainable Legal NLP and Agent-Based Simulation
+A Novel Framework Bridging Legal Text Understanding and Societal Impact Prediction with Traceable Causal Provenance
+Final Year Project – Journal Paper & Implementation Guide
+Optimized for Consumer GPU (RTX 3050 4GB VRAM)
+Target Journals: Nature Scientific Reports | AI and Law (Springer) | JASSS
+ 
+1. Executive Summary
+This proposal presents PRISM (Policy Rule Interpretation and Socioeconomic Impact Modeling), a first-of-its-kind end-to-end AI pipeline that bridges two traditionally isolated research domains: Legal AI (Natural Language Processing for legal texts) and Computational Social Science (Agent-Based Modeling for policy simulation). The core innovation is a system that reads legal and policy documents, extracts structured causal rules with full explainability, and automatically translates those rules into agent-based simulations that predict how a policy will impact different socioeconomic groups before it is implemented.
+No existing work connects legal text understanding directly to society-level impact simulation with an explainability layer at every stage. This makes the project highly publishable while remaining implementable on consumer-grade hardware (NVIDIA RTX 3050, 4GB VRAM) within a final year project timeline.
+2. The Novel Idea: Why This Is Extraordinary
+2.1 The Gap in Current Research
+Current legal AI systems (like CaseLaw AI or LexNLP) stop at summarization: they condense documents but never ask what happens to real people when this law is enforced. Meanwhile, policy simulation researchers (using ABM or CGE models) start from hand-coded rules, spending months manually reading legislation to extract behavioral parameters. No system connects these two ends of the pipeline.
+2.2 The Core Research Question
+"Can an explainable AI system autonomously extract causal policy rules from legal text and translate them into agent-based socioeconomic simulations that predict differential impacts across population subgroups, with traceable provenance from every simulation outcome back to its source legal clause?"
+2.3 Why This Is Publishable
+This project advances knowledge in three fields simultaneously, which is what top journals look for:
+•	Legal AI: Goes beyond summarization to structured causal extraction with XAI provenance.
+•	Computational Social Science: Replaces manual rule-coding in ABM with automated, NLP-driven rule generation.
+•	Explainable AI: Creates a full provenance chain from simulation outcome back to specific legal clause, solving the black-box problem at the system level, not just the model level.
+
+3. Hardware-Aware Design (RTX 3050, 4GB VRAM)
+Every architectural decision in PRISM is designed around the constraint of a consumer GPU with 4GB VRAM. This section documents the specific adaptations that make the project fully implementable without cloud GPU access.
+
+Concern	Naïve Approach (Won’t Fit)	PRISM Approach (Fits in 4GB)	VRAM Usage
+Core LLM	Mistral-7B FP16 (14GB)	Phi-3.5-mini 4-bit GGUF via llama-cpp-python (3.8B params)	~2.5 GB
+Legal NER	Large transformer NER	spaCy sm/md pipeline + rule-based augmentation	~0.3 GB
+Causal Extraction	Fine-tuned 7B model	Phi-3.5-mini with structured few-shot prompting + constrained JSON output	~2.5 GB (shared with LLM)
+XAI Explanations	KernelSHAP on full LLM (extremely slow)	LIME on sentence-level classifier + attention weight extraction from Phi-3.5	~0.5 GB
+Semantic Matching	all-mpnet-base-v2 (420MB)	all-MiniLM-L6-v2 (80MB, 384-dim)	~0.2 GB
+Simulation	50,000 agents with deep RL	5,000–10,000 agents with tabular Q-learning (CPU-only, no GPU needed)	0 GB (CPU)
+Fine-tuning (optional)	Full fine-tuning of any LLM	QLoRA (4-bit base + LoRA adapters) via unsloth on Phi-3.5-mini	~3.5 GB
+
+3.1 GPU Memory Management Strategy
+Since multiple modules share the same GPU, PRISM uses a sequential pipeline approach, not parallel:
+1.	Run Module A (Legal NER with spaCy) – uses ~0.3GB GPU. Process all documents. Save structured output to disk.
+2.	Unload Module A. Load Module B (Phi-3.5-mini via llama-cpp-python) – uses ~2.5GB. Extract all causal rules. Save to disk.
+3.	Keep Phi-3.5 loaded for Module C template-matching fallback if needed. Otherwise unload and run LIME explanations.
+4.	Unload all GPU models. Run Module D (Mesa ABM) entirely on CPU – no GPU required.
+Key Insight: At no point does PRISM need more than ~3GB VRAM simultaneously. The pipeline is inherently sequential, which is a natural fit for limited hardware.
+3.2 Why Phi-3.5-mini Over Larger Models
+Microsoft’s Phi-3.5-mini (3.8B parameters) is specifically chosen because it outperforms Llama-2-13B and approaches Mistral-7B on reasoning benchmarks while fitting comfortably in 4GB VRAM at 4-bit quantization. It supports 128K context length (essential for long legal documents) and has strong structured output capability, making it ideal for extracting JSON-formatted causal rules. If higher quality is needed for the paper, a free-tier API (Groq with Llama-3-70B, or Google with Gemini Flash) can be used for comparison experiments without local GPU cost.
+3.3 Free API Fallback Options
+For ablation studies or comparison baselines in the paper (where you need to show results from a larger model), these free APIs require no local GPU:
+•	Groq (free tier): Llama-3-70B and Mixtral at very fast inference speeds. Rate-limited but sufficient for evaluation runs.
+•	Google AI Studio (free): Gemini 1.5 Flash with 1M context window. Excellent for long legal documents.
+•	HuggingFace Inference API (free tier): Limited but useful for sentence-transformers and small models.
+
+4. System Architecture: The PRISM Pipeline
+The system consists of four integrated modules, each producing outputs that feed into the next:
+
+Module	Input	Process	Output
+Module A: Legal NLP Engine	Raw legal/policy PDF documents	Text extraction, clause segmentation, entity recognition (legal NER)	Structured clause objects with tagged entities
+Module B: Causal Rule Extractor with XAI	Structured clauses from Module A	Phi-3.5-mini causal parsing + LIME explanations	Causal rule triples: (Condition, Action, Consequence) with provenance scores
+Module C: ABM Rule Translator	Causal rule triples	Maps legal rules to agent behavioral parameters using template matching	Agent behavior configuration (JSON/YAML)
+Module D: Impact Simulator & Explainer	Agent configs + population data	Mesa-based ABM simulation with Q-learning agents	Differential impact reports with full provenance back to source clauses
+
+5. Detailed Technical Design
+5.1 Module A: Legal NLP Engine
+5.1.1 Purpose
+Convert raw legal/policy documents into structured, machine-readable clause objects with recognized legal entities.
+5.1.2 Technical Stack (4GB Optimized)
+•	PDF Parser: PyMuPDF (fitz) for text extraction with layout awareness. Runs on CPU, no GPU needed.
+•	Clause Segmentation: all-MiniLM-L6-v2 (80MB) for sentence embeddings + custom heuristic rules for legal clause boundaries (section numbers, provisos, sub-clauses). This hybrid approach avoids needing a large fine-tuned model.
+•	Legal NER: spaCy en_core_web_sm + custom rule-based entity pipe for legal-specific labels: OBLIGATION, RIGHT, PENALTY, THRESHOLD, ACTOR, BENEFICIARY. spaCy’s rule-based matching (Matcher + PhraseMatcher) handles legal keywords without GPU-heavy transformer NER.
+•	Dataset: Legal-Bench for validation; Indian Kanoon for domain-specific test cases.
+5.1.3 Output Schema
+{ clause_id, source_doc, page, text, entities: [{type, value, span}], section_hierarchy }
+
+5.2 Module B: Causal Rule Extractor with XAI
+5.2.1 Purpose
+This is the intellectual heart of the project. It uses a quantized LLM to extract structured causal rules from legal clauses and applies XAI to prove which words drove the extraction.
+5.2.2 Technical Stack (4GB Optimized)
+•	Core LLM: Phi-3.5-mini-instruct (3.8B params) loaded via llama-cpp-python in Q4_K_M quantization (~2.5GB VRAM). Supports 128K context, which is critical for legal documents that often span 50+ pages.
+•	Prompt Design: Structured few-shot Chain-of-Thought prompting with forced JSON output. The prompt includes 3–5 annotated examples of legal clauses mapped to causal triples, forcing the model to: (1) identify the condition trigger, (2) identify the obligated action, (3) identify the consequence, (4) cite the exact source text span.
+•	XAI Layer (LIME): LIME (Local Interpretable Model-agnostic Explanations) on a sentence-level wrapper around the LLM. LIME perturbs input text and observes output changes, requiring ~50–100 LLM calls per explanation. With Phi-3.5-mini’s fast inference, this takes ~30–60 seconds per clause on RTX 3050. This is vastly more feasible than KernelSHAP on a full LLM.
+•	Attention Extraction (Bonus): Extract attention weights from Phi-3.5-mini’s final layer as a complementary explanation signal. Free to compute, adds no overhead.
+•	Validation: BERTScore (using distilbert-base for scoring, not a large model) between extracted rules and human-annotated ground truth.
+5.2.3 Output: Causal Rule Triple
+{ rule_id, source_clause_id, condition: "If annual income > 5L", action: "Pay 20% tax", consequence: "Penalty of 1% per month", confidence: 0.87, lime_explanation: [{token, weight}], source_span: "..." }
+
+5.3 Module C: ABM Rule Translator
+5.3.1 Purpose
+Translate abstract legal causal rules into concrete agent behavioral parameters that the simulation engine can execute.
+5.3.2 Technical Approach (Lightweight)
+This module is CPU-only and does not require GPU:
+1.	Template Library: Pre-defined mapping templates for common legal constructs: tax rules → income modification functions, penalties → compliance probability adjustments, subsidies → benefit distribution functions. Start with 15–20 templates covering the most common patterns.
+2.	Semantic Matching: Use all-MiniLM-L6-v2 (already loaded for Module A) to match extracted rules to the closest template via cosine similarity. This model runs in ~200MB and produces excellent results.
+3.	LLM Fallback: For novel rule types (similarity < 0.7), briefly load Phi-3.5-mini to generate a Python function stub. Alternatively, use a free API call to Groq’s Llama-3-70B.
+5.3.3 Output
+{ rule_id, applies_to: {income: ">500000"}, behavior_modifier: "income *= 0.80", compliance_rate: 0.85, provenance: [clause_id, rule_id] }
+
+5.4 Module D: Impact Simulator & Explainer
+5.4.1 Purpose
+Run the society-level simulation with diverse agents, measure differential impacts, and trace every outcome back to its source legal clause.
+5.4.2 Technical Stack (CPU-Only)
+•	Simulation Engine: Mesa (Python) – Entirely CPU-based. Create 5,000–10,000 agents with attributes drawn from real census/survey distributions. Mesa handles 10K agents comfortably on 8GB RAM.
+•	Agent Intelligence: Tabular Q-learning (not deep RL, which would need GPU). Agents have a small state space (income bracket, compliance choice, location type) and learn simple strategies over 100–500 simulation steps. This is computationally trivial on CPU.
+•	Population Data: MoSPI NSSO surveys for Indian demographic distributions; RBI DBIE for financial attributes.
+•	Calibration: Gaussian Process regression via scikit-learn (CPU-only) for Bayesian optimization of simulation parameters.
+5.4.3 The Provenance Chain (Key Innovation)
+Every simulation output carries a full provenance chain:
+Simulation Outcome → Agent Rule Applied → ABM Config → Causal Rule Triple → Original Legal Clause + Page + LIME Explanation
+A policymaker can click on any finding (e.g., "Rural agents in the lowest income decile experience a 12% welfare decrease") and trace it back to the exact legal clause that caused it, with LIME explanations showing which legal keywords were most influential.
+
+6. Evaluation Framework
+A journal-quality project requires rigorous, multi-level evaluation:
+
+Evaluation Level	Metric	Method	Target
+Legal NER Accuracy	F1 Score	10-fold CV on Legal-Bench	> 0.82
+Causal Rule Extraction	BERTScore + Human Agreement	Compare with 200 human-annotated rules	> 0.78 BERTScore, > 0.75 Kappa
+XAI Faithfulness	LIME Fidelity Score	Perturb top-LIME tokens, measure output change	> 0.70 correlation
+Template Matching	Precision@1	Correct template for 150 test rules	> 0.80
+Simulation Validity	KL-Divergence from Real Data	Simulated vs NSSO income distributions	KL < 0.15
+End-to-End Usefulness	Expert Evaluation (Likert)	5 legal/policy experts rate provenance	> 3.5/5.0
+
+7. Implementation Plan (16-Week Timeline)
+
+Week	Phase	Deliverables	Tools
+1–2	Data Collection & Preprocessing	Curated legal corpus (200+ docs), cleaned text, train/test splits	PyMuPDF, pandas, Legal-Bench
+3–4	Module A: Legal NLP	Working NER pipeline, clause segmenter, evaluation report	spaCy, all-MiniLM-L6-v2
+5–7	Module B: Causal Extraction + XAI	Phi-3.5-mini prompting pipeline, LIME integration, BERTScore eval	llama-cpp-python, lime, bert-score
+8–9	Module C: Rule Translation	15–20 templates, semantic matcher, YAML output generator	sentence-transformers, PyYAML
+10–12	Module D: ABM Simulation	Mesa sim with 5K–10K agents, Q-learning, GP calibration	Mesa, scikit-learn, numpy
+13–14	Integration & Provenance	End-to-end pipeline, provenance visualization, Streamlit dashboard	Streamlit, plotly, NetworkX
+15–16	Evaluation & Paper Writing	Full evaluation suite, journal paper draft, demo video	LaTeX, matplotlib, seaborn
+
+8. Dataset Strategy
+8.1 Legal Text Sources
+•	Legal-Bench (MIT License): 162 tasks covering legal reasoning; use for training NER and validating causal extraction.
+•	Indian Kanoon API: Free access to Indian Supreme Court and High Court judgments; filter for tax law, labor law, and environmental policy.
+•	Government Gazette (egazette.gov.in): Recently enacted legislation with clear policy rules, ideal for causal extraction.
+8.2 Socioeconomic Data Sources
+•	MoSPI NSSO 78th Round: Household consumption expenditure survey for realistic agent populations.
+•	RBI DBIE: Banking, employment, and financial inclusion data for calibrating financial behavior.
+•	Census 2011 / NFHS-5: Population distributions for agent attribute initialization.
+8.3 Recommended Demonstration Policy
+•	Primary: India’s new Income Tax Bill 2025 – rich text with clear numerical rules (tax slabs, exemptions, penalties) that translate naturally into agent behavioral parameters. Highly topical.
+•	Alternative: Digital Personal Data Protection Act, 2023 – compliance costs affect businesses of different sizes differently.
+
+9. Journal Targeting Strategy
+
+Journal	IF	Fit	Why It Fits	Submission Note
+Nature Scientific Reports	~4.6	High	Interdisciplinary; values novel methodology combining NLP + ABM + XAI	Emphasize methodological novelty and societal impact
+AI and Law (Springer)	~2.8	Very High	Core legal AI journal; XAI provenance chain is novel	Emphasize explainability and legal accuracy
+JASSS	~2.1	High	Premier ABM journal; NLP-driven rule generation is novel	Emphasize automation of ABM rule creation from text
+IEEE TKDE	~8.1	Med-High	If framed as knowledge engineering pipeline	Emphasize knowledge extraction architecture
+
+9.1 Suggested Paper Titles
+1.	"PRISM: From Legal Statute to Societal Simulation – An Explainable Pipeline for Automated Policy Impact Prediction"
+2.	"From Clause to Consequence: Bridging Legal NLP and Agent-Based Modeling with Traceable Causal Provenance"
+3.	"Predicting the Unintended: Explainable Causal Extraction from Legislation for Differential Socioeconomic Impact Simulation"
+
+10. Novelty Claims for Publication
+Your paper should explicitly claim the following novel contributions:
+1.	First end-to-end pipeline connecting legal document NLP to agent-based society simulation with no manual rule coding.
+2.	Full-chain provenance: Every simulation finding is traceable back to the exact legal clause, page number, and XAI token-level explanation. No existing system provides this.
+3.	Automated ABM parameterization from text: The template-matching + LLM fallback approach for converting legal rules to simulation parameters is novel in ABM literature.
+4.	System-level XAI: Existing XAI explains individual model predictions. PRISM explains system-level outcomes by chaining explanations across multiple modules.
+5.	Consumer-GPU feasibility: Demonstrates that cutting-edge interdisciplinary AI research is achievable on a 4GB GPU through careful architectural decisions – relevant for democratizing AI research.
+
+11. Scalability Guide for RTX 3050
+11.1 Minimum Viable Implementation (8 weeks)
+•	Phi-3.5-mini Q4_K_M with prompt engineering only (no fine-tuning).
+•	15 rule-to-ABM templates covering the most common legal constructs.
+•	5,000 agents (sufficient for statistical significance across 5 income quintiles).
+•	One policy document (Income Tax Bill 2025) as case study.
+•	LIME for explanations (faster and lighter than SHAP).
+•	Streamlit dashboard for provenance visualization.
+11.2 Full Implementation (16 weeks)
+•	QLoRA fine-tuning of Phi-3.5-mini on Legal-Bench causal extraction task (~3.5GB VRAM via unsloth).
+•	20–30 templates with LLM fallback.
+•	10,000 agents with Q-learning adaptive behavior.
+•	Gaussian Process calibration.
+•	Comparison with free API models (Groq Llama-3-70B) for ablation study.
+•	Full LIME + attention weight extraction with interactive provenance visualization.
+11.3 Performance Benchmarks on RTX 3050
+
+Operation	Estimated Time	VRAM Used	Notes
+Phi-3.5-mini inference (1 clause)	2–4 seconds	~2.5 GB	Q4_K_M via llama-cpp-python
+LIME explanation (1 clause, 100 perturbations)	3–5 minutes	~2.5 GB	100 LLM calls per clause
+Full causal extraction (100 clauses)	~5–7 minutes	~2.5 GB	Batch processing
+LIME for all 100 clauses	~5–8 hours	~2.5 GB	Run overnight; parallelize on CPU
+QLoRA fine-tuning (500 examples, 3 epochs)	~2–3 hours	~3.5 GB	Via unsloth, fits in 4GB
+Mesa simulation (10K agents, 500 steps)	~10–20 minutes	0 GB (CPU)	8GB RAM sufficient
+spaCy NER on 200 documents	~5–10 minutes	~0.3 GB	Can run on CPU alone
+
+12. Risk Mitigation
+
+Risk	Prob.	Impact	Mitigation
+Phi-3.5-mini quality insufficient	Med	High	Use Groq free API for Llama-3-70B as fallback; compare both in paper as ablation study (strengthens the paper)
+LLM hallucination in causal extraction	Med	High	Constrained JSON decoding; confidence thresholds; human validation for low-confidence rules
+LIME too slow for full dataset	Med	Med	Run overnight; limit LIME to top-50 most important rules; use attention weights as fast proxy
+Simulation doesn’t match real data	Med	High	GP calibration; focus on relative group comparisons, not absolute predictions
+VRAM overflow during QLoRA	Low	Med	Use gradient checkpointing; reduce batch size to 1; use CPU offloading in unsloth
+Insufficient labeled data	Med	Med	Use GPT-4/Gemini API for silver-label generation; active learning to prioritize annotation
+
+13. Related Work Positioning
+13.1 Legal AI Systems
+Systems like LEGAL-BERT (Chalkidis et al., 2020), LexNLP, and CaseLaw AI focus on classification, summarization, or judgment prediction. None extract structured causal rules or connect to downstream simulation. PRISM extends this line by adding causal structure extraction and real-world impact modeling.
+13.2 Agent-Based Policy Modeling
+ABM frameworks like ASPEN (Sandia Labs), Eurace, and various Mesa-based models simulate economic and social dynamics but require manual rule specification by domain experts. PRISM automates this specification step using NLP, a novel contribution to the ABM community.
+13.3 Explainable AI in Legal Domain
+Existing XAI for legal AI (e.g., attention visualization in LEGAL-BERT) explains individual model decisions. PRISM’s system-level provenance chain is fundamentally different: it explains societal outcomes by tracing through multiple connected modules, a new paradigm for XAI.
+13.4 Resource-Constrained AI Research
+Recent work on quantization (GPTQ, GGUF) and parameter-efficient fine-tuning (QLoRA) has democratized LLM research. PRISM demonstrates that a complex multi-module AI research system can be built and evaluated entirely on consumer hardware, contributing to the growing literature on accessible AI research infrastructure.
+
+14. Expected Results & Impact
+1.	Automated Rule Extraction: Extract 50–100 causal rules from a single legislative document with > 0.78 BERTScore against human annotations.
+2.	Differential Impact Maps: Heatmaps showing how the policy affects different income quintiles, regions, and occupational groups.
+3.	Provenance Drill-Down: Interactive visualization where clicking any simulation finding reveals the full chain back to source legal text with LIME highlights.
+4.	Policy Insight Discovery: Identification of 2–3 non-obvious unintended consequences not apparent from reading the legislation alone.
+5.	Hardware Accessibility Proof: Complete reproducibility on a single RTX 3050 4GB system, demonstrating that interdisciplinary AI research does not require expensive cloud infrastructure.
+
+15. Repository Structure & Dependencies
+prism/ ├── data/                    # Raw and processed datasets ├── module_a_nlp/            # Legal NER + clause segmentation ├── module_b_causal/         # LLM causal extraction + LIME ├── module_c_translator/     # Rule-to-ABM template matching ├── module_d_simulator/      # Mesa ABM + Q-learning + GP calibration ├── provenance/              # Provenance chain tracking ├── dashboard/               # Streamlit web interface ├── evaluation/              # All evaluation scripts ├── configs/                 # YAML configuration files ├── notebooks/               # Jupyter experiment notebooks └── paper/                   # LaTeX source for journal paper
+
+Category	Package	Purpose	GPU Needed?
+LLM Inference	llama-cpp-python	Phi-3.5-mini Q4_K_M inference	Yes (~2.5GB)
+Fine-tuning	unsloth	QLoRA fine-tuning of Phi-3.5-mini	Yes (~3.5GB)
+NLP	spacy (en_core_web_sm)	Legal NER pipeline	Optional
+Embeddings	sentence-transformers (MiniLM-L6)	Semantic matching (80MB model)	Optional
+XAI	lime	LIME explanations	No (wraps LLM)
+Evaluation	bert-score (distilbert)	Semantic similarity scoring	Optional
+Simulation	mesa	Agent-based modeling	No (CPU only)
+RL	numpy (tabular Q-learning)	Agent adaptive behavior	No (CPU only)
+Calibration	scikit-learn	Gaussian Process regression	No (CPU only)
+PDF Parsing	pymupdf (fitz)	Legal document text extraction	No
+Dashboard	streamlit + plotly	Web interface + visualizations	No
+
+16. Conclusion
+PRISM represents a genuinely novel intersection of Legal AI, Explainable AI, and Agent-Based Modeling that has not been explored in existing literature. By creating an automated pipeline from legal text to society-level impact simulation with full explainability, this project makes three distinct contributions to three distinct research communities, making it an outstanding candidate for high-impact journal publication.
+The modular, hardware-conscious architecture ensures that even a minimum viable implementation (single policy document, 5,000 agents, 15 templates, Phi-3.5-mini on RTX 3050) produces publishable results. The provenance chain – the ability to trace any societal impact prediction back to its exact legal source with LIME explanations – is the feature that elevates this from a good engineering project to a genuine research contribution.
+The deliberate choice to build on consumer hardware (RTX 3050, 4GB) is itself a contribution: it proves that cutting-edge, multi-disciplinary AI research is accessible to students and researchers without cloud computing budgets, which aligns with the growing movement toward democratized AI research.

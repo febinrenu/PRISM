@@ -1,0 +1,7 @@
+metric,value
+causal_rule_based_f1,0.1842
+causal_rule_based_precision,0.4375
+causal_rule_based_recall,0.1167
+ner_presence_macro_f1,0.1046
+sim_kl_nsso,0.0679
+sim_kl_legacy,0.2336

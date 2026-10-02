@@ -1,0 +1,722 @@
+[
+  {
+    "text": "BORROWER HEREBY AGREES TO DEFEND, INDEMNIFY AND HOLD HARMLESS INDEMNITEES FOR, FROM AND AGAINST ANY AND ALL LOSSES, DAMAGES, LIABILITIES, CLAIMS, ACTIONS, JUDGMENTS, COURT COSTS AND LEGAL OR OTHER EXPENSES (INCLUDING, WITHOUT LIMITATION, REASONABLE ATTORNEYS' FEES AND EXPENSES) WHICH ANY INDEMNITEE MAY INCUR AS A DIRECT OR INDIRECT CONSEQUENCE OF: (A) THE PURPOSE TO WHICH BORROWER APPLIES THE LOAN PROCEEDS; (B) THE FAILURE OF BORROWER TO PERFORM ANY OBLIGATIONS AS AND WHEN REQUIRED BY THIS AGREEMENT OR ANY OF THE OTHER LOAN DOCUMENTS; (C) ANY FAILURE AT ANY TIME OF ANY OF BORROWER'S REPRESENTATIONS OR WARRANTIES TO BE TRUE AND CORRECT; (D) ANY ACT OR OMISSION BY BORROWER, CONSTITUENT PARTNER OR MEMBER OF BORROWER WITH RESPECT TO ANY OF THE PROPERTY OR IMPROVEMENTS; OR (E) ANY ACTION OR OMISSION OF ANY INDEMNITEE IN CONNECTION WITH THE ENFORCEMENT OF ANY OF ITS RIGHTS UNDER THE LOAN DOCUMENTS OR THE OTHER RELATED DOCUMENTS EXCEPT TO THE EXTENT ARISING FORM THE GROSS NEGLIGENCE OR WILLFU",
+    "is_causal": true,
+    "category": "Indemnity",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "Neither the Company’s ownership of the assets, nor, to such Assignor’s knowledge, the operation of the Company’s assets is in violation of any applicable laws, licenses and permits, including any applicable environmental laws, licenses and permits, in any material respect.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "You agree to hold the facts and circumstances surrounding the execution of this Agreement and the Supplemental Release in strictest confidence.",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Withholding of all applicable taxes are your responsibility.",
+    "is_causal": true,
+    "category": "Withholdings",
+    "entity_label": null
+  },
+  {
+    "text": "Subject to the terms of the Intercreditor Agreement, the Guarantors jointly and severally agree that, as between the Guarantors and the Lenders, the obligations of Borrower under this Agreement and the Notes, if any, may be declared to be forthwith due and payable as provided in Section 10.1 (and shall be deemed to have become automatically due and payable in the circumstances provided in Section 10.1) for purposes of Section 12.1, notwithstanding any stay, injunction or other prohibition preventing such declaration (or such obligations from becoming automatically due and payable) as against Borrower and that, in the event of such declaration (or such obligations being deemed to have become automatically due and payable), such obligations (whether or not due and payable by Borrower) shall forthwith become due and payable by the Guarantors for purposes of Section 12.1.",
+    "is_causal": true,
+    "category": "Remedies",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "All Taxes shall be the financial responsibility of the party obligated to pay such Taxes as determined by applicable law and neither party is or shall be liable at any time for any of the other party’s Taxes incurred in connection with or related to amounts paid under this Agreement. No Tax shall be withheld by the Company on any Net Cash Proceeds payable to the Investors hereunder unless required by law.",
+    "is_causal": true,
+    "category": "Taxes",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "You shall forfeit your right to receive any unpaid Retention Bonus and the Company shall have no further obligation under this Agreement in the event your employment with the Company and its subsidiaries is terminated for any reason (including your death or disability) other than as set forth in Section 2 hereof.",
+    "is_causal": true,
+    "category": "Forfeitures",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "The parties recognize that if any provision of this Agreement is violated by the Company, Indemnitee may be without an adequate remedy at law. Accordingly, in the event of any such violation, Indemnitee shall be entitled, if Indemnitee so elects, to institute Proceedings, either in law or at equity, to obtain damages, to enforce specific performance, to enjoin such violation, or to obtain any relief or any combination of the foregoing as Indemnitee may elect to pursue.",
+    "is_causal": true,
+    "category": "Specific Performance",
+    "entity_label": null
+  },
+  {
+    "text": "(a) Maintain, with financially sound and reputable insurance companies, insurance in such amounts and against such risks as are customarily maintained by similarly situated companies engaged in the same or similar businesses operating in the same or similar locations and cause, subject to the time periods set forth in clause (ix) of the definition of \"Collateral Requirement\" and Schedule 5.02(d) , if applicable, Agent to be listed as a co-loss payee on property and casualty policies and as an additional insured on liability policies.",
+    "is_causal": true,
+    "category": "Insurances",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Purchaser and its representatives shall hold in strictest confidence all data and information obtained from Seller regarding the Property or obtained through physical access to the Property granted by Seller, whether obtained before or after the execution and delivery of this Agreement, and shall not disclose the same to others prior to Closing; provided, however, that it is understood and agreed that Purchaser may disclose such data and information to Title Company and Purchaser’s actual and potential lenders and insurers and to the employees, consultants, contractors, accountants and attorneys of Purchaser, Title Company and Purchaser’s actual and potential lenders and insurers (collectively, the “Disclosure Parties”) provided that such persons agree to treat such data and information confidentially. In the event this Agreement is terminated, and to the extent Purchaser has received hard copies of any confidential materials from Seller, Purchaser shall promptly return to Seller any s",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each Loan Party and each Subsidiary thereof is in compliance with the requirements of all Laws and all orders, writs, injunctions and decrees applicable to it or to its properties, except in such instances in which the failure to comply therewith, either individually or in the aggregate, could not reasonably be expected to have a Material Adverse Effect.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "With the exception of Base Rate Loans, interest on Loans, Letter of Credit fees, Related Expenses, and commitment and other fees and charges hereunder shall be computed on the basis of a year having three hundred sixty (360) days and calculated for the actual number of days elapsed. With respect to Base Rate Loans, interest shall be computed on the basis of a year having three hundred sixty‑five (365) days or three hundred sixty‑six (366) days, as the case may be, and calculated for the actual number of days elapsed.",
+    "is_causal": true,
+    "category": "Fees",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "EACH DEBTOR HEREBY AGREES TO INDEMNIFY COLLATERAL AGENT AND ITS SUCCESSORS, ASSIGNS, AGENTS, ATTORNEYS, AND EMPLOYEES, FROM AND AGAINST ANY AND ALL LIABILITIES, DAMAGES, PENALTIES, SUITS, COSTS, AND EXPENSES OF ANY KIND AND NATURE (INCLUDING, WITHOUT LIMITATION, ALL EXPENSES OF LITIGATION OR PREPARATION THEREFOR WHETHER OR NOT COLLATERAL AGENT IS A PARTY THERETO) IMPOSED ON, INCURRED BY OR ASSERTED AGAINST COLLATERAL AGENT OR ITS SUCCESSORS, ASSIGNS, AGENTS, ATTORNEYS, AND EMPLOYEES, IN ANY WAY RELATING TO OR ARISING OUT OF THIS SECURITY AGREEMENT, OR THE MANUFACTURE, PURCHASE, ACCEPTANCE, REJECTION, OWNERSHIP, DELIVERY, LEASE, POSSESSION, USE, OPERATION, CONDITION, SALE, RETURN OR OTHER DISPOSITION OF ANY COLLATERAL (INCLUDING, WITHOUT LIMITATION, LATENT AND OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE BY THE Collateral Agent OR SUCH DEBTOR, AND ANY CLAIM FOR INTELLECTUAL PROPERTY INFRINGEMENT).",
+    "is_causal": true,
+    "category": "Indemnity",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "Interest is payable monthly on the last calendar day of each month and shall be computed on the basis of a 360-day year for the actual number of days elapsed. In computing interest, (i) all payments received after 12:00 p.m. Pacific time on any day shall be deemed received at the opening of business on the next Business Day, and (ii) the date of the making of any Credit Extension shall be included and the date of payment shall be excluded; provided , however , that if any Credit Extension is repaid on the same day on which it is made, such day shall be included in computing interest on such Credit Extension.",
+    "is_causal": true,
+    "category": "Payments",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "Either party may cancel or terminate this Agreement by giving writing notice if the other party (i) becomes insolvent, is the subject of bankruptcy or administration proceedings that are not dismissed within ninety (90) days of filing or makes an assignment for the benefit of creditors, or (ii) materially breaches or defaults on any of such party’s obligations under this Agreement and fails to cure the breach or default within thirty (30) days after written notice describing the breach or default. Immediately upon expiration or any termination of this Agreement, Consultant shall promptly deliver, in a format acceptable to Company, all physical embodiments of the Work Product and all Proprietary Information and all copies thereof in Consultant’s possession or control. Sections 2, 5, 6, 7, 9 and 10 shall survive expiration and any termination of this Agreement.",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "Employee shall report to the Board of Directors of the Company pursuant to the procedures set forth in the Company’s Bylaws. Employee agrees to discharge such duties as may be delegated to him from time-to-time by the Company.  The Company reserves the right to change or modify the designation of Employee or his duties at Company's discretion from time-to-time. During the term of his employment, unless an actual conflict arises, Employee is authorized to engage in any other business or occupation provided he has the ability to dedicate, at the very least, twenty hours a month towards the performance of his duties hereunder. Employee is not prohibited from making passive or personal investments for which the expenditure of time is not required.  Employee acknowledges that he shall travel, as reasonably required by the Company, in connection with his employment, subject to the Company paying any and all reasonable expenses in advance of such travel.",
+    "is_causal": true,
+    "category": "Duties",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "The title of \"Agent\" is used solely as a matter of market custom and the duties of Agent are administrative in nature only.  Agent has no duties except those expressly set forth in the Loan Documents, and in no event does Agent have any agency, fiduciary or implied duty to or relationship with any Secured Party or other Person by reason of any Loan Document or related transaction.  The conferral upon Agent of any right shall not imply a duty to exercise such right, unless instructed to do so by Lenders in accordance with this Agreement.",
+    "is_causal": true,
+    "category": "Duties",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Within ten (10) days after the Closing Date, the Borrowers shall deliver to the Administrative Agent a certificate as to coverage under the general liability and property insurance policies required by Section 5.02 of the Credit Agreement, each of which shall be endorsed or otherwise amended to include a customary lender’s loss payable endorsement and to name the Collateral Agent as additional insured, in each case in form and substance reasonably satisfactory to the Administrative Agent. The Administrative Agent acknowledges that the foregoing insurance certificates and endorsements have been received as of the Restatement Date.",
+    "is_causal": true,
+    "category": "Insurances",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "All payments made by the Employers under this Agreement shall be subject to withholding of any tax or other amounts required to be withheld by the Employers under applicable law or benefit plans of the Employers in which the Employee is participating.",
+    "is_causal": true,
+    "category": "Withholdings",
+    "entity_label": null
+  },
+  {
+    "text": "Notwithstanding anything herein to the contrary, to the extent that the Purchaser has executed or is otherwise bound by a confidentiality agreement in favor of the Company,  the Purchaser shall continue to be bound by such confidentiality agreement.",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "While employed by Company, Executive shall perform the duties required of Executive hereunder and shall devote Executive's best efforts and exclusive business time, energy and skill to performing such duties; not make any disparaging remarks regarding Company to any person with whom Company has business relations, including any employee or vendor of Company; use the Goodwill solely for the benefit of Company; and not interfere in such Goodwill, either during or following Executive's employment with Company.",
+    "is_causal": true,
+    "category": "Duties",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Employer shall indemnify Executive (and, upon Executive’s death, Executive’s heirs, executors and administrators) to the fullest extent permitted by law against all expenses, including reasonable attorneys’ fees, court and investigative costs, judgments, fines and amounts paid in settlement (collectively, “ Expenses ”) reasonably incurred by Executive in connection with or arising out of any pending, threatened or completed action, suit or proceeding in which Executive becomes involved by reason of Executive’s having been an officer or director of Employer. The indemnification rights provided for herein are not exclusive and shall supplement any rights to indemnification that Executive may have under any applicable bylaw or charter provision of Employer, or any resolution of Employer, or any applicable statute.",
+    "is_causal": true,
+    "category": "Indemnifications",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "The business and operations of the Company have been conducted in accordance with all applicable laws, rules and regulations of all governmental authorities, except for such violations which would not, individually or in the aggregate, have a material adverse effect on the financial condition or business of the Company.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "This Agreement may be terminated by the Purchaser, as to the Purchaser’s obligations hereunder only and without any effect whatsoever on the obligations between the Company and the other Purchasers, by written notice to the other parties, if the First Closing has not been consummated on or before January 6, 2017; provided, however, that such termination will not affect the right of any party to sue for any breach by any other party (or parties).",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "The Borrower will (a) keep and maintain all property material to the conduct of its business in good working order and condition, ordinary wear and tear excepted, and (b) maintain, with financially sound and reputable insurance companies, insurance in such amounts and against such risks as are customarily maintained by companies engaged in the same or similar businesses operating in the same or similar locations. The Borrower will cause each of its Subsidiaries to (a) except where the failure to do so, individually or in the aggregate, could not reasonably be expected to result in a Material Adverse Effect, keep and maintain all property material to the conduct of its business in good working order and condition, ordinary wear and tear excepted, and (b) maintain, with financially sound and reputable insurance companies, insurance in such amounts and against such risks as are customarily maintained by companies engaged in the same or similar businesses operating in the same or similar l",
+    "is_causal": true,
+    "category": "Insurances",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "This Guaranty is a continuing and irrevocable guaranty of all Loan Obligations now or hereafter existing and shall remain in full force and effect until all Loan Obligations and any other amounts payable under this Guaranty (other than obligations and liabilities under Secured Cash Management Agreements and Secured Hedge Agreements) are paid in full in cash and the Commitments are terminated. Notwithstanding the foregoing, this Guaranty shall continue in full force and effect or be revived, as the case may be, if any payment by or on behalf of the Borrower or Holdings is made, or any of the Secured Parties exercises its right of setoff, in respect of the Loan Obligations and such payment or the proceeds of such setoff or any part thereof is subsequently invalidated, declared to be fraudulent or preferential, set aside or required (including pursuant to any settlement entered into by any of the Secured Parties in their discretion) to be repaid to a trustee, receiver or any other party, ",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "Lender shall have received, in immediately available funds, the Closing Fee and the Collateral Management Fee.",
+    "is_causal": true,
+    "category": "Fees",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "Except as set forth in Sections 3(c)(ii), (iii) and (iv) below, the option herein granted must be exercised by the Optionee only while the Optionee is an employee (or within 90 days of the termination of Optionee’s employment if the basis for such termination is not otherwise addressed below) of the Company or one of its subsidiaries as defined in Section 424(f) of the Code during the period beginning with the Date of Grant and ending on the Expiration Date. Options that do not become exercisable in accordance with Section 2 shall terminate on the 90 th day following the termination of Optionee’s employment.",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "Executive will have the authority, duties and responsibilities customarily associated with the position of Chief Executive Officer, consistent with the Company’s by-laws and applicable law. Executive will have such additional duties and responsibilities commensurate with his position as the Company’s Board of Directors (the “Board”) may assign to him from time to time. Executive will report directly to and be subject to the control and direction of the Board. The Company will use its reasonable efforts to ensure that Executive will continue to be a member of the Board during the period of his employment under this Agreement. At the request of the Board, Executive shall serve as an officer and director of the Company’s subsidiaries and other affiliates without additional compensation. Executive will observe and adhere to all applicable written Company policies and procedures in effect from time to time, including, and without limitation, policies on business ethics and conduct, and poli",
+    "is_causal": true,
+    "category": "Duties",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each payment by any of the Guarantors to the Administrative Agent under this Guaranty shall be made by transferring the amount thereof in immediately available funds without set-off or counterclaim.",
+    "is_causal": true,
+    "category": "Payments",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "The Company reserves the right to terminate the Plan at any time by action of the Compensation Committee of the Board. Upon termination of the Plan, all Elective Deferrals and Company contributions will cease and no future Elective Deferrals or Company contributions will be made. Termination of the Plan shall not operate to eliminate or reduce a Participant’s vested Account balances.",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "The Lenders severally agree to indemnify each Agent, any Issuing Lender and Swingline Lender in its capacity as such (to the extent not reimbursed by the Borrower and without limiting the obligation of the Borrower to do so), ratably according to their respective Aggregate Exposure Percentages in effect on the date on which indemnification is sought under this Section 9.7 (or, if indemnification is sought after the date upon which the Commitments shall have terminated and the Loans shall have been paid in full, ratably in accordance with such Aggregate Exposure Percentages immediately prior to such date), from and against any and all liabilities, obligations, losses, damages, penalties, actions, judgments, suits, costs, expenses or disbursements of any kind whatsoever that may at any time (whether before or after the payment of the Loans) be imposed on, incurred by or asserted against such Agent, any Issuing Lender or Swingline Lender in any way relating to or arising out of, the Commi",
+    "is_causal": true,
+    "category": "Indemnifications",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "At the Closing, the Investor shall deliver to the Company (i) the purchase price for the Common Shares being purchased by the Investor by check or by wire transfer of immediately available funds to an account designated by the Company prior to the Closing, and (ii) the documents set forth in Section 6(b)(iv) of this Agreement. Notwithstanding the foregoing, the Company hereby authorizes and instructs the Investor to deduct from the purchase price to be paid at the Closing the fees and expenses that the Company is obligated to reimburse the Investor for pursuant to Section 5(c) of this Agreement.",
+    "is_causal": true,
+    "category": "Payments",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "Each Holder agrees that all material non-public information provided pursuant to or in accordance with the terms of this Agreement shall be kept confidential by the person to whom such information is provided, until such time as such information becomes public other than through violation of this provision. Notwithstanding the foregoing, any party may disclose the information (i) if required to do so by any law, rule, regulation, order, decree or subpoena of any governmental agency or authority or court, (ii) that (A) is or becomes available to such party on a non-confidential basis from a source other than the Company or its representatives (which source was not to such party’s knowledge prohibited from disclosing such information to such party by a legal, contractual or fiduciary obligation owed to the Company), (B) is already in such party’s possession (not including information furnished by or on behalf of the Company), and (C) is independently developed or acquired by such party w",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Notwithstanding anything to the contrary contained herein or in any other Loan Document, the authority to enforce rights and remedies hereunder and under the other Loan Documents against the Loan Parties or any of them shall be vested exclusively in, and all actions and proceedings at law in connection with such enforcement shall be instituted and maintained exclusively by, the Administrative Agent in accordance with this Section 8.2 for the benefit of all the Lenders and the Issuing Lender; provided that the foregoing shall not prohibit (a) the Administrative Agent from exercising on its own behalf the rights and remedies that inure to its benefit (solely in its capacity as Administrative Agent) hereunder and under the other Loan Documents, (b) the Issuing Lender or the Swing Loan Lender from exercising the rights and remedies that inure to its benefit (solely in its capacity as the Issuing Lender or Swing Loan Lender, as the case may be) hereunder and under the other Loan Documents, ",
+    "is_causal": true,
+    "category": "Remedies",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "All liens and security interests securing reimbursement obligations and other obligations owed to the applicable U.S. L/C Issuer of any U.S. Bond L/C under the related Bond Documents (including any U.S. L/C Borrowing), any rights in and to any Bonds or other certificates of indebtedness issued to such L/C Issuer under the related Bond Documents, and any voting rights or other rights created in favor of such L/C Issuer under or pursuant to or in connection with any related Bond Documents (collectively, the “ Bond Rights ”), now or hereafter existing in favor of such L/C Issuer, are hereby assigned and conveyed by the applicable U.S. L/C Issuer to U.S. Funding Agent for the ratable benefit of U.S. Lenders. Notwithstanding anything to the contrary set forth in any U.S. Bond L/C, any Bonds or certificates of indebtedness purchased from the owner thereof by the applicable Trustee with funds received pursuant to a drawing under any U.S. Bond L/C shall be registered in the name of U.S. Fundin",
+    "is_causal": true,
+    "category": "Liens",
+    "entity_label": null
+  },
+  {
+    "text": "If you are resident or employed outside the U.S., as a condition of the Option, you agree to repatriate all payments attributable to the shares of Stock acquired under the Plan in accordance with applicable foreign exchange rules and regulations in your country of residence (and country of employment, if different).  In addition, you agree to take any and all actions, and consent to any and all actions taken by the Company and its Affiliates, as may be required to allow the Company and its Affiliates to comply with local laws, rules and/or regulations in your country of residence (and country of employment, if different).  Finally, you agree to take any and all actions as may be required to comply with your personal obligations under local laws, rules and/or regulations in your country of residence and country of employment, if different).",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "This Agreement shall terminate and shall have no further force or effect as of the Expiration Date.  Notwithstanding the foregoing, nothing set forth in this Section 12 or elsewhere in this Agreement shall relieve either party hereto from any liability, or otherwise limit the liability of either party from any liability for any intentional breach of any obligation or other provision contained in this Agreement.",
+    "is_causal": true,
+    "category": "Terminations",
+    "entity_label": null
+  },
+  {
+    "text": "The Original Lenders and the Administrative Agent shall have received all fees required to be paid, and all expenses for which invoices have been presented (including the reasonable fees and expenses of legal counsel), on or before the Original Closing Date.",
+    "is_causal": true,
+    "category": "Fees",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "The Company will, and will cause each of the Subsidiaries to, (a) keep and maintain all property material to the conduct of its business in good working order and condition, ordinary wear and tear excepted, and (b) maintain, with financially sound and reputable insurance companies, insurance in such amounts and against such risks as are customarily maintained by companies engaged in the same or similar businesses operating in the same or similar locations.",
+    "is_causal": true,
+    "category": "Insurances",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "No Shares will be issued pursuant to the exercise of this Option unless and until the Participant pays to the Company, or makes provision satisfactory to the Company for payment of, any federal, state or local withholding taxes required by law to be withheld in respect of this Option. Such withholding taxes may be satisfied, at the discretion of the Board, by the withholding of Shares of Common Stock of the Company.",
+    "is_causal": true,
+    "category": "Withholdings",
+    "entity_label": null
+  },
+  {
+    "text": "Employee hereby represents to Extraction that Employee has read and understands, and agrees to be bound by, the terms of this Article VIII.  Employee acknowledges that the geographic scope and duration of the covenants contained in this Article VIII are the result of arm’s-length bargaining and are fair and reasonable in light of (a) the nature and wide geographic scope of the operations of the Business, (b) Employee’s level of control over and contact with the Business in all jurisdictions in which it is conducted, (c) the fact that the Business is conducted throughout the Restricted Area and (d) the amount of Confidential Information that Employee is receiving in connection with the performance of Employee’s duties hereunder.  It is the desire and intent of the parties that the provisions of this Article VIII be enforced to the fullest extent permitted under applicable Legal Requirements, whether now or hereafter in effect and therefore, to the extent permitted by applicable Legal Re",
+    "is_causal": true,
+    "category": "Enforcements",
+    "entity_label": null
+  },
+  {
+    "text": "The Lenders agree to indemnify the Administrative Agent and its Related Parties, ratably according to their pro rata share of the Aggregate Credit Facility Exposure (excluding Swing Loans), from and against any and all liabilities, obligations, losses, damages, penalties, actions, judgments, suits, costs, reasonable expenses or disbursements of any kind whatsoever that may at any time (including, without limitation, at any time following the payment of the Obligations) be imposed on, incurred by or asserted against the Administrative Agent or such Related Parties in any way relating to or arising out of this Agreement or any other Loan Document, or any documents contemplated by or referred to herein or the transactions contemplated hereby or any action taken or omitted to be taken by the Administrative Agent or such Related Parties under or in connection with any of the foregoing, but only to the extent that any of the foregoing is not paid by the Borrower; provided, however, that no L",
+    "is_causal": true,
+    "category": "Indemnifications",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "Without limiting, and in addition to, the provisions of Section 10.02 , the Seller agrees to indemnify the Buyer and to hold the Buyer harmless from any loss or expense that the Buyer may sustain or incur as a consequence of (i) a default by the Seller in payment when due of the Repurchase Price or Price Differential or (ii) a default by the Seller in making any prepayment of Repurchase Price after the Seller has given a notice thereof in accordance with Section 2.03 .",
+    "is_causal": true,
+    "category": "Indemnity",
+    "entity_label": "PENALTY"
+  },
+  {
+    "text": "The Borrower Parties:  (1) shall comply, in all material respects, with all material Requirements of Law of any Governmental Authority having jurisdiction over it or its business, and (2) shall, to the extent that the failure of the same would have a Material Adverse Effect, comply, in all respects, with all Contractual Obligations.  The Borrower Parties shall, to the extent that the failure of the same would have a Material Adverse Effect, cause each of their respective Subsidiaries to:  (1) comply, in all respects, with all Requirements of Law of any Governmental Authority having jurisdiction over it or its business, and (2) comply, in all respects, with all Contractual Obligations.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each of the Loan Parties and its Restricted Subsidiaries has filed all material federal, state and other Tax returns and other material tax reports that it is required by law to file, and has paid, or made reasonably adequate provision for the payment of, all Taxes upon it, its income and its Properties that are shown due and payable on such returns, except to the extent being Properly Contested.",
+    "is_causal": true,
+    "category": "Taxes",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "Each Party’s obligation under this Agreement is unique.  If any Party should breach its covenants or agreements under this Agreement, the Parties each acknowledge that it would be extremely impracticable to measure the resulting damages; accordingly, the nonbreaching Party or Parties, in addition to any other available rights or remedies they may have under the terms of this Agreement, may sue in equity for specific performance or to obtain an injunction or injunctions to prevent breaches of this Agreement, and each Party expressly waives the defense that a remedy in damages will be adequate.",
+    "is_causal": true,
+    "category": "Specific Performance",
+    "entity_label": null
+  },
+  {
+    "text": "Each Agent, each Lender and each Transferee shall hold all non-public information obtained by such Agent, such Lender or such Transferee pursuant to the requirements of this Agreement in accordance with such Agent’s, such Lender’s and such Transferee’s customary procedures for handling confidential information of this nature; provided , however, each Agent, each Lender and each Transferee may disclose such confidential information (a) to its examiners, Affiliates, outside auditors, counsel and other professional advisors, (b) to any Agent, any Lender or to any prospective Transferees, and (c) as required or requested by any Governmental Body or representative thereof or pursuant to legal process; provided, further that (i) unless specifically prohibited by Applicable Law, each Agent, each Lender and each Transferee shall use its reasonable best efforts prior to disclosure thereof, to notify the applicable Borrower of the applicable request for disclosure of such non-public information ",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each of the Parties acknowledges and agrees that the other Party may be damaged irreparably in the event any of the provisions of this Agreement are not performed in all material respects or otherwise are breached. Accordingly, and notwithstanding anything herein to the contrary, each of the Parties agrees that the other Party will be entitled to injunctive relief to prevent breaches of the provisions of this Agreement, and/or to enforce specifically this Agreement and the terms and provisions hereof, in any action instituted in any court or tribunal having jurisdiction over the Parties and the matter, without posting any bond or other security, and that such injunctive relief shall be in addition to any other remedies to which such Party may be entitled, at law or in equity.",
+    "is_causal": true,
+    "category": "Specific Performance",
+    "entity_label": null
+  },
+  {
+    "text": "All references to Lender or its Affiliates contained in any press release, advertisement, promotional material or other information prepared by Borrower or any Subsidiary must be approved in writing by Lender in advance of issuance and all references to Borrower or its Affiliates contained in any press release, advertisement, promotional material or other information prepared by Lender must be approved in writing by Borrower in advance of issuance. Notwithstanding the foregoing, each of Borrower and Lender retains the right in its sole discretion to disclose this Agreement (including its terms and conditions), as well as the identity of the Borrower or Lender, respectively, as needed to comply with its obligations under applicable Laws, including stock exchange regulations.",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Except for the fees payable to Citigroup Global Markets Inc. and Goldman, Sachs & Co., which shall be paid by Parent, none of Parent, the Sellers, the Companies or the Subsidiaries have paid or become obligated to pay any fee or commission to any broker, finder or other intermediary who might be entitled to any fee or commission in connection with the transactions provided for herein or in connection with the negotiation thereof.",
+    "is_causal": true,
+    "category": "Fees",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "In the performance of its obligation to supply Licensed Adjuvants to Purchaser under this Agreement, Supplier shall (i) comply with all Applicable Laws, including those in any Regulatory Approval of any Regulatory Authority (including without limitation, cGMPs as applicable in each relevant country as defined in national and international accepted GMP compendia including PIC/C, WHO GMP Guide and Guide to Good Manufacturing Practices for Medicinal Products as promulgated under European Directive 91/356/EEC), (ii) manufacture the Licensed Adjuvants according to the Adjuvant Specifications, and (iii) obtain and comply with all Regulatory Approvals that are necessary for Supplier to perform its obligations hereunder. Prior to the production of any cGMP supplies by Isconova under this Agreement, including without limitation the Preclinical Supplies, the Parties shall execute a Quality Agreement which shall have the table of contents attached hereto as Exhibit G and upon execution, such Qual",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each Loan Party shall, and shall cause each of its Subsidiaries to, comply, in all material respects, with all Requirements of Law of any Governmental Authority having jurisdiction over it or its business, including, without limitation, the Federal Fair Labor Standards Act, ERISA, the Foreign Corrupt Practices Act, and the rules and regulations promulgated by OFAC, except such as may be contested in good faith or as to which a bona fide dispute may exist or which the failure to comply therewith could not reasonably be expected to have a Material Adverse Effect on the Loan Parties, taken as a whole.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "The Micron-NTC Mutual NDA is incorporated herein by reference, and the Parties agree that the Micron-NTC Mutual NDA shall govern the confidentiality and non-disclosure obligations of the Parties in connection with information exchanged under this Agreement. If the Micron-NTC Mutual NDA is terminated or expires and is not replaced, then Confidential Information provided, disclosed, obtained or accessed in the performance of the Parties’ activities under this Agreement shall continue to be subject to all applicable provisions of the Micron-NTC Mutual NDA notwithstanding such termination or expiration. The Parties acknowledge and agree that the Transferred Technology shall be deemed to be the Confidential Information of Micron without any further requirement or obligation of identification, labeling, marking or confirmation. Furthermore, each Party shall treat the terms of this Agreement as if they were the Confidential Information of the other Party. To the extent there is a conflict or ",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "During the term of Employee’s employment with the Company, Employee shall devote his full time, skill and attention to his duties and responsibilities, which Employee shall perform faithfully, diligently and competently, and Employee shall use their best efforts to further the business of the Company. During the term of the Agreement, Employee agrees not to actively engage in any other employment, occupation or consulting activity for any direct or indirect remuneration without the prior approval of the Company, except that this provision shall not be interpreted to prohibit Employee from involvement in any charitable or community activity/organization that they are currently involved in and that does not materially interfere with their ability to perform their duties under this Agreement. Employee shall be permitted, to the extent such activities do not materially and adversely affect the ability of Employee to fully perform their duties and responsibilities hereunder, to (i) manage E",
+    "is_causal": true,
+    "category": "Duties",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "With the exception of Base Rate Loans, interest on Loans, Letter of Credit fees, facility fees, ticking fees and other fees and charges hereunder shall be computed on the basis of a year having three hundred sixty (360) days and calculated for the actual number of days elapsed. With respect to Base Rate Loans, interest shall be computed on the basis of a year having three hundred sixty-five (365) days or three hundred sixty-six (366) days, as the case may be, and calculated for the actual number of days elapsed.",
+    "is_causal": true,
+    "category": "Fees",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "As an employee of the Bank, the Executive will have access to and may participate in the origination of non-public, proprietary and confidential information relating to the Bank and/or its subsidiaries, and the Executive acknowledges a fiduciary duty owed to the Bank and its subsidiaries not to disclose impermissibly any such information. Confidential information may include, but is not limited to, trade secrets, customer lists and information, internal corporate planning, methods of marketing and operation, and other data or information of or concerning the Bank or its customers that is not generally known to the public or generally in the banking industry. The Executive agrees that for a period of five (5) years following the cessation of his employment, he will not use or disclose to any third party any such confidential information, either directly or indirectly, except as may be authorized in writing specifically by the Bank; provided, however that to the extent the information co",
+    "is_causal": true,
+    "category": "Confidentiality",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Each Company shall (a) comply with all material federal, state, local, or foreign applicable statutes, rules, regulations, and orders including, without limitation, those relating to environmental protection, occupational safety and health, and equal employment practices; (b) comply with Anti-Corruption Laws, and shall have implemented policies and procedures designed to ensure compliance therewith; and (c) ensure that no Company, or to the knowledge of any Company, any director or officer of a Company, is a Person that is, or is owned or controlled by Persons that are (i) the subject of any Sanctions, or (ii) located, organized or resident in, or operating in, a country or territory that is, or whose government is, the subject of Sanctions.",
+    "is_causal": true,
+    "category": "Compliance With Laws",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "Tenant shall not conduct or permit to be conducted any activity, or place any equipment in or about the Premises or the Building which will in any way increase the rate of fire insurance or other insurance on the Building pertaining to the Permitted Use in compliance with the terms of the Lease provided that the Hazardous Materials List (defined in Section 21.2) does not change. If any increase in the rate of fire insurance or other insurance is stated by any insurance company to be due to any activity or equipment of Tenant in or about the Premises or the Building, such statement shall be conclusive evidence that the increase in such rate is due to such activity or equipment and, as a result thereof, Tenant shall be liable for the amount of such increase. Tenant shall reimburse Landlord for such amount upon written demand from Landlord and such sum shall be considered additional rent payable hereunder.",
+    "is_causal": true,
+    "category": "Insurances",
+    "entity_label": "OBLIGATION"
+  },
+  {
+    "text": "The Borrower has filed or caused to be filed all federal, state, and local tax returns required to be filed by the Borrower and has paid or made arrangement for the payment of all taxes, assessments, and governmental charges and levies thereon, including any interest and penalties, to the extent the same have become due.  The Borrower has set up reserves that are believed by the Borrower to be adequate for the payment of such taxes for the years that have been audited by the respective tax authorities.  Nothing contained in this Section 3.5 shall prevent the Borrower from con-testing in good faith any tax or assessment assessed against the Borrower so long as adequate reserves for payment of the same have been made and verified to WWSAF.",
+    "is_causal": true,
+    "category": "Taxes",
+    "entity_label": "THRESHOLD"
+  },
+  {
+    "text": "This Amendment may be executed by one or more of the parties hereto on any number of separate counterparts, and all of said counterparts taken together shall be deemed to constitute one and the same instrument. This Amendment may be delivered by facsimile or other electronic transmission of the relevant signature pages hereof.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "All notices required or permitted under this Agreement will be in writing, will reference this Agreement, and will be deemed given: (i) when delivered personally; (ii) one (1) business day after deposit with a nationally-recognized express courier, with written confirmation of receipt; or (iii) three (3) business days after having been sent by registered or certified mail, return receipt requested, postage prepaid. All such notices will be sent to the addresses set forth above or to such other address as may be specified by either party to the other party in accordance with this Section.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement shall be construed and enforced in accordance with the laws of the State of Minnesota (without reference to its conflicts of laws provisions).",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "THIS AMENDMENT SHALL BE GOVERNED BY, AND INTERPRETED IN ACCORDANCE WITH, THE LAW OF THE STATE OF NEW YORK . The other provisions of Article IX of the Credit Agreement shall apply to this Amendment to the same extent as if fully set forth herein.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement supersedes all prior agreements, whether oral or written, by any officer, employee or representative of any party hereto in respect of the subject matter contained herein; and any prior agreement of the parties hereto in respect of the subject matter contained herein is hereby terminated and cancelled (other than the Non-disclosure and Assignment of Inventions Agreement dated May 24, 2013 by and between Employee and the Company).",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "All notices, requests, demands and other communications required or permitted to be given or made under this Agreement shall be in writing and shall be deemed to have been given if delivered by hand, sent by generally recognized overnight courier service or mail: (i) if to the Executive, to the Executive’s address as it appears in the records of the Company, and (ii) if to the Company, to Navigant Consulting, Inc., 30 S. Wacker Drive, Chicago, Illinois 60606, Attention: General Counsel, or (iii) to such other address as either party shall have furnished to the other in writing in accordance herewith. Notice and communications will be effective when actually received by the addressee.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "The validity or unenforceability of any provision or provisions of this Agreement shall not affect the validity or enforceability of any other provision hereof, which will remain in full force and effect.  Should a court or other body of competent jurisdiction determine that any provision of this Agreement is excessive in scope or otherwise illegal, invalid, void or unenforceable, such provision shall be adjusted rather than voided, if possible, so that it is enforceable to the maximum extent possible.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "Notwithstanding anything herein to the contrary, the Company shall have the right to enforce the provisions of Section 3.3 through an action, suit or proceeding brought in any federal court located in the State of Colorado or any Colorado state court, and each Participant consents to the exclusive jurisdiction and venue of such courts (and of the appropriate appellate courts therefrom) in any such action, suit or proceeding and irrevocably waives, to the fullest extent permitted by law, any right to a jury trial and any objection that such party may now or hereafter have to the laying of the venue of any such action, suit or proceeding in any such court or that any such action, suit or proceeding brought in any such court has been brought in an inconvenient forum.",
+    "is_causal": false,
+    "category": "Waiver Of Jury Trials",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be executed in any number of counterparts, and electronically, and each of which when so executed and delivered shall be taken to be an original; but such counterparts shall together constitute one and the same document.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement, together with the Non-Competition Agreement, contains the entire agreement of the parties with respect to Employee’s employment by Employer, and supersedes any and all prior agreements between or among the parties. There are no other contracts, agreements or understandings, whether oral or written, existing between them except as contained or referred to in this Agreement.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement taken together with the offer letter dated as of the date hereof and the letter regarding relocation reimbursement contains the entire agreement of the parties relating to the subject matter hereof and may not be waived, changed, modified, extended or discharged orally, but only by agreement specifically referencing this Agreement that is signed by the party against whom enforcement of any such waiver, change, modification, extension or discharge is sought. Employee acknowledges that the Company is not bound by any oral or other unauthorized statements or promises regarding salary, benefits, length of employment or any other conditions of Employee’s employment. All previous agreements or arrangements between the Company and Employee are hereby terminated. Each party acknowledges and agrees that no representations, inducements, promises or agreements, orally or otherwise, have been made by either party, or anyone acting on behalf of either party, that are not expressly se",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be executed by one or more of the parties to this Agreement on any number of separate counterparts, and all of said counterparts taken together shall be deemed to constitute one and the same instrument.   The exchange of copies of this Agreement and of signature pages by facsimile or PDF transmission shall constitute effective execution and delivery of this Agreement as to the parties hereto and may be used in lieu of the original Agreement for all purposes.  Signatures of the parties hereto transmitted by facsimile or PDF shall be deemed to be their original signatures for all purposes.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement shall be governed by, and construed in accordance with, the laws of the State of Delaware, without regard to such state’s choice of law provisions which would require the application of the law of any other jurisdiction. The United States District Court for the Northern District of Illinois shall have exclusive jurisdiction of all matters arising out of or in connection with this Agreement; provided , however , that nothing in this Agreement shall be deemed a consent or submission by CAC to the jurisdiction of the Bankruptcy Court for any purpose, including with respect to any disputes under or relating to this Agreement, and the Company and CAC reserve all rights in this regard.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "In the event that any one or more of the provisions of this Separation Agreement is held to be invalid, illegal or unenforceable, the validity, legality and enforceability of the remaining provisions will not in any way be affected or impaired thereby. Moreover, if any one or more of the provisions contained in this Separation Agreement is held to be excessively broad as to duration, scope, activity or subject, such provisions will be construed by limiting and reducing them so as to be enforceable to the maximum extent compatible with applicable law.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "If any provision of this Agreement is held to be invalid, illegal, or unenforceable, (i) the validity, legality, and enforceability of the remaining provisions of this Purchase Agreement will not be affected or impaired, and (ii) the parties shall negotiate in good faith so as to replace each such invalid, illegal, or unenforceable provision with a valid, legal, and enforceable provision that will, in effect, from an economic viewpoint, most nearly and fairly achieve the effect of the invalid, illegal, or unenforceable provision and the intent of the parties in entering into this Agreement.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "The Plan and all provisions thereof shall be construed, administered, and enforced in accordance with the Code, ERISA, and the laws of State of Mississippi to the extent such state laws are not superseded, limited, or preempted by the Code, ERISA, or other applicable federal laws, regulations, or guidance.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement and the other Loan Documents and any claims, controversy, dispute or cause of action (whether in contract or tort or otherwise) based upon, arising out of or relating to this Agreement or any other Loan Document (except, as to any other Loan Document, as expressly set forth therein) and the transactions contemplated hereby and thereby shall be governed by, and construed in accordance with, internal laws of the State of Illinois (including, without limitation, 735 ILCS Section 105/5-1 et seq., but otherwise without regard to the conflict of laws provisions) of the State of Illinois.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "This Amendment may be executed in one or more counterparts (including via facsimile), each of which shall be deemed to be an original, but all of which together shall constitute one and the same instrument and shall become effective when one or more counterparts have been signed by each of the parties and delivered to the other party.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be executed in two or more counterparts, each of which shall be deemed an original, but all of which together shall constitute one and the same instrument. Counterparts may be delivered via facsimile, electronic mail (including pdf or any electronic signature complying with the U.S. federal ESIGN Act of 2000, e.g. , www.docusign.com) or other transmission method and any counterpart so delivered shall be deemed to have been duly and validly delivered and be valid and effective for all purposes.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "For purposes of this Section 5.9 , the term “Lender” includes any Issuing Bank and the term “Applicable Law” includes FATCA.",
+    "is_causal": false,
+    "category": "Defined Terms",
+    "entity_label": null
+  },
+  {
+    "text": "Seller and Buyer each acknowledge that it has been represented by its own legal counsel in connection with this Agreement and the transactions contemplated by this Agreement. Accordingly, any rule of law, or any legal decision that would require interpretation of any claimed ambiguities in this Agreement against the Party that drafted it, has no application and is expressly waived. The provisions of this Agreement shall be interpreted in a reasonable manner to effect the intent of Seller and Buyer.",
+    "is_causal": false,
+    "category": "Interpretations",
+    "entity_label": null
+  },
+  {
+    "text": "THIS AGREEMENT, OR ANY OF THE TRANSACTIONS CONTEMPLATED HEREBY OR THEREBY, THE RELATIONSHIP OF THE PARTIES HERETO AND THE INTERPRETATION AND ENFORCEMENT OF THE RIGHTS AND DUTIES OF THE PARTIES HERETO SHALL BE GOVERNED BY, AND CONSTRUED AND INTERPRETED IN ACCORDANCE WITH, THE LAW OF THE STATE OF NEW YORK WITHOUT GIVING EFFECT TO PRINCIPLES OF CONFLICTS OF LAW OTHER THAN SECTIONS 5-1401 AND 5-1402 OF THE GENERAL OBLIGATIONS LAW OF THE STATE OF NEW YORK.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "To facilitate execution, this Guaranty may be executed in as many counterparts as may be convenient or required. It shall not be necessary that the signature of, or on behalf of, each party, or that the signature of all persons required to bind any party, appear on each counterpart. All counterparts shall collectively constitute a single instrument. It shall not be necessary in making proof of this Guaranty to produce or account for more than a single counterpart containing the respective signatures of, or on behalf of, each of the parties hereto. Any signature page to any counterpart may be detached from such counterpart without impairing the legal effect of the signatures thereon and thereafter attached to another counterpart identical thereto except having attached to it additional signature pages.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "If any provision of this Settlement Agreement shall be determined to be invalid or unenforceable under applicable law by a court of competent jurisdiction, that part shall be ineffective to the extent of such invalidity or unenforceability only, without in any way effecting the remaining parts of such provision or the remaining provisions of this Settlement Agreement.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "Borrower and each Subsidiary has good and indefeasible title to its respective Properties, free and clear of all Liens, except for Permitted Liens.",
+    "is_causal": false,
+    "category": "Titles",
+    "entity_label": null
+  },
+  {
+    "text": "All questions concerning the construction, validity, enforcement and interpretation of the Transaction Documents shall be governed by and construed and enforced in accordance with the internal laws of the State of New York, without regard to the principles of conflicts of law thereof. Each party agrees that all legal proceedings concerning the interpretations, enforcement and defense of the transactions contemplated by this Agreement and any other Transaction Documents (whether brought against a party hereto or its respective affiliates, directors, officers, shareholders, employees or agents) shall be commenced exclusively in the state and federal courts sitting in New York County, New York State. Each party hereby irrevocably submits to the exclusive jurisdiction of the state and federal courts sitting in New York County, New York State for the adjudication of any dispute hereunder or in connection herewith or with any transaction contemplated hereby or discussed herein (including wit",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "Any notice, demand or request required or permitted to be given under this Agreement shall be in writing and shall be deemed sufficient when delivered personally or sent by telegram or forty-eight (48) hours after being deposited in the U.S. mail, as certified or registered mail, with postage prepaid, and addressed to the party to be notified at such party’s address as set forth below or as subsequently modified by written notice.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "This Amendment may be executed in one or more counterparts, each of which shall be deemed an original, but all of which together shall constitute one and the same instrument. Delivery by electronic transmission (e.g., “pdf”) of an executed counterpart of a signature page to this Amendment shall be effective as delivery of an original executed counterpart of this Amendment, and, once delivered, may not be withdrawn or revoked unless this Amendment fails to become effective in accordance with its terms on or prior to January 31, 2017.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "Each of IHS and the Borrower, each other Loan Party (by its execution of the Loan Documents to which it is a party), the Administrative Agent and each Lender acknowledges that each of them has had the benefit of legal counsel of its own choice and has been afforded an opportunity to review the Loan Documents with its legal counsel and that the Loan Documents shall be construed as if jointly drafted by the parties thereto.",
+    "is_causal": false,
+    "category": "Construction",
+    "entity_label": null
+  },
+  {
+    "text": "If any term or other provision of this Agreement is invalid, illegal, or incapable of being enforced by any Law or public policy, all other terms or provisions of this Agreement shall nevertheless remain in full force and effect so long as the economic or legal substance of the transactions contemplated hereby is not affected in any manner materially adverse to any party. Upon any such determination, the parties hereto shall negotiate in good faith to modify this Agreement so as to effect the original intent of the parties as closely as possible in an acceptable matter to the end that the transactions contemplated hereby are fulfilled to the fullest extent possible.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "PCT, ADAPTIMMUNE AND CLIENT WAIVE ANY RIGHTS THEY MAY HAVE TO A TRIAL BY JURY OF ANY DISPUTE ARISING UNDER OR RELATING TO THE AGREEMENT. PCT, ADAPTIMMUNE AND CLIENT AGREE THAT ANY SUCH DISPUTE SHALL BE TRIED BEFORE A JUDGE SITTING WITHOUT A JURY.",
+    "is_causal": false,
+    "category": "Waiver Of Jury Trials",
+    "entity_label": null
+  },
+  {
+    "text": "All notices hereunder shall be in writing and (a) if to the Company, shall be delivered personally to the Secretary of the Company or mailed to its principal office address, 1801 Bayberry Court, P.O. Box 18100, Richmond, VA 23226-8100 USA, to the attention of the Secretary, and (b) if to the Employee, shall be delivered personally or mailed to the Employee at the address set forth below. Such addresses may be changed at any time by notice from one party to the other.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "THIS AGREEMENT SHALL BE CONSTRUED IN ACCORDANCE WITH AND GOVERNED BY THE LAW OF THE STATE OF NEW YORK WITHOUT REFERENCE TO CHOICE OF, OR CONFLICT OF, LAW PRINCIPLES.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be signed in any number of counterparts, each of which shall be an original and all of which, taken together, constitute a single instrument.  This Agreement may be executed by facsimile or email ( i.e., PDF) signature and all such signatures shall be effective as originals.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "For purposes of this Agreement and the other Loan Documents, the following rules of construction shall apply, unless specifically indicated to the contrary:  (a) wherever from the context it appears appropriate, each term stated in either the singular or plural shall include the singular and the plural, and pronouns stated in the masculine, feminine or neuter gender shall include the masculine, the feminine and the neuter; (b) the term “or” is not exclusive; (c) the term “including” (or any form thereof) shall not be limiting or exclusive; (d) all references to statutes and related regulations shall include any amendments thereof and any successor statutes and regulations; (e) the words “herein,” “hereof” and “hereunder” or other words of similar import refer to this Agreement as a whole, including the exhibits and schedules hereto, as the same may from time to time be amended, modified or supplemented, and not to any particular section, subsection or clause contained in this Agreement",
+    "is_causal": false,
+    "category": "Construction",
+    "entity_label": null
+  },
+  {
+    "text": "As used in the Agreement (including the Exhibits, Schedules and Annexes), the following terms shall have the following meanings (such meanings to be equally applicable to both the singular and plural forms of the terms defined).",
+    "is_causal": false,
+    "category": "Defined Terms",
+    "entity_label": null
+  },
+  {
+    "text": "It is understood and acknowledged that there are no oral agreements between the parties hereto affecting this Lease and this Lease supersedes and cancels any and all previous negotiations, arrangements, brochures, agreements and understandings, if any, between the parties hereto or displayed  by Landlord to Tenant with respect to the subject matter thereof, and none thereof shall be used to interpret or construe this Lease. This Lease and any side letter or separate agreement executed by Landlord and Tenant in connection with this Lease and dated of even date herewith contain all of the terms, covenants, conditions, warranties and agreements of the parties relating in any manner to the rental, use and occupancy of the Premises,  shall be considered to be the only agreement between the parties hereto and their representatives and agents, and none of the terms, covenants, conditions or provisions of this Lease can be modified, deleted or added to except in writing signed by the parties h",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "Any notice to the Borrower or the Lender hereunder shall be effective when delivered in accordance with the notice provisions set forth in the Loan Agreement.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "No provision of this Agreement may be waived, modified or discharged unless such waiver, modification or discharge is agreed to in writing signed by Indemnitee and the Company.  No waiver by either party hereto at any time of any breach by the other party hereto or compliance with any condition or provision of this Agreement to be performed by such other party shall be deemed a waiver of similar or dissimilar provisions or conditions at the same or at any prior or subsequent time.  No agreements or representations, oral or otherwise, expressed or implied with respect to the subject matter hereof have been made by either party that are not set forth expressly in this Agreement.  References to Sections are to references to Sections of this Agreement.",
+    "is_causal": false,
+    "category": "Miscellaneous",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be executed in two or more counterparts (including, without limitation, facsimile counterparts), each of which shall be deemed an original, but all of which together shall constitute one and the same agreement.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "Except as set forth in Section 6.2 of this Agreement, this written document and all Schedules and Exhibits hereto expresses the entire purchase agreement between the Parties with respect to the subject matter hereof and supersedes any prior agreements or understandings concerning such subject matter.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This instrument, executed in duplicate, sets forth the entire agreement between the parties and may not be canceled, modified, or amended except by a written instrument executed by both Seller and Buyer.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This 2016-3 Servicing Supplement may be executed in any number of counterparts, each of which so executed and delivered shall be deemed to be an original, but all of which counterparts shall together constitute but one and the same instrument.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "Except to the extent otherwise mentioned, referred to or otherwise  provided herein, this Agreement contains the entire understanding and agreement between the Parties concerning the subject matter hereof and supersedes any prior agreements, whether written or oral, between the Parties concerning the subject matter hereof.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This Release Agreement constitutes the entire agreement between myself and Splunk with respect to any matters referred to in the Release Agreement. The Release Agreement supersedes any and all other agreements between myself and Splunk, except for the Employee Invention Assignment and Confidentiality Agreement, attached hereto in Attachment 2, which remains in full force and effect. No other consideration, agreements, representations, oral statements, understandings or course of conduct which are not expressly set forth in the Release Agreement shall be implied or are binding. The Release Agreement may only be modified in a writing signed by myself and an authorized representative of Splunk. I am not relying upon any other agreement, representation, statement, omission, understanding, or course of conduct which is not expressly set forth in this Release Agreement. I understand and agree that neither this Release Agreement nor any part thereof shall be deemed or construed at any time or",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "All questions concerning the construction, validity, enforcement and interpretation of the Transaction Documents shall be governed by and construed and enforced in accordance with the internal laws of the State of New York, without regard to the principles of conflicts of law thereof. Each party agrees that all legal proceedings concerning the interpretations, enforcement and defense of the transactions contemplated by this Agreement and any other Transaction Documents (whether brought against a party hereto or its respective affiliates, directors, officers, shareholders, employees or agents) shall be commenced exclusively in the state and federal courts sitting in the City of New York, District of Manhattan. Each party hereby irrevocably submits to the exclusive jurisdiction of the state and federal courts sitting in the City of New York, District of Manhattan for the adjudication of any dispute hereunder or in connection herewith or with any transaction contemplated hereby or discuss",
+    "is_causal": false,
+    "category": "Waiver Of Jury Trials",
+    "entity_label": null
+  },
+  {
+    "text": "Subject to Section 3.7 , this Agreement and its subject matter, and any action, proceeding or suit (at law or in equity, in contract, tort or otherwise) arising out of or in connection with this Agreement or the subject matter hereof will be governed by and construed and enforced in accordance with laws of the State of Delaware, without giving effect to any choice or conflict of law provision or rule that would result in the application of the laws of any other jurisdiction.",
+    "is_causal": false,
+    "category": "Governing Laws",
+    "entity_label": null
+  },
+  {
+    "text": "Each Party shall immediately provide the other Party with written notice reasonably detailing any (i) known or alleged infringement of any Agios Patents, Celgene Patents, Celgene Collaboration Patents, Agios Co-Co Collaboration Patents or Joint Collaboration Patents, or known or alleged misappropriation of any Agios Know-How, Celgene Know-How, Celgene Collaboration Know-How, Agios Co-Co Collaboration Know-How or Joint Collaboration Know-How, by a Third Party, (ii) “patent certification” filed in the United States under 21 U.S.C. §355(b)(2) or 21 U.S.C. §355(j)(2) or similar provisions in other jurisdictions, and (iii) any declaratory judgment, opposition, or similar action alleging the invalidity, unenforceability or non-infringement of any such intellectual property rights (collectively “ Third Party Infringement ”).",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement may be executed in duplicate counterparts, each of which shall be deemed an original, but all of which together shall constitute one and the same Agreement. In the event that the document is signed by one party and faxed to another the parties agree that a faxed signature shall be binding upon the parties to this agreement as though the signature was an original.",
+    "is_causal": false,
+    "category": "Counterparts",
+    "entity_label": null
+  },
+  {
+    "text": "No delay or omission of the Holder to exercise any right or power arising hereunder shall impair any such right or power to be considered to be a waiver of any such right or power, nor shall the Holder’s action or inaction impair any such right or power. If any provision of this Note is found to be invalid by a court, all the other provisions of this Note will remain in full force and effect. The Company hereby forever waives presentment, protest, notice of dishonor and notice of non-payment. This Note shall bind the Company and its successors and assigns. The captions contained in this Note are for convenience only, shall not be deemed to be a part of this Note and shall not be referred to in connection with the construction or interpretation of this Note. As used in this Note: (a) “or” is not exclusive; (b) “including” and its variants mean “including, without limitation” and its variants; (c) words defined in the singular have the parallel meaning in the plural and vice versa; (d) r",
+    "is_causal": false,
+    "category": "Miscellaneous",
+    "entity_label": null
+  },
+  {
+    "text": "Except as set forth in Section 1 above, all notices, demands, requests, consents or other communications hereunder shall be in writing and shall be given by personal delivery, by express courier, by registered or certified mail with return receipt requested, or by facsimile, to the Guarantor and the Beneficiaries at the addresses shown below, or to such other address as may be designated by written notice given by the applicable Person to the others. Unless conclusively proved otherwise, all notices, demands, requests, consents or other communications hereunder shall be deemed effective upon delivery if personally delivered, five (5) days after dispatch if sent by express courier, fourteen (14) days after dispatch if sent by registered or certified mail with return receipt requested, or confirmation of the receipt of the facsimile by the recipient if sent by facsimile.",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "Executive and the Company agree that if any portion of this Agreement or the General Release or the application of their terms to any person or circumstance or claim is determined, to any extent, to be invalid or unenforceable, the remainder of this Agreement and the General Release, or the application of such terms to any other persons, circumstances or claims shall not be affected and that this Agreement and General Release shall continue to be valid and enforceable to the fullest extent permitted by law.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement, the other Transaction Documents and the instruments to be delivered by the parties pursuant to the provisions hereof constitute the entire agreement between the parties and supersedes any prior understandings, representations or agreements by or among the parties, whether written or oral, which may have related to the subject matter of this Agreement in any way. Each exhibit and schedule to this Agreement shall be considered incorporated into this Agreement.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement ( i ) except as may be provided in a Joinder Agreement, constitutes the entire agreement among the parties with respect to the subject matter of this Agreement and supersedes any prior discussions, correspondence, negotiation, proposed term sheet, agreement, understanding or agreement and there are no agreements, understandings, representations or warranties between the parties other than those set forth or referred to in this Agreement, and ( ii ) except as provided in Section 5 with respect to an Indemnified Party, is not intended to confer in or on behalf of any Person not a party to this Agreement (and their successors and assigns) any rights, benefits, causes of action or remedies with respect to the subject matter or any provision hereof.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "Each party agrees that, should any court or other competent Governmental Entity hold any provision of this Agreement or part hereof to be invalid, illegal or unenforceable in any jurisdiction, such invalidity, illegality or unenforceability shall not affect any other term or provision of this Agreement or invalidate or render unenforceable such other term or provision in any other jurisdiction. Upon such determination that any term or other provision is invalid, illegal or unenforceable, the parties hereto shall negotiate in good faith to modify this Agreement so as to effect the original intent of the parties as closely as possible in a mutually acceptable manner in order that the transactions contemplated hereby be consummated as originally contemplated to the greatest extent possible. Except as otherwise contemplated by this Agreement, in response to an order from a court or other competent Governmental Entity for any party to take any action inconsistent herewith or not to take an ",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "The Amended and Restated Employment Agreement, as amended by this Amendment, remains in full force and effect, and embodies the entire agreement and understanding between the parties hereto with respect to the subject matter hereof and thereof, and supersedes and replaces all prior oral and written agreements or understandings by and between the parties regarding the Amended and Restated Employment Agreement.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "All notices or other communications required hereunder shall be in writing and shall be deemed duly given: (a) when delivered in person (with receipt therefor); (b) on the next business day after deposit with a recognized overnight delivery service; (c) on the third (3rd) business day after being sent by certified or registered mail, return receipt requested, postage prepaid, to addresses of Landlord and Tenant set forth in Section 1; or (d) when delivered via electronic transmission, including email, to the addresses of Landlord and Tenant set forth in Section 1.  Either party may change its address for the giving of notices by notice given in accordance with this Section. A party's refusal to accept delivery of any notice or communication sent by the other party shall not render such notice ineffective. Notwithstanding the foregoing, all bills, statements, invoices or other communications from Landlord to Tenant with respect to Rent may be sent to Tenant by regular United States mail",
+    "is_causal": false,
+    "category": "Notices",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement contains the entire agreement between the Parties concerning the subject matter expressly addressed herein and supersedes all prior agreements and understandings, written and oral, between the Parties with respect to such subject matter. However, nothing in this Paragraph 22 is intended to limit any obligations of the Parties under any other agreement that Employer may enter into with Executive after the earlier of the Effective Date or the execution of this Agreement by Executive. The provisions of this Agreement which provide for accelerated vesting and extended exercisability of stock options shall constitute amendments to any stock option agreements previously or hereafter entered into between Executive and Employer.",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  },
+  {
+    "text": "Should any section, or portion thereof, of this Agreement be held invalid by reason of any law, statute, or regulation existing now or in the future in any jurisdiction by any court of competent authority or by a legally enforceable directive of any governmental body, such section or portion thereof will be validly reformed so as to approximate the intent of the Parties as nearly as possible and, if unreformable, will be deemed divisible and deleted with respect to such jurisdiction, but the Agreement will not otherwise be affected.",
+    "is_causal": false,
+    "category": "Severability",
+    "entity_label": null
+  },
+  {
+    "text": "This Agreement embodies the entire agreement of the parties hereto respecting the matters within its scope.  This Agreement supersedes all prior agreements of the parties hereto on the subject matter hereof with the exception of the Indemnification Agreement   as noted herein.  Any prior negotiations, correspondence, agreements, proposals, or understandings relating to the subject matter hereof shall be deemed to be merged into this Agreement and to the extent inconsistent herewith, such negotiations, correspondence, agreements, proposals, or understandings shall be deemed to be of no force or effect.  There are no representations, warranties, or agreements, whether express or implied, or oral or written, with respect to the subject matter hereof, except as set forth herein.  Notwithstanding the foregoing, this Agreement is not intended to modify or extinguish any rights or obligations contained in (i) any stock option, restricted stock or other equity or equity-based award agreement b",
+    "is_causal": false,
+    "category": "Entire Agreements",
+    "entity_label": null
+  }
+]

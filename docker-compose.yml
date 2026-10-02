@@ -1,0 +1,47 @@
+# PRISM full-stack — local production-parity run (Module F).
+#
+#   docker compose up --build
+#
+# Frontend → http://localhost:3000   Backend → http://localhost:8000
+# Everything runs locally with sensible defaults; set the commented env vars to
+# move to Groq / Neon / R2. Ollama runs on the host — the backend reaches it via
+# host.docker.internal (works on Docker Desktop for Windows/Mac).
+services:
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    volumes:
+      - prism-data:/app/data
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - LLM_BACKEND=${LLM_BACKEND:-ollama}
+      # - GROQ_API_KEY=${GROQ_API_KEY}
+      # - DATABASE_URL=${DATABASE_URL}          # Neon Postgres; empty → SQLite
+      # - JWT_SECRET=${JWT_SECRET}
+      # - R2_ENDPOINT=${R2_ENDPOINT}
+      # - CLOUDFLARE_R2_KEY=${CLOUDFLARE_R2_KEY}
+      # - CLOUDFLARE_R2_SECRET=${CLOUDFLARE_R2_SECRET}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-prism-dev-secret}
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  prism-data:
