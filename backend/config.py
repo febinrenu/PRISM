@@ -80,7 +80,7 @@ LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")
 LLM_GEN_TIMEOUT_S = float(os.getenv("LLM_GEN_TIMEOUT_S", "300"))
 OLLAMA_FT_MODEL = os.getenv("OLLAMA_FT_MODEL", "prism-legal")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_URL = os.getenv("GROQ_URL", "https://api.groq.com/openai/v1/chat/completions")
 # Google Gemini (frontier-model baseline and silver labeller). Model names are
 # pinned so results stay attributable; on the free tier only Flash models

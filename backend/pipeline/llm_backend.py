@@ -6,7 +6,7 @@ configured backend so RAG, chat, and reasoning code never hard-code Ollama:
 
     LLM_BACKEND=ollama            → local Phi-3.5-mini (dev default)
     LLM_BACKEND=ollama_finetuned  → local QLoRA-merged model (Module E)
-    LLM_BACKEND=groq              → Groq cloud llama-3.1-8b-instant (production)
+    LLM_BACKEND=groq              → Groq cloud (GROQ_MODEL, default openai/gpt-oss-120b)
 
 The structured causal extractor (`llm_extractor.py`) keeps its own dedicated
 Ollama call — it needs `format:"json"` + a warmup and is deliberately pinned to

@@ -172,7 +172,7 @@ Effect = Annotated[
 
 
 class Provenance(BaseModel):
-    extractor: str                         # "expert", "rule_based", "phi3.5", "llama-3.3-70b" …
+    extractor: str                         # "expert", "rule_based", "phi3.5", "gpt-oss-120b" …
     model: Optional[str] = None
     model_digest: Optional[str] = None
     prompt_version: Optional[int] = None

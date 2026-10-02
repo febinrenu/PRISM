@@ -26,7 +26,7 @@ seaborn>=0.13.0
 chromadb>=0.5.0
 
 # --- Phase 3: production LLM backend + API (Module F) ---
-groq>=0.11.0          # cloud LLM backend (llama-3.1-8b-instant free tier)
+groq>=0.11.0          # cloud LLM backend (Groq; open-weight models)
 slowapi>=0.1.9        # per-API-key rate limiting
 PyJWT>=2.8.0          # API-key / session tokens
 bcrypt>=4.1.0         # password hashing (used directly; passlib 1.7.4 mis-detects bcrypt 4.x)
