@@ -1,0 +1,141 @@
+{
+  "_comment": "Official sources for the PRISM statute corpus. `python -m cli ingest --statute ID` downloads the first URL that returns a PDF, then records its SHA-256 in {ID}/{version}/source.json. PDFs are not committed; their hashes are.",
+  "statutes": [
+    {
+      "id": "ITA1961",
+      "title": "The Income-tax Act, 1961",
+      "act_no": "43 of 1961",
+      "version": "consolidated",
+      "kind": "act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://www.indiacode.nic.in/bitstream/123456789/2435/1/a1961-43.pdf"
+      ]
+    },
+    {
+      "id": "ITA2025",
+      "title": "The Income-tax Act, 2025",
+      "act_no": "30 of 2025",
+      "version": "enacted",
+      "kind": "act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://egazette.gov.in/WriteReadData/2025/265620.pdf"
+      ]
+    },
+    {
+      "id": "ITA2025",
+      "title": "The Income-tax Act, 2025 (as amended by the Finance Act, 2026)",
+      "act_no": "30 of 2025",
+      "version": "amended_fa2026",
+      "kind": "act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://www.incometaxindia.gov.in/documents/d/guest/income_tax_act_2025_as_amended_by_fa_act_2026-pdf"
+      ]
+    },
+    {
+      "id": "FA2019N2",
+      "title": "The Finance (No. 2) Act, 2019",
+      "act_no": "23 of 2019",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://nlcbharat.org/wp-content/uploads/2024/02/17-Finance-No.-2-Act-2019.pdf",
+        "https://www.taxo.online/wp-content/uploads/2021/06/THE-FINANCE-NO.-2-ACT-2019.pdf"
+      ]
+    },
+    {
+      "id": "FA2020",
+      "title": "The Finance Act, 2020",
+      "act_no": "12 of 2020",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://gstcouncil.gov.in/sites/default/files/2024-04/finance_act_2020.pdf"
+      ]
+    },
+    {
+      "id": "FA2023",
+      "title": "The Finance Act, 2023",
+      "act_no": "8 of 2023",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://thc.nic.in/Central%20Governmental%20Acts/Finance%20Act,%202023_.pdf"
+      ]
+    },
+    {
+      "id": "FA2024N2",
+      "title": "The Finance (No. 2) Act, 2024",
+      "act_no": "15 of 2024",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://egazette.gov.in/WriteReadData/2024/256436.pdf"
+      ]
+    },
+    {
+      "id": "FA2025",
+      "title": "The Finance Act, 2025",
+      "act_no": "7 of 2025",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://thc.nic.in/Central%20Governmental%20Acts/Finance%20Act,%202025.pdf"
+      ]
+    },
+    {
+      "id": "FA2026",
+      "title": "The Finance Act, 2026",
+      "act_no": "4 of 2026",
+      "version": "enacted",
+      "kind": "finance_act",
+      "domain": "direct_tax",
+      "urls": [
+        "https://egazette.gov.in/WriteReadData/2026/271439.pdf",
+        "https://www.incometaxindia.gov.in/documents/d/guest/finance-act-2026-pdf-1"
+      ]
+    },
+    {
+      "id": "CGST2017",
+      "title": "The Central Goods and Services Tax Act, 2017",
+      "act_no": "12 of 2017",
+      "version": "consolidated",
+      "kind": "act",
+      "domain": "indirect_tax",
+      "urls": [
+        "https://www.indiacode.nic.in/bitstream/123456789/11229/1/the_central_goods_and_services_tax_act,_2017.pdf",
+        "https://cbic-gst.gov.in/pdf/CGST-Act-Updated-31082021.pdf"
+      ]
+    },
+    {
+      "id": "COW2019",
+      "title": "The Code on Wages, 2019",
+      "act_no": "29 of 2019",
+      "version": "enacted",
+      "kind": "act",
+      "domain": "labour",
+      "urls": [
+        "https://www.labour.gov.in/static/uploads/2025/06/c328da14bbb15fc4ad571dc33e7a4ab3.pdf",
+        "https://www.indiacode.nic.in/bitstream/123456789/15274/1/the_code_on_wages.pdf"
+      ]
+    },
+    {
+      "id": "DPDP2023",
+      "title": "The Digital Personal Data Protection Act, 2023",
+      "act_no": "22 of 2023",
+      "version": "enacted",
+      "kind": "act",
+      "domain": "data_protection",
+      "urls": [
+        "https://www.meity.gov.in/static/uploads/2024/06/2bf1f0e9f04e6fb4f8fef35e82c42aa5.pdf"
+      ]
+    }
+  ]
+}

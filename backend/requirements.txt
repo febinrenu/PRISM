@@ -38,3 +38,4 @@ boto3>=1.34.0         # Cloudflare R2 (S3-compatible) file storage
 # Heavy GPU deps; kept separate in training/requirements-train.txt so the API
 # image stays slim. See training/README.md.
 # transformers, peft, bitsandbytes, trl, accelerate
+truststore>=0.10  # OS certificate store for government sites (corpus download)

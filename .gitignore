@@ -35,3 +35,9 @@ paper/NOTES_before_submission.md
 backend/data/raw/
 backend/data/runs/
 backend/data/cache/
+
+# Statute PDFs are re-downloadable from data/corpus/sources.json (hash-verified)
+backend/data/corpus/*/*/source.pdf
+backend/data/corpus/*/*/ast.json
+backend/data/corpus/*/*/text.txt
+backend/data/corpus/*/*/*.tmp

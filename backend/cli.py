@@ -65,6 +65,52 @@ def cmd_clean_extractions(args) -> int:
     return 0
 
 
+def cmd_ingest(args) -> int:
+    from pipeline.statute import corpus
+
+    sources = corpus.load_sources()
+    if args.statute != "all":
+        sources = [s for s in sources if s.id == args.statute
+                   and (args.version is None or s.version == args.version)]
+        if not sources:
+            print(f"Unknown statute {args.statute}", file=sys.stderr)
+            return 2
+    failed = 0
+    for src in sources:
+        try:
+            rec = corpus.fetch(src, force=args.force)
+        except RuntimeError as e:
+            print(f"FAIL {src.key}: {e}", file=sys.stderr)
+            failed += 1
+            continue
+        state = "downloaded" if rec["downloaded"] else "verified"
+        print(f"{state:10s} {src.key:28s} {rec['bytes'] / 1e6:6.1f} MB  {rec['sha256'][:12]}  {rec['url']}")
+    return 1 if failed else 0
+
+
+def cmd_parse(args) -> int:
+    from pipeline.statute import corpus
+    from pipeline.statute.parser import parse_statute
+    from prism_version import PARSER_VERSION
+
+    sources = [s for s in corpus.load_sources()
+               if args.statute in ("all", s.id) and (args.version is None or s.version == args.version)]
+    for src in sources:
+        if not corpus.verify(src):
+            print(f"skip {src.key}: PDF missing or hash mismatch (run `python -m cli ingest`)")
+            continue
+        ast = parse_statute(str(src.pdf_path), src.id, src.version, src.kind, src.title)
+        out = ast.to_dict()
+        out["parser_version"] = PARSER_VERSION
+        out["source_sha256"] = corpus.sha256_file(src.pdf_path)
+        (src.dir / "text.txt").write_text(ast.text, encoding="utf-8")
+        (src.dir / "ast.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        st = ast.stats
+        print(f"{src.key:28s} sections={st['sections']:4d} chapters={st['chapters']:3d} "
+              f"nodes={len(ast.nodes):6d} chars={st['chars']:8d}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -79,6 +125,17 @@ def main(argv=None) -> int:
                        help="remove LLM extractions that no longer match their clause text")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=cmd_clean_extractions)
+
+    p = sub.add_parser("ingest", help="download statute PDFs listed in data/corpus/sources.json")
+    p.add_argument("--statute", default="all", help="statute id, or 'all'")
+    p.add_argument("--version", default=None)
+    p.add_argument("--force", action="store_true", help="re-download even if the hash matches")
+    p.set_defaults(func=cmd_ingest)
+
+    p = sub.add_parser("parse", help="parse downloaded statutes into ast.json + text.txt")
+    p.add_argument("--statute", default="all")
+    p.add_argument("--version", default=None)
+    p.set_defaults(func=cmd_parse)
 
     args = parser.parse_args(argv)
     return args.func(args)
