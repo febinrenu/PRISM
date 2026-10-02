@@ -3,7 +3,7 @@ message: "If you use PRISM, please cite it using the metadata below."
 title: "PRISM: Policy Rule Interpretation and Socioeconomic Impact Modelling"
 type: software
 authors:
-  - given-names: Febin
+  - given-names: "Febin K"
     family-names: Renu
     affiliation: "Karunya Institute of Technology and Sciences"
 repository-code: "https://github.com/febinrenu/PRISM"

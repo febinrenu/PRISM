@@ -95,6 +95,20 @@ def fetch(source: StatuteSource, force: bool = False, timeout: float = 180.0) ->
         record = json.loads(record_path.read_text(encoding="utf-8"))
         if record.get("sha256") == sha256_file(source.pdf_path):
             return {**record, "downloaded": False}
+    if not force and source.pdf_path.exists() and not record_path.exists():
+        # Placed by hand (some official sites refuse scripted downloads):
+        # register it as long as it really is a PDF.
+        with open(source.pdf_path, "rb") as fh:
+            if b"%PDF-" not in fh.read(1024):
+                raise RuntimeError(f"{source.pdf_path} is not a PDF")
+        record = {
+            "id": source.id, "version": source.version, "title": source.title,
+            "act_no": source.act_no, "url": source.urls[0], "acquired": "manual download",
+            "sha256": sha256_file(source.pdf_path), "bytes": source.pdf_path.stat().st_size,
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
+        }
+        record_path.write_text(json.dumps(record, indent=2), encoding="utf-8")
+        return {**record, "downloaded": False, "registered": True}
 
     errors = []
     source.dir.mkdir(parents=True, exist_ok=True)

@@ -82,6 +82,12 @@ OLLAMA_FT_MODEL = os.getenv("OLLAMA_FT_MODEL", "prism-legal")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 GROQ_URL = os.getenv("GROQ_URL", "https://api.groq.com/openai/v1/chat/completions")
+# Google Gemini (frontier-model baseline and silver labeller). Model names are
+# pinned so results stay attributable; on the free tier only Flash models
+# have quota.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+GEMINI_URL = os.getenv("GEMINI_URL", "https://generativelanguage.googleapis.com/v1beta")
 
 # --- Phase 3: RAG corpus (Module D) ---
 CHROMA_DIR = BASE_DIR / "data" / "chromadb"
