@@ -154,6 +154,19 @@ def stats_tables(res_dir: Path) -> list[Path]:
     return out
 
 
+def error_injection_table(res_dir: Path) -> Optional[Path]:
+    path = res_dir / "error_injection.json"
+    if not path.exists():
+        return None
+    rows = [[r["set"], r["target"], r["error"], _f(r["flip_rate"], 2), _cr(r["revenue_error_crore"]),
+             _f(r["decile_rate_l1"], 4), _f(r["min_persistence"], 2)]
+            for r in json.loads(path.read_text(encoding="utf-8"))]
+    return write_table("error_injection", ["Reform", "Target", "Injected error", "Flip rate", "Revenue error (cr)",
+                                           "Decile L1", "Min persistence"], rows,
+                       "Typed extraction errors injected into the expert law: which change a policy conclusion.",
+                       "lllrrrr")
+
+
 def faithfulness_table() -> Optional[Path]:
     from eval.v2.faithfulness import OUT_DIR
     rows = []
@@ -215,6 +228,11 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
         save(r)
     runs = load_runs()
     written += headline_tables(RESULTS_DIR, runs)
+    progress("error injection")
+    import cli as _cli
+    _cli.cmd_error_injection(type("A", (), {"draws": draws // 2 or 1})())
+    if (t := error_injection_table(RESULTS_DIR)) is not None:
+        written.append(t)
     progress("population robustness and system comparison")
     report(draws, progress=lambda _m: None)
     written += stats_tables(RESULTS_DIR)

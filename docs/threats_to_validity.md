@@ -17,6 +17,20 @@ done about it.
   correlated: the ten decile directions usually move together. So the flip
   rate is reported alongside the individual flips, not as an independent
   count.
+- **Deviation from pre-registration (2026-10-03).** The direction
+  conclusions were first read with near-exact sign tests: ₹1 lakh of
+  revenue, an effective-rate change of 1e-7, and a Kakwani change of 1e-6.
+  The controlled error-injection study, which uses no system output, showed
+  that a one-rupee shift of a band boundary then flips "revenue direction"
+  and "top gaining decile" on reforms whose true change is zero. Directions
+  are now read with materiality thresholds:
+  - ₹500 crore of revenue;
+  - 0.01 percentage points of decile effective rate;
+  - 0.001 of Kakwani.
+
+  The top gaining decile is reported only when some decile gains
+  materially. Both versions are computed for every run (`flip_rate` and
+  `flip_rate_original`) and both are reported.
 - **Earliest coded year.** AY 2020-21 has no earlier coded year. Its
   conclusions are taken against a revenue-equivalent proportional tax.
 - **Scope of the calculator.** It covers resident individuals with income
@@ -62,6 +76,18 @@ done about it.
   - simulated reform costs are 2–2.6 times the Budget-speech figures. The main
     reason is that the default-regime change moves taxpayers who do not
     optimise into the new regime.
+- **Salaried taxpayers and the standard deduction.** The salaried share of
+  each income range comes from the salary table (2.2), matched to the GTI
+  table (2.1) by range. That matching assumes salary and GTI rank taxpayers
+  alike, which overstates the salaried share where non-salary income
+  dominates. Reported GTI is treated as net of the data year's standard
+  deduction (₹50,000), although new-regime returns before AY 2024-25 had
+  none.
+- **Age.** The published statistics have no age breakdown. The calibrated
+  population treats everyone as under 60, so errors in the senior slab
+  tables do not show at the calibrated setting. The robustness draws vary
+  the senior share from 0 to 20%. The taxpayer-level comparison (exact tax
+  on a fixed grid for every age band) covers the senior tables directly.
 - **Behaviour.** The simulation is static: it models no labour-supply or
   compliance response. Revenue changes are first-round effects.
 - **Statutes.** The headline experiment covers personal income tax in five
