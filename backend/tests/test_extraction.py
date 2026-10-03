@@ -138,3 +138,18 @@ def test_self_consistency_scores_rules_and_effects():
     assert out.rule_confidence == [0.75]
     assert out.effect_confidence == [[0.75, 0.5]]
     assert out.rules[0].provenance.samples == 5
+
+
+def test_rate_limit_waits_follow_the_server():
+    import httpx
+    from pipeline.extraction.backends import _rate_limited
+    groq = httpx.Response(429, text='{"error":{"message":"Rate limit reached for model on tokens per minute (TPM): '
+                                    'Limit 8000, Used 7000. Please try again in 1m7.5s."}}')
+    e = _rate_limited(groq)
+    assert e.retry_after == 67.5 and not e.daily
+    daily = httpx.Response(429, text='{"error":{"message":"Rate limit reached on tokens per day (TPD): try again in 7m2s"}}')
+    assert _rate_limited(daily).daily
+    gem = httpx.Response(429, text='{"error":{"details":[{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay": "31s"}]}}')
+    assert _rate_limited(gem).retry_after == 31.0
+    hdr = httpx.Response(429, text="slow down", headers={"retry-after": "12"})
+    assert _rate_limited(hdr).retry_after == 12.0

@@ -10,6 +10,7 @@ content-addressed (cache.py), so re-running an evaluation never calls a
 model twice for the same input.
 """
 import os
+import re
 import time
 from dataclasses import dataclass
 from typing import Optional
@@ -61,6 +62,30 @@ class BackendError(RuntimeError):
     pass
 
 
+class RateLimited(BackendError):
+    def __init__(self, message: str, retry_after: Optional[float], daily: bool):
+        super().__init__(message)
+        self.retry_after = retry_after
+        self.daily = daily
+
+
+def _rate_limited(r: httpx.Response) -> RateLimited:
+    """Groq: 'Please try again in 7.66s' / retry-after; Gemini: RetryInfo
+    retryDelay '31s'. A per-day quota cannot be waited out within a run."""
+    text = r.text
+    wait = None
+    m = re.search(r"try again in (?:(\d+)m)?([\d.]+)s", text) or re.search(r'"retryDelay":\s*"([\d.]+)s"', text)
+    if m:
+        wait = (float(m.group(1) or 0) * 60 + float(m.group(2))) if m.re.groups == 2 else float(m.group(1))
+    elif r.headers.get("retry-after"):
+        try:
+            wait = float(r.headers["retry-after"])
+        except ValueError:
+            pass
+    daily = bool(re.search(r"per day|PerDay|\(TPD\)|\(RPD\)", text))
+    return RateLimited(f"rate limited ({r.status_code}): {text[:200]}", wait, daily)
+
+
 class OfflineCacheMiss(RuntimeError):
     """PRISM_OFFLINE=1 and the output is not cached: reproduction must not
     call a model (deliberately not a BackendError, so it is never recorded as
@@ -98,7 +123,12 @@ def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: f
         "messages": [{"role": "user", "content": prompt}],
     })
     if r.status_code == 429:
-        raise BackendError(f"rate limited: {r.text[:200]}")
+        raise _rate_limited(r)
+    if r.status_code == 400 and "json_validate_failed" in r.text:
+        # The model's output was not valid JSON: that is the system's answer
+        # (scored as a parse error), not a transport failure to retry.
+        failed = r.json().get("error", {}).get("failed_generation") or ""
+        return failed or "<invalid JSON>", None
     r.raise_for_status()
     body = r.json()
     return body["choices"][0]["message"]["content"], body.get("system_fingerprint")
@@ -113,7 +143,9 @@ def _gemini(system: System, prompt: str, temperature: float, seed: int, timeout:
         "generationConfig": {"temperature": temperature, "seed": seed, "responseMimeType": "application/json",
                              "maxOutputTokens": system.max_tokens},
     })
-    if r.status_code in (429, 503):
+    if r.status_code == 429:
+        raise _rate_limited(r)
+    if r.status_code == 503:
         raise BackendError(f"unavailable ({r.status_code}): {r.text[:200]}")
     r.raise_for_status()
     body = r.json()
@@ -139,12 +171,21 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
     if os.environ.get("PRISM_OFFLINE") == "1":
         raise OfflineCacheMiss(f"{system_name}: no cached output for this prompt (offline mode)")
     last: Optional[Exception] = None
-    for attempt in range(retries):
+    attempt = waits = 0
+    while attempt < retries:
         started = time.perf_counter()
         try:
             text, version = _PROVIDERS[system.provider](system, prompt, temperature, seed, timeout)
+        except RateLimited as e:
+            last = e
+            if e.daily or waits >= 12:
+                break
+            waits += 1          # waiting out a per-minute limit is not a failed attempt
+            time.sleep(min(120.0, (e.retry_after or 20.0) + 1.0))
+            continue
         except (httpx.HTTPError, BackendError) as e:
             last = e
+            attempt += 1
             time.sleep(min(60, 5 * 2 ** attempt))
             continue
         elapsed = int((time.perf_counter() - started) * 1000)
