@@ -42,3 +42,6 @@ backend/data/corpus/*/*/ast.json
 backend/data/corpus/*/*/text.txt
 backend/data/corpus/*/*/*.tmp
 backend/data/experiments/
+
+# Human annotations are kept out of the repository until adjudication (blind double annotation)
+backend/data/annotations/

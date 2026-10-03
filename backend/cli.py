@@ -248,6 +248,25 @@ def cmd_gold_blind(args) -> int:
     return 0
 
 
+def cmd_eval_sample(args) -> int:
+    from eval.v2 import sampling
+
+    manifest = sampling.draw(args.seed)
+    path = sampling.write(manifest, overwrite=args.overwrite)
+    print(f"wrote {path}: {manifest['sizes']}")
+    return 0
+
+
+def cmd_eval_verify(args) -> int:
+    from eval.v2 import sampling
+
+    problems = sampling.verify_manifest(sampling.load())
+    for p in problems[:50]:
+        print(p)
+    print("manifest OK" if not problems else f"{len(problems)} problem(s)")
+    return 1 if problems else 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -291,6 +310,14 @@ def main(argv=None) -> int:
     p.add_argument("--out", default="../docs/coder2_blind_gemini.json")
     p.add_argument("--pause", type=float, default=8.0)
     p.set_defaults(func=cmd_gold_blind)
+
+    p = sub.add_parser("eval-sample", help="draw and freeze the v2 evaluation sets")
+    p.add_argument("--seed", type=int, default=20261003)
+    p.add_argument("--overwrite", action="store_true", help="only before annotation has started")
+    p.set_defaults(func=cmd_eval_sample)
+
+    sub.add_parser("eval-verify", help="check the frozen evaluation sets against the corpus") \
+        .set_defaults(func=cmd_eval_verify)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:
