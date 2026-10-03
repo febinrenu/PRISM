@@ -101,8 +101,66 @@ both equally. This paper measures the second question directly.
 
 %% ─────────────────────────────────────────────────────────────────────────────
 \section{Related work}\label{sec:related}
-% Written from the verified bibliography (paper/sn-article.bib); every work
-% cited here has been read and its bibliographic record checked.
+% Every work cited here has had its bibliographic record checked (sn-article.bib).
+
+\paragraph{Law as executable rules.}
+Representing legislation as executable logic is as old as the field:
+TAXMAN modelled corporate tax concepts \citep{mccarty1977taxman}, and the
+British Nationality Act was written as a logic program
+\citep{sergot1986british}. Later work formalised the defeasible and deontic
+character of norms \citep{governatori2005representing} and the logical
+structure of tax statutes \citep{lawsky2017logic}. Catala is a programming
+language whose default logic follows the structure of statutory exceptions
+\citep{merigoux2021catala}. The "rules as code" movement argues for
+publishing such machine-consumable versions of rules alongside the legal
+text \citep{mohun2020cracking}. Tax-benefit microsimulation models
+implement legislation to estimate its effects on populations: EUROMOD for
+the European Union \citep{sutherland2013euromod}, and the open-source
+OpenFisca \citep{openfisca} and PolicyEngine \citep{ahmadi2026policyengine}
+engines. In all of these the rules are coded by people.
+
+\paragraph{Language models and statutes.}
+SARA introduced statutory reasoning over sections of the US Internal Revenue
+Code with hand-written Prolog \citep{holzenberger2020dataset}, and
+GPT-3 was found to make errors in reasoning over those statutes
+\citep{blairstanek2023gpt3}. Tax-law question answering by successive LLMs
+was studied by \citet{nay2024tax}. Recent work uses LLMs to produce
+executable or formal versions of tax law: a benchmark for translating French
+tax law into Catala \citep{lorenzo2025translating}, translation of statutes
+and case facts into logic programs run by a solver
+\citep{jurayj2026logic}, LLM-assisted Prolog formalisation for detecting
+inconsistencies in the Internal Revenue Code \citep{yadamsuren2026llm},
+contamination-aware comparison of LLM-only and neuro-symbolic tax reasoning
+\citep{kordjamshidi2026reasoners}, and structured intermediate
+representations for generating decision models from Dutch planning law
+\citep{graus2026legal}. These studies evaluate the generated code or the
+answers to individual cases. We evaluate a different consequence of an
+extraction: the policy conclusions drawn when the extracted law is applied
+to a whole population.
+
+\paragraph{Indian legal NLP and tax incidence.}
+Pre-trained legal language models for Indian law \citep{paul2023pretrained},
+the IL-TUR benchmark \citep{joshi2024iltur} and named-entity recognition in
+Indian judgments \citep{kalamkar2022ner} concern case law. We are not aware
+of work extracting executable rules from Indian tax statutes. On the
+economic side, \citet{datt2022progressivity} measure the progressivity and
+redistributive effect of Indian income tax from Income Tax Department data,
+\citet{chancel2019indian} combine tax tabulations, surveys and national
+accounts into long-run income-distribution series, and
+\citet{mukherjee2025gst} estimate the incidence of GST across consumption
+fractiles.
+
+\paragraph{Faithful explanations.}
+Whether an explanation reflects what a model actually relied on is distinct
+from whether it is plausible \citep{jacovi2020faithful}; attention weights
+in particular need not provide faithful explanations
+\citep{jain2019attention}. ERASER measures faithfulness of extracted
+rationales by deleting them or keeping only them
+\citep{deyoung2020eraser}; we apply that test to the statute spans our
+extractions are grounded in. Shapley values \citep{shapley1953value} are
+widely used to attribute a model output to its inputs
+\citep{lundberg2017unified}; we use them to attribute a policy divergence to
+the provisions that caused it.
 
 %% ─────────────────────────────────────────────────────────────────────────────
 \section{Statutes and expert coding}\label{sec:data}
@@ -158,9 +216,9 @@ interest and time limits.
 \subsection{Extraction systems}
 All language models receive the same versioned prompt, one provision per
 call, with the enclosing section's opening words as context when a long
-provision is split. The systems are GPT-OSS-120B and GPT-OSS-20B and
+provision is split. The systems are GPT-OSS-120B and GPT-OSS-20B \citep{openai2025gptoss} and
 Qwen3.8-27B (served by Groq), Gemini 3.8 Flash, the local models Phi-3.5-mini
-and Gemma-2-2B (4-bit, through Ollama), and a rule-based baseline that reads
+\citep{abdin2024phi3} and Gemma-2-2B \citep{gemmateam2024gemma2} (4-bit, through Ollama), and a rule-based baseline that reads
 slab rows and fee clauses with patterns. Decoding is greedy (temperature 0,
 fixed seed). GPT-OSS-20B runs at low reasoning effort: at the default effort
 it spent its whole 4,096-token output budget on reasoning for two of the
@@ -236,7 +294,7 @@ marginal relief, surcharge with marginal relief and the new regime's cap,
 cess, and rounding of tax (s.288B). When both regimes are available a
 taxpayer files under the cheaper one. Outcomes are revenue, decile effective
 tax rates, and the Kakwani \citep{kakwani1977measurement},
-Reynolds--Smolensky and Suits indices.
+Reynolds--Smolensky \citep{reynolds1977postfisc} and Suits \citep{suits1977measurement} indices.
 
 %% ─────────────────────────────────────────────────────────────────────────────
 \section{Measures}\label{sec:measures}
@@ -300,8 +358,8 @@ selection pairs before the test pairs were run and compared with a naive
 forecast (\cref{tab:backtest_forecast}); and the revenue cost of two reforms
 against the figures announced in the Budget speeches
 (\cref{tab:backtest_reform_cost}). Global sensitivity of the outputs to the
-population assumptions is measured with Morris screening and Sobol indices
-\citep{saltelli2010variance} (\cref{tab:sensitivity}).
+population assumptions is measured with Morris screening \citep{morris1991factorial} and Sobol indices
+\citep{sobol2001global,saltelli2010variance}, computed with SALib \citep{herman2017salib} (\cref{tab:sensitivity}).
 
 \input{tables/backtest_in_sample}
 \input{tables/backtest_forecast}
