@@ -1,7 +1,7 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Loader2, X } from "lucide-react";
+import { Search, Loader2, X, ListTree, ChevronRight } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
 import ClauseCard from "./ClauseCard";
 import type { Clause } from "@/types";
@@ -10,6 +10,34 @@ import { tokens, alpha } from "@/lib/tokens";
 
 const ALL_LABELS = ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"] as const;
 type EntityLabel = (typeof ALL_LABELS)[number];
+
+const isSection = (h: string) => /^s\.\S/.test(h);
+
+/** Outline of the statute from each clause's AST hierarchy:
+ *  top level = chapter / schedule (or "Sections" when the Act has none),
+ *  second level = section (or the schedule's part / paragraph). */
+function buildOutline(clauses: Clause[]) {
+  const tops = new Map<string, { scope: string[]; count: number; children: Map<string, { scope: string[]; count: number }> }>();
+  for (const c of clauses) {
+    const h = c.section_hierarchy ?? [];
+    if (h.length === 0) continue;
+    const hasTop = !isSection(h[0]);
+    const top = hasTop ? h[0] : "Sections";
+    const topScope = hasTop ? [h[0]] : [];
+    const child = hasTop ? h[1] : h[0];
+    if (!tops.has(top)) tops.set(top, { scope: topScope, count: 0, children: new Map() });
+    const t = tops.get(top)!;
+    t.count += 1;
+    if (child) {
+      const key = child;
+      const scope = hasTop ? [h[0], child] : [child];
+      const entry = t.children.get(key) ?? { scope, count: 0 };
+      entry.count += 1;
+      t.children.set(key, entry);
+    }
+  }
+  return Array.from(tops.entries());
+}
 
 export default function ClauseFeed() {
   const {
@@ -20,6 +48,9 @@ export default function ClauseFeed() {
   } = useDocumentStore();
 
   const [search, setSearch] = useState("");
+  const [scope, setScope] = useState<string[] | null>(null);
+  const [outlineOpen, setOutlineOpen] = useState(false);
+  const outline = useMemo(() => buildOutline(clauses), [clauses]);
   const [activeLabels, setActiveLabels] = useState<Set<EntityLabel>>(new Set());
   const feedRef = useRef<HTMLDivElement>(null);
   const isProcessing = stage === "ner" || stage === "parsing" || stage === "segmentation";
@@ -44,6 +75,7 @@ export default function ClauseFeed() {
 
   const filtered: Clause[] = visibleClauses.filter((c) => {
     if (selectedClauseIds.size > 0 && !selectedClauseIds.has(c.clause_id)) return false;
+    if (scope && scope.length > 0 && !scope.every((s, i) => (c.section_hierarchy ?? [])[i] === s)) return false;
     if (search && !c.text.toLowerCase().includes(search.toLowerCase())) return false;
     if (highlightedEntityKey) {
       const [label, text] = highlightedEntityKey.split("::");
@@ -100,6 +132,61 @@ export default function ClauseFeed() {
                 <X className="w-3 h-3" />
               </button>
             </span>
+          </div>
+        )}
+
+        {/* Structure outline */}
+        {outline.length > 0 && (
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setOutlineOpen((o) => !o)}
+                aria-expanded={outlineOpen}
+                className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md border border-border text-text-secondary hover:text-text-primary hover:border-accent-primary/40 transition-colors"
+              >
+                <ListTree className="w-3.5 h-3.5" /> Structure
+              </button>
+              {scope && scope.length > 0 && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md bg-accent-primary/10 text-accent-bright min-w-0">
+                  <span className="truncate">{scope.join(" › ")}</span>
+                  <button onClick={() => setScope(null)} aria-label="Show all clauses" className="hover:opacity-70">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+            </div>
+            {outlineOpen && (
+              <nav aria-label="Statute structure" className="mt-2 max-h-64 overflow-y-auto rounded-md border border-border bg-bg-surface/60 py-1 text-[12px]">
+                {outline.map(([top, t]) => (
+                  <details key={top} open={outline.length === 1} className="group">
+                    <summary className="flex items-center gap-1 px-2 py-1 cursor-pointer list-none hover:bg-bg-elevated">
+                      <ChevronRight className="w-3 h-3 text-text-muted transition-transform group-open:rotate-90" />
+                      <button
+                        onClick={(e) => { e.preventDefault(); if (t.scope.length) setScope(t.scope); }}
+                        className="flex-1 text-left truncate text-text-primary"
+                      >
+                        {top}
+                      </button>
+                      <span className="text-text-muted tabular-nums">{t.count}</span>
+                    </summary>
+                    <ul className="pl-6 pr-2">
+                      {Array.from(t.children.entries()).map(([name, ch]) => (
+                        <li key={name}>
+                          <button
+                            onClick={() => setScope(ch.scope)}
+                            className={`w-full flex justify-between gap-2 py-0.5 text-left hover:text-text-primary ${
+                              scope && scope.join("|") === ch.scope.join("|") ? "text-accent-bright" : "text-text-secondary"}`}
+                          >
+                            <span className="truncate font-mono">{name}</span>
+                            <span className="text-text-muted tabular-nums">{ch.count}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))}
+              </nav>
+            )}
           </div>
         )}
 
