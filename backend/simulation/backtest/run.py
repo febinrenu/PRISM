@@ -149,6 +149,20 @@ def forecast_protocol(s: Settings = Settings()) -> dict:
     return {"selection_mean_ape": mean_ape, "chosen_method": chosen, "selection": selection, "test": tests}
 
 
+def population_for(ay: str, s: Settings = Settings(), base_ay: str = "2023-24") -> Population:
+    """The latest observed taxpayer population aged to `ay`'s income year by
+    nominal GDP (extrapolated at the last observed growth rate beyond the
+    published series)."""
+    M = macro()
+    base_fy, target_fy = income_year(base_ay), income_year(ay)
+    if target_fy in M:
+        f = M[target_fy]["gdp"] / M[base_fy]["gdp"]
+    else:
+        last = max(M)
+        f = M[last]["gdp"] / M[base_fy]["gdp"] * (1 + s.nominal_growth_after_2023_24) ** (int(target_fy[:4]) - int(last[:4]))
+    return age(build(base_ay, via_scale=s.via_scale), f, 1.0, ay)
+
+
 def reform_cost(reform: str, s: Settings = Settings()) -> dict:
     """Revenue cost of a Finance Act's personal income-tax changes, both laws
     applied to the same population aged to the reform year."""

@@ -53,15 +53,57 @@ def taxpayer_grid(n_random: int = 6000, seed: int = 7) -> np.ndarray:
     return np.clip(np.array(sorted(set(pts)), dtype=np.float64), 0, None)
 
 
-def _extract(system: str, units: list, use_cache: bool = True):
+def _extract(system: str, units: list, use_cache: bool = True, k: int = 0):
     if system == "rules":
         from pipeline.extraction.rule_based import extract_unit as rb
         return [rb(u)[0] for u in units]
+    if k > 0:
+        from pipeline.extraction.consistency import extract_with_consistency
+        return [extract_with_consistency(u, system, k=k, use_cache=use_cache)[0] for u in units]
     from pipeline.extraction.extractor import extract_unit
     return [extract_unit(u, system, use_cache=use_cache)[0] for u in units]
 
 
-def run_set(set_name: str, system: str, use_cache: bool = True) -> dict:
+def _previous_ay(ay: str) -> str:
+    keys = sorted(gold.build_gold())
+    i = keys.index(ay)
+    return keys[i - 1] if i > 0 else ay
+
+
+def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
+    """Population-weighted comparison with the expert law and the
+    pre-registered conclusions relative to the previous year's law."""
+    from simulation.backtest.run import population_for
+    from simulation.engine.outcomes import concentration, decile_rates, gini
+    from simulation.engine.static import simulate
+    from simulation.experiment.conclusions import conclusions, flips
+
+    G = gold.build_gold()
+    pop = population_for(ay)
+    before = simulate(G[_previous_ay(ay)], pop)
+    exp_after = simulate(expert, pop)
+    sys_after = simulate(params, pop)
+    exp_c = conclusions(before, exp_after, exp_after)
+    sys_c = conclusions(before, sys_after, exp_after) if complete else None
+
+    def kak(r):
+        return concentration(r.tax, r.weight, r.gti) - gini(r.gti, r.weight)
+
+    de, ds = decile_rates(exp_after), decile_rates(sys_after)
+    return {
+        "previous_ay": _previous_ay(ay),
+        "revenue_expert_crore": exp_after.revenue() / 1e7,
+        "revenue_system_crore": sys_after.revenue() / 1e7 if complete else None,
+        "revenue_change_expert_crore": (exp_after.revenue() - before.revenue()) / 1e7,
+        "revenue_change_system_crore": (sys_after.revenue() - before.revenue()) / 1e7 if complete else None,
+        "kakwani_expert": kak(exp_after), "kakwani_system": kak(sys_after) if complete else None,
+        "decile_rate_l1": float(sum(abs(a["effective_rate"] - b["effective_rate"]) for a, b in zip(de, ds))) if complete else None,
+        "taxpayers_with_different_tax": float(sys_after.weight[np.abs(sys_after.tax - exp_after.tax) > 10].sum()) if complete else None,
+        "conclusions_expert": exp_c, "conclusions_system": sys_c, **flips(exp_c, sys_c),
+    }
+
+
+def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> dict:
     spec = PROVISION_SETS[set_name]
     ay = spec["ay"]
     statute, version = spec["statute"]
@@ -75,7 +117,7 @@ def run_set(set_name: str, system: str, use_cache: bool = True) -> dict:
         target_units = units_for(path, units)
         if not target_units:
             raise ValueError(f"{set_name}: no units at {path}")
-        records = _extract(system, target_units, use_cache)
+        records = _extract(system, target_units, use_cache, k)
         rules_by_target[path] = [r for rec in records for r in rec.rules]
         extraction_log.append({
             "target": target, "path": path, "units": [u.unit_id for u in target_units],
@@ -84,6 +126,8 @@ def run_set(set_name: str, system: str, use_cache: bool = True) -> dict:
             "effects": sum(len(r.effects) for rec in records for r in rec.rules),
             "hallucinated_fields": sum(rec.hallucinated_fields for rec in records),
             "span_fields": sum(rec.total_span_fields for rec in records),
+            "rule_confidence": [c for rec in records for c in rec.rule_confidence],
+            "effect_confidence": [c for rec in records for row in rec.effect_confidence for c in row],
         })
 
     result = assemble(rules_by_target, spec["targets"], expert, ay)
@@ -113,8 +157,9 @@ def run_set(set_name: str, system: str, use_cache: bool = True) -> dict:
                 "mean_signed_error": float(np.mean(sys_tax - exp_tax)),
             }
     return {
-        "set": set_name, "system": system, "ay": ay,
+        "set": set_name, "system": system, "ay": ay, "samples": k,
         "complete": result.complete,
+        "population": population_outcomes(result.params, expert, ay, result.complete),
         "review": [asdict(r) for r in result.review],
         "param_diff": expert.diff(result.params),
         "extraction": extraction_log,
