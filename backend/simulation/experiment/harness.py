@@ -181,6 +181,7 @@ def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> d
         "param_diff": expert.diff(result.params),
         "extraction": extraction_log,
         "comparisons": comparisons,
+        "params": result.params.model_dump(mode="json"),
         "params_hash": result.params.canonical_hash(),
         "expert_hash": expert.canonical_hash(),
     }

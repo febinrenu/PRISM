@@ -386,12 +386,26 @@ def cmd_experiment(args) -> int:
                          p["revenue_change_expert_crore"], p.get("decile_rate_l1")))
             print(f"{set_name:20s} {system:16s} complete={r['complete']!s:5s} flip={p['flip_rate']:.2f} "
                   f"dRev sys={p.get('revenue_change_system_crore')} expert={p['revenue_change_expert_crore']:.0f}", flush=True)
+    # The summary covers every saved run, not only this invocation's.
     summary = RESULTS_DIR / "headline_summary.json"
-    summary.write_text(json.dumps([dict(zip(["set", "system", "complete", "flip_rate", "d_rev_system_crore",
-                                             "d_rev_expert_crore", "decile_rate_l1"], r)) for r in rows], indent=1),
-                       encoding="utf-8")
+    allrows = []
+    for path in sorted(RESULTS_DIR.glob("*__*.json")):
+        r = json.loads(path.read_text(encoding="utf-8"))
+        p = r["population"]
+        allrows.append({"set": r["set"], "system": r["system"], "complete": r["complete"], "flip_rate": p["flip_rate"],
+                        "d_rev_system_crore": p.get("revenue_change_system_crore"),
+                        "d_rev_expert_crore": p["revenue_change_expert_crore"], "decile_rate_l1": p.get("decile_rate_l1")})
+    summary.write_text(json.dumps(allrows, indent=1), encoding="utf-8")
     write_manifest(build_manifest("experiment", config={"systems": systems, "sets": sets, "k": args.k}))
     print(f"wrote {summary}")
+    return 0
+
+
+def cmd_experiment_stats(args) -> int:
+    from simulation.experiment.stats import report
+
+    out = report(args.draws)
+    print(json.dumps(out["systems"], indent=1))
     return 0
 
 
@@ -488,6 +502,10 @@ def main(argv=None) -> int:
     p.add_argument("--sets", default="", help="comma-separated provision sets (default: all)")
     p.add_argument("--k", type=int, default=4, help="self-consistency samples per provision")
     p.set_defaults(func=cmd_experiment)
+
+    p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
+    p.add_argument("--draws", type=int, default=64)
+    p.set_defaults(func=cmd_experiment_stats)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:
