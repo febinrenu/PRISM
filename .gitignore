@@ -52,3 +52,4 @@ training/prism-phi35-lora/
 training/prism-phi35-merged/
 training/*.gguf
 training/Modelfile
+backend/data/eval/v2/faithfulness/

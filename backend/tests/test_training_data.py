@@ -48,3 +48,21 @@ def test_ngram_overlap_detects_quoted_text():
     grams = bd.ngrams(TEXT)
     assert bd.overlap(TEXT, grams) == 1.0
     assert bd.overlap("A registered person shall furnish a return for every tax period within the prescribed time.", grams) == 0.0
+
+
+def test_faithfulness_span_operations():
+    import random
+    from eval.v2 import faithfulness as fa
+    text = "abcdefghij"
+    spans = [(1, 3), (6, 8)]
+    assert fa.delete(text, spans) == "a def ij"
+    assert fa.keep(text, spans) == "bc … gh"
+    for seed in range(20):
+        rs = fa.random_spans(spans, len(text), random.Random(seed))
+        assert sorted(b - a for a, b in rs) == [2, 2]
+        assert all(0 <= a < b <= len(text) for a, b in rs)
+        assert all(rs[i][1] <= rs[i + 1][0] for i in range(len(rs) - 1))
+    rec = _record(RAW)
+    assert fa.rationale(rec, 0, len(TEXT))
+    assert fa.f1(fa.signature(rec), fa.signature(rec)) == 1.0
+    assert fa.f1(fa.signature(rec), fa.signature(_record(RAW.replace("60000", "25000")))) < 1.0

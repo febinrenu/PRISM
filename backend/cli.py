@@ -293,6 +293,17 @@ def cmd_eval_score(args) -> int:
     return 0
 
 
+def cmd_eval_faithfulness(args) -> int:
+    from eval.v2 import faithfulness
+
+    extract = None
+    if args.system == "rules":
+        from pipeline.extraction.rule_based import extract_unit as rb
+        extract = lambda u: rb(u)[0]  # noqa: E731
+    print(json.dumps(faithfulness.evaluate(args.system, args.split, args.limit, extract), indent=1))
+    return 0
+
+
 def cmd_cbdt_targets(args) -> int:
     from simulation.population.cbdt import parse_all, write_targets
 
@@ -451,6 +462,12 @@ def main(argv=None) -> int:
     p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
     p.add_argument("--gold", default="adjudicated", help="'adjudicated' or an annotator id")
     p.set_defaults(func=cmd_eval_score)
+
+    p = sub.add_parser("eval-faithfulness", help="ERASER comprehensiveness / sufficiency of grounded spans")
+    p.add_argument("--system", required=True)
+    p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
+    p.add_argument("--limit", type=int, default=None, help="stop after this many scored items")
+    p.set_defaults(func=cmd_eval_faithfulness)
 
     sub.add_parser("cbdt-targets", help="parse Income Tax Return Statistics PDFs into target CSVs") \
         .set_defaults(func=cmd_cbdt_targets)
