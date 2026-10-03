@@ -1,63 +1,36 @@
-# PRISM — IEEE Paper (Module G)
+# Paper
 
-`PRISM_IEEE.tex` is an IEEEtran conference draft pre-filled with the numbers the
-evaluation harness already produces. Items marked `[RUN]` in red need one more
-command (they require the LLM / fine-tuned backend).
+`sn-article.tex` is the manuscript for *Artificial Intelligence and Law*
+(Springer Nature template `sn-jnl.cls`, author–year references). Compile on
+Overleaf from the "Springer Nature Article" template, or locally with the
+class files from Springer.
 
-## Build
+## Every number comes from a table file
 
-```bash
-python paper/make_figures.py          # collect eval charts + draw architecture.png
-cd paper
-pdflatex PRISM_IEEE.tex && pdflatex PRISM_IEEE.tex
-```
-
-(Any LaTeX distro with `IEEEtran.cls`, or upload the `.tex` to Overleaf.)
-
-## Reproduce every number
+The results sections `\input` the files in `tables/`, which are generated,
+never edited by hand:
 
 ```bash
 cd backend
-# Out-of-domain + simulation + template + LIME (offline where possible):
-python -m eval.run_benchmark --limit 120 --doc demo_income_tax_2025
-
-# In-domain gold sets (build → human-review → score):
-python -m eval.gold_builder --doc demo_income_tax_2025 --llm-questions
-python -m eval.review_gold --set causal      # confirm/correct, then ner, rag_qa
-python -m eval.run_benchmark --gold --with-llm --doc demo_income_tax_2025
+python -m cli reproduce            # all tables from frozen inputs and cached model outputs
+python -m cli reproduce --sensitivity   # also re-run the Sobol analysis (slow)
 ```
 
-## Filling the `[RUN]` rows in Table 1/2
+`reproduce` runs with model calls disabled (`PRISM_OFFLINE=1`). If an output
+is missing from the cache it fails instead of producing a different table.
 
-The cross-system comparison (rule-based vs Phi-3.5 vs fine-tuned LoRA) is the
-paper's headline table. Produce it by scoring each backend on the reviewed
-in-domain causal gold:
+| Table | Content | Source |
+|---|---|---|
+| `corpus` | statutes, structure counts, hashes | parsed ASTs |
+| `eval_sets` | frozen evaluation sets | `data/eval/v2/manifest.json` |
+| `backtest_*` | in-sample, forecast, reform cost | `cli backtest` |
+| `sensitivity` | Sobol indices | `cli sensitivity` |
+| `headline` | expert vs extracted, per reform and system | `cli experiment` |
+| `attribution` | Shapley attribution to provisions | experiment runs |
+| `robustness`, `mcnemar` | flips under population uncertainty; system tests | `cli experiment-stats` |
+| `error_injection` | typed errors injected into the expert law | `cli error-injection` |
+| `extraction` | extraction quality against adjudicated annotation | `cli eval-score` |
+| `faithfulness` | ERASER comprehensiveness / sufficiency | `cli eval-faithfulness` |
 
-```bash
-LLM_BACKEND=ollama            python -m eval.gold_eval --with-llm   # Phi-3.5 zero-shot
-# ...after training/finetune.py + export_ollama.py:
-LLM_BACKEND=ollama_finetuned  python -m eval.gold_eval --with-llm   # PRISM-Legal LoRA
-```
-
-Paste the resulting precision/recall/F1 into Table~\ref{tab:causal}.
-
-## Numbers already in the draft (measured on this machine)
-
-| Metric | Value |
-|---|---|
-| Clauses indexed (Income Tax Bill) | 2,755 |
-| RAG recall@1 / recall@8 (50 LLM-gen, reviewed QA) | 0.66 / 0.94 |
-| Causal F1, rule-based, LEDGAR (out-of-domain) | 0.18 |
-| Causal, Phi-3.5 zero-shot, in-domain gold (P/R/F1) | 0.54 / 0.98 / 0.70 |
-| Causal, rule-based, in-domain gold (P/R/F1)† | 1.00 / 0.92 / 0.96 |
-| Sim income KL — NSSO vs uncalibrated | 0.068 vs 0.234 (3.4× better) |
-| Top-decile share — modelled vs WIR-2022 | 0.495 vs 0.57 |
-| Template mean top-match cosine | 0.47 |
-
-## Honesty notes (keep these in the paper)
-
-- Gold sets are LLM-assisted **bootstrap → human review**, not independent
-  from-scratch annotation. Scoring a system against gold it seeded is an
-  *agreement upper bound*; the meaningful signal is **between** systems and on
-  the out-of-domain set.
-- Simulation parameters are documented baselines, not fitted to microdata.
+Limitations and deviations from the pre-registered design are recorded in
+[`../docs/threats_to_validity.md`](../docs/threats_to_validity.md).
