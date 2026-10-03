@@ -172,6 +172,19 @@ def rebate_amount_misread(p, t):
     return _set_rebate(p, t, Rebate(max_income=r.max_income, max_rebate=old.max_rebate, marginal_relief=r.marginal_relief))
 
 
+def other_regime_rebate(p, t):
+    """The rebate the same Act grants under the other regime (a scoping error:
+    s.156(1) vs s.156(2) of the Income-tax Act 2025)."""
+    regime = t.split(".")[0]
+    other = "old" if regime == "new" else "new"
+    if other not in p.regimes or p.regimes[other].rebate is None:
+        return None
+    r = p.regimes[other].rebate
+    if r == _rebate(p, t):
+        return None
+    return _set_rebate(p, t, r.model_copy())
+
+
 # ── standard deduction ──────────────────────────────────────────────────────
 
 def previous_year_standard_deduction(p, t):
@@ -200,6 +213,7 @@ OPERATORS: dict[str, tuple[str, Operator]] = {
     "drop_rebate": ("rebate", drop_rebate),
     "previous_year_rebate": ("rebate", previous_year_rebate),
     "rebate_amount_misread": ("rebate", rebate_amount_misread),
+    "other_regime_rebate": ("rebate", other_regime_rebate),
     "previous_year_standard_deduction": ("standard_deduction", previous_year_standard_deduction),
 }
 
