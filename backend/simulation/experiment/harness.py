@@ -130,6 +130,12 @@ def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> d
         if not target_units:
             raise ValueError(f"{set_name}: no units at {path}")
         records = _extract(system, target_units, use_cache, k)
+        failed_calls = [rec.error for rec in records if rec.status == "error"]
+        if failed_calls:
+            # A model call that failed (quota, network) says nothing about the
+            # system's reading of the statute: the run is not scored. Failed
+            # calls are not cached, so rerunning retries them.
+            raise RuntimeError(f"{set_name}/{system}: model call failed at {path}: {failed_calls[0]}")
         rules_by_target[path] = [r for rec in records for r in rec.rules]
         extraction_log.append({
             "target": target, "path": path, "units": [u.unit_id for u in target_units],

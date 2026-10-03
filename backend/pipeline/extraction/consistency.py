@@ -62,6 +62,11 @@ def extract_with_consistency(unit: Unit, system: str, k: int = 5, use_cache: boo
         return greedy, stats
     samples = [extract_unit(unit, system, temperature=SAMPLE_TEMPERATURE, seed=s, use_cache=use_cache)[0]
                for s in range(1, k + 1)]
+    failed = next((s for s in samples if s.status == "error"), None)
+    if failed is not None:
+        # A sample lost to a failed call would count as disagreement and lower
+        # the confidence; report the failure instead (it is retried on rerun).
+        return greedy.model_copy(update={"status": "error", "error": failed.error}), stats
     rec = score_against_samples(greedy, samples)
     stats = dict(stats)
     stats["samples"] = k

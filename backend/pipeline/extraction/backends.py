@@ -9,6 +9,7 @@ Groq and Gemini through their JSON modes. Raw outputs are cached
 content-addressed (cache.py), so re-running an evaluation never calls a
 model twice for the same input.
 """
+import os
 import time
 from dataclasses import dataclass
 from typing import Optional
@@ -58,6 +59,12 @@ class GenerationResult:
 
 class BackendError(RuntimeError):
     pass
+
+
+class OfflineCacheMiss(RuntimeError):
+    """PRISM_OFFLINE=1 and the output is not cached: reproduction must not
+    call a model (deliberately not a BackendError, so it is never recorded as
+    an extraction failure)."""
 
 
 def _ollama(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
@@ -129,6 +136,8 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
             return GenerationResult(text=hit["text"], system=system_name, model=system.model,
                                     model_version=hit.get("model_version"), cached=True,
                                     elapsed_ms=hit.get("elapsed_ms", 0), cache_key=key)
+    if os.environ.get("PRISM_OFFLINE") == "1":
+        raise OfflineCacheMiss(f"{system_name}: no cached output for this prompt (offline mode)")
     last: Optional[Exception] = None
     for attempt in range(retries):
         started = time.perf_counter()

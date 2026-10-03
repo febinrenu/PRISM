@@ -409,6 +409,14 @@ def cmd_experiment_stats(args) -> int:
     return 0
 
 
+def cmd_reproduce(args) -> int:
+    from reproduce import reproduce
+
+    for path in reproduce(sensitivity=args.sensitivity, draws=args.draws):
+        print(f"wrote {path}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -506,6 +514,11 @@ def main(argv=None) -> int:
     p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
     p.add_argument("--draws", type=int, default=64)
     p.set_defaults(func=cmd_experiment_stats)
+
+    p = sub.add_parser("reproduce", help="regenerate every paper table from cached outputs, without model calls")
+    p.add_argument("--sensitivity", action="store_true", help="also re-run the Sobol analysis (slow)")
+    p.add_argument("--draws", type=int, default=64)
+    p.set_defaults(func=cmd_reproduce)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:
