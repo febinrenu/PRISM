@@ -37,6 +37,7 @@ class System:
 SYSTEMS: dict[str, System] = {s.name: s for s in [
     System("phi3.5", "ollama", "phi3.5:3.8b"),
     System("gemma2-2b", "ollama", "gemma2:2b"),
+    System("prism-legal", "ollama", "prism-legal"),   # Phi-3.5 fine-tuned on silver data (training/)
     System("gpt-oss-120b", "groq", "openai/gpt-oss-120b"),
     System("gpt-oss-20b", "groq", "openai/gpt-oss-20b"),
     System("qwen3.8-27b", "groq", "qwen/qwen3.8-27b"),

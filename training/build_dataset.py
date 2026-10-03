@@ -1,154 +1,221 @@
 """
-Phase 3, Module E — instruction-tuning dataset builder.
+Silver training data for fine-tuning a small local extractor.
 
-Assembles an Alpaca-format dataset for QLoRA fine-tuning of Phi-3.5-mini from
-three sources (all free / already on disk):
+Two strong teacher systems extract rules from the same statute provisions
+with the production prompt. A provision becomes a training example only when
+the teachers agree after grounding: same rules (matched on their spans), same
+modalities, same effect kinds and the same numbers. The target is the first
+teacher's grounded record, rendered back into the prompt's JSON format, so
+every quoted string in a target is verbatim statute text.
 
-  1. Synthetic PRISM extractions — every clause where the Phase-2 LLM extracted a
-     causal rule becomes a (clause → structured-JSON) example. This is the
-     highest-value source: it distils PRISM's own pipeline into training data.
-  2. Legal NER pairs — clauses with labeled entities become
-     (clause → entity list) examples.
-  3. LEDGAR provisions — public, expert-labeled contract clauses reused from the
-     eval harness for an obligation-classification instruction.
+Leakage control:
+  - every provision in the frozen evaluation sets (test, dev, pilot) is excluded;
+  - so is any provision sharing more than MAX_OVERLAP of its word 8-grams with
+    an evaluation provision (Finance Acts quote the Acts they amend);
+  - so is every provision the headline experiment extracts (provision_sets.py),
+    and everything below it;
+  - one statute (DPDP2023 by default) is held out entirely to measure transfer.
 
-Output: training/data/prism_instructions.jsonl (one {"text": ...} per line, the
-full prompt already rendered in Phi-3.5 chat format) + a raw
-prism_instructions.raw.json for inspection. Runs on CPU in seconds — no GPU.
+Output (training/data/):
+  sft.jsonl          {"prompt": [...], "completion": [...], "unit_id", "statute"} per line
+  sft_report.json    pool, exclusions, teacher agreement, label mix
 
-Usage:
-    python training/build_dataset.py [--limit-ledgar 400] [--max-per-doc 400]
+    python training/build_dataset.py --pool 800
+    python training/build_dataset.py --pool 800 --dry-run   # sample and dedupe only
 """
 import argparse
+import hashlib
 import json
+import random
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 
-# Make the sibling backend importable (store, config, eval loaders).
 ROOT = Path(__file__).resolve().parent.parent
-BACKEND = ROOT / "backend"
-sys.path.insert(0, str(BACKEND))
+sys.path.insert(0, str(ROOT / "backend"))
 
 OUT_DIR = Path(__file__).resolve().parent / "data"
+SEED = 20261003
+MAX_OVERLAP = 0.2
+TEACHERS = ("gpt-oss-120b", "gemini-3.8-flash")
+TRAIN_STATUTES = ["ITA2025/amended_fa2026", "CGST2017/consolidated", "COW2019/enacted",
+                  "FA2019N2/enacted", "FA2020/enacted", "FA2023/enacted", "FA2024N2/enacted",
+                  "FA2025/enacted", "FA2026/enacted"]
+HELD_OUT = ["DPDP2023/enacted"]
+MIN_CHARS = 60
 
-_EXTRACT_INSTR = (
-    "Extract the causal policy rule from the following legal clause. Return a "
-    "JSON object with fields: condition, action, consequence, actors, thresholds."
-)
-_NER_INSTR = (
-    "Identify all legal entities in this clause. Return a JSON list of "
-    "{text, label} where label is one of OBLIGATION, RIGHT, PENALTY, THRESHOLD, "
-    "ACTOR, BENEFICIARY."
-)
-_CLASSIFY_INSTR = (
-    "Does the following contract clause impose a duty, penalty, or restriction? "
-    'Answer with a JSON object {"is_obligation": true/false, "category": "..."}.'
-)
-
-# Phi-3.5 instruct chat template.
-_CHAT = "<|system|>\n{system}<|end|>\n<|user|>\n{user}<|end|>\n<|assistant|>\n{assistant}<|end|>"
-_SYSTEM = (
-    "You are PRISM Legal AI, fine-tuned on Indian legal documents. You extract "
-    "causal policy rules, identify legal entities, and classify clauses."
-)
+_WORD = re.compile(r"[a-z0-9]+")
 
 
-def _render(instruction: str, input_text: str, output_obj) -> dict:
-    user = f"{instruction}\n\nClause:\n{input_text}"
-    assistant = json.dumps(output_obj, ensure_ascii=False)
-    return {
-        "text": _CHAT.format(system=_SYSTEM, user=user, assistant=assistant),
-        "instruction": instruction,
-        "input": input_text,
-        "output": assistant,
-    }
+def ngrams(text: str, n: int = 8) -> set[int]:
+    w = _WORD.findall(text.lower())
+    return {hash(" ".join(w[i:i + n])) for i in range(max(0, len(w) - n + 1))}
 
 
-def from_prism_extractions(max_per_doc: int = 400) -> list[dict]:
-    """Source 1 + 2: synthetic extraction + NER examples from stored analyses."""
-    from storage import store
-
-    examples: list[dict] = []
-    for meta in store.list_documents():
-        result = store.get_result(meta.doc_id)
-        if result is None:
-            continue
-        count = 0
-        for clause in result.clauses:
-            if count >= max_per_doc:
-                break
-            if clause.clause_type == "table" or len(clause.text.strip()) < 40:
-                continue
-            ex = clause.llm_extraction
-            # Source 1: causal extraction (only confident, causal, parsed ones).
-            if ex is not None and ex.is_causal:
-                out = {
-                    "condition": ex.condition, "action": ex.action,
-                    "consequence": ex.consequence, "actors": ex.actors,
-                    "thresholds": ex.thresholds,
-                }
-                examples.append(_render(_EXTRACT_INSTR, clause.text[:1000], out))
-                count += 1
-            # Source 2: NER pairs (any clause with labeled entities).
-            if clause.entities:
-                ents = [{"text": e.text, "label": e.label} for e in clause.entities][:12]
-                examples.append(_render(_NER_INSTR, clause.text[:1000], ents))
-                count += 1
-    return examples
+def overlap(text: str, eval_grams: set[int]) -> float:
+    g = ngrams(text)
+    return len(g & eval_grams) / len(g) if g else 0.0
 
 
-def from_ledgar(limit: int = 400) -> list[dict]:
-    """Source 3: public LEDGAR obligation-classification examples."""
-    try:
-        from eval.datasets_cuad import load_eval_set
-    except Exception:
-        return []
-    items, _source = load_eval_set(limit=limit)
-    out = []
+def eval_exclusions() -> tuple[set[str], set[int]]:
+    from eval.v2 import sampling
+    m = sampling.load()
+    items = m["test"] + m["dev"]
+    grams: set[int] = set()
     for it in items:
-        out.append(_render(
-            _CLASSIFY_INSTR, it["text"],
-            {"is_obligation": bool(it["is_causal"]), "category": it.get("category", "")},
-        ))
-    return out
+        grams |= ngrams(sampling.item_text(it))
+    return {it["unit_id"] for it in items}, grams
 
 
-def build(max_per_doc: int, limit_ledgar: int) -> dict:
-    prism = from_prism_extractions(max_per_doc=max_per_doc)
-    ledgar = from_ledgar(limit=limit_ledgar)
-    all_examples = prism + ledgar
+def pool(statutes: list[str], size: int, seed: int = SEED) -> tuple[list, dict]:
+    """Stratified random sample of provisions (by statute and kind), with the
+    evaluation provisions and their near-duplicates removed."""
+    from pipeline.extraction.units import build_units
+    from simulation.experiment.provision_sets import PROVISION_SETS
+    eval_ids, eval_grams = eval_exclusions()
+    experiment_paths = [p for spec in PROVISION_SETS.values() for p in spec["targets"].values()]
+    candidates, dropped = [], Counter()
+    for key in statutes:
+        statute, version = key.split("/")
+        try:
+            units = build_units(statute, version)
+        except FileNotFoundError:
+            dropped[f"{key}: not parsed"] += 1
+            continue
+        for u in units:
+            if len(u.text.strip()) < MIN_CHARS:
+                dropped["too short"] += 1
+            elif u.unit_id in eval_ids:
+                dropped["in evaluation sets"] += 1
+            elif any(u.path == p or u.path.startswith(p + "/") for p in experiment_paths):
+                dropped["in headline experiment"] += 1
+            elif overlap(u.text, eval_grams) > MAX_OVERLAP:
+                dropped["8-gram overlap with evaluation sets"] += 1
+            else:
+                candidates.append(u)
+    strata: dict[tuple, list] = {}
+    for u in candidates:
+        strata.setdefault((u.statute, u.kind), []).append(u)
+    rng = random.Random(seed)
+    for v in strata.values():
+        v.sort(key=lambda u: u.unit_id)
+        rng.shuffle(v)
+    # Proportional allocation, at least one per stratum.
+    total = len(candidates)
+    picked = []
+    for k in sorted(strata):
+        n = max(1, round(size * len(strata[k]) / total)) if total else 0
+        picked.extend(strata[k][:n])
+    rng.shuffle(picked)
+    return picked[:size], {"candidates": total, "dropped": dict(dropped),
+                           "strata": {f"{a}|{b}": len(v) for (a, b), v in sorted(strata.items())}}
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    jsonl = OUT_DIR / "prism_instructions.jsonl"
-    with jsonl.open("w", encoding="utf-8") as f:
-        for ex in all_examples:
-            f.write(json.dumps({"text": ex["text"]}, ensure_ascii=False) + "\n")
-    (OUT_DIR / "prism_instructions.raw.json").write_text(
-        json.dumps(all_examples, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
 
-    summary = {
-        "total": len(all_examples),
-        "from_prism_pipeline": len(prism),
-        "from_ledgar": len(ledgar),
-        "output_jsonl": str(jsonl),
+def teachers_agree(a, b, unit_id: str) -> bool:
+    from eval.v2.scoring import compare, from_record
+    if a.status != "ok" or b.status != "ok" or a.hallucinated_fields or b.hallucinated_fields:
+        return False
+    c = compare([from_record(a, unit_id)], [from_record(b, unit_id)])
+    d, r, e = c["detection"], c["rules"], c["effects"]["kinds"]
+    if d["fp"] or d["fn"] or r["fp"] or r["fn"] or e["fp"] or e["fn"]:
+        return False
+    if c["modality"]["accuracy"] not in (None, 1.0):
+        return False
+    return c["effects"]["numeric_exact"] in (None, 1.0)
+
+
+def _txt(span):
+    return span.text if span is not None else None
+
+
+def target_json(record) -> dict:
+    """A grounded record in the prompt's output format (quotes = statute text)."""
+    rules = []
+    for r in record.rules:
+        effects = []
+        for e in r.effects:
+            d = e.model_dump(exclude={"source_span", "operation", "taxpayer"}, exclude_none=True)
+            d["quote"] = _txt(e.source_span)
+            effects.append(d)
+        rules.append({
+            "modality": r.modality,
+            "subject": _txt(r.subject.span),
+            "agent_class": r.subject.agent_class,
+            "conditions": [{"quote": _txt(c.span), "negated": c.negated} for c in r.conditions if c.span],
+            "action": _txt(r.action),
+            "consequence": _txt(r.consequence),
+            "exceptions": [_txt(x.span) for x in r.exceptions if x.span],
+            "cross_refs": [_txt(x.span) for x in r.cross_refs if x.span],
+            "effects": effects,
+        })
+    return {"rules": rules}
+
+
+def example(unit, record) -> dict:
+    from pipeline.extraction.prompts import render
+    return {
+        "prompt": [{"role": "user", "content": render(unit.text, unit.context)}],
+        "completion": [{"role": "assistant", "content": json.dumps(target_json(record), ensure_ascii=False)}],
+        "unit_id": unit.unit_id, "statute": unit.statute,
     }
-    return summary
+
+
+def build(size: int, teachers: tuple[str, str] = TEACHERS, dry_run: bool = False,
+          max_negative_share: float = 0.25) -> dict:
+    from pipeline.extraction.extractor import extract_unit
+    units, pool_report = pool(TRAIN_STATUTES, size)
+    report = {"seed": SEED, "teachers": list(teachers), "held_out": HELD_OUT,
+              "max_overlap": MAX_OVERLAP, "pool": pool_report, "sampled": len(units)}
+    if dry_run:
+        return report
+
+    kept, negatives, outcome = [], [], Counter()
+    for i, u in enumerate(units, 1):
+        try:
+            a = extract_unit(u, teachers[0])[0]
+            b = extract_unit(u, teachers[1])[0]
+        except Exception as exc:  # a quota or network failure stops the build; cached work is kept
+            report["stopped_at"] = {"index": i, "error": str(exc)[:300]}
+            break
+        if not teachers_agree(a, b, u.unit_id):
+            outcome["disagree"] += 1
+            continue
+        outcome["agree"] += 1
+        (negatives if not a.rules else kept).append(example(u, a))
+        if i % 25 == 0:
+            print(f"{i}/{len(units)}  agree={outcome['agree']} disagree={outcome['disagree']}")
+
+    cap = int(max_negative_share * len(kept) / (1 - max_negative_share)) if kept else 0
+    rows = kept + negatives[:cap]
+    random.Random(SEED).shuffle(rows)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    with open(OUT_DIR / "sft.jsonl", "w", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+    effect_kinds = Counter(e["kind"] for r in rows for rule in json.loads(r["completion"][0]["content"])["rules"]
+                           for e in rule["effects"])
+    report.update({
+        "teacher_outcomes": dict(outcome),
+        "agreement_rate": round(outcome["agree"] / max(1, sum(outcome.values())), 4),
+        "examples": len(rows), "with_rules": len(kept), "no_rule": min(len(negatives), cap),
+        "per_statute": dict(Counter(r["statute"] for r in rows)),
+        "effect_kinds": dict(effect_kinds),
+        "sha256": hashlib.sha256((OUT_DIR / "sft.jsonl").read_bytes()).hexdigest(),
+    })
+    (OUT_DIR / "sft_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return report
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Build the PRISM QLoRA instruction dataset.")
-    ap.add_argument("--max-per-doc", type=int, default=400)
-    ap.add_argument("--limit-ledgar", type=int, default=400)
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--pool", type=int, default=800)
+    ap.add_argument("--teachers", default=",".join(TEACHERS))
+    ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
-
-    summary = build(args.max_per_doc, args.limit_ledgar)
-    print(json.dumps(summary, indent=2))
-    if summary["total"] == 0:
-        print("\n[warn] No examples produced. Run the Phase-2 LLM extraction on at "
-              "least one document first (analyze → LLM extraction), then re-run.")
-    else:
-        print(f"\n[ok] Wrote {summary['total']} instruction examples.")
+    report = build(args.pool, tuple(args.teachers.split(",")), args.dry_run)
+    print(json.dumps({k: v for k, v in report.items() if k != "pool"} | {"pool": {
+        "candidates": report["pool"]["candidates"], "dropped": report["pool"]["dropped"]}}, indent=2))
 
 
 if __name__ == "__main__":

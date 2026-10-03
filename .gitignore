@@ -46,3 +46,9 @@ backend/data/experiments/
 # Human annotations are kept out of the repository until adjudication (blind double annotation)
 backend/data/annotations/
 backend/data/eval/v2/runs/
+
+# fine-tuning artefacts (large; the data in training/data is kept)
+training/prism-phi35-lora/
+training/prism-phi35-merged/
+training/*.gguf
+training/Modelfile
