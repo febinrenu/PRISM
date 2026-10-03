@@ -97,6 +97,8 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
     sys_after = simulate(params, pop)
     exp_c = conclusions(before, exp_after, exp_after)
     sys_c = conclusions(before, sys_after, exp_after) if complete else None
+    original = flips(conclusions(before, exp_after, exp_after, material=False),
+                     conclusions(before, sys_after, exp_after, material=False) if complete else None)
 
     def kak(r):
         return concentration(r.tax, r.weight, r.gti) - gini(r.gti, r.weight)
@@ -112,6 +114,8 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
         "decile_rate_l1": float(sum(abs(a["effective_rate"] - b["effective_rate"]) for a, b in zip(de, ds))) if complete else None,
         "taxpayers_with_different_tax": float(sys_after.weight[np.abs(sys_after.tax - exp_after.tax) > 10].sum()) if complete else None,
         "conclusions_expert": exp_c, "conclusions_system": sys_c, **flips(exp_c, sys_c),
+        # the same conclusions under the original (pre-amendment) sign tests
+        "flip_rate_original": original["flip_rate"], "flipped_original": original["flipped"],
     }
 
 

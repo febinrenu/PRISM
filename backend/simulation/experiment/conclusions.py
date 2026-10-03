@@ -15,6 +15,15 @@ fixed in advance (this list is not tuned to results):
 A system's flip rate is the share of conclusions that differ from the
 expert's. If its parameters could not be assembled, every conclusion is
 "no conclusion" (counted as a flip and reported separately).
+
+Materiality (amendment of 2026-10-03). Directions are read with thresholds:
+revenue ₹500 crore, decile effective rate 0.01 percentage points, Kakwani
+0.001. The top gaining decile is named only when some decile gains by more
+than the rate threshold (0 = none). The controlled error-injection study,
+which uses no system output, showed that the original near-exact sign tests
+let a one-rupee shift of a band boundary flip "direction" conclusions on
+reforms whose true change is zero. The original definitions remain available
+(`material=False`) and are reported alongside.
 """
 import numpy as np
 
@@ -37,24 +46,36 @@ def _regime_at(r: StaticResult, q: float) -> str:
     return str(r.regime[o][min(i, len(o) - 1)])
 
 
-def conclusions(before: StaticResult, after: StaticResult, expert_after: StaticResult = None) -> dict:
+# (revenue in rupees, effective rate as a fraction, Kakwani index)
+MATERIAL = {"revenue": 500 * 1e7, "rate": 1e-4, "kakwani": 1e-3}
+ORIGINAL = {"revenue": 1e5, "rate": 1e-7, "kakwani": 1e-6}
+
+
+def conclusions(before: StaticResult, after: StaticResult, expert_after: StaticResult = None,
+                material: bool = True) -> dict:
+    tol = MATERIAL if material else ORIGINAL
     d_before = decile_rates(before)
     d_after = decile_rates(after)
     rate_change = [a["effective_rate"] - b["effective_rate"] for a, b in zip(d_after, d_before)]
     d_rev = after.revenue() - before.revenue()
+    top = int(np.argmin(rate_change)) + 1
+    if material and min(rate_change) > -tol["rate"]:
+        top = 0                                  # no decile gains materially
     out = {
-        "revenue_direction": _sign(d_rev, tol=1e5),
-        "progressivity_direction": _sign(_kakwani(after) - _kakwani(before), tol=1e-6),
-        "top_gaining_decile": int(np.argmin(rate_change)) + 1,
-        **{f"decile_{k + 1}_direction": _sign(c, tol=1e-7) for k, c in enumerate(rate_change)},
+        "revenue_direction": _sign(d_rev, tol=tol["revenue"]),
+        "progressivity_direction": _sign(_kakwani(after) - _kakwani(before), tol=tol["kakwani"]),
+        "top_gaining_decile": top,
+        **{f"decile_{k + 1}_direction": _sign(c, tol=tol["rate"]) for k, c in enumerate(rate_change)},
         "regime_p50": _regime_at(after, 0.50),
         "regime_p90": _regime_at(after, 0.90),
         "regime_p99": _regime_at(after, 0.99),
     }
     if expert_after is not None:
         expert_change = expert_after.revenue() - before.revenue()
-        out["revenue_within_10pct"] = bool(abs(d_rev - expert_change) <= 0.10 * abs(expert_change)) \
-            if expert_change else bool(abs(d_rev) < 1e5)
+        if abs(expert_change) > tol["revenue"]:
+            out["revenue_within_10pct"] = bool(abs(d_rev - expert_change) <= 0.10 * abs(expert_change))
+        else:
+            out["revenue_within_10pct"] = bool(abs(d_rev) <= tol["revenue"])
     else:
         out["revenue_within_10pct"] = True
     return out

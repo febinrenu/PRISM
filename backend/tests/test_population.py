@@ -60,11 +60,37 @@ def test_flat_rate_law_is_neutral():
     from simulation.rac import gold
     from simulation.rac.types import RegimeSchedule, Slab
 
-    flat = gold.build_gold()["2023-24"].model_copy(deep=True)
-    flat.regimes = {"old": RegimeSchedule(slabs={"below_60": [Slab(lower=0, rate=0.1)]}, same_for_all_ages=True,
-                                          allows_chapter_via_deductions=False)}
-    flat.cess_rate = 0.0
     pop = build("2023-24")
     pop.via_share[:] = 0
+    # Reported GTI is net of the standard deduction of the data year, so the
+    # neutral law taxes GTI: it keeps that deduction for salaried taxpayers.
+    flat = gold.build_gold()["2023-24"].model_copy(deep=True)
+    flat.regimes = {"old": RegimeSchedule(slabs={"below_60": [Slab(lower=0, rate=0.1)]}, same_for_all_ages=True,
+                                          allows_chapter_via_deductions=False,
+                                          standard_deduction=pop.embedded_standard_deduction)}
+    flat.cess_rate = 0.0
     s = summarise(simulate(flat, pop))
     assert abs(s["kakwani"]) < 0.002 and abs(s["suits"]) < 0.002
+
+
+def test_salaried_share_comes_from_the_salary_table():
+    from simulation.population.taxpayers import build
+    pop = build("2023-24")
+    assert pop.salaried_share is not None and pop.embedded_standard_deduction == 50_000
+    share = float((pop.salaried_share * pop.weight).sum() / pop.weight.sum())
+    # 37.96 million of 75.46 million individual returns report salary income;
+    # bands with no positive GTI are not in the population, so the share is
+    # a little higher than 0.503.
+    assert 0.45 < share < 0.6
+
+
+def test_standard_deduction_change_now_costs_revenue():
+    from simulation.engine.static import simulate
+    from simulation.population.taxpayers import build
+    from simulation.rac import gold
+    G = gold.build_gold()
+    pop = build("2023-24")
+    law = G["2025-26"]
+    lower = law.model_copy(deep=True)
+    lower.regimes["new"].standard_deduction = 50_000
+    assert simulate(law, pop).revenue() < simulate(lower, pop).revenue()

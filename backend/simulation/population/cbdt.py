@@ -5,6 +5,7 @@ Each annual report has, for individuals:
     2.1   Range of Gross Total Income    — returns and total GTI per income band
     2.10  Range of Returned Income       — returns and total returned income
     2.11  Range of Tax Payable           — returns and total tax payable
+    2.2   Range of Salary Income         — returns and total salary (income under "Salaries")
 
 `parse_report` reads these tables from the PDF into band rows (rupees). The
 rows are the calibration targets for the taxpayer population and the
@@ -25,7 +26,7 @@ RAW_DIR = BASE_DIR / "data" / "raw" / "cbdt"
 OUT_DIR = BASE_DIR / "simulation" / "population" / "targets"
 
 TABLES = {"gti": "Range of Gross Total Income", "returned": "Range of Returned Income",
-          "tax": "Range of Tax Payable"}
+          "tax": "Range of Tax Payable", "salary": "Range of Salary Income"}
 
 _NUM = r"-?[\d,]+(?:\.\d+)?"
 _RANGE_RE = re.compile(
@@ -45,7 +46,7 @@ def _num(tok: str) -> Optional[float]:
 @dataclass
 class BandRow:
     ay: str
-    table: str          # gti | returned | tax
+    table: str          # gti | returned | tax | salary
     lower: float        # rupees, exclusive (">lower")
     upper: Optional[float]  # rupees, inclusive ("<= upper"); None = open top band
     returns: float

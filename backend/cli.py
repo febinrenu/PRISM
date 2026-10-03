@@ -270,7 +270,13 @@ def cmd_eval_verify(args) -> int:
 def cmd_eval_run(args) -> int:
     from eval.v2 import runs
 
-    path = runs.run(args.system, args.split, args.limit)
+    from pipeline.extraction.backends import QuotaExhausted
+
+    try:
+        path = runs.run(args.system, args.split, args.limit)
+    except QuotaExhausted as e:
+        print(f"stopped: {e}. Finished items are saved; rerun to continue.")
+        return 1
     print(f"records in {path}")
     return 0
 
@@ -372,18 +378,20 @@ def cmd_experiment(args) -> int:
 
     systems = args.systems.split(",")
     sets = args.sets.split(",") if args.sets else list(PROVISION_SETS)
-    rows = []
+    from pipeline.extraction.backends import QuotaExhausted
+
     for system in systems:
         for set_name in sets:
             try:
                 r = run_set(set_name, system, k=0 if system == "rules" else args.k)
+            except QuotaExhausted as e:
+                print(f"{system}: daily quota exhausted; skipping its remaining sets ({str(e)[:120]})", flush=True)
+                break
             except Exception as e:  # noqa: BLE001 - keep going across systems
                 print(f"{set_name} / {system}: FAILED {str(e)[:200]}", flush=True)
                 continue
             save(r)
             p = r["population"]
-            rows.append((set_name, system, r["complete"], p["flip_rate"], p.get("revenue_change_system_crore"),
-                         p["revenue_change_expert_crore"], p.get("decile_rate_l1")))
             print(f"{set_name:20s} {system:16s} complete={r['complete']!s:5s} flip={p['flip_rate']:.2f} "
                   f"dRev sys={p.get('revenue_change_system_crore')} expert={p['revenue_change_expert_crore']:.0f}", flush=True)
     # The summary covers every saved run, not only this invocation's.
@@ -406,6 +414,17 @@ def cmd_experiment_stats(args) -> int:
 
     out = report(args.draws)
     print(json.dumps(out["systems"], indent=1))
+    return 0
+
+
+def cmd_error_injection(args) -> int:
+    from simulation.experiment.error_injection import run
+    from simulation.experiment.harness import RESULTS_DIR
+
+    rows = run(args.draws)
+    path = RESULTS_DIR / "error_injection.json"
+    path.write_text(json.dumps(rows, indent=1), encoding="utf-8")
+    print(f"wrote {path}")
     return 0
 
 
@@ -514,6 +533,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
     p.add_argument("--draws", type=int, default=64)
     p.set_defaults(func=cmd_experiment_stats)
+
+    p = sub.add_parser("error-injection", help="inject typed extraction errors into the expert law and score them")
+    p.add_argument("--draws", type=int, default=32)
+    p.set_defaults(func=cmd_error_injection)
 
     p = sub.add_parser("reproduce", help="regenerate every paper table from cached outputs, without model calls")
     p.add_argument("--sensitivity", action="store_true", help="also re-run the Sobol analysis (slow)")

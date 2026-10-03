@@ -73,6 +73,11 @@ class Population:
     via_share: np.ndarray      # Chapter VI-A deductions as a share of GTI
     band: np.ndarray           # index of the source band
     bands: list[BandRow]
+    # Share of each point's weight that is salaried (table 2.2 returns with
+    # salary income ÷ table 2.1 returns, same income range), and the
+    # standard deduction already netted out of the reported GTI.
+    salaried_share: Optional[np.ndarray] = None
+    embedded_standard_deduction: float = 0.0
 
     @property
     def returns(self) -> float:
@@ -125,4 +130,25 @@ def build(ay: str, points_per_band: int = POINTS_PER_BAND, via_scale: float = 1.
     gti_rows = [r for r in load_targets(ay, "gti") if r.returns > 0 and r.total_inr > 0]
     gti, weight, band = _band_points(gti_rows, points_per_band, top_alpha)
     via = _rank_matched_deduction_share(gti, weight, load_targets(ay, "returned"), points_per_band, top_alpha)
-    return Population(ay=ay, gti=gti, weight=weight, via_share=via * via_scale, band=band, bands=gti_rows)
+    return Population(ay=ay, gti=gti, weight=weight, via_share=via * via_scale, band=band, bands=gti_rows,
+                      salaried_share=salaried_share(ay, gti_rows)[band],
+                      embedded_standard_deduction=embedded_standard_deduction(ay))
+
+
+def salaried_share(ay: str, gti_rows: list[BandRow]) -> np.ndarray:
+    """Per GTI band: returns reporting salary income in the same income range
+    ÷ returns in the band. The two tables share their range edges; ranking by
+    salary and by GTI differ for taxpayers with large non-salary income, so
+    this is an approximation (stated in the paper). 0 when the year has no
+    salary table."""
+    sal = {(r.lower, r.upper): r.returns for r in load_targets(ay, "salary")}
+    return np.array([min(1.0, sal.get((r.lower, r.upper), 0.0) / r.returns) if r.returns else 0.0
+                     for r in gti_rows])
+
+
+def embedded_standard_deduction(ay: str) -> float:
+    """Standard deduction (s.16(ia)) already deducted in reported GTI: Rs. 40,000
+    for AY 2019-20 under the Finance Act 2018, Rs. 50,000 from AY 2020-21. The
+    statistics do not split returns by regime; new-regime returns (no
+    deduction before AY 2024-25) were a small minority in the data years."""
+    return 40_000.0 if ay <= "2019-20" else 50_000.0

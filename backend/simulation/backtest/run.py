@@ -60,7 +60,9 @@ def filing_year(ay: str) -> str:
 
 def age(pop: Population, income_factor: float, weight_factor: float, ay: str) -> Population:
     return Population(ay=ay, gti=pop.gti * income_factor, weight=pop.weight * weight_factor,
-                      via_share=pop.via_share, band=pop.band, bands=pop.bands)
+                      via_share=pop.via_share, band=pop.band, bands=pop.bands,
+                      salaried_share=pop.salaried_share,
+                      embedded_standard_deduction=pop.embedded_standard_deduction)
 
 
 @dataclass

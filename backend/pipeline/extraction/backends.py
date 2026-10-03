@@ -90,6 +90,11 @@ def _rate_limited(r: httpx.Response) -> RateLimited:
     return RateLimited(f"rate limited ({r.status_code}): {text[:200]}", wait, daily)
 
 
+class QuotaExhausted(RuntimeError):
+    """A per-day quota is used up. Deliberately not a BackendError: it stops
+    the whole run instead of being recorded item by item as a failed call."""
+
+
 class OfflineCacheMiss(RuntimeError):
     """PRISM_OFFLINE=1 and the output is not cached: reproduction must not
     call a model (deliberately not a BackendError, so it is never recorded as
@@ -184,7 +189,9 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
             text, version = _PROVIDERS[system.provider](system, prompt, temperature, seed, timeout)
         except RateLimited as e:
             last = e
-            if e.daily or waits >= 12:
+            if e.daily:
+                raise QuotaExhausted(f"{system_name}: daily quota exhausted: {e}") from e
+            if waits >= 12:
                 break
             waits += 1          # waiting out a per-minute limit is not a failed attempt
             time.sleep(min(120.0, (e.retry_after or 20.0) + 1.0))

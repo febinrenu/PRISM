@@ -41,18 +41,36 @@ def simulate(params: PITParams, pop: Population, optimal_share: float = 1.0, age
              senior_share: float = 0.0) -> StaticResult:
     """`senior_share` of every taxpayer's weight is treated as aged 60-80
     (the published statistics carry no age breakdown); the result is the
-    weight-averaged tax of the two age groups."""
+    weight-averaged tax of the two age groups.
+
+    Salaried taxpayers (the population's per-band salaried share) receive
+    the simulated law's standard deduction: their salary is the reported GTI
+    plus the deduction already netted out of it in the data year. The rest
+    have no salary income. Each group chooses its regime separately; the
+    result is the weight-averaged tax."""
     if senior_share > 0:
         young = simulate(params, pop, optimal_share, "below_60")
         old_age = simulate(params, pop, optimal_share, "60_to_80")
         tax = (1 - senior_share) * young.tax + senior_share * old_age.tax
         return StaticResult(pop.ay, tax, young.regime, young.total_income, pop.weight, pop.gti)
+    share = pop.salaried_share
+    if share is None or not np.any(share > 0):
+        return _simulate_group(params, pop, optimal_share, age, 0.0, pop.gti)
+    sal = _simulate_group(params, pop, optimal_share, age, pop.gti + pop.embedded_standard_deduction, 0.0)
+    non = _simulate_group(params, pop, optimal_share, age, 0.0, pop.gti)
+    tax = share * sal.tax + (1 - share) * non.tax
+    regime = np.where(share >= 0.5, sal.regime, non.regime)
+    ti = share * sal.total_income + (1 - share) * non.total_income
+    return StaticResult(pop.ay, tax, regime, ti, pop.weight, pop.gti)
+
+
+def _simulate_group(params: PITParams, pop: Population, optimal_share: float, age: str,
+                    salary, other) -> StaticResult:
     gti = pop.gti
     deductions = pop.gti * pop.via_share
     results = {}
     for regime in params.regimes:
-        lia = liability(params, regime, 0.0, gti, deductions, age)
-        results[regime] = lia
+        results[regime] = liability(params, regime, salary, other, deductions, age)
     if len(results) == 1:
         (regime, lia), = results.items()
         return StaticResult(pop.ay, lia.total_tax, np.full(gti.shape, regime), lia.total_income, pop.weight, gti)
