@@ -353,6 +353,37 @@ def cmd_sensitivity(args) -> int:
     return 0
 
 
+def cmd_experiment(args) -> int:
+    """Expert-vs-extracted across provision sets and systems."""
+    from services.run_manifest import build_manifest, write_manifest
+    from simulation.experiment.harness import RESULTS_DIR, run_set, save
+    from simulation.experiment.provision_sets import PROVISION_SETS
+
+    systems = args.systems.split(",")
+    sets = args.sets.split(",") if args.sets else list(PROVISION_SETS)
+    rows = []
+    for system in systems:
+        for set_name in sets:
+            try:
+                r = run_set(set_name, system, k=0 if system == "rules" else args.k)
+            except Exception as e:  # noqa: BLE001 - keep going across systems
+                print(f"{set_name} / {system}: FAILED {str(e)[:200]}", flush=True)
+                continue
+            save(r)
+            p = r["population"]
+            rows.append((set_name, system, r["complete"], p["flip_rate"], p.get("revenue_change_system_crore"),
+                         p["revenue_change_expert_crore"], p.get("decile_rate_l1")))
+            print(f"{set_name:20s} {system:16s} complete={r['complete']!s:5s} flip={p['flip_rate']:.2f} "
+                  f"dRev sys={p.get('revenue_change_system_crore')} expert={p['revenue_change_expert_crore']:.0f}", flush=True)
+    summary = RESULTS_DIR / "headline_summary.json"
+    summary.write_text(json.dumps([dict(zip(["set", "system", "complete", "flip_rate", "d_rev_system_crore",
+                                             "d_rev_expert_crore", "decile_rate_l1"], r)) for r in rows], indent=1),
+                       encoding="utf-8")
+    write_manifest(build_manifest("experiment", config={"systems": systems, "sets": sets, "k": args.k}))
+    print(f"wrote {summary}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -434,6 +465,12 @@ def main(argv=None) -> int:
     p.add_argument("--morris", type=int, default=40)
     p.add_argument("--seed", type=int, default=11)
     p.set_defaults(func=cmd_sensitivity)
+
+    p = sub.add_parser("experiment", help="expert-vs-extracted policy experiment across systems")
+    p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b,gemini-3.8-flash")
+    p.add_argument("--sets", default="", help="comma-separated provision sets (default: all)")
+    p.add_argument("--k", type=int, default=4, help="self-consistency samples per provision")
+    p.set_defaults(func=cmd_experiment)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:

@@ -80,8 +80,16 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
 
     G = gold.build_gold()
     pop = population_for(ay)
-    before = simulate(G[_previous_ay(ay)], pop)
     exp_after = simulate(expert, pop)
+    if _previous_ay(ay) == ay:
+        # No earlier year in the expert coding: compare with a proportional tax
+        # raising the same revenue (does the schedule burden each decile more
+        # or less than a flat tax would, and is it progressive?).
+        from simulation.engine.static import StaticResult
+        rate = exp_after.revenue() / float((pop.gti * pop.weight).sum())
+        before = StaticResult(ay, pop.gti * rate, exp_after.regime, pop.gti, pop.weight, pop.gti)
+    else:
+        before = simulate(G[_previous_ay(ay)], pop)
     sys_after = simulate(params, pop)
     exp_c = conclusions(before, exp_after, exp_after)
     sys_c = conclusions(before, sys_after, exp_after) if complete else None
@@ -91,7 +99,7 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
 
     de, ds = decile_rates(exp_after), decile_rates(sys_after)
     return {
-        "previous_ay": _previous_ay(ay),
+        "previous_ay": _previous_ay(ay) if _previous_ay(ay) != ay else "revenue-equivalent flat tax",
         "revenue_expert_crore": exp_after.revenue() / 1e7,
         "revenue_system_crore": sys_after.revenue() / 1e7 if complete else None,
         "revenue_change_expert_crore": (exp_after.revenue() - before.revenue()) / 1e7,
