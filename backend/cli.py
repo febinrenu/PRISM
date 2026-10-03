@@ -333,6 +333,26 @@ def cmd_backtest(args) -> int:
     return 0
 
 
+def cmd_sensitivity(args) -> int:
+    from services.run_manifest import build_manifest, write_manifest
+    from simulation.engine.sensitivity import OUTPUTS, run
+    from simulation.experiment.harness import RESULTS_DIR
+
+    res = run(n_sobol=args.n, n_morris=args.morris, seed=args.seed)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = RESULTS_DIR / "sensitivity.json"
+    path.write_text(json.dumps(res, indent=1), encoding="utf-8")
+    write_manifest(build_manifest("sensitivity", config={"n_sobol": args.n, "n_morris": args.morris}, seeds=[args.seed]))
+    for out in OUTPUTS:
+        rng = res["output_ranges"][out]
+        st = sorted(res["sobol"][out].items(), key=lambda kv: -kv[1]["ST"])
+        print(f"{out}: median {rng['median']:.4g} (5-95%: {rng['p5']:.4g} - {rng['p95']:.4g})")
+        for name, v in st:
+            print(f"    {name:14s} S1={v['S1']:+.3f}±{v['S1_conf']:.3f}  ST={v['ST']:.3f}±{v['ST_conf']:.3f}")
+    print(f"wrote {path}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -408,6 +428,12 @@ def main(argv=None) -> int:
     p.add_argument("--optimal-share", type=float, default=1.0)
     p.add_argument("--via-scale", type=float, default=1.0)
     p.set_defaults(func=cmd_backtest)
+
+    p = sub.add_parser("sensitivity", help="Morris + Sobol global sensitivity of simulated outcomes")
+    p.add_argument("--n", type=int, default=1024, help="Saltelli base sample size")
+    p.add_argument("--morris", type=int, default=40)
+    p.add_argument("--seed", type=int, default=11)
+    p.set_defaults(func=cmd_sensitivity)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:

@@ -37,7 +37,16 @@ class StaticResult:
         return float(self.weight[self.tax > 0].sum())
 
 
-def simulate(params: PITParams, pop: Population, optimal_share: float = 1.0, age: str = "below_60") -> StaticResult:
+def simulate(params: PITParams, pop: Population, optimal_share: float = 1.0, age: str = "below_60",
+             senior_share: float = 0.0) -> StaticResult:
+    """`senior_share` of every taxpayer's weight is treated as aged 60-80
+    (the published statistics carry no age breakdown); the result is the
+    weight-averaged tax of the two age groups."""
+    if senior_share > 0:
+        young = simulate(params, pop, optimal_share, "below_60")
+        old_age = simulate(params, pop, optimal_share, "60_to_80")
+        tax = (1 - senior_share) * young.tax + senior_share * old_age.tax
+        return StaticResult(pop.ay, tax, young.regime, young.total_income, pop.weight, pop.gti)
     gti = pop.gti
     deductions = pop.gti * pop.via_share
     results = {}
