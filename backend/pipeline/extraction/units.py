@@ -16,7 +16,7 @@ from typing import Optional
 from pipeline.statute.corpus import CORPUS_DIR
 
 MAX_UNIT_CHARS = 3500
-_CONTAINER_KINDS = {"chapter", "part", "schedule", "heading"}
+_CONTAINER_KINDS = {"chapter", "part", "paragraph", "schedule", "heading"}
 
 
 @dataclass
@@ -81,20 +81,21 @@ def build_units(statute: str, version: str, max_chars: int = MAX_UNIT_CHARS,
             split(n, n, head)
         elif n["kind"] == "schedule":
             # Schedules (rate tables, penalty lists) hold some of the most
-            # consequential rules; split them along Parts / paragraphs.
+            # consequential rules; walk their Parts and Paragraphs.
             head = n.get("heading") or "Schedule"
             sched = {"number": f"Schedule {n.get('number') or ''}".strip(), "heading": head}
-            for cid in n.get("children", []):
-                c = nodes.get(cid)
-                if c is None:
-                    continue
-                if c["kind"] in ("part", "heading") and c.get("children"):
-                    part_head = head + " — " + text[c["start"]:c["own_end"]].strip()[:120]
-                    for gid in c["children"]:
-                        g = nodes.get(gid)
-                        if g is not None and g["kind"] not in _CONTAINER_KINDS:
-                            split(g, sched, part_head)
-                elif c["kind"] not in _CONTAINER_KINDS:
-                    split(c, sched, head)
+
+            def walk(container: dict, ctx: str) -> None:
+                for cid in container.get("children", []):
+                    c = nodes.get(cid)
+                    if c is None:
+                        continue
+                    if c["kind"] in _CONTAINER_KINDS:
+                        if c.get("children"):
+                            walk(c, ctx + " — " + text[c["start"]:c["own_end"]].strip()[:120])
+                    else:
+                        split(c, sched, ctx)
+
+            walk(n, head)
     units.sort(key=lambda u: u.start)
     return units

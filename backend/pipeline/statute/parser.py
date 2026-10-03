@@ -52,6 +52,8 @@ _SECTION_RE = re.compile(r"^(\d{1,4}[A-Z]{0,5})\.\s+(?=\S)")
 _PAREN_RE = re.compile(r"^\(\s*([0-9]{1,3}[A-Z]{0,3}|[a-z]{1,3}|[A-Z]{1,3})\s*\)\s*")
 _CHAPTER_RE = re.compile(r"^CHAPTER\s+([IVXLC]+(?:-?[A-Z]{1,2})?)\b\.?\s*(.*)$")
 _PART_RE = re.compile(r"^PART\s+([IVXLC]+|[A-Z])\b\.?\s*(.*)$")
+_SCHED_PARA_RE = re.compile(r"^Paragraph\s+([A-Z])\b\.?\s*$")
+_LEAD_IN_RE = re.compile(r"(?:[,:;]\s*)?[—–-]{1,2}\s*$|:\s*$")
 _SCHEDULE_RE = re.compile(
     r"^(?:THE\s+)?((?:FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH|EIGHTH|NINTH|TENTH|"
     r"ELEVENTH|TWELFTH|THIRTEENTH|FOURTEENTH|FIFTEENTH|SIXTEENTH)\s+)?SCHEDULE(?:\s+([IVXLC]+|[A-Z]))?\b\.?\s*$"
@@ -276,6 +278,7 @@ class _Builder:
         self.quote: Optional[Node] = None    # open quoted block (Finance Acts)
         self.quote_stack: list[Node] = []
         self.pending_note: Optional[str] = None
+        self.last_text = ""                  # previous paragraph, for lead-in detection
 
     # helpers ---------------------------------------------------------------
     def _active_stack(self) -> list[Node]:
@@ -352,6 +355,14 @@ class _Builder:
             node.qualifies = parent.children[-1]
         return self._attach(parent, node)
 
+    def _schedule_ancestor(self) -> Optional[Node]:
+        n: Optional[Node] = self.container
+        while n is not None:
+            if n.kind == "schedule":
+                return n
+            n = n.parent
+        return None
+
     def _close_quote(self) -> None:
         self.quote = None
         self.quote_stack = []
@@ -382,10 +393,31 @@ class _Builder:
         if m and p.centred and self.quote is None:
             node = Node(kind="part", number=m.group(1), heading=m.group(2).strip(),
                         paragraph=p, indent=p.x0, label_type="PART")
-            parent = self.container if self.container.kind == "schedule" else self.root
+            sched = self._schedule_ancestor()
+            parent = sched if sched is not None else self.root
             self._attach(parent, node)
             self.container, self.stack = node, []
             return
+        m = _SCHED_PARA_RE.match(raw)
+        if m and p.centred and self.quote is None and self._schedule_ancestor() is not None:
+            # "Paragraph A" divides a schedule Part (rates for individuals,
+            # co-operative societies, firms …).
+            node = Node(kind="paragraph", number=m.group(1), heading=raw, paragraph=p,
+                        indent=p.x0, label_type="PARAGRAPH")
+            parent = self.container if self.container.kind in ("part", "schedule") else \
+                (self.container.parent or self.root)
+            self._attach(parent, node)
+            self.container, self.stack = node, []
+            return
+        if (p.centred and self.quote is None and self.stack and raw.strip().upper() != "TABLE"
+                and self._schedule_ancestor() is not None and not _starts_structurally(raw)
+                and not _LEAD_IN_RE.search(self.last_text)):
+            # A centred sub-heading inside a schedule ("Surcharge on
+            # income-tax") closes the open provision — unless the previous
+            # paragraph is a lead-in ("… applies,—") that the heading and the
+            # rows below it continue ("Rates of income-tax").
+            self.stack = []
+        self.last_text = raw
         m = _SCHEDULE_RE.match(raw)
         if m and p.centred and self.quote is None:
             ordinal = (m.group(1) or "").strip()
@@ -492,7 +524,7 @@ class _Builder:
         self._close_quote()
         self.last_section = _section_key(num)
         parent = self.container if self.container.kind in ("chapter", "part", "act") else self.root
-        if self.container.kind == "schedule":
+        if self._schedule_ancestor() is not None:
             parent = self.root
             self.container = self.root
         self._attach(parent, node)
@@ -562,6 +594,7 @@ class _Builder:
 
 _PATH_TOKEN = {
     "chapter": lambda n: f"ch{n.number}", "part": lambda n: f"pt{n.number}",
+    "paragraph": lambda n: f"para{n.number}",
     "schedule": lambda n: f"sch{n.number or 'X'}".replace(" ", ""),
     "section": lambda n: f"s{n.number}",
     "subsection": lambda n: f"({n.label})", "clause": lambda n: f"({n.label})",

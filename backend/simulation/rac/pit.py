@@ -89,10 +89,12 @@ def liability(params: PITParams, regime: str, salary, other_income=0.0, deductio
     """Tax for arrays of taxpayers under one regime. `age` is a band name or
     an array of band names; scalars broadcast."""
     sched = params.regimes[regime]
-    salary = np.atleast_1d(np.asarray(salary, dtype=np.float64))
-    other = np.broadcast_to(np.asarray(other_income, dtype=np.float64), salary.shape).astype(np.float64)
-    claimed = np.broadcast_to(np.asarray(deductions, dtype=np.float64), salary.shape).astype(np.float64)
-    ages = np.broadcast_to(np.asarray(age), salary.shape)
+    shape = np.broadcast_shapes(np.shape(salary), np.shape(other_income), np.shape(deductions),
+                                np.shape(age), (1,))
+    salary = np.broadcast_to(np.asarray(salary, dtype=np.float64), shape).astype(np.float64)
+    other = np.broadcast_to(np.asarray(other_income, dtype=np.float64), shape).astype(np.float64)
+    claimed = np.broadcast_to(np.asarray(deductions, dtype=np.float64), shape).astype(np.float64)
+    ages = np.broadcast_to(np.asarray(age), shape)
 
     gross = salary + other
     std = np.minimum(salary, sched.standard_deduction)
