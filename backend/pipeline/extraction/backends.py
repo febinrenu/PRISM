@@ -34,6 +34,7 @@ class System:
     model: str
     num_ctx: int = 8192
     max_tokens: int = 4096
+    options: tuple = ()  # extra provider parameters, e.g. (("reasoning_effort", "low"),)
 
 
 SYSTEMS: dict[str, System] = {s.name: s for s in [
@@ -41,7 +42,10 @@ SYSTEMS: dict[str, System] = {s.name: s for s in [
     System("gemma2-2b", "ollama", "gemma2:2b"),
     System("prism-legal", "ollama", "prism-legal"),   # Phi-3.5 fine-tuned on silver data (training/)
     System("gpt-oss-120b", "groq", "openai/gpt-oss-120b"),
-    System("gpt-oss-20b", "groq", "openai/gpt-oss-20b"),
+    # At the default (medium) reasoning effort GPT-OSS-20B can spend the whole
+    # 4,096-token output budget reasoning and return no answer; the free
+    # tier's 8,000 tokens/minute rules out a larger budget. Low effort fits.
+    System("gpt-oss-20b", "groq", "openai/gpt-oss-20b", options=(("reasoning_effort", "low"),)),
     System("qwen3.8-27b", "groq", "qwen/qwen3.8-27b"),
     System("gemini-3.8-flash", "gemini", "gemini-3.8-flash"),
 ]}
@@ -121,6 +125,7 @@ def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: f
         "max_completion_tokens": system.max_tokens,
         "response_format": {"type": "json_object"},
         "messages": [{"role": "user", "content": prompt}],
+        **dict(system.options),
     })
     if r.status_code == 429:
         raise _rate_limited(r)
@@ -161,7 +166,8 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
                   use_cache: bool = True) -> GenerationResult:
     system = SYSTEMS[system_name]
     key = cache.key(provider=system.provider, model=system.model, prompt=prompt,
-                    temperature=temperature, seed=seed, prompt_version=prompt_version)
+                    temperature=temperature, seed=seed, prompt_version=prompt_version,
+                    options=dict(system.options) or None)
     if use_cache:
         hit = cache.get(key)
         if hit is not None:
@@ -191,7 +197,7 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
         elapsed = int((time.perf_counter() - started) * 1000)
         if system.provider == "ollama":
             version = _ollama_digest(system.model)
-        cache.put(key, {"text": text, "system": system_name, "model": system.model,
+        cache.put(key, {"text": text, "system": system_name, "model": system.model, "options": dict(system.options),
                         "model_version": version, "elapsed_ms": elapsed,
                         "temperature": temperature, "seed": seed, "prompt_version": prompt_version})
         return GenerationResult(text=text, system=system_name, model=system.model, model_version=version,

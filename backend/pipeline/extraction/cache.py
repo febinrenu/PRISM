@@ -17,10 +17,16 @@ from config import BASE_DIR
 CACHE_DIR = BASE_DIR / "data" / "cache" / "llm"
 
 
-def key(*, provider: str, model: str, prompt: str, temperature: float, seed: int, prompt_version: int) -> str:
-    blob = json.dumps({"provider": provider, "model": model, "prompt": prompt,
-                       "temperature": round(float(temperature), 4), "seed": int(seed),
-                       "prompt_version": int(prompt_version)}, sort_keys=True)
+def key(*, provider: str, model: str, prompt: str, temperature: float, seed: int, prompt_version: int,
+        options: Optional[dict] = None) -> str:
+    payload = {"provider": provider, "model": model, "prompt": prompt,
+               "temperature": round(float(temperature), 4), "seed": int(seed),
+               "prompt_version": int(prompt_version)}
+    if options:
+        # Generation options (e.g. reasoning effort) change the output; they
+        # enter the key only when set, so existing entries keep their keys.
+        payload["options"] = options
+    blob = json.dumps(payload, sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
