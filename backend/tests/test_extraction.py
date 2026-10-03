@@ -105,6 +105,17 @@ def test_assembler_picks_the_effect_stated_for_the_target_regime():
     assert res.complete
     assert res.params.regimes["new"].rebate.max_rebate == 60_000
     assert res.params.regimes["old"].rebate.max_rebate == 12_500
+    # Two rebates both marked "both regimes" (the s.156 misreading): ambiguous, not resolved.
+    unscoped = _rule(RebateEffect(max_income=5 * L, max_rebate=12_500),
+                     RebateEffect(max_income=12 * L, max_rebate=60_000, marginal_relief=True))
+    res = assemble({"p": [unscoped]}, {"new.rebate": "p"}, G["2027-28"], "2027-28")
+    assert not res.complete and res.review[0].reason.startswith("conflicting effects")
+    # A regime-specific effect wins over an unscoped one; identical duplicates are fine.
+    mixed = _rule(RebateEffect(max_income=5 * L, max_rebate=12_500),
+                  RebateEffect(max_income=12 * L, max_rebate=60_000, marginal_relief=True, regime="new"),
+                  RebateEffect(max_income=12 * L, max_rebate=60_000, marginal_relief=True, regime="new"))
+    res = assemble({"p": [mixed]}, {"new.rebate": "p"}, G["2027-28"], "2027-28")
+    assert res.complete and res.params.regimes["new"].rebate.max_rebate == 60_000
     only_old = _rule(RebateEffect(max_income=5 * L, max_rebate=12_500, regime="old"))
     res = assemble({"p": [only_old]}, {"new.rebate": "p"}, G["2027-28"], "2027-28")
     assert not res.complete

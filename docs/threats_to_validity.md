@@ -45,7 +45,13 @@ done about it.
   choices still matter:
   - year-scoped slab rows win over unscoped ones;
   - effects must be stated for the target's regime;
-  - the first rebate or standard-deduction effect is used.
+  - for a scalar parameter (rebate, standard deduction, cess), an effect
+    stated for the target's regime wins over one stated for both, and
+    candidates that still disagree make the target ambiguous: a review item,
+    never a silent choice. Earlier versions took the first effect; the
+    change followed GPT-OSS-120B's reading of s.156 of the Income-tax Act
+    2025, where both rebates were extracted correctly but marked as applying
+    to both regimes.
 
   Each choice is documented and tested, and the expert parameters round-trip
   through the assembler unchanged.

@@ -60,6 +60,19 @@ def _effects(rules: list[LegalRule], kind, regime: Optional[str] = None) -> list
             if isinstance(e, kind) and (regime is None or getattr(e, "regime", "both") in (regime, "both"))]
 
 
+def _single(effects: list, regime: Optional[str], value) -> tuple[Optional[object], Optional[str]]:
+    """One value for a scalar target. Effects stated for the target's regime
+    take precedence over effects stated for both regimes; if the remaining
+    candidates disagree, the target is ambiguous (a ReviewItem), never
+    resolved by picking one."""
+    if regime is not None and any(getattr(e, "regime", "both") == regime for e in effects):
+        effects = [e for e in effects if getattr(e, "regime", "both") == regime]
+    distinct = {value(e): e for e in effects}
+    if len(distinct) > 1:
+        return None, f"conflicting effects: {', '.join(str(v) for v in distinct)}"
+    return next(iter(distinct.values())), None
+
+
 def build_schedule(rows: list[SlabRow]) -> tuple[Optional[list[Slab]], Optional[str]]:
     """Contiguous schedule from slab rows, or (None, reason)."""
     if not rows:
@@ -138,14 +151,21 @@ def assemble(rules_by_provision: dict[str, list[LegalRule]], targets: dict[str, 
             if not rebs:
                 review.append(ReviewItem(target, provision, "no rebate effect"))
                 continue
-            r = rebs[0]
+            r, why = _single(rebs, regime, lambda e: (e.max_income, e.max_rebate, e.marginal_relief))
+            if r is None:
+                review.append(ReviewItem(target, provision, why))
+                continue
             sched.rebate = Rebate(max_income=r.max_income, max_rebate=r.max_rebate, marginal_relief=r.marginal_relief)
         elif len(parts) >= 2 and parts[1] == "standard_deduction":
             sds = _effects(rules, StandardDeduction, regime)
             if not sds:
                 review.append(ReviewItem(target, provision, "no standard deduction effect"))
                 continue
-            sched.standard_deduction = sds[0].amount
+            sd, why = _single(sds, regime, lambda e: e.amount)
+            if sd is None:
+                review.append(ReviewItem(target, provision, why))
+                continue
+            sched.standard_deduction = sd.amount
         elif len(parts) >= 2 and parts[1] == "surcharge":
             bands = sorted(_effects(rules, SBEffect, regime), key=lambda b: b.threshold)
             if not bands:
@@ -160,7 +180,11 @@ def assemble(rules_by_provision: dict[str, list[LegalRule]], targets: dict[str, 
             if not cs:
                 review.append(ReviewItem(target, provision, "no cess effect"))
                 continue
-            params.cess_rate = cs[0].rate
+            c, why = _single(cs, None, lambda e: e.rate)
+            if c is None:
+                review.append(ReviewItem(target, provision, why))
+                continue
+            params.cess_rate = c.rate
         else:
             review.append(ReviewItem(target, provision, f"unknown target {target}"))
             continue
