@@ -267,6 +267,32 @@ def cmd_eval_verify(args) -> int:
     return 1 if problems else 0
 
 
+def cmd_eval_run(args) -> int:
+    from eval.v2 import runs
+
+    path = runs.run(args.system, args.split, args.limit)
+    print(f"records in {path}")
+    return 0
+
+
+def cmd_eval_agree(args) -> int:
+    from eval.v2 import runs
+
+    res = runs.agreement(args.split)
+    if not res:
+        print("No item has been finished by two annotators yet.")
+        return 0
+    print(json.dumps(res, indent=1))
+    return 0
+
+
+def cmd_eval_score(args) -> int:
+    from eval.v2 import runs
+
+    print(json.dumps(runs.score(args.system, args.split, args.gold), indent=1))
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -318,6 +344,22 @@ def main(argv=None) -> int:
 
     sub.add_parser("eval-verify", help="check the frozen evaluation sets against the corpus") \
         .set_defaults(func=cmd_eval_verify)
+
+    p = sub.add_parser("eval-run", help="run an extraction system over an evaluation set")
+    p.add_argument("--system", required=True, help="rules | phi3.5 | gemma2-2b | gpt-oss-120b | gpt-oss-20b | qwen3.8-27b | gemini-3.8-flash")
+    p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
+    p.add_argument("--limit", type=int, default=None)
+    p.set_defaults(func=cmd_eval_run)
+
+    p = sub.add_parser("eval-agree", help="agreement between annotators on finished items")
+    p.add_argument("--split", default="pilot", choices=["pilot", "dev", "test"])
+    p.set_defaults(func=cmd_eval_agree)
+
+    p = sub.add_parser("eval-score", help="score a system run against human gold")
+    p.add_argument("--system", required=True)
+    p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
+    p.add_argument("--gold", default="adjudicated", help="'adjudicated' or an annotator id")
+    p.set_defaults(func=cmd_eval_score)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:
