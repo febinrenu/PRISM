@@ -150,6 +150,79 @@ def _merge_rows(segs: list[Line]) -> list[Line]:
     return merged
 
 
+_ROW_ANCHOR_RE = re.compile(r"^\s*(?:\(\s*[0-9]{1,3}[A-Z]?\s*\)|\([a-z]{1,3}\)|\d{1,3}\.)\s")
+
+
+def _two_column_rows(segs: list[Line], page_width: float) -> list[Line]:
+    """Rebuild two-column rate tables (Finance Act schedules): a left column
+    of conditions "(1) where the total income exceeds / Rs. 2,50,000 …" and a
+    right column of rates, each wrapping independently. Each left-column item
+    opens a row that takes every line of both columns down to the next item;
+    the row becomes one table line "condition | rate"."""
+    if len(segs) < 6:
+        return segs
+    starts = Counter(round(s.x0) for s in segs if 0.42 * page_width < s.x0 < 0.75 * page_width)
+    if not starts:
+        return segs
+    xr, count = starts.most_common(1)[0]
+    if count < 3:
+        return segs
+    right = [s for s in segs if abs(s.x0 - xr) <= 3]
+    left = [s for s in segs if s.x1 < xr - 2]
+    anchors = sorted((s for s in left if _ROW_ANCHOR_RE.match(s.text)), key=lambda s: s.y0)
+    if len(anchors) < 2:
+        return segs
+    # A row band runs from one anchor to the next; only anchors that sit
+    # beside right-column text start rows.
+    rows_out: list[Line] = []
+    used: set[int] = set()
+    line_gap = max(min((b.y0 - a.y0 for a, b in zip(anchors, anchors[1:]) if b.y0 > a.y0), default=12.0), 8.0)
+    full_width = [s for s in segs if s.x0 < xr - 2 and s.x1 > xr + 20]
+    for i, a in enumerate(anchors):
+        # A rate often starts a few points above its condition's first line.
+        tol = 0.8 * a.size
+        top = a.y0 - tol
+        bottom = anchors[i + 1].y0 - tol if i + 1 < len(anchors) else a.y0 + 3 * line_gap
+        # A full-width line (the next paragraph) ends the row.
+        stops = [s.y0 for s in full_width if a.y0 < s.y0 < bottom]
+        if stops:
+            bottom = min(stops) - 0.5
+        r_in = [s for s in right if top <= s.y0 < bottom and id(s) not in used]
+        if not r_in:
+            continue
+        # Left-column continuation lines are printed near the item's indent;
+        # a line far to its left belongs to the surrounding paragraph.
+        l_in = [s for s in left if top <= s.y0 < bottom and id(s) not in used
+                and s.x0 >= a.x0 - 30
+                and (s is a or not _ROW_ANCHOR_RE.match(s.text))]
+        if i + 1 == len(anchors):
+            # Last row: stop at the first vertical gap in the right column.
+            r_in.sort(key=lambda s: s.y0)
+            kept = [r_in[0]]
+            for s in r_in[1:]:
+                if s.y0 - kept[-1].y1 > 1.2 * s.size:
+                    break
+                kept.append(s)
+            r_in = kept
+            limit = r_in[-1].y1 + 2
+            l_in = [s for s in l_in if s.y0 <= limit]
+        l_in.sort(key=lambda s: s.y0)
+        r_in.sort(key=lambda s: s.y0)
+        for s in l_in + r_in:
+            used.add(id(s))
+        left_text = " ".join(s.text for s in l_in)
+        right_text = " ".join(s.text for s in r_in)
+        rows_out.append(Line(
+            page=a.page, x0=a.x0, y0=min(s.y0 for s in l_in + r_in), x1=max(s.x1 for s in l_in + r_in),
+            y1=max(s.y1 for s in l_in + r_in), size=a.size, bold=a.bold,
+            text=normalise(f"{left_text} | {right_text}"), is_table_row=True, cells=[left_text, right_text],
+            kind="two_col_row",
+        ))
+    if not rows_out:
+        return segs
+    return [s for s in segs if id(s) not in used] + rows_out
+
+
 def _body_size(lines: list[Line]) -> float:
     weight: Counter = Counter()
     for ln in lines:
@@ -265,7 +338,10 @@ def read_lines(pdf_path: str) -> tuple[list[Line], list[PageInfo], dict]:
                 inside.append(s)
         for s in margin:
             s.kind = "margin_pending"
-        rows = _merge_rows(inside) + margin
+        page_width = pages[segs[0].page].width if segs else 595.0
+        inside = _two_column_rows(inside, page_width)
+        built = [s for s in inside if s.kind == "two_col_row"]
+        rows = _merge_rows([s for s in inside if s.kind != "two_col_row"]) + built + margin
         rows.sort(key=lambda r: (r.y0, r.x0))
         lines.extend(rows)
     stats = classify(lines, pages, col_left, col_right)

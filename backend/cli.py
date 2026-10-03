@@ -218,6 +218,36 @@ def cmd_gold_agree(args) -> int:
     return 0
 
 
+def cmd_gold_blind(args) -> int:
+    """Blind second coding by a language model from statute excerpts only."""
+    import time
+
+    from services.run_manifest import build_manifest, write_manifest
+    from simulation.rac.gold.blind_coder import code_year
+
+    template = json.loads(open(args.template, encoding="utf-8").read())
+    codings, log = {}, {}
+    for ay, tpl in template.items():
+        for attempt in range(4):
+            try:
+                res = code_year(ay, tpl, model=args.model)
+                break
+            except Exception as e:  # noqa: BLE001 - retry transient API errors
+                print(f"{ay}: attempt {attempt + 1} failed: {str(e)[:160]}")
+                time.sleep(20 * (attempt + 1))
+        else:
+            continue
+        codings[ay] = res["coding"]
+        log[ay] = {k: v for k, v in res.items() if k != "coding"}
+        print(f"{ay}: coded by {res['model_version']} from {len(res['sources'])} excerpt(s)")
+        time.sleep(args.pause)
+    open(args.out, "w", encoding="utf-8").write(json.dumps(codings, indent=2, ensure_ascii=False))
+    manifest = build_manifest("gold-blind", config={"model": args.model, "template": args.template},
+                              extra={"per_year": log})
+    print(f"wrote {args.out}; manifest {write_manifest(manifest)}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -255,7 +285,17 @@ def main(argv=None) -> int:
     p.add_argument("--coder2", required=True)
     p.set_defaults(func=cmd_gold_agree)
 
+    p = sub.add_parser("gold-blind", help="blind LLM second coding of PIT parameters from statute excerpts")
+    p.add_argument("--model", default=None)
+    p.add_argument("--template", default="../docs/expert_coding_template.json")
+    p.add_argument("--out", default="../docs/coder2_blind_gemini.json")
+    p.add_argument("--pause", type=float, default=8.0)
+    p.set_defaults(func=cmd_gold_blind)
+
     args = parser.parse_args(argv)
+    if getattr(args, "model", "unset") is None:
+        from config import GEMINI_MODEL
+        args.model = GEMINI_MODEL
     return args.func(args)
 
 
