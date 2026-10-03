@@ -23,12 +23,32 @@ only. They are never committed. Place downloaded files under
 `backend/data/raw/mospi/` (git-ignored and excluded from Docker images).
 Derived aggregates published in the paper are released.
 
+## Scope decision: GST incidence
+
+Simulating GST incidence by income group needs spending on each GST rate
+category for each consumption fractile. That breakdown exists only in
+unit-level HCES microdata (not available to this project) and in the CMIE
+household data behind NIPFP Working Paper 403 (not public). The published
+HCES 2022-23 report and factsheet give MPCE by fractile and item shares by
+state, not item shares by fractile. GST incidence is therefore outside the
+simulation. The CGST Act remains in the extraction evaluation and in the
+rule engine (late fees and penalties).
+
 ## Official statistics (redistributed as extracted tables)
 
-Back-test targets are transcribed from published government sources (CBDT
-income-tax return statistics, Union Budget receipt documents and revenue
-impact statements, and NIPFP Working Paper 403 for GST incidence). Each CSV in
-`backend/simulation/backtest/targets/` names its source document and table.
+Back-test targets come from published government sources:
+
+- Income Tax Return Statistics for AY 2019-20, 2020-21, 2022-23 and 2023-24
+  (Income Tax Department), individual tables 2.1, 2.10 and 2.11, parsed into
+  `backend/simulation/population/targets/cbdt_individuals_ay*.csv` with the
+  table and page of every row (`python -m cli cbdt-targets`).
+- Nominal GDP and the number of individual return filers by financial year
+  from the Income Tax Department Time Series Data FY 2000-01 to 2023-24
+  (tables 1.4 and 1.8): `targets/macro.csv`.
+- Revenue forgone announced in the Budget Speeches 2023-24 and 2025-26
+  (indiabudget.gov.in), quoted in `simulation/backtest/run.py`.
+
+The source PDFs stay in `backend/data/raw/` (git-ignored).
 
 ## Benchmarks
 
