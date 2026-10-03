@@ -18,6 +18,7 @@ class RawClause:
     section_hierarchy: list[str] = field(default_factory=list)
     bbox: list[float] | None = None
     is_table: bool = False
+    node_id: str | None = None  # statute AST node when segmented by the statute parser
 
 
 # Patterns that indicate the start of a new clause / sub-clause.

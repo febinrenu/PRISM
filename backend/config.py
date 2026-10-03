@@ -63,9 +63,13 @@ LIME_NUM_FEATURES = int(os.getenv("LIME_NUM_FEATURES", "12"))
 # "legacy" → the original illustrative log-uniform ranges (kept for ablation)
 SIM_CALIBRATION = os.getenv("SIM_CALIBRATION", "nsso")
 
-# Segmentation: "structural" (regex/layout only) or "semantic" (adds a MiniLM
-# embedding-cohesion boundary check on top of the structural split).
-SEGMENTATION_MODE = os.getenv("SEGMENTATION_MODE", "structural")
+# Segmentation:
+#   "statute"    → the statute structure parser (sections, sub-sections, clauses,
+#                  provisos, schedules); falls back to "structural" for PDFs that
+#                  are not statutes
+#   "structural" → regex/layout segmenter
+#   "semantic"   → structural + a MiniLM embedding-cohesion boundary check
+SEGMENTATION_MODE = os.getenv("SEGMENTATION_MODE", "statute")
 
 # --- Phase 3: LLM backend abstraction (Module D/E/F) ---
 # Which generator serves free-form/RAG/chat calls:

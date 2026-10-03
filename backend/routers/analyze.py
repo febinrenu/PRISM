@@ -17,6 +17,7 @@ from typing import Callable
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
+from config import SEGMENTATION_MODE
 from services import job_manager
 from storage import store
 from models.schemas import Clause, AnalysisResult
@@ -74,7 +75,17 @@ def _pipeline_worker(
         # ── Stage 2: Clause Segmentation ─────────────────────────────────────
         emit({"stage": "segmentation", "message": "Segmenting clauses…", "progress": 0})
         try:
-            raw_clauses = segment_clauses(pages)
+            raw_clauses = None
+            if SEGMENTATION_MODE == "statute":
+                from pipeline.statute.segment_adapter import segment as statute_segment
+                try:
+                    raw_clauses = statute_segment(pdf_path, doc_id)
+                except Exception as e:  # never block analysis on the parser
+                    logger.warning("Statute parser failed for %s, using regex segmenter: %s", doc_id, e)
+                if raw_clauses is not None:
+                    emit({"stage": "segmentation", "message": "Statute structure recognised", "progress": 50})
+            if raw_clauses is None:
+                raw_clauses = segment_clauses(pages)
         except Exception as e:
             store.set_status(doc_id, "error")
             emit({"stage": "error", "message": f"Segmentation failed: {e}"})
@@ -120,7 +131,9 @@ def _pipeline_worker(
                     entities_by_index[i] = []
 
         for i, raw in enumerate(raw_clauses):
-            clause_id = f"{doc_id}_c{i:04d}"
+            # Content-addressed when the statute parser segmented the document,
+            # so a re-analysis never re-points cached results at another clause.
+            clause_id = f"{doc_id}_n{raw.node_id}" if getattr(raw, "node_id", None) else f"{doc_id}_c{i:04d}"
 
             # Tables are tagged and rendered as-is; running prose NER/causal
             # regexes over tabular fragments only produces noise, so skip them.

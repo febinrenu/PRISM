@@ -54,7 +54,8 @@ def build_provenance_graph(clauses: list[Clause], doc_id: str, doc_name: str = "
             chapter_key = hierarchy[0]
             if chapter_key not in chapter_nodes:
                 ch_id = f"ch_{doc_id}_{chapter_key}"
-                add_node(ch_id, "chapter", f"Chapter {chapter_key}", {"number": chapter_key})
+                label = chapter_key if chapter_key.startswith(("Chapter", "Schedule")) else f"Chapter {chapter_key}"
+                add_node(ch_id, "chapter", label, {"number": chapter_key})
                 add_edge(doc_node_id, ch_id, "contains")
                 chapter_nodes[chapter_key] = ch_id
             parent_id = chapter_nodes[chapter_key]
@@ -66,7 +67,8 @@ def build_provenance_graph(clauses: list[Clause], doc_id: str, doc_name: str = "
             section_key = ".".join(hierarchy[:2])
             if section_key not in section_nodes:
                 sec_id = f"sec_{doc_id}_{section_key}"
-                add_node(sec_id, "section", f"§{section_key}", {"number": section_key})
+                sec_label = hierarchy[1] if hierarchy[1].startswith("s.") else f"§{section_key}"
+                add_node(sec_id, "section", sec_label, {"number": section_key})
                 add_edge(parent_id, sec_id, "contains")
                 section_nodes[section_key] = sec_id
             parent_id = section_nodes[section_key]
@@ -74,7 +76,8 @@ def build_provenance_graph(clauses: list[Clause], doc_id: str, doc_name: str = "
         # Clause node
         clause_id = clause.clause_id
         clause_preview = clause.text[:80].replace('"', "'") + ("..." if len(clause.text) > 80 else "")
-        add_node(clause_id, "clause", f"Clause {clause_id.split('_')[-1]}", {
+        clause_label = " ".join(hierarchy[1:]) if len(hierarchy) > 1 else f"Clause {clause_id.split('_')[-1]}"
+        add_node(clause_id, "clause", clause_label, {
             "text_preview": clause_preview,
             "page": clause.page,
             "entity_count": len(clause.entities),
