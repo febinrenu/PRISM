@@ -6,6 +6,7 @@ Read-only access to the research results for the web app.
     GET /api/research/backtest             microsimulation validation
     GET /api/research/sensitivity          Sobol / Morris indices
     GET /api/research/stats                flip robustness and system comparisons
+    GET /api/research/error-injection      typed errors injected into the expert law
     GET /api/research/provision-sets       the experimental design
 """
 import json
@@ -74,3 +75,8 @@ def sensitivity():
 @router.get("/research/stats")
 def stats():
     return _load("stats.json")
+
+
+@router.get("/research/error-injection")
+def error_injection():
+    return {"rows": _load("error_injection.json")}

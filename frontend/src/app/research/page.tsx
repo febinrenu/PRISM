@@ -23,10 +23,59 @@ interface Attribution {
   total: { revenue_error_crore: number; decile_rate_l1: number; flips: number };
   minimal_restoring_set: string[] | null;
 }
+interface InjRow {
+  set: string; target: string; error: string; flip_rate: number; revenue_error_crore: number;
+  flipped: string[]; min_persistence: number | null;
+}
 interface Design { ay: string; description: string; targets: Record<string, string>; statute: string }
 
 const fmtCr = (v: number | null | undefined) =>
   v === null || v === undefined ? "—" : `₹${Math.round(v).toLocaleString("en-IN")} cr`;
+
+function InjectionMap({ rows }: { rows: InjRow[] }) {
+  // One cell per (error type, reform): the worst target of that reform.
+  const reforms = Array.from(new Set(rows.map((r) => r.set)));
+  const errors = Array.from(new Set(rows.map((r) => r.error)));
+  const cell = (e: string, s: string) =>
+    rows.filter((r) => r.error === e && r.set === s).sort((a, b) => b.flip_rate - a.flip_rate)[0];
+  return (
+    <section className="bg-bg-surface border border-border rounded-sm p-4 overflow-x-auto">
+      <h3 className="font-display uppercase tracking-wider text-sm mb-1">Which extraction errors change a conclusion?</h3>
+      <p className="text-xs text-text-muted mb-3">
+        Typed errors injected into the expert law, one provision at a time. Cell: share of pre-registered conclusions flipped
+        (hover for the revenue error and the flipped conclusions).
+      </p>
+      <table className="text-xs">
+        <thead><tr>
+          <th className="text-left font-normal text-text-muted pr-3">Error</th>
+          {reforms.map((s) => <th key={s} className="font-normal text-text-muted px-1.5 font-mono">{s.replace(/_/g, " ")}</th>)}
+        </tr></thead>
+        <tbody>
+          {errors.map((e) => (
+            <tr key={e}>
+              <td className="pr-3 py-0.5 font-mono whitespace-nowrap">{e.replace(/_/g, " ")}</td>
+              {reforms.map((s) => {
+                const c = cell(e, s);
+                if (!c) return <td key={s} className="text-center text-text-dim">·</td>;
+                const a = Math.min(1, c.flip_rate * 2);
+                return (
+                  <td key={s} className="px-0.5 py-0.5">
+                    <div title={`${fmtCr(c.revenue_error_crore)} revenue error${c.flipped.length ? " · " + c.flipped.join(", ") : ""}`}
+                      className="h-6 min-w-[3.5rem] rounded-sm flex items-center justify-center tabular-nums"
+                      style={{ background: c.flip_rate === 0 ? "rgb(var(--status-success-rgb, 34 197 94) / 0.15)"
+                        : `rgb(var(--status-error-rgb, 239 68 68) / ${0.15 + 0.6 * a})` }}>
+                      {(c.flip_rate * 100).toFixed(0)}%
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
 
 function AttributionPanel({ a }: { a: Attribution }) {
   if (a.players.length === 0) {
@@ -73,15 +122,17 @@ export default function ResearchPage() {
   const [backtest, setBacktest] = useState<any>(null);
   const [sens, setSens] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
+  const [inj, setInj] = useState<InjRow[] | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const get = (p: string) => fetch(`${API}${p}`).then((r) => (r.ok ? r.json() : null));
     Promise.all([get("/api/research/experiments"), get("/api/research/provision-sets"),
-      get("/api/research/backtest"), get("/api/research/sensitivity"), get("/api/research/stats")])
-      .then(([e, d, b, s, st]) => {
+      get("/api/research/backtest"), get("/api/research/sensitivity"), get("/api/research/stats"), get("/api/research/error-injection")])
+      .then(([e, d, b, s, st, ij]) => {
         setStats(st);
+        setInj(ij?.rows ?? null);
         setRuns(e?.runs ?? []);
         setDesign(d ?? {});
         setBacktest(b);
@@ -198,6 +249,8 @@ export default function ResearchPage() {
             </div>
           </section>
         )}
+
+        {inj && inj.length > 0 && <InjectionMap rows={inj} />}
 
         {stats && (
           <section className="grid md:grid-cols-2 gap-3">
