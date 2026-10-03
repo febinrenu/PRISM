@@ -47,6 +47,7 @@ def experiments():
             "review": r.get("review", []), "param_diff": r.get("param_diff", []),
             "hallucinated_fields": sum(e["hallucinated_fields"] for e in r.get("extraction", [])),
             "span_fields": sum(e["span_fields"] for e in r.get("extraction", [])),
+            "attribution": r.get("attribution"),
         })
     return {"runs": runs}
 

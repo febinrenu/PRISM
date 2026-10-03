@@ -70,6 +70,19 @@ def _previous_ay(ay: str) -> str:
     return keys[i - 1] if i > 0 else ay
 
 
+def baseline(expert, ay: str, pop, exp_after=None):
+    """The law each reform is compared with: the previous year's expert law,
+    or, for the earliest coded year, a proportional tax raising the same
+    revenue (does the schedule burden each decile more or less than a flat
+    tax would, and is it progressive?)."""
+    from simulation.engine.static import StaticResult, simulate
+    if _previous_ay(ay) != ay:
+        return simulate(gold.build_gold()[_previous_ay(ay)], pop)
+    exp_after = exp_after or simulate(expert, pop)
+    rate = exp_after.revenue() / float((pop.gti * pop.weight).sum())
+    return StaticResult(ay, pop.gti * rate, exp_after.regime, pop.gti, pop.weight, pop.gti)
+
+
 def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
     """Population-weighted comparison with the expert law and the
     pre-registered conclusions relative to the previous year's law."""
@@ -78,18 +91,9 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
     from simulation.engine.static import simulate
     from simulation.experiment.conclusions import conclusions, flips
 
-    G = gold.build_gold()
     pop = population_for(ay)
     exp_after = simulate(expert, pop)
-    if _previous_ay(ay) == ay:
-        # No earlier year in the expert coding: compare with a proportional tax
-        # raising the same revenue (does the schedule burden each decile more
-        # or less than a flat tax would, and is it progressive?).
-        from simulation.engine.static import StaticResult
-        rate = exp_after.revenue() / float((pop.gti * pop.weight).sum())
-        before = StaticResult(ay, pop.gti * rate, exp_after.regime, pop.gti, pop.weight, pop.gti)
-    else:
-        before = simulate(G[_previous_ay(ay)], pop)
+    before = baseline(expert, ay, pop, exp_after)
     sys_after = simulate(params, pop)
     exp_c = conclusions(before, exp_after, exp_after)
     sys_c = conclusions(before, sys_after, exp_after) if complete else None
@@ -164,10 +168,15 @@ def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> d
                 "max_error": float(np.max(err)),
                 "mean_signed_error": float(np.mean(sys_tax - exp_tax)),
             }
+    from simulation.backtest.run import population_for
+    from simulation.experiment.attribution import attribute
+    pop = population_for(ay)
+    attribution = attribute(expert, result.params, spec["targets"], baseline(expert, ay, pop), pop, failed)
     return {
         "set": set_name, "system": system, "ay": ay, "samples": k,
         "complete": result.complete,
         "population": population_outcomes(result.params, expert, ay, result.complete),
+        "attribution": attribution,
         "review": [asdict(r) for r in result.review],
         "param_diff": expert.diff(result.params),
         "extraction": extraction_log,

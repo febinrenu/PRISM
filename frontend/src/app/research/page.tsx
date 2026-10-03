@@ -13,11 +13,50 @@ interface Run {
   kakwani_expert: number | null; kakwani_system: number | null; decile_rate_l1: number | null;
   review: { target: string; reason: string }[]; param_diff: string[];
   hallucinated_fields: number; span_fields: number;
+  attribution?: Attribution | null;
+}
+interface Player {
+  target: string; provision: string; revenue_error_crore: number; decile_rate_l1: number; flips: number;
+}
+interface Attribution {
+  players: Player[]; identical_targets: string[]; failed_targets: string[];
+  total: { revenue_error_crore: number; decile_rate_l1: number; flips: number };
+  minimal_restoring_set: string[] | null;
 }
 interface Design { ay: string; description: string; targets: Record<string, string>; statute: string }
 
 const fmtCr = (v: number | null | undefined) =>
   v === null || v === undefined ? "—" : `₹${Math.round(v).toLocaleString("en-IN")} cr`;
+
+function AttributionPanel({ a }: { a: Attribution }) {
+  if (a.players.length === 0) {
+    return a.failed_targets.length === 0
+      ? <p className="text-xs text-status-success">Every targeted parameter matches the expert reading.</p>
+      : null;
+  }
+  const scale = Math.max(...a.players.map((p) => Math.abs(p.revenue_error_crore)), 1);
+  return (
+    <div className="space-y-1.5 text-xs">
+      <p className="text-text-muted">Where the divergence comes from (Shapley share of revenue error)</p>
+      {a.players.map((p) => (
+        <div key={p.target} className="flex items-center gap-2" title={p.provision}>
+          <span className="w-36 truncate font-mono">{p.target}</span>
+          <div className="flex-1 h-2 bg-bg-overlay rounded-full overflow-hidden">
+            <div className={`h-full ${p.revenue_error_crore < 0 ? "bg-status-error" : "bg-status-warning"}`}
+              style={{ width: `${(Math.abs(p.revenue_error_crore) / scale) * 100}%` }} />
+          </div>
+          <span className="w-28 text-right tabular-nums">{fmtCr(p.revenue_error_crore)}</span>
+          <span className="w-16 text-right tabular-nums text-text-muted">{p.flips.toFixed(1)} flips</span>
+        </div>
+      ))}
+      {a.minimal_restoring_set && (
+        <p className="text-text-secondary">
+          Correcting <span className="font-mono">{a.minimal_restoring_set.join(", ")}</span> restores every conclusion.
+        </p>
+      )}
+    </div>
+  );
+}
 
 function Cell({ run }: { run?: Run }) {
   if (!run) return <span className="text-text-dim">·</span>;
@@ -139,6 +178,7 @@ export default function ResearchPage() {
                       <dt className="text-text-muted">Self-consistency samples</dt>
                       <dd className="tabular-nums text-right">{r.samples}</dd>
                     </dl>
+                    {r.attribution && <AttributionPanel a={r.attribution} />}
                     {r.review.length > 0 && (
                       <ul className="text-xs text-status-error space-y-0.5">
                         {r.review.map((v, i) => <li key={i}>{v.target}: {v.reason}</li>)}
