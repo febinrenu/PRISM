@@ -211,3 +211,8 @@ class ExtractionRecord(BaseModel):
     total_span_fields: int = 0
     raw_ref: Optional[str] = None          # cache key of the raw model output
     error: Optional[str] = None
+    # Self-consistency (pipeline.extraction.consistency): per greedy rule, the
+    # share of sampled extractions containing a matching rule, and per effect
+    # the share reproducing its numeric fields exactly.
+    rule_confidence: list[float] = []
+    effect_confidence: list[list[float]] = []

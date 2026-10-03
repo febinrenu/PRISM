@@ -103,3 +103,24 @@ def test_harness_rule_baseline_on_fa2020_new_regime():
     from simulation.experiment.harness import run_set
     r = run_set("FA2020_new_regime", "rules")
     assert r["complete"] and r["comparisons"]["new:below_60"]["exact_match_rate"] == 1.0
+
+
+def test_self_consistency_scores_rules_and_effects():
+    from models.rules import ExtractionRecord, Span
+    from pipeline.extraction.consistency import score_against_samples
+
+    def rec(rows, action=(10, 30)):
+        sp = Span(node_id="n", start=action[0], end=action[1], text="x")
+        rule = LegalRule(rule_id="r", statute="T", provision="p", modality="obligation", action=sp,
+                         effects=[SlabRow(lower=lo, upper=hi, rate=r) for lo, hi, r in rows],
+                         provenance=Provenance(extractor="t"))
+        return ExtractionRecord(provision="p", statute="T", status="ok", rules=[rule])
+
+    greedy = rec([(0, 3 * L, 0.0), (3 * L, None, 0.1)])
+    same = rec([(0, 3 * L, 0.0), (3 * L, None, 0.1)])
+    wrong_top = rec([(0, 3 * L, 0.0), (3 * L, 7 * L, 0.1)])
+    elsewhere = rec([(0, 3 * L, 0.0)], action=(200, 220))
+    out = score_against_samples(greedy, [same, wrong_top, elsewhere, same])
+    assert out.rule_confidence == [0.75]
+    assert out.effect_confidence == [[0.75, 0.5]]
+    assert out.rules[0].provenance.samples == 5
