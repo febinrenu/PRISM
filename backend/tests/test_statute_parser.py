@@ -219,3 +219,16 @@ def test_corpus_fa2020_new_regime_table():
                  or "Nil" in text[r["start"]:r["own_end"]]]
     assert slab_rows[0].startswith("1. Up to Rs. 2,50,000")
     assert len(slab_rows) == 7
+
+
+def test_corpus_ita2025_table_belongs_to_the_provision_that_introduces_it():
+    # s.202(1)(e) ends "… at the rate of tax given in the following Table:—";
+    # the slab rows are part of sub-section (1), not loose rows of the section.
+    ast = _corpus_ast("ITA2025", "amended_fa2026")
+    by_path = {n["path"]: n for n in ast["nodes"]}
+    sub = by_path["ITA2025/s202/(1)"]
+    rows = [n for n in ast["nodes"] if n["kind"] == "table_row" and n["path"].startswith("ITA2025/s202/")]
+    assert len(rows) == 9
+    assert all(r["path"].startswith("ITA2025/s202/(1)/(e)/row") for r in rows)
+    assert all(sub["start"] <= r["start"] and r["end"] <= sub["end"] for r in rows)
+    assert by_path["ITA2025/s202/(2)"]["start"] >= rows[-1]["end"]

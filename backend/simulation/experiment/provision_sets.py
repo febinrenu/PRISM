@@ -39,6 +39,13 @@ PROVISION_SETS: dict[str, dict] = {
         "description": "Finance Act 2025: new slab table and the Rs. 12 lakh / Rs. 60,000 rebate.",
         "targets": {"new.slabs": "FA2025/s25", "new.rebate": "FA2025/s20"},
     },
+    "ITA2025_new_act": {
+        "ay": "2027-28", "statute": ("ITA2025", "amended_fa2026"),
+        "description": "Income-tax Act 2025 (in force from tax year 2026-27): the s.202(1) default-regime table "
+                       "and the s.156 rebates, re-enacted in new drafting with no change in rates. A system that "
+                       "reads a change into the re-enactment flips the 'no revenue change' conclusion.",
+        "targets": {"new.slabs": "ITA2025/s202/(1)", "new.rebate": "ITA2025/s156"},
+    },
 }
 
 

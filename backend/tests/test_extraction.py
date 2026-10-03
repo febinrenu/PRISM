@@ -96,6 +96,20 @@ def test_assembler_rebate_and_expert_identity():
     assert res.complete and res.params.diff(G["2026-27"]) == []
 
 
+def test_assembler_picks_the_effect_stated_for_the_target_regime():
+    # s.156 of the 2025 Act: Rs. 12,500 rebate in the old regime, Rs. 60,000 in the new.
+    G = gold.build_gold()
+    both = _rule(RebateEffect(max_income=5 * L, max_rebate=12_500, regime="old"),
+                 RebateEffect(max_income=12 * L, max_rebate=60_000, marginal_relief=True, regime="new"))
+    res = assemble({"p": [both]}, {"new.rebate": "p", "old.rebate": "p"}, G["2027-28"], "2027-28")
+    assert res.complete
+    assert res.params.regimes["new"].rebate.max_rebate == 60_000
+    assert res.params.regimes["old"].rebate.max_rebate == 12_500
+    only_old = _rule(RebateEffect(max_income=5 * L, max_rebate=12_500, regime="old"))
+    res = assemble({"p": [only_old]}, {"new.rebate": "p"}, G["2027-28"], "2027-28")
+    assert not res.complete
+
+
 def test_harness_rule_baseline_on_fa2020_new_regime():
     from pathlib import Path
     if not (Path(__file__).parent.parent / "data" / "corpus" / "FA2020" / "enacted" / "ast.json").exists():

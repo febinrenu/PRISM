@@ -53,6 +53,7 @@ _PAREN_RE = re.compile(r"^\(\s*([0-9]{1,3}[A-Z]{0,3}|[a-z]{1,3}|[A-Z]{1,3})\s*\)
 _CHAPTER_RE = re.compile(r"^CHAPTER\s+([IVXLC]+(?:-?[A-Z]{1,2})?)\b\.?\s*(.*)$")
 _PART_RE = re.compile(r"^PART\s+([IVXLC]+|[A-Z])\b\.?\s*(.*)$")
 _SCHED_PARA_RE = re.compile(r"^Paragraph\s+([A-Z])\b\.?\s*$")
+_TABLE_LEAD_IN_RE = re.compile(r"following\s+Table\s*[:,]?\s*[—–-]*\s*$", re.IGNORECASE)
 _LEAD_IN_RE = re.compile(r"(?:[,:;]\s*)?[—–-]{1,2}\s*$|:\s*$")
 _SCHEDULE_RE = re.compile(
     r"^(?:THE\s+)?((?:FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH|EIGHTH|NINTH|TENTH|"
@@ -279,6 +280,7 @@ class _Builder:
         self.quote_stack: list[Node] = []
         self.pending_note: Optional[str] = None
         self.last_text = ""                  # previous paragraph, for lead-in detection
+        self.table_anchor: Optional[Node] = None   # provision whose lead-in opened a table
 
     # helpers ---------------------------------------------------------------
     def _active_stack(self) -> list[Node]:
@@ -456,6 +458,11 @@ class _Builder:
             stack, base = self.quote_stack, self.quote
 
         node = self._make_node(p, text, stack)
+        if node.kind == "table_row" and self.table_anchor is not None:
+            # "… at the rate given in the following Table:—": the rows belong
+            # to the provision that introduced them, whatever their indent.
+            self._attach(self.table_anchor, node)
+            return
         if node.label_type in _PAREN_TYPE_ORDER:
             self._place_labelled(node, stack, base)
             inner = getattr(node, "_inline_child", None)
@@ -467,6 +474,14 @@ class _Builder:
             self._attach(base, node)
         else:
             self._place_by_indent(node, stack, base)
+
+        if node.kind != "table_row":
+            if raw.strip().upper() == "TABLE" and self.table_anchor is not None:
+                pass                         # the caption between lead-in and rows
+            elif _TABLE_LEAD_IN_RE.search(raw) and stack and stack[-1] is node and node.paragraph is not None:
+                self.table_anchor = node
+            else:
+                self.table_anchor = None
 
         if self.quote is not None and _QUOTE_CLOSE_RE.search(raw) and not opens_quote:
             self._close_quote()

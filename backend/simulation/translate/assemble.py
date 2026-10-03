@@ -52,8 +52,12 @@ def _same_ay(value: Optional[str], ay: str) -> bool:
     return bool(m) and f"{m.group(1)}-{m.group(2)}" == ay
 
 
-def _effects(rules: list[LegalRule], kind) -> list:
-    return [e for r in rules for e in r.effects if isinstance(e, kind)]
+def _effects(rules: list[LegalRule], kind, regime: Optional[str] = None) -> list:
+    """Effects of one kind; for a regime-specific target, only those stated
+    for that regime or for both (s.156 of the 2025 Act grants one rebate under
+    each regime in the same section)."""
+    return [e for r in rules for e in r.effects
+            if isinstance(e, kind) and (regime is None or getattr(e, "regime", "both") in (regime, "both"))]
 
 
 def build_schedule(rows: list[SlabRow]) -> tuple[Optional[list[Slab]], Optional[str]]:
@@ -105,7 +109,7 @@ def assemble(rules_by_provision: dict[str, list[LegalRule]], targets: dict[str, 
         sched: Optional[RegimeSchedule] = params.regimes.get(regime) if regime else None
 
         if len(parts) >= 2 and parts[1] == "slabs":
-            rows = _effects(rules, SlabRow)
+            rows = _effects(rules, SlabRow, regime)
             # A provision can carry tables for several years (FA 2024 (No. 2)
             # s.37 substitutes one table for AY 2024-25 and another for
             # 2025-26). Rows scoped to this year win; unscoped rows are used
@@ -130,24 +134,24 @@ def assemble(rules_by_provision: dict[str, list[LegalRule]], targets: dict[str, 
                     sched.same_for_all_ages = False
                 sched.slabs[age] = slabs  # type: ignore[index]
         elif len(parts) >= 2 and parts[1] == "rebate":
-            rebs = _effects(rules, RebateEffect)
+            rebs = _effects(rules, RebateEffect, regime)
             if not rebs:
                 review.append(ReviewItem(target, provision, "no rebate effect"))
                 continue
             r = rebs[0]
             sched.rebate = Rebate(max_income=r.max_income, max_rebate=r.max_rebate, marginal_relief=r.marginal_relief)
         elif len(parts) >= 2 and parts[1] == "standard_deduction":
-            sds = _effects(rules, StandardDeduction)
+            sds = _effects(rules, StandardDeduction, regime)
             if not sds:
                 review.append(ReviewItem(target, provision, "no standard deduction effect"))
                 continue
             sched.standard_deduction = sds[0].amount
         elif len(parts) >= 2 and parts[1] == "surcharge":
-            bands = sorted(_effects(rules, SBEffect), key=lambda b: b.threshold)
+            bands = sorted(_effects(rules, SBEffect, regime), key=lambda b: b.threshold)
             if not bands:
                 review.append(ReviewItem(target, provision, "no surcharge bands"))
                 continue
-            caps = _effects(rules, SurchargeCap)
+            caps = _effects(rules, SurchargeCap, regime)
             cap = min((c.max_rate for c in caps), default=None)
             sched.surcharge = [SurchargeBand(threshold=b.threshold, rate=min(b.rate, cap) if cap is not None else b.rate)
                                for b in bands]
