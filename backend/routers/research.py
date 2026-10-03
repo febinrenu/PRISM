@@ -5,6 +5,7 @@ Read-only access to the research results for the web app.
     GET /api/research/experiments/{set}    every system's run for one provision set
     GET /api/research/backtest             microsimulation validation
     GET /api/research/sensitivity          Sobol / Morris indices
+    GET /api/research/stats                flip robustness and system comparisons
     GET /api/research/provision-sets       the experimental design
 """
 import json
@@ -68,3 +69,8 @@ def backtest():
 @router.get("/research/sensitivity")
 def sensitivity():
     return _load("sensitivity.json")
+
+
+@router.get("/research/stats")
+def stats():
+    return _load("stats.json")

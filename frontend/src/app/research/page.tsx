@@ -72,14 +72,16 @@ export default function ResearchPage() {
   const [design, setDesign] = useState<Record<string, Design>>({});
   const [backtest, setBacktest] = useState<any>(null);
   const [sens, setSens] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
   const [active, setActive] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const get = (p: string) => fetch(`${API}${p}`).then((r) => (r.ok ? r.json() : null));
     Promise.all([get("/api/research/experiments"), get("/api/research/provision-sets"),
-      get("/api/research/backtest"), get("/api/research/sensitivity")])
-      .then(([e, d, b, s]) => {
+      get("/api/research/backtest"), get("/api/research/sensitivity"), get("/api/research/stats")])
+      .then(([e, d, b, s, st]) => {
+        setStats(st);
         setRuns(e?.runs ?? []);
         setDesign(d ?? {});
         setBacktest(b);
@@ -193,6 +195,51 @@ export default function ResearchPage() {
                   </div>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {stats && (
+          <section className="grid md:grid-cols-2 gap-3">
+            <div className="bg-bg-surface border border-border rounded-sm p-4 text-sm">
+              <h3 className="font-display uppercase tracking-wider text-sm mb-1">Do flips survive population uncertainty?</h3>
+              <p className="text-xs text-text-muted mb-3">
+                {stats.draws} re-draws of the population assumptions. Persistence: share of draws where the flip remains;
+                noise floor: how often the expert&apos;s own conclusions move.
+              </p>
+              <table className="w-full text-xs">
+                <thead className="text-text-muted"><tr>
+                  <th className="text-left font-normal">Reform / system</th><th className="text-right font-normal">Flips</th>
+                  <th className="text-right font-normal">Min persistence</th><th className="text-right font-normal">Noise floor</th>
+                </tr></thead>
+                <tbody>
+                  {stats.robustness.filter((r: any) => r.complete).map((r: any) => {
+                    const p = Object.values(r.persistence as Record<string, number>);
+                    return (
+                      <tr key={r.set + r.system} className="border-t border-border">
+                        <td className="py-1 font-mono">{r.set} · {r.system}</td>
+                        <td className="text-right tabular-nums">{(r.flip_rate_calibrated * 100).toFixed(0)}%</td>
+                        <td className="text-right tabular-nums">{p.length ? Math.min(...p).toFixed(2) : "—"}</td>
+                        <td className="text-right tabular-nums">{r.noise_floor_mean.toFixed(3)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="bg-bg-surface border border-border rounded-sm p-4 text-sm">
+              <h3 className="font-display uppercase tracking-wider text-sm mb-1">Systems compared</h3>
+              <p className="text-xs text-text-muted mb-3">Agreement with the expert on paired conclusions; exact McNemar, Holm-corrected.</p>
+              {Object.entries(stats.systems.agreement_rate as Record<string, number>).map(([s, v]) => (
+                <p key={s} className="flex justify-between text-xs"><span className="font-mono">{s}</span>
+                  <span className="tabular-nums">{(v * 100).toFixed(1)}% of {stats.systems.conclusions[s]}</span></p>
+              ))}
+              <div className="mt-3 space-y-0.5">
+                {Object.entries(stats.systems.tests as Record<string, any>).map(([k, t]) => (
+                  <p key={k} className="flex justify-between text-xs text-text-secondary"><span>{k}</span>
+                    <span className="tabular-nums">p = {t.p_holm < 0.001 ? "<0.001" : t.p_holm.toFixed(3)}</span></p>
+                ))}
+              </div>
             </div>
           </section>
         )}
