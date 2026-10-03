@@ -1,0 +1,73 @@
+ay,table,lower,upper,returns,total_inr,source
+2020-21,gti,-inf,0.0,0.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,-0.5,0.0,296059.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,0.0,150000.0,2579137.0,208309800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,150000.0,200000.0,1418043.0,251372300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,200000.0,250000.0,3293461.0,770597300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,250000.0,350000.0,7950602.0,2442137600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,350000.0,400000.0,5454517.0,2042183400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,400000.0,450000.0,5778171.0,2450393800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,450000.0,500000.0,6586783.0,3141801000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,500000.0,550000.0,4140322.0,2167724700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,550000.0,950000.0,14677814.0,10229362900000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,950000.0,1000000.0,760231.0,740779700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,1000000.0,1500000.0,3932204.0,4713468400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,1500000.0,2000000.0,1324215.0,2268912900000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,2000000.0,2500000.0,651402.0,1450159800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,2500000.0,5000000.0,986570.0,3325520600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,5000000.0,10000000.0,275039.0,1851399600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,10000000.0,50000000.0,115349.0,2057880300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,50000000.0,100000000.0,5433.0,371292800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,100000000.0,250000000.0,2426.0,358634900000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,250000000.0,500000000.0,514.0,175768400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,500000000.0,1000000000.0,203.0,142890800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,1000000000.0,5000000000.0,126.0,214890500000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,gti,5000000000.0,,12.0,95864400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Gross Total Income p.21
+2020-21,returned,-inf,0.0,0.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,-0.5,0.0,547875.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,0.0,150000.0,2950537.0,250008400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,150000.0,200000.0,1827626.0,324176600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,200000.0,250000.0,4009025.0,930370500000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,250000.0,350000.0,10466070.0,3210997400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,350000.0,400000.0,6698252.0,2508217500000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,400000.0,450000.0,7016765.0,2978143600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,450000.0,500000.0,10977527.0,5277210100000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,500000.0,550000.0,2048270.0,1071241100000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,550000.0,950000.0,7828942.0,5568698700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,950000.0,1000000.0,508784.0,496077500000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,1000000.0,1500000.0,2614575.0,3143631800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,1500000.0,2000000.0,988217.0,1699833000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,2000000.0,2500000.0,531115.0,1183156400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,2500000.0,5000000.0,853346.0,2905673900000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,5000000.0,10000000.0,243404.0,1666485000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,10000000.0,50000000.0,109786.0,1981773599999.9998,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,50000000.0,100000000.0,5275.0,362203100000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,100000000.0,250000000.0,2400.0,355206300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,250000000.0,500000000.0,504.0,172575300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,500000000.0,1000000000.0,203.0,142915900000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,1000000000.0,5000000000.0,124.0,214931000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,returned,5000000000.0,,11.0,90650300000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Returned Income p.30
+2020-21,tax,-inf,0.0,0.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,-0.5,0.0,41404049.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,0.0,150000.0,14287754.0,657720800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,150000.0,200000.0,918204.0,159195700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,200000.0,250000.0,637965.0,142637600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,250000.0,350000.0,808982.0,238961800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,350000.0,400000.0,278811.0,104317200000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,400000.0,450000.0,228013.0,96722000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,450000.0,500000.0,190479.0,90358600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,500000.0,550000.0,159481.0,83625700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,550000.0,950000.0,680696.0,485382400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,950000.0,1000000.0,44603.0,43466000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,1000000.0,1500000.0,247767.0,295214600000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,1500000.0,2000000.0,101868.0,178580099999.99997,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,2000000.0,2500000.0,66259.0,147613000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,2500000.0,5000000.0,110955.0,378569700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,5000000.0,10000000.0,39949.0,269091400000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,10000000.0,50000000.0,20813.0,376638800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,50000000.0,100000000.0,1307.0,88892900000.00002,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,100000000.0,250000000.0,499.0,74256800000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,250000000.0,500000000.0,120.0,41584200000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,500000000.0,1000000000.0,42.0,28276000000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,1000000000.0,5000000000.0,17.0,26942700000.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31
+2020-21,tax,5000000000.0,,0.0,0.0,Income-tax-statistics-i-t-return-AY_2020-21.pdf table Range of Tax Payable p.31

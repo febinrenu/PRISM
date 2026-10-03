@@ -293,6 +293,46 @@ def cmd_eval_score(args) -> int:
     return 0
 
 
+def cmd_cbdt_targets(args) -> int:
+    from simulation.population.cbdt import parse_all, write_targets
+
+    rows = parse_all()
+    for p in write_targets(rows):
+        print(f"wrote {p}")
+    return 0
+
+
+def cmd_backtest(args) -> int:
+    """In-sample reproduction, held-out forecast and reform costing."""
+    from services.run_manifest import build_manifest, write_manifest
+    from simulation.backtest.run import Settings, forecast_protocol, in_sample, reform_cost
+    from simulation.experiment.harness import RESULTS_DIR
+
+    s = Settings(optimal_share=args.optimal_share, via_scale=args.via_scale)
+    out = {
+        "settings": s.__dict__,
+        "in_sample": [in_sample(ay, s) for ay in ("2020-21", "2022-23", "2023-24")],
+        "forecast": forecast_protocol(s),
+        "reform_cost": [reform_cost(r, s) for r in ("FA2023", "FA2025")],
+    }
+    for r in out["in_sample"]:
+        r["summary"].pop("deciles", None)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = RESULTS_DIR / "backtest.json"
+    path.write_text(json.dumps(out, indent=1, default=float), encoding="utf-8")
+    write_manifest(build_manifest("backtest", config=s.__dict__))
+    for r in out["in_sample"]:
+        print(f"in-sample {r['ay']}: simulated/reported tax = {r['ratio']:.3f}; tax-band L1 = {r['tax_band_share_l1']:.3f}")
+    f = out["forecast"]
+    print(f"forecast: method chosen on selection pairs = {f['chosen_method']}")
+    for t in f["test"]:
+        print(f"  {t['base_ay']} -> {t['target_ay']}: APE model {t['ape_model']:.3f}, naive {t['ape_naive']:.3f}, skill {t['skill']:.3f}")
+    for r in out["reform_cost"]:
+        print(f"{r['reform']}: simulated cost Rs {r['simulated_cost_crore']:,.0f} cr vs announced Rs {r['announced_cost_crore']:,} cr")
+    print(f"wrote {path}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m cli", description="PRISM command line")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -360,6 +400,14 @@ def main(argv=None) -> int:
     p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
     p.add_argument("--gold", default="adjudicated", help="'adjudicated' or an annotator id")
     p.set_defaults(func=cmd_eval_score)
+
+    sub.add_parser("cbdt-targets", help="parse Income Tax Return Statistics PDFs into target CSVs") \
+        .set_defaults(func=cmd_cbdt_targets)
+
+    p = sub.add_parser("backtest", help="validate the microsimulation against published outcomes")
+    p.add_argument("--optimal-share", type=float, default=1.0)
+    p.add_argument("--via-scale", type=float, default=1.0)
+    p.set_defaults(func=cmd_backtest)
 
     args = parser.parse_args(argv)
     if getattr(args, "model", "unset") is None:

@@ -1,0 +1,73 @@
+ay,table,lower,upper,returns,total_inr,source
+2023-24,gti,-inf,0.0,0.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,-0.5,0.0,214914.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,0.0,150000.0,3194597.0,227782500000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,150000.0,200000.0,1369529.0,241300400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,200000.0,250000.0,2657722.0,616831800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,250000.0,350000.0,5644045.0,1712103299999.9998,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,350000.0,400000.0,3953743.0,1484622300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,400000.0,450000.0,5932002.0,2526243500000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,450000.0,500000.0,12511491.0,6016903900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,500000.0,550000.0,6086356.0,3175893600000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,550000.0,950000.0,20402971.0,14255007300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,950000.0,1000000.0,1060450.0,1033577400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,1000000.0,1500000.0,6228002.0,7506847400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,1500000.0,2000000.0,2427058.0,4165748900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,2000000.0,2500000.0,1192990.0,2653933200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,2500000.0,5000000.0,1843287.0,6243159200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,5000000.0,10000000.0,514814.0,3475266400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,10000000.0,50000000.0,210693.0,3743650700000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,50000000.0,100000000.0,10386.0,705807500000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,100000000.0,250000000.0,4438.0,659819900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,250000000.0,500000000.0,1077.0,368968399999.99994,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,500000000.0,1000000000.0,436.0,302596000000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,1000000000.0,5000000000.0,262.0,480627800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,gti,5000000000.0,,23.0,183197100000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Gross Total Income p.21
+2023-24,returned,-inf,0.0,0.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,-0.5,0.0,490408.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,0.0,150000.0,3454819.0,257030000000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,150000.0,200000.0,1605514.0,283252600000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,200000.0,250000.0,3039090.0,702486700000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,250000.0,350000.0,6903267.0,2101566200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,350000.0,400000.0,5128266.0,1927368800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,400000.0,450000.0,8073969.0,3442620300000.0005,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,450000.0,500000.0,24180972.0,11702095400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,500000.0,550000.0,2425120.0,1270644700000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,550000.0,950000.0,10057306.0,7191160200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,950000.0,1000000.0,772936.0,753687600000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,1000000.0,1500000.0,4165166.0,5042960800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,1500000.0,2000000.0,1900079.0,3266521800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,2000000.0,2500000.0,981591.0,2185447200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,2500000.0,5000000.0,1610556.0,5500998800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,5000000.0,10000000.0,455589.0,3124512100000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,10000000.0,50000000.0,200276.0,3601054699999.9995,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,50000000.0,100000000.0,10195.0,694434299999.9999,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,100000000.0,250000000.0,4378.0,650304500000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,250000000.0,500000000.0,1074.0,367719100000.00006,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,500000000.0,1000000000.0,430.0,298790200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,1000000000.0,5000000000.0,262.0,477628300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,returned,5000000000.0,,23.0,182853000000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Returned Income p.30
+2023-24,tax,-inf,0.0,0.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,-0.5,0.0,47299925.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,0.0,150000.0,20490677.0,903584500000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,150000.0,200000.0,1474753.0,255909900000.00003,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,200000.0,250000.0,1031097.0,230646600000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,250000.0,350000.0,1379083.0,407913300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,350000.0,400000.0,479689.0,179464300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,400000.0,450000.0,387558.0,164391300000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,450000.0,500000.0,320679.0,152105200000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,500000.0,550000.0,269383.0,141235000000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,550000.0,950000.0,1187307.0,849190700000.0001,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,950000.0,1000000.0,81817.0,79730100000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,1000000.0,1500000.0,438663.0,520440800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,1500000.0,2000000.0,191657.0,334904800000.00006,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,2000000.0,2500000.0,121481.0,270762900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,2500000.0,5000000.0,197271.0,671614400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,5000000.0,10000000.0,70357.0,472717800000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,10000000.0,50000000.0,36272.0,651411700000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,50000000.0,100000000.0,2267.0,153297400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,100000000.0,250000000.0,1029.0,153604400000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,250000000.0,500000000.0,217.0,74703900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,500000000.0,1000000000.0,68.0,46772900000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,1000000000.0,5000000000.0,36.0,59104100000.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
+2023-24,tax,5000000000.0,,0.0,0.0,Approved-version-Income-Tax-Return-Statistics-for-the-AY-2023-24.pdf table Range of Tax Payable p.31
