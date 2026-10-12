@@ -5,7 +5,10 @@ Every model that extracts rules, behind one call.
 
 Systems are named once here so runs, caches and the paper all refer to the
 same identifiers. Local models run through Ollama with JSON-mode decoding;
-Groq and Gemini through their JSON modes. Raw outputs are cached
+Groq and OpenRouter through their OpenAI-compatible JSON modes, each with a
+pool of API keys used in rotation. "batch" systems are never called live:
+their outputs are produced on a GPU elsewhere (Kaggle) from an exported
+prompt file and imported into the cache (pipeline/extraction/batch.py). Raw outputs are cached
 content-addressed (cache.py), so re-running an evaluation never calls a
 model twice for the same input.
 """
@@ -18,11 +21,12 @@ from typing import Optional
 import httpx
 
 from config import (
-    GEMINI_API_KEY,
-    GEMINI_URL,
     GROQ_API_KEY,
+    GROQ_API_KEYS,
     GROQ_URL,
     OLLAMA_URL,
+    OPENROUTER_API_KEYS,
+    OPENROUTER_URL,
 )
 from pipeline.extraction import cache
 
@@ -30,7 +34,7 @@ from pipeline.extraction import cache
 @dataclass(frozen=True)
 class System:
     name: str          # stable identifier used in runs and the paper
-    provider: str      # ollama | groq | gemini
+    provider: str      # ollama | groq | openrouter | batch
     model: str
     num_ctx: int = 8192
     max_tokens: int = 4096
@@ -50,7 +54,10 @@ SYSTEMS: dict[str, System] = {s.name: s for s in [
     # answer plus hidden reasoning longer than that can never be returned
     # ("Request too large"). With reasoning off its answers fit.
     System("qwen3.8-27b", "groq", "qwen/qwen3.8-27b", options=(("reasoning_effort", "none"),)),
-    System("gemini-3.8-flash", "gemini", "gemini-3.8-flash"),
+    # Free open-weight models from other model families, through OpenRouter
+    # (pinned model ids; the ":free" routes have per-account daily limits).
+    System("gemma-4-31b", "openrouter", "google/gemma-4-31b-it:free"),
+    System("nemotron-3-super", "openrouter", "nvidia/nemotron-3-super-120b-a12b:free"),
 ]}
 
 
@@ -89,7 +96,12 @@ def _rate_limited(r: httpx.Response) -> RateLimited:
             wait = float(r.headers["retry-after"])
         except ValueError:
             pass
-    daily = bool(re.search(r"per day|PerDay|\(TPD\)|\(RPD\)", text))
+    elif r.headers.get("x-ratelimit-reset"):
+        try:                                     # OpenRouter: epoch milliseconds
+            wait = max(0.0, float(r.headers["x-ratelimit-reset"]) / 1000.0 - time.time())
+        except ValueError:
+            pass
+    daily = bool(re.search(r"per day|per-day|PerDay|\(TPD\)|\(RPD\)", text))
     return RateLimited(f"rate limited ({r.status_code}): {text[:200]}", wait, daily)
 
 
@@ -125,10 +137,47 @@ def _ollama_digest(model: str) -> Optional[str]:
     return None
 
 
-def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
-    if not GROQ_API_KEY:
+class _KeyPool:
+    """Rotates requests over several API keys. Limits are tracked per key and
+    model: a per-minute limit cools that key down, a per-day limit retires it
+    for that model; a run stops only when every key is retired."""
+
+    def __init__(self, keys: list[str]):
+        self.keys = keys
+        self.next = 0
+        self.cool_until: dict[tuple[str, str], float] = {}
+        self.retired: set[tuple[str, str]] = set()
+
+    def pick(self, model: str) -> str:
+        while True:
+            alive = [k for k in self.keys if (k, model) not in self.retired]
+            if not alive:
+                raise QuotaExhausted(f"{model}: daily quota exhausted on all {len(self.keys)} keys")
+            now = time.time()
+            n = len(self.keys)
+            for j in range(n):
+                k = self.keys[(self.next + j) % n]
+                if (k, model) not in self.retired and self.cool_until.get((k, model), 0.0) <= now:
+                    self.next = (self.next + j + 1) % n
+                    return k
+            time.sleep(max(0.5, min(self.cool_until.get((k, model), now) for k in alive) - now))
+
+    def cool(self, key: str, model: str, seconds: float) -> None:
+        self.cool_until[(key, model)] = time.time() + seconds
+
+    def retire(self, key: str, model: str) -> None:
+        self.retired.add((key, model))
+
+
+_POOLS = {"groq": _KeyPool(GROQ_API_KEYS), "openrouter": _KeyPool(OPENROUTER_API_KEYS)}
+
+
+def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: float,
+          api_key: Optional[str] = None) -> tuple[str, Optional[str]]:
+    api_key = api_key or GROQ_API_KEY
+    if not api_key:
         raise BackendError("GROQ_API_KEY is not set")
-    r = httpx.post(GROQ_URL, timeout=timeout, headers={"Authorization": f"Bearer {GROQ_API_KEY}"}, json={
+    r = httpx.post(GROQ_URL, timeout=timeout, headers={"Authorization": f"Bearer {api_key}"}, json={
         "model": system.model, "temperature": temperature, "seed": seed,
         "max_completion_tokens": system.max_tokens,
         "response_format": {"type": "json_object"},
@@ -147,26 +196,35 @@ def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: f
     return body["choices"][0]["message"]["content"], body.get("system_fingerprint")
 
 
-def _gemini(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
-    if not GEMINI_API_KEY:
-        raise BackendError("GEMINI_API_KEY is not set")
-    r = httpx.post(f"{GEMINI_URL}/models/{system.model}:generateContent", timeout=timeout,
-                   headers={"x-goog-api-key": GEMINI_API_KEY}, json={
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": temperature, "seed": seed, "responseMimeType": "application/json",
-                             "maxOutputTokens": system.max_tokens},
+def _openrouter(system: System, prompt: str, temperature: float, seed: int, timeout: float,
+                api_key: Optional[str] = None) -> tuple[str, Optional[str]]:
+    if not api_key:
+        raise BackendError("OPENROUTER_API_KEYS is not set")
+    r = httpx.post(OPENROUTER_URL, timeout=timeout, headers={"Authorization": f"Bearer {api_key}"}, json={
+        "model": system.model, "temperature": temperature, "seed": seed,
+        "max_tokens": system.max_tokens,
+        "response_format": {"type": "json_object"},
+        "messages": [{"role": "user", "content": prompt}],
+        **dict(system.options),
     })
     if r.status_code == 429:
         raise _rate_limited(r)
-    if r.status_code == 503:
+    if r.status_code in (502, 503):
         raise BackendError(f"unavailable ({r.status_code}): {r.text[:200]}")
     r.raise_for_status()
     body = r.json()
-    parts = body.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-    return "".join(p.get("text", "") for p in parts), body.get("modelVersion")
+    if "error" in body:                      # OpenRouter reports upstream failures in a 200 body
+        raise BackendError(f"upstream error: {str(body['error'])[:200]}")
+    msg = body["choices"][0]["message"]
+    return msg.get("content") or "", f"{body.get('model')}@{body.get('provider')}"
 
 
-_PROVIDERS = {"ollama": _ollama, "groq": _groq, "gemini": _gemini}
+def _batch(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
+    raise BackendError(f"{system.name} runs in batch on a GPU host: export the prompts with "
+                       f"`cli batch-export`, run them, then `cli batch-import` (no live calls)")
+
+
+_PROVIDERS = {"ollama": _ollama, "groq": _groq, "openrouter": _openrouter, "batch": _batch}
 
 
 def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, seed: int = 0,
@@ -186,12 +244,33 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
         raise OfflineCacheMiss(f"{system_name}: no cached output for this prompt (offline mode)")
     last: Optional[Exception] = None
     attempt = waits = 0
+    # Configuration problems fail at once instead of through the retry loop.
+    if system.provider == "batch":
+        _batch(system, prompt, temperature, seed, timeout)
+    if system.provider == "groq" and not GROQ_API_KEYS:
+        raise BackendError("GROQ_API_KEY is not set")
+    if system.provider == "openrouter" and not OPENROUTER_API_KEYS:
+        raise BackendError("OPENROUTER_API_KEYS is not set")
+    pool = _POOLS.get(system.provider)
+    pooled = pool is not None and bool(pool.keys) and (len(pool.keys) > 1 or system.provider == "openrouter")
     while attempt < retries:
         started = time.perf_counter()
+        api_key = pool.pick(system.model) if pooled else None
         try:
-            text, version = _PROVIDERS[system.provider](system, prompt, temperature, seed, timeout)
+            extra = {"api_key": api_key} if api_key else {}
+            text, version = _PROVIDERS[system.provider](system, prompt, temperature, seed, timeout, **extra)
         except RateLimited as e:
             last = e
+            if pooled:
+                # Another key may still have room: retire or cool this one and move on.
+                if e.daily:
+                    pool.retire(api_key, system.model)
+                else:
+                    pool.cool(api_key, system.model, min(120.0, (e.retry_after or 20.0) + 1.0))
+                waits += 1
+                if waits >= 12 * len(pool.keys):
+                    break
+                continue
             if e.daily:
                 raise QuotaExhausted(f"{system_name}: daily quota exhausted: {e}") from e
             if waits >= 12:

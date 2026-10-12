@@ -164,3 +164,19 @@ def test_rate_limit_waits_follow_the_server():
     assert _rate_limited(gem).retry_after == 31.0
     hdr = httpx.Response(429, text="slow down", headers={"retry-after": "12"})
     assert _rate_limited(hdr).retry_after == 12.0
+
+
+def test_key_pool_rotates_cools_and_retires():
+    from pipeline.extraction.backends import QuotaExhausted, _KeyPool
+    pool = _KeyPool(["a", "b", "c"])
+    assert [pool.pick("m") for _ in range(4)] == ["a", "b", "c", "a"]
+    pool.cool("b", "m", 60)
+    assert {pool.pick("m") for _ in range(4)} == {"a", "c"}
+    pool.retire("a", "m")
+    pool.retire("c", "m")
+    pool.cool("b", "m", 0)
+    assert pool.pick("m") == "b"
+    assert pool.pick("other") in {"a", "b", "c"}      # limits are per model
+    pool.retire("b", "m")
+    with pytest.raises(QuotaExhausted):
+        pool.pick("m")

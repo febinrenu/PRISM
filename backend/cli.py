@@ -489,7 +489,7 @@ def main(argv=None) -> int:
         .set_defaults(func=cmd_eval_verify)
 
     p = sub.add_parser("eval-run", help="run an extraction system over an evaluation set")
-    p.add_argument("--system", required=True, help="rules | phi3.5 | gemma2-2b | gpt-oss-120b | gpt-oss-20b | qwen3.8-27b | gemini-3.8-flash")
+    p.add_argument("--system", required=True, help="rules | phi3.5 | gemma2-2b | gpt-oss-120b | gpt-oss-20b | qwen3.8-27b | gemma-4-31b | nemotron-3-super")
     p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
     p.add_argument("--limit", type=int, default=None)
     p.set_defaults(func=cmd_eval_run)
@@ -525,7 +525,7 @@ def main(argv=None) -> int:
     p.set_defaults(func=cmd_sensitivity)
 
     p = sub.add_parser("experiment", help="expert-vs-extracted policy experiment across systems")
-    p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b,gemini-3.8-flash")
+    p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b,phi3.5,gemma2-2b")
     p.add_argument("--sets", default="", help="comma-separated provision sets (default: all)")
     p.add_argument("--k", type=int, default=4, help="self-consistency samples per provision")
     p.set_defaults(func=cmd_experiment)

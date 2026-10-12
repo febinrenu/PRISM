@@ -38,7 +38,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 OUT_DIR = Path(__file__).resolve().parent / "data"
 SEED = 20261003
 MAX_OVERLAP = 0.2
-TEACHERS = ("gpt-oss-120b", "gemini-3.8-flash")
+TEACHERS = ("gpt-oss-120b", "qwen3.8-27b")
 TRAIN_STATUTES = ["ITA2025/amended_fa2026", "CGST2017/consolidated", "COW2019/enacted",
                   "FA2019N2/enacted", "FA2020/enacted", "FA2023/enacted", "FA2024N2/enacted",
                   "FA2025/enacted", "FA2026/enacted"]

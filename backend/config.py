@@ -84,11 +84,18 @@ LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")
 LLM_GEN_TIMEOUT_S = float(os.getenv("LLM_GEN_TIMEOUT_S", "300"))
 OLLAMA_FT_MODEL = os.getenv("OLLAMA_FT_MODEL", "prism-legal")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+# Optional extra keys (comma-separated), used in rotation with GROQ_API_KEY.
+GROQ_API_KEYS = list(dict.fromkeys(
+    k.strip() for k in [GROQ_API_KEY, *os.getenv("GROQ_API_KEYS", "").split(",")] if k.strip()))
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_URL = os.getenv("GROQ_URL", "https://api.groq.com/openai/v1/chat/completions")
-# Google Gemini (frontier-model baseline and silver labeller). Model names are
-# pinned so results stay attributable; on the free tier only Flash models
-# have quota.
+# OpenRouter (free open-weight models: Gemma 4, Nemotron). Several keys
+# (comma-separated) are used in rotation.
+OPENROUTER_API_KEYS = list(dict.fromkeys(
+    k.strip() for k in os.getenv("OPENROUTER_API_KEYS", os.getenv("OPENROUTER_API_KEY", "")).split(",") if k.strip()))
+OPENROUTER_URL = os.getenv("OPENROUTER_URL", "https://openrouter.ai/api/v1/chat/completions")
+# Gemini is no longer a study system (free tier: 20 requests/day); the
+# settings remain only for the optional blind second coding of the gold.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 GEMINI_URL = os.getenv("GEMINI_URL", "https://generativelanguage.googleapis.com/v1beta")
