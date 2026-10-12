@@ -232,3 +232,15 @@ def test_corpus_ita2025_table_belongs_to_the_provision_that_introduces_it():
     assert all(r["path"].startswith("ITA2025/s202/(1)/(e)/row") for r in rows)
     assert all(sub["start"] <= r["start"] and r["end"] <= sub["end"] for r in rows)
     assert by_path["ITA2025/s202/(2)"]["start"] >= rows[-1]["end"]
+
+
+@pytest.mark.parametrize("statute, base", [
+    ("FA2023", "FA2023/schFIRST/ptI/paraA"),          # '(III) of this Paragraph' no longer opens item (III)
+    ("FA2024N2", "FA2024N2/schFIRST/ptI/paraA"),      # schedule after an unclosed quoted insertion
+    ("FA2026", "FA2026/schFIRST/ptI/subB/paraA"),     # heading not centred; lettered sub-part B (2025 Act)
+])
+def test_corpus_first_schedule_rate_items(statute, base):
+    ast = _corpus_ast(statute, "enacted")
+    paths = {n["path"] for n in ast["nodes"]}
+    assert {f"{base}/(I)", f"{base}/(II)", f"{base}/(III)"} <= paths
+    assert not any(p.startswith(f"{base}/(III)~") or p.startswith(f"{base}/(I)~") for p in paths)
