@@ -53,11 +53,15 @@ _PAREN_RE = re.compile(r"^\(\s*([0-9]{1,3}[A-Z]{0,3}|[a-z]{1,3}|[A-Z]{1,3})\s*\)
 _CHAPTER_RE = re.compile(r"^CHAPTER\s+([IVXLC]+(?:-?[A-Z]{1,2})?)\b\.?\s*(.*)$")
 _PART_RE = re.compile(r"^PART\s+([IVXLC]+|[A-Z])\b\.?\s*(.*)$")
 _SCHED_PARA_RE = re.compile(r"^Paragraph\s+([A-Z])\b\.?\s*$")
+_TRAILING_SCHED_PARA_RE = re.compile(r"\s+Paragraph\s+([A-Z])\.?\s*$")
+# A lettered sub-part of a schedule Part: "A.––INCOME-TAX UNDER THE INCOME-TAX ACT, 1961"
+_SUBPART_RE = re.compile(r"^([A-Z])\.\s*[–—-]{1,3}\s*([A-Z][A-Z0-9 ,.()\-–]+?(?:\s+Paragraph\s+[A-Z]\.?)?)\s*$")
 _TABLE_LEAD_IN_RE = re.compile(r"following\s+Table\s*[:,]?\s*[—–-]*\s*$", re.IGNORECASE)
 _LEAD_IN_RE = re.compile(r"(?:[,:;]\s*)?[—–-]{1,2}\s*$|:\s*$")
 _SCHEDULE_RE = re.compile(
     r"^(?:THE\s+)?((?:FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH|EIGHTH|NINTH|TENTH|"
-    r"ELEVENTH|TWELFTH|THIRTEENTH|FOURTEENTH|FIFTEENTH|SIXTEENTH)\s+)?SCHEDULE(?:\s+([IVXLC]+|[A-Z]))?\b\.?\s*$"
+    r"ELEVENTH|TWELFTH|THIRTEENTH|FOURTEENTH|FIFTEENTH|SIXTEENTH)\s+)?SCHEDULE(?:\s+([IVXLC]+|[A-Z]))?\b\.?"
+    r"(?:\s*[(\[]\s*See\s+sections?\s+[^)\]]*[)\]])?\s*$"   # "(See sections 2 and 3)" on the same line
 )
 _PROVISO_RE = re.compile(r"^Provided\b")
 _EXPLANATION_RE = re.compile(r"^Explanation(?:\s+\d+|\s+[IVX]+)?\s*\.?\s*[—–-]")
@@ -67,6 +71,9 @@ _ROMAN_RE = re.compile(r"^[ivxlcdm]+$")
 _UROMAN_RE = re.compile(r"^[IVXLCDM]+$")
 _TERMINAL_RE = re.compile(r"(?:[.;:,]|[—–-]{1,2}|\bor|\band)\s*[’”'\"]?\s*$")
 _QUOTE_CLOSE_RE = re.compile(r"[’”'\"]\s*\.?\s*[;,.]?\s*$")
+# "(III) of this Paragraph …": a line that refers to item (III) rather than opening it.
+_XREF_CONTINUATION_RE = re.compile(
+    r"\s*of\s+(?:this|that|the\s+said|sub-section|sub-clause|clause|section|Paragraph|paragraph|item|Part)\b")
 
 _ROMAN_VALUES = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 
@@ -357,6 +364,27 @@ class _Builder:
             node.qualifies = parent.children[-1]
         return self._attach(parent, node)
 
+    def _part_ancestor(self) -> Optional[Node]:
+        n: Optional[Node] = self.container
+        while n is not None:
+            if n.kind == "part":
+                return n
+            n = n.parent
+        return None
+
+    def _open_subpart(self, letter: str, heading: str, p: "Paragraph") -> None:
+        part = self._part_ancestor()
+        node = Node(kind="subpart", number=letter, heading=heading, paragraph=None,
+                    indent=p.x0, label_type="SUBPART")
+        self._attach(part if part is not None else self.container, node)
+        self.container, self.stack = node, []
+
+    def _open_sched_paragraph(self, letter: str, p: "Paragraph") -> None:
+        node = Node(kind="paragraph", number=letter, heading=f"Paragraph {letter}", paragraph=None,
+                    indent=p.x0, label_type="PARAGRAPH")
+        self._attach(self.container, node)
+        self.container, self.stack = node, []
+
     def _schedule_ancestor(self) -> Optional[Node]:
         n: Optional[Node] = self.container
         while n is not None:
@@ -392,13 +420,35 @@ class _Builder:
             self.container, self.stack = node, []
             return
         m = _PART_RE.match(raw)
-        if m and p.centred and self.quote is None:
-            node = Node(kind="part", number=m.group(1), heading=m.group(2).strip(),
+        # Inside a schedule a "PART …" line is a heading even where the layout
+        # does not read as centred (Finance Act 2026).
+        if m and (p.centred or self._schedule_ancestor() is not None) and self.quote is None:
+            heading = m.group(2).strip()
+            para = _TRAILING_SCHED_PARA_RE.search(heading)   # "… ACT, 1961 Paragraph A"
+            if para:
+                heading = heading[:para.start()].strip()
+            sub_m = _SUBPART_RE.match(heading)               # "PART I A.––INCOME-TAX UNDER …"
+            node = Node(kind="part", number=m.group(1), heading="" if sub_m else heading,
                         paragraph=p, indent=p.x0, label_type="PART")
             sched = self._schedule_ancestor()
             parent = sched if sched is not None else self.root
             self._attach(parent, node)
             self.container, self.stack = node, []
+            if sub_m:
+                self._open_subpart(sub_m.group(1), sub_m.group(2), p)
+            if para:
+                self._open_sched_paragraph(para.group(1), p)
+            return
+        m = _SUBPART_RE.match(raw)
+        if m and self.quote is None and self._part_ancestor() is not None and self._schedule_ancestor() is not None:
+            # "B.–– INCOME-TAX UNDER THE INCOME-TAX ACT, 2025 Paragraph A"
+            heading = m.group(2).strip()
+            para = _TRAILING_SCHED_PARA_RE.search(heading)
+            if para:
+                heading = heading[:para.start()].strip()
+            self._open_subpart(m.group(1), heading, p)
+            if para:
+                self._open_sched_paragraph(para.group(1), p)
             return
         m = _SCHED_PARA_RE.match(raw)
         if m and p.centred and self.quote is None and self._schedule_ancestor() is not None:
@@ -406,7 +456,7 @@ class _Builder:
             # co-operative societies, firms …).
             node = Node(kind="paragraph", number=m.group(1), heading=raw, paragraph=p,
                         indent=p.x0, label_type="PARAGRAPH")
-            parent = self.container if self.container.kind in ("part", "schedule") else \
+            parent = self.container if self.container.kind in ("part", "subpart", "schedule") else \
                 (self.container.parent or self.root)
             self._attach(parent, node)
             self.container, self.stack = node, []
@@ -419,9 +469,17 @@ class _Builder:
             # paragraph is a lead-in ("… applies,—") that the heading and the
             # rows below it continue ("Rates of income-tax").
             self.stack = []
-        self.last_text = raw
+        prev_text, self.last_text = self.last_text, raw
         m = _SCHEDULE_RE.match(raw)
-        if m and p.centred and self.quote is None:
+        # "THE FIRST SCHEDULE" as a paragraph of its own is a heading even where
+        # the layout does not read as centred (Finance Act 2026).
+        heading_like = p.centred or raw.lstrip().startswith("THE ")
+        if (m and heading_like and self.quote is not None and not opens_quote
+                and _QUOTE_CLOSE_RE.search(prev_text)):
+            # The Act's own schedule after a quoted insertion whose closing
+            # mark ("… may be.”.") was not recognised: the quote has ended.
+            self._close_quote()
+        if m and heading_like and self.quote is None:
             ordinal = (m.group(1) or "").strip()
             node = Node(kind="schedule", number=(ordinal or m.group(2) or "").strip(),
                         heading=raw, paragraph=p, indent=p.x0, label_type="SCHEDULE")
@@ -568,6 +626,8 @@ class _Builder:
         if p.is_table_row:
             return Node(kind="table_row", paragraph=p, indent=p.x0, label_type="ROW")
         m = _PAREN_RE.match(text)
+        if m and _XREF_CONTINUATION_RE.match(text[m.end():]):
+            m = None                     # continuation text, not a new item
         if m:
             lbl = m.group(1)
             ltype = self._paren_type(lbl, stack)
@@ -610,6 +670,7 @@ class _Builder:
 _PATH_TOKEN = {
     "chapter": lambda n: f"ch{n.number}", "part": lambda n: f"pt{n.number}",
     "paragraph": lambda n: f"para{n.number}",
+    "subpart": lambda n: f"sub{n.number}",
     "schedule": lambda n: f"sch{n.number or 'X'}".replace(" ", ""),
     "section": lambda n: f"s{n.number}",
     "subsection": lambda n: f"({n.label})", "clause": lambda n: f"({n.label})",

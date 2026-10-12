@@ -39,6 +39,39 @@ PROVISION_SETS: dict[str, dict] = {
         "description": "Finance Act 2025: new slab table and the Rs. 12 lakh / Rs. 60,000 rebate.",
         "targets": {"new.slabs": "FA2025/s25", "new.rebate": "FA2025/s20"},
     },
+    # Old-regime rate tables restated by each year's Finance Act (First
+    # Schedule, Part I, Paragraph A: one item per age band). The rates are
+    # unchanged since AY 2020-21, so these test whether a system reads the
+    # restatement exactly — a change it invents flips the year's conclusions.
+    "FA2023_old_schedule": {
+        "ay": "2023-24", "statute": ("FA2023", "enacted"),
+        "description": "Finance Act 2023, First Schedule Part I Para A: old-regime rates by age band.",
+        "targets": {"old.slabs.below_60": "FA2023/schFIRST/ptI/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2023/schFIRST/ptI/paraA/(II)",
+                    "old.slabs.80_plus": "FA2023/schFIRST/ptI/paraA/(III)"},
+    },
+    "FA2024N2_old_schedule": {
+        "ay": "2024-25", "statute": ("FA2024N2", "enacted"),
+        "description": "Finance (No. 2) Act 2024, First Schedule Part I Para A: old-regime rates by age band.",
+        "targets": {"old.slabs.below_60": "FA2024N2/schFIRST/ptI/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2024N2/schFIRST/ptI/paraA/(II)",
+                    "old.slabs.80_plus": "FA2024N2/schFIRST/ptI/paraA/(III)"},
+    },
+    "FA2025_old_schedule": {
+        "ay": "2025-26", "statute": ("FA2025", "enacted"),
+        "description": "Finance Act 2025, First Schedule Part I Para A: old-regime rates by age band.",
+        "targets": {"old.slabs.below_60": "FA2025/schFIRST/ptI/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2025/schFIRST/ptI/paraA/(II)",
+                    "old.slabs.80_plus": "FA2025/schFIRST/ptI/paraA/(III)"},
+    },
+    "FA2026_old_schedule_ITA2025": {
+        "ay": "2027-28", "statute": ("FA2026", "enacted"),
+        "description": "Finance Act 2026, First Schedule Part I-B (income-tax under the 2025 Act) Para A: "
+                       "old-regime rates by age band for tax year 2026-27.",
+        "targets": {"old.slabs.below_60": "FA2026/schFIRST/ptI/subB/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2026/schFIRST/ptI/subB/paraA/(II)",
+                    "old.slabs.80_plus": "FA2026/schFIRST/ptI/subB/paraA/(III)"},
+    },
     "ITA2025_new_act": {
         "ay": "2027-28", "statute": ("ITA2025", "amended_fa2026"),
         "description": "Income-tax Act 2025 (in force from tax year 2026-27): the s.202(1) default-regime table "

@@ -99,16 +99,21 @@ done about it.
   sensitivity analysis confirms the top-tail shape has no influence on any
   output; within the highest closed range, incomes follow the
   maximum-entropy density.
-- **Statistical power.** With six reforms, a reform-level comparison of two
-  systems can reach at best p = 0.031 (6–0), and no pair reaches
-  significance after Holm correction. Conclusion-level McNemar tests are
+- **Statistical power.** With ten reforms, a reform-level comparison of two
+  systems can reach at best p = 0.002 (10–0) before correction. Because
+  most systems tie on most reforms, no pair reaches significance after Holm
+  correction across all pairs. Conclusion-level McNemar tests are
   reported, but they treat correlated conclusions within a reform as
   independent and overstate the evidence. More reforms are needed for
   system rankings; per-reform and attribution results do not depend on this.
 - **Behaviour.** The simulation is static: it models no labour-supply or
   compliance response. Revenue changes are first-round effects.
-- **Statutes.** The headline experiment covers personal income tax in five
-  Finance Acts and the Income-tax Act 2025. The extraction evaluation also
+- **Statutes.** The headline experiment covers ten personal income-tax
+  reforms read from six Finance Acts and the Income-tax Act 2025. Four of
+  them restate unchanged old-regime rate tables. In the FA 2025 and FA 2026
+  tables the PDF's two-column layout puts each rate on the line after its
+  income band. All systems see the same text, but the rule-based baseline
+  cannot read it. The extraction evaluation also
   covers the CGST Act, the Code on Wages and the DPDP Act. GST incidence is
   out of scope because there is no item × fractile consumption data (see
   DATA.md).

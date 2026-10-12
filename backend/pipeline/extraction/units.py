@@ -16,7 +16,7 @@ from typing import Optional
 from pipeline.statute.corpus import CORPUS_DIR
 
 MAX_UNIT_CHARS = 3500
-_CONTAINER_KINDS = {"chapter", "part", "paragraph", "schedule", "heading"}
+_CONTAINER_KINDS = {"chapter", "part", "subpart", "paragraph", "schedule", "heading"}
 
 
 @dataclass
