@@ -264,6 +264,10 @@ def cmd_eval_verify(args) -> int:
     for p in problems[:50]:
         print(p)
     print("manifest OK" if not problems else f"{len(problems)} problem(s)")
+    drift = sampling.node_drift(sampling.load())
+    if drift:
+        print(f"{len(drift)} item(s) with unchanged text but a new node id (evaluated from the frozen text): "
+              + ", ".join(drift))
     return 1 if problems else 0
 
 

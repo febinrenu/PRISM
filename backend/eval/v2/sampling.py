@@ -132,3 +132,22 @@ def verify_manifest(manifest: dict) -> list[str]:
             if _sha(item_text(it)) != it["text_sha256"]:
                 problems.append(f"text changed: {it['item_id']}")
     return problems
+
+
+def node_drift(manifest: dict) -> list[str]:
+    """Items whose text is unchanged but whose statute node now has another
+    identifier (a parser fix moved or extended it). Evaluation still uses the
+    frozen text (runs.item_unit); this is reported, not an error."""
+    import json as _json
+    from pipeline.extraction.units import CORPUS_DIR
+    out = []
+    ids_by_statute: dict[str, set] = {}
+    for split in ("test", "dev"):
+        for it in manifest[split]:
+            st = it["statute"]
+            if st not in ids_by_statute:
+                ast = _json.loads((CORPUS_DIR / st / "ast.json").read_text(encoding="utf-8"))
+                ids_by_statute[st] = {n["node_id"] for n in ast["nodes"]}
+            if it["unit_id"] not in ids_by_statute[st]:
+                out.append(f"{it['item_id']} ({it['path']})")
+    return out

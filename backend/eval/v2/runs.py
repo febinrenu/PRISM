@@ -33,6 +33,25 @@ def _units(statute_key: str) -> dict:
     return {u.unit_id: u for u in build_units(statute, version)}
 
 
+def item_unit(it: dict):
+    """The extraction unit of a frozen item. The item is defined by its text
+    (offsets into the canonical statute text, checked by eval-verify); if a
+    later parser fix gave its node a new identifier, the unit is rebuilt from
+    the frozen text, with the context of the current node at the same path."""
+    from dataclasses import replace
+    units = _units(it["statute"])
+    unit = units.get(it["unit_id"])
+    if unit is not None:
+        return unit
+    same_path = next((u for u in units.values() if u.path == it["path"]), None)
+    text = sampling.item_text(it)
+    if same_path is not None:
+        return replace(same_path, unit_id=it["unit_id"], start=it["start"], end=it["end"], text=text)
+    from pipeline.extraction.units import Unit
+    return Unit(unit_id=it["unit_id"], statute=it["statute"], path=it["path"], kind=it["kind"],
+                start=it["start"], end=it["end"], text=text)
+
+
 def run(system: str, split: str, limit: Optional[int] = None, progress=print) -> Path:
     items = split_items(split)[:limit] if limit else split_items(split)
     out = RUNS_DIR / system / f"{split}.jsonl"
@@ -50,10 +69,7 @@ def run(system: str, split: str, limit: Optional[int] = None, progress=print) ->
         for n, it in enumerate(items, 1):
             if it["item_id"] in done and done[it["item_id"]]["record"]["status"] != "error":
                 continue
-            unit = _units(it["statute"]).get(it["unit_id"])
-            if unit is None:
-                progress(f"{it['item_id']}: unit {it['unit_id']} no longer in the corpus")
-                continue
+            unit = item_unit(it)
             rec, stats = rb_extract(unit) if system == "rules" else extract_unit(unit, system)
             fh.write(json.dumps({"item_id": it["item_id"], "record": rec.model_dump(), "stats": stats}) + "\n")
             fh.flush()

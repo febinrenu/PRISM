@@ -120,9 +120,7 @@ def evaluate(system: str, split: str, limit: Optional[int] = None,
         rec = originals[it["item_id"]]
         if rec.status != "ok" or not rec.rules:
             continue
-        unit = runs._units(it["statute"]).get(it["unit_id"])
-        if unit is None:
-            continue
+        unit = runs.item_unit(it)
         spans = rationale(rec, unit.start, len(unit.text))
         if not spans:
             continue
