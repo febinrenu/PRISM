@@ -120,20 +120,22 @@ def headline_tables(res_dir: Path, runs: list[dict]) -> list[Path]:
     for r in runs:
         p = r["population"]
         rows.append([r["set"], r["system"], "yes" if r["complete"] else "no", _f(p["flip_rate"], 2),
+                     _f(p.get("flip_rate_original"), 2),
                      _cr(p["revenue_change_expert_crore"]), _cr(p.get("revenue_change_system_crore")),
                      _f(p.get("decile_rate_l1"), 4),
                      ", ".join(f"{x['target']}: {x['reason']}" for x in r.get("review", [])) or ""])
-    out = [write_table("headline", ["Reform", "System", "Assembled", "Flip rate", "dRev expert (cr)",
-                                    "dRev system (cr)", "Decile L1", "Review"], rows,
+    out = [write_table("headline", ["Reform", "System", "Assembled", "Flip rate", "Flip rate (original tests)",
+                                    "dRev expert (cr)", "dRev system (cr)", "Decile L1", "Review"], rows,
                        "Expert-coded vs extracted rules: assembly, pre-registered conclusion flips and outcome divergence.",
-                       "llcrrrrl")]
+                       "llcrrrrrl")]
     arows = []
     for r in runs:
         a = r.get("attribution") or {}
         for pl in a.get("players", []):
-            arows.append([r["set"], r["system"], pl["target"], _cr(pl["revenue_error_crore"]), _f(pl["flips"], 2),
+            arows.append([r["set"], r["system"], "yes" if r["complete"] else "partly", pl["target"],
+                          _cr(pl["revenue_error_crore"]), _f(pl["flips"], 2),
                           ", ".join(a.get("minimal_restoring_set") or []) or ""])
-    out.append(write_table("attribution", ["Reform", "System", "Provision target", "Shapley revenue error (cr)",
+    out.append(write_table("attribution", ["Reform", "System", "Assembled", "Provision target", "Shapley revenue error (cr)",
                                            "Shapley flips", "Minimal restoring set"], arows,
                            "Attribution of divergence to extracted provisions (exact Shapley values)."))
     return out
@@ -148,9 +150,13 @@ def stats_tables(res_dir: Path) -> list[Path]:
                                       "Expert noise floor"], rows,
                        f"Conclusion flips under {s['draws']} population draws.")]
     t = s["systems"]["tests"]
-    out.append(write_table("mcnemar", ["Comparison", "Pairs", "p (exact)", "p (Holm)"],
-                           [[k, v["pairs"], _f(v["p_exact"], 4), _f(v["p_holm"], 4)] for k, v in sorted(t.items())],
-                           "Paired comparison of systems on conclusion agreement (exact McNemar, Holm-corrected)."))
+    out.append(write_table("mcnemar", ["Comparison", "Conclusions", "McNemar p (Holm)", "Reforms",
+                                       "Better / worse", "Sign test p (Holm)"],
+                           [[k, v.get("pairs"), _f(v.get("p_holm"), 4), v.get("reforms"),
+                             "{} / {}".format(*[v.get(x) for x in v if x.endswith("_better_reforms")][:2]),
+                             _f(v.get("p_sign_reforms_holm"), 3)] for k, v in sorted(t.items())],
+                           "Paired comparison of systems: exact McNemar over conclusions (ignores their "
+                           "correlation within a reform) and an exact sign test over reforms; both Holm-corrected."))
     return out
 
 
@@ -218,7 +224,7 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
     written += backtest_tables(RESULTS_DIR)
     if sensitivity:
         progress("sensitivity (slow)")
-        cli.cmd_sensitivity(type("A", (), {"n": 1024, "morris": 50, "seed": 20261003})())
+        cli.cmd_sensitivity(type("A", (), {"n": 1024, "morris": 40, "seed": 11})())  # the CLI defaults
     if (RESULTS_DIR / "sensitivity.json").exists():
         written.append(sensitivity_table(RESULTS_DIR))
 

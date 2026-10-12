@@ -1,0 +1,5 @@
+Output,optimal_share,via_scale,top_alpha,senior_share,growth
+cost_fa2023,0.02,1.00,0.00,0.00,0.00
+cost_fa2025,0.02,0.10,0.00,0.00,0.89
+kakwani_2026_27,0.00,0.00,0.00,0.00,1.00
+insample_ratio_2023_24,0.01,0.99,0.00,0.00,0.00

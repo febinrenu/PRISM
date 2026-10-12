@@ -1,0 +1,14 @@
+Split,Statute,Provisions
+test,CGST2017/consolidated,50
+test,COW2019/enacted,50
+test,DPDP2023/enacted,50
+test,FA2023/enacted,50
+test,FA2025/enacted,50
+test,ITA2025/amended_fa2026,50
+dev,CGST2017/consolidated,17
+dev,COW2019/enacted,17
+dev,DPDP2023/enacted,17
+dev,FA2023/enacted,17
+dev,FA2025/enacted,17
+dev,ITA2025/amended_fa2026,17
+pilot (from dev),all,30

@@ -94,6 +94,17 @@ done about it.
   tables do not show at the calibrated setting. The robustness draws vary
   the senior share from 0 to 20%. The taxpayer-level comparison (exact tax
   on a fixed grid for every age band) covers the senior tables directly.
+- **Top tail.** The open top income range (above ₹500 crore) has no
+  returns in the statistics used, so the Pareto tail is never applied. The
+  sensitivity analysis confirms the top-tail shape has no influence on any
+  output; within the highest closed range, incomes follow the
+  maximum-entropy density.
+- **Statistical power.** With six reforms, a reform-level comparison of two
+  systems can reach at best p = 0.031 (6–0), and no pair reaches
+  significance after Holm correction. Conclusion-level McNemar tests are
+  reported, but they treat correlated conclusions within a reform as
+  independent and overstate the evidence. More reforms are needed for
+  system rankings; per-reform and attribution results do not depend on this.
 - **Behaviour.** The simulation is static: it models no labour-supply or
   compliance response. Revenue changes are first-round effects.
 - **Statutes.** The headline experiment covers personal income tax in five

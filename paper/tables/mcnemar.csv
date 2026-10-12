@@ -1,0 +1,22 @@
+Comparison,Conclusions,McNemar p (Holm),Reforms,Better / worse,Sign test p (Holm)
+gemini-3.8-flash vs gemma2-2b,17,1.0000,1,0 / 0,1.000
+gemini-3.8-flash vs gpt-oss-120b,17,0.0002,1,0 / 1,1.000
+gemini-3.8-flash vs gpt-oss-20b,17,1.0000,1,0 / 0,1.000
+gemini-3.8-flash vs phi3.5,17,1.0000,1,0 / 0,1.000
+gemini-3.8-flash vs qwen3.8-27b,17,0.0002,1,0 / 1,1.000
+gemini-3.8-flash vs rules,17,0.0002,1,0 / 1,1.000
+gemma2-2b vs gpt-oss-120b,102,0.0000,6,0 / 4,1.000
+gemma2-2b vs gpt-oss-20b,102,0.0000,6,0 / 4,1.000
+gemma2-2b vs phi3.5,102,1.0000,6,0 / 0,1.000
+gemma2-2b vs qwen3.8-27b,102,0.0000,6,0 / 4,1.000
+gemma2-2b vs rules,102,0.0000,6,0 / 2,1.000
+gpt-oss-120b vs gpt-oss-20b,102,1.0000,6,1 / 1,1.000
+gpt-oss-120b vs phi3.5,102,0.0000,6,4 / 0,1.000
+gpt-oss-120b vs qwen3.8-27b,102,1.0000,6,1 / 1,1.000
+gpt-oss-120b vs rules,102,0.0000,6,2 / 0,1.000
+gpt-oss-20b vs phi3.5,102,0.0000,6,4 / 0,1.000
+gpt-oss-20b vs qwen3.8-27b,102,1.0000,6,1 / 1,1.000
+gpt-oss-20b vs rules,102,0.0004,6,3 / 1,1.000
+phi3.5 vs qwen3.8-27b,102,0.0000,6,0 / 4,1.000
+phi3.5 vs rules,102,0.0000,6,0 / 2,1.000
+qwen3.8-27b vs rules,102,0.0000,6,2 / 0,1.000

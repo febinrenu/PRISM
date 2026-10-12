@@ -154,6 +154,26 @@ def compare_systems(runs: list[dict]) -> dict:
                       "p_exact": pvals[key]}
     for k, p in holm(pvals).items():
         tests[k]["p_holm"] = p
+    # Conclusions within one reform are correlated, so McNemar over all of
+    # them overstates the evidence. The cluster-level test compares the two
+    # systems' flip rates reform by reform (exact two-sided sign test; with
+    # six reforms the smallest attainable p is 2/2^6 = 0.031).
+    by_set: dict[str, dict[str, float]] = {}
+    for r in runs:
+        by_set.setdefault(r["system"], {})[r["set"]] = r["population"]["flip_rate"]
+    set_p = {}
+    for a, b in combinations(systems, 2):
+        common = sorted(set(by_set.get(a, {})) & set(by_set.get(b, {})))
+        if not common:
+            continue
+        wins = sum(by_set[a][s] < by_set[b][s] for s in common)
+        losses = sum(by_set[a][s] > by_set[b][s] for s in common)
+        key = f"{a} vs {b}"
+        set_p[key] = _exact_mcnemar(wins, losses)
+        tests.setdefault(key, {}).update({"reforms": len(common), f"{a}_better_reforms": wins,
+                                          f"{b}_better_reforms": losses, "p_sign_reforms": set_p[key]})
+    for k, p in holm(set_p).items():
+        tests[k]["p_sign_reforms_holm"] = p
     return {
         "agreement_rate": {s: float(np.mean(list(v.values()))) for s, v in vec.items()},
         "conclusions": {s: len(v) for s, v in vec.items()},

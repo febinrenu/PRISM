@@ -1,0 +1,75 @@
+\begin{table}[t]
+\centering\small
+\caption{Typed extraction errors injected into the expert law: which change a policy conclusion.}
+\label{tab:error_injection}
+\begin{tabular}{lllrrrr}
+\toprule
+Reform & Target & Injected error & Flip rate & Revenue error (cr) & Decile L1 & Min persistence \\
+\midrule
+FA2020\_new\_regime & new.slabs & drop\_top\_band & 0.12 & -48,797 & 0.0266 & 0.91 \\
+FA2020\_new\_regime & new.slabs & drop\_middle\_band & 0.12 & -11,970 & 0.0090 & 0.50 \\
+FA2020\_new\_regime & new.slabs & shift\_bound\_1\_lakh & 0.12 & -4,888 & 0.0038 & 0.25 \\
+FA2020\_new\_regime & new.slabs & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+FA2020\_new\_regime & new.slabs & lakh\_crore\_confusion & 0.12 & -293,900 & 0.1735 & 1.00 \\
+FA2020\_new\_regime & new.slabs & rate\_from\_adjacent\_row & 0.24 & 8,228 & 0.0050 & 0.22 \\
+FA2020\_old\_schedule & old.slabs.below\_60 & drop\_top\_band & 0.12 & -117,269 & 0.0633 & 1.00 \\
+FA2020\_old\_schedule & old.slabs.below\_60 & drop\_middle\_band & 0.12 & -77,288 & 0.0633 & 1.00 \\
+FA2020\_old\_schedule & old.slabs.below\_60 & shift\_bound\_1\_lakh & 0.12 & -22,237 & 0.0235 & 1.00 \\
+FA2020\_old\_schedule & old.slabs.below\_60 & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.below\_60 & lakh\_crore\_confusion & 0.18 & -327,458 & 0.1982 & 0.97 \\
+FA2020\_old\_schedule & old.slabs.below\_60 & rate\_from\_adjacent\_row & 0.12 & 51,525 & 0.0422 & 1.00 \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & drop\_top\_band & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & drop\_middle\_band & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & shift\_bound\_1\_lakh & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & off\_by\_one\_rupee & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & lakh\_crore\_confusion & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.60\_to\_80 & rate\_from\_adjacent\_row & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.80\_plus & drop\_top\_band & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.80\_plus & shift\_bound\_1\_lakh & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.80\_plus & off\_by\_one\_rupee & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.80\_plus & lakh\_crore\_confusion & 0.00 & 0 & 0.0000 & -- \\
+FA2020\_old\_schedule & old.slabs.80\_plus & rate\_from\_adjacent\_row & 0.00 & 0 & 0.0000 & -- \\
+FA2023\_new\_default & new.slabs & drop\_top\_band & 0.12 & -184,405 & 0.0676 & 1.00 \\
+FA2023\_new\_default & new.slabs & drop\_middle\_band & 0.06 & -20,959 & 0.0147 & 1.00 \\
+FA2023\_new\_default & new.slabs & shift\_bound\_1\_lakh & 0.00 & -8,073 & 0.0062 & -- \\
+FA2023\_new\_default & new.slabs & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+FA2023\_new\_default & new.slabs & lakh\_crore\_confusion & 0.12 & -513,845 & 0.2251 & 1.00 \\
+FA2023\_new\_default & new.slabs & rate\_from\_adjacent\_row & 0.12 & 20,835 & 0.0147 & 0.06 \\
+FA2023\_new\_default & new.slabs & previous\_year\_table & 0.18 & 50,022 & 0.0372 & 0.16 \\
+FA2023\_new\_default & new.rebate & drop\_marginal\_relief & 0.00 & 1,905 & 0.0036 & -- \\
+FA2023\_new\_default & new.rebate & drop\_rebate & 0.18 & 32,939 & 0.0723 & 0.44 \\
+FA2023\_new\_default & new.rebate & previous\_year\_rebate & 0.18 & 32,939 & 0.0723 & 0.44 \\
+FA2023\_new\_default & new.rebate & rebate\_amount\_misread & 0.06 & 6,329 & 0.0129 & 0.56 \\
+FA2023\_new\_default & new.rebate & other\_regime\_rebate & 0.18 & 32,939 & 0.0723 & 0.44 \\
+FA2024N2\_budget & new.slabs & drop\_top\_band & 0.18 & -213,686 & 0.0717 & 1.00 \\
+FA2024N2\_budget & new.slabs & drop\_middle\_band & 0.06 & -14,594 & 0.0095 & 1.00 \\
+FA2024N2\_budget & new.slabs & shift\_bound\_1\_lakh & 0.06 & -7,816 & 0.0053 & 1.00 \\
+FA2024N2\_budget & new.slabs & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+FA2024N2\_budget & new.slabs & lakh\_crore\_confusion & 0.18 & -578,193 & 0.2312 & 1.00 \\
+FA2024N2\_budget & new.slabs & rate\_from\_adjacent\_row & 0.12 & 14,564 & 0.0095 & 0.97 \\
+FA2024N2\_budget & new.slabs & previous\_year\_table & 0.12 & 22,714 & 0.0213 & 0.97 \\
+FA2024N2\_budget & new.standard\_deduction & previous\_year\_standard\_deduction & 0.12 & 11,883 & 0.0119 & 0.59 \\
+FA2025\_rebate\_12L & new.slabs & drop\_top\_band & 0.06 & -93,832 & 0.0286 & 1.00 \\
+FA2025\_rebate\_12L & new.slabs & drop\_middle\_band & 0.06 & -23,171 & 0.0115 & 1.00 \\
+FA2025\_rebate\_12L & new.slabs & shift\_bound\_1\_lakh & 0.00 & -6,730 & 0.0038 & -- \\
+FA2025\_rebate\_12L & new.slabs & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+FA2025\_rebate\_12L & new.slabs & lakh\_crore\_confusion & 0.12 & -559,943 & 0.1878 & 1.00 \\
+FA2025\_rebate\_12L & new.slabs & rate\_from\_adjacent\_row & 0.06 & 23,139 & 0.0115 & 1.00 \\
+FA2025\_rebate\_12L & new.slabs & previous\_year\_table & 0.12 & 102,966 & 0.0461 & 1.00 \\
+FA2025\_rebate\_12L & new.rebate & drop\_marginal\_relief & 0.00 & 4,077 & 0.0038 & -- \\
+FA2025\_rebate\_12L & new.rebate & drop\_rebate & 0.41 & 94,096 & 0.1491 & 0.72 \\
+FA2025\_rebate\_12L & new.rebate & previous\_year\_rebate & 0.12 & 67,057 & 0.0927 & 1.00 \\
+FA2025\_rebate\_12L & new.rebate & rebate\_amount\_misread & 0.06 & 16,324 & 0.0202 & 0.81 \\
+FA2025\_rebate\_12L & new.rebate & other\_regime\_rebate & 0.41 & 94,096 & 0.1491 & 0.72 \\
+ITA2025\_new\_act & new.slabs & drop\_top\_band & 0.29 & -109,327 & 0.0304 & 1.00 \\
+ITA2025\_new\_act & new.slabs & drop\_middle\_band & 0.35 & -27,017 & 0.0138 & 1.00 \\
+ITA2025\_new\_act & new.slabs & shift\_bound\_1\_lakh & 0.35 & -7,823 & 0.0043 & 0.94 \\
+ITA2025\_new\_act & new.slabs & off\_by\_one\_rupee & 0.00 & -0 & 0.0000 & -- \\
+ITA2025\_new\_act & new.slabs & lakh\_crore\_confusion & 0.41 & -654,753 & 0.2073 & 0.56 \\
+ITA2025\_new\_act & new.slabs & rate\_from\_adjacent\_row & 0.29 & 26,945 & 0.0137 & 1.00 \\
+ITA2025\_new\_act & new.rebate & drop\_marginal\_relief & 0.29 & 4,970 & 0.0058 & 0.59 \\
+ITA2025\_new\_act & new.rebate & drop\_rebate & 0.65 & 106,377 & 0.1647 & 0.59 \\
+ITA2025\_new\_act & new.rebate & other\_regime\_rebate & 0.65 & 106,377 & 0.1647 & 0.59 \\
+\bottomrule
+\end{tabular}
+\end{table}

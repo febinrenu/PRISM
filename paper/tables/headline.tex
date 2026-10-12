@@ -1,0 +1,48 @@
+\begin{table}[t]
+\centering\small
+\caption{Expert-coded vs extracted rules: assembly, pre-registered conclusion flips and outcome divergence.}
+\label{tab:headline}
+\begin{tabular}{llcrrrrrl}
+\toprule
+Reform & System & Assembled & Flip rate & Flip rate (original tests) & dRev expert (cr) & dRev system (cr) & Decile L1 & Review \\
+\midrule
+FA2020\_new\_regime & gemini-3.8-flash & no & 1.00 & 1.00 & -13,900 & -- & -- & new.slabs: no slab rows \\
+FA2020\_new\_regime & gemma2-2b & no & 1.00 & 1.00 & -13,900 & -- & -- & new.slabs: no slab rows \\
+FA2020\_new\_regime & gpt-oss-120b & yes & 0.00 & 0.00 & -13,900 & -13,900 & 0.0000 &  \\
+FA2020\_new\_regime & gpt-oss-20b & no & 1.00 & 1.00 & -13,900 & -- & -- & new.slabs: no slab rows \\
+FA2020\_new\_regime & phi3.5 & no & 1.00 & 1.00 & -13,900 & -- & -- & new.slabs: no slab rows \\
+FA2020\_new\_regime & qwen3.8-27b & yes & 0.00 & 0.00 & -13,900 & -13,900 & 0.0000 &  \\
+FA2020\_new\_regime & rules & yes & 0.00 & 0.00 & -13,900 & -13,900 & 0.0000 &  \\
+FA2020\_old\_schedule & gemma2-2b & no & 1.00 & 1.00 & 0 & -- & -- & old.slabs.below\_60: no slab rows, old.slabs.60\_to\_80: no slab rows, old.slabs.80\_plus: no slab rows \\
+FA2020\_old\_schedule & gpt-oss-120b & yes & 0.00 & 0.00 & 0 & 0 & 0.0000 &  \\
+FA2020\_old\_schedule & gpt-oss-20b & yes & 0.00 & 0.00 & 0 & 0 & 0.0000 &  \\
+FA2020\_old\_schedule & phi3.5 & no & 1.00 & 1.00 & 0 & -- & -- & old.slabs.below\_60: no open top band, old.slabs.60\_to\_80: no slab rows, old.slabs.80\_plus: no slab rows \\
+FA2020\_old\_schedule & qwen3.8-27b & yes & 0.00 & 0.00 & 0 & 0 & 0.0000 &  \\
+FA2020\_old\_schedule & rules & yes & 0.00 & 0.00 & 0 & 0 & 0.0000 &  \\
+FA2023\_new\_default & gemma2-2b & no & 1.00 & 1.00 & -108,084 & -- & -- & new.slabs: no slab rows, new.rebate: no rebate effect \\
+FA2023\_new\_default & gpt-oss-120b & yes & 0.00 & 0.00 & -108,084 & -106,179 & 0.0036 &  \\
+FA2023\_new\_default & gpt-oss-20b & yes & 0.00 & 0.00 & -108,084 & -106,179 & 0.0036 &  \\
+FA2023\_new\_default & phi3.5 & no & 1.00 & 1.00 & -108,084 & -- & -- & new.slabs: no slab rows \\
+FA2023\_new\_default & qwen3.8-27b & no & 1.00 & 1.00 & -108,084 & -- & -- & new.rebate: conflicting effects: (700000.0, 25000.0, False), (700000.0, 0.0, True) \\
+FA2023\_new\_default & rules & no & 1.00 & 1.00 & -108,084 & -- & -- & new.rebate: no rebate effect \\
+FA2024N2\_budget & gemma2-2b & no & 1.00 & 1.00 & -34,632 & -- & -- & new.slabs: no slab rows \\
+FA2024N2\_budget & gpt-oss-120b & no & 1.00 & 1.00 & -34,632 & -- & -- & new.slabs: no open top band \\
+FA2024N2\_budget & gpt-oss-20b & yes & 0.00 & 0.00 & -34,632 & -34,632 & 0.0000 &  \\
+FA2024N2\_budget & phi3.5 & no & 1.00 & 1.00 & -34,632 & -- & -- & new.slabs: no slab rows, new.standard\_deduction: no standard deduction effect \\
+FA2024N2\_budget & qwen3.8-27b & yes & 0.00 & 0.00 & -34,632 & -34,632 & 0.0000 &  \\
+FA2024N2\_budget & rules & no & 1.00 & 1.00 & -34,632 & -- & -- & new.slabs: gap or overlap between bands at 300,000, new.standard\_deduction: no standard deduction effect \\
+FA2025\_rebate\_12L & gemma2-2b & no & 1.00 & 1.00 & -191,612 & -- & -- & new.slabs: no slab rows, new.rebate: no rebate effect \\
+FA2025\_rebate\_12L & gpt-oss-120b & yes & 0.00 & 0.00 & -191,612 & -187,535 & 0.0038 &  \\
+FA2025\_rebate\_12L & gpt-oss-20b & yes & 0.00 & 0.00 & -191,612 & -191,612 & 0.0000 &  \\
+FA2025\_rebate\_12L & phi3.5 & no & 1.00 & 1.00 & -191,612 & -- & -- & new.slabs: no slab rows, new.rebate: no rebate effect \\
+FA2025\_rebate\_12L & qwen3.8-27b & yes & 0.00 & 0.00 & -191,612 & -187,535 & 0.0038 &  \\
+FA2025\_rebate\_12L & rules & no & 1.00 & 1.00 & -191,612 & -- & -- & new.rebate: no rebate effect \\
+ITA2025\_new\_act & gemma2-2b & no & 1.00 & 1.00 & 0 & -- & -- & new.slabs: no slab rows, new.rebate: no rebate effect \\
+ITA2025\_new\_act & gpt-oss-120b & no & 1.00 & 1.00 & 0 & -- & -- & new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False) \\
+ITA2025\_new\_act & gpt-oss-20b & no & 1.00 & 1.00 & 0 & -- & -- & new.slabs: no slab rows, new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False) \\
+ITA2025\_new\_act & phi3.5 & no & 1.00 & 1.00 & 0 & -- & -- & new.slabs: no slab rows \\
+ITA2025\_new\_act & qwen3.8-27b & no & 1.00 & 1.00 & 0 & -- & -- & new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False), (1200000.0, 60000.0, True) \\
+ITA2025\_new\_act & rules & no & 1.00 & 1.00 & 0 & -- & -- & new.rebate: no rebate effect \\
+\bottomrule
+\end{tabular}
+\end{table}

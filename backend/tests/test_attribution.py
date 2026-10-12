@@ -80,11 +80,14 @@ def test_compare_systems_pairs_on_the_same_conclusions():
 
     def run(system, set_name, flipped):
         return {"system": system, "set": set_name,
-                "population": {"conclusions_expert": {"x": 1, "y": 1, "z": 1}, "flipped": flipped}}
+                "population": {"conclusions_expert": {"x": 1, "y": 1, "z": 1}, "flipped": flipped,
+                               "flip_rate": len(flipped) / 3}}
     out = compare_systems([run("a", "s1", []), run("b", "s1", ["x", "y"]), run("a", "s2", ["z"]), run("b", "s2", [])])
     t = out["tests"]["a vs b"]
     assert t["pairs"] == 6 and t["a_only_correct"] == 2 and t["b_only_correct"] == 1
     assert out["agreement_rate"] == {"a": 5 / 6, "b": 4 / 6}
+    # reform level: a better on s1, b better on s2
+    assert t["reforms"] == 2 and t["a_better_reforms"] == 1 and t["b_better_reforms"] == 1
 
 
 def test_injected_error_flips_persist_across_population_draws(setup):
