@@ -46,7 +46,10 @@ SYSTEMS: dict[str, System] = {s.name: s for s in [
     # 4,096-token output budget reasoning and return no answer; the free
     # tier's 8,000 tokens/minute rules out a larger budget. Low effort fits.
     System("gpt-oss-20b", "groq", "openai/gpt-oss-20b", options=(("reasoning_effort", "low"),)),
-    System("qwen3.8-27b", "groq", "qwen/qwen3.8-27b"),
+    # The free tier allows Qwen3.8-27B 1,000 output tokens per minute, so an
+    # answer plus hidden reasoning longer than that can never be returned
+    # ("Request too large"). With reasoning off its answers fit.
+    System("qwen3.8-27b", "groq", "qwen/qwen3.8-27b", options=(("reasoning_effort", "none"),)),
     System("gemini-3.8-flash", "gemini", "gemini-3.8-flash"),
 ]}
 
