@@ -124,6 +124,11 @@ def focus_provision() -> dict:
             "path": unit["path"], "text": unit["text"], "effects": effects,
             "expert": tgt["expert"], "extracted": tgt["system"], "param_diff": run.get("param_diff", []),
             "revenue_error_crore": _r(run["attribution"]["total"]["revenue_error_crore"], 1),
+            "taxpayers_with_different_tax": _r(run["population"]["taxpayers_with_different_tax"], 0),
+            "revenue_change_expert_crore": _r(run["population"]["revenue_change_expert_crore"], 0),
+            "revenue_change_system_crore": _r(run["population"]["revenue_change_system_crore"], 0),
+            "flips": int(round(run["population"]["flip_rate"] * len(run["population"]["conclusions_expert"]))),
+            "conclusions": len(run["population"]["conclusions_expert"]),
             "source": {"file": _rel(RESULTS_DIR / f"{FOCUS_SET}__{FOCUS_SYSTEM}.json"),
                        "inspect": f"/research?set={FOCUS_SET}&inspect={FOCUS_SYSTEM}"}}
 
@@ -286,6 +291,7 @@ def constellation() -> dict:
 
 def build() -> tuple[dict, dict, dict]:
     nums = read_numbers()
+    pop = population_points()
     core = {
         "version": 1,
         "numbers": nums,
@@ -296,8 +302,10 @@ def build() -> tuple[dict, dict, dict]:
         "injection": injection(),
         "behaviour": behaviour(),
         "corpus": _corpus_counts(),
+        "population": {"ay": pop["ay"], "returns_total": pop["returns_total"], "points": len(pop["rows"]),
+                       "source": pop["source"]},
     }
-    return core, population_points(), constellation()
+    return core, pop, constellation()
 
 
 def _corpus_counts() -> dict:

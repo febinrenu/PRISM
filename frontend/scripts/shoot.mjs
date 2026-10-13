@@ -28,6 +28,8 @@ const ROUTES = arg(
 const WIDTHS = arg("widths", "390,1440").split(",").map(Number);
 const SCROLL = arg("scroll", "0").split(",").map(Number);
 const WAIT = Number(arg("wait", "2500"));
+// --story "text:0.5,curve:0.8": scroll to a point inside each act of the landing story.
+const STORY = arg("story", "");
 
 mkdirSync(OUT, { recursive: true });
 const browser = await puppeteer.launch({
@@ -51,6 +53,28 @@ for (const route of ROUTES) {
       errors.push(`goto: ${e.message}`);
     }
     await new Promise((r) => setTimeout(r, WAIT));
+    for (const spec of STORY ? STORY.split(",") : []) {
+      const [id, at] = spec.split(":");
+      await page.evaluate(
+        (id, at) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          const span = Math.max(1, el.offsetHeight - window.innerHeight);
+          window.scrollTo(0, top + span * Number(at));
+        },
+        id,
+        at
+      );
+      await new Promise((r) => setTimeout(r, Number(arg("settle", "2200"))));
+      const name = `story_${id}_${at}_${w}${flag("reduced") ? "_rm" : ""}${flag("nowebgl") ? "_t0" : ""}.png`;
+      await page.screenshot({ path: join(OUT, name) });
+      console.log(`${name}${errors.length ? `  ERR ${errors.length}: ${errors.slice(0, 3).join(" | ")}` : ""}`);
+    }
+    if (STORY) {
+      await page.close();
+      continue;
+    }
     for (const f of SCROLL) {
       if (f > 0) {
         await page.evaluate((frac) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * frac), f);

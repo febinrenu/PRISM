@@ -1,0 +1,110 @@
+/* Story layout. Acts are tall; their panel sticks while the reader scrolls. */
+.act {
+  height: var(--act-len, 250dvh);
+}
+
+/* Steps reveal as the act's progress passes their threshold. */
+[data-at] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  filter: blur(8px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-at][data-on] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+[data-at="-1"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* The DOM figures are the screen-reader equivalent of the canvas. */
+.fig-static {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap;
+  margin: 0 !important;
+}
+
+/* Tier 0 (no WebGL or reduced motion): a plain, readable page. */
+[data-tier="0"] .act {
+  height: auto;
+}
+[data-tier="0"] .act-panel {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding-top: 18vh;
+}
+[data-tier="0"] #prologue .act-panel {
+  min-height: 100dvh;
+  padding-top: 0;
+}
+[data-tier="0"] .act-panel > div {
+  height: auto;
+}
+[data-tier="0"] [data-at] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+[data-tier="0"] .fig-static {
+  position: relative !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal;
+  margin: 2.5rem clamp(1.25rem, 4.4vw, 4rem) 0 !important;
+}
+[data-tier="0"] #prologue .act-panel > div {
+  padding-top: 7rem;
+}
+[data-tier="0"] .story-canvas {
+  display: none;
+}
+[data-tier="0"] .static-field {
+  display: block;
+}
+
+.static-field {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, rgba(241, 237, 228, 0.05) 1px, transparent 1px);
+  background-size: 100% 30px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 70%, black 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse at 50% 70%, black 20%, transparent 75%);
+}
+
+.scroll-cue {
+  animation: cue 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes cue {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, 0); }
+  50% { opacity: 1; transform: translate(-50%, 6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-at] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  .scroll-cue {
+    animation: none;
+  }
+}

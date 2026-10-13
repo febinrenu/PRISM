@@ -1,10 +1,17 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import StoryRoot from "@/story/StoryRoot";
+
+export const metadata: Metadata = {
+  title: { absolute: "PRISM: does a machine read the law the way the law reads?" },
+};
 
 export default function StoryPage() {
   return (
-    <main id="main" className="relative flex min-h-dvh flex-col items-start justify-center px-6">
-      <h1 className="font-serif text-display">A law is a program nobody runs.</h1>
-      <Link href="/start" className="mt-8 text-signal underline">Analyse a PDF</Link>
-    </main>
+    <>
+      <noscript>
+        <style>{"[data-at]{opacity:1!important;transform:none!important;filter:none!important}"}</style>
+      </noscript>
+      <StoryRoot />
+    </>
   );
 }
