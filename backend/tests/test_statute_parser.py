@@ -244,3 +244,15 @@ def test_corpus_first_schedule_rate_items(statute, base):
     paths = {n["path"] for n in ast["nodes"]}
     assert {f"{base}/(I)", f"{base}/(II)", f"{base}/(III)"} <= paths
     assert not any(p.startswith(f"{base}/(III)~") or p.startswith(f"{base}/(I)~") for p in paths)
+
+
+def test_corpus_fa2026_inline_paragraph_headings_close_the_previous_paragraph():
+    # "Paragraph B In the case of every co-operative society,—" opens Paragraph B;
+    # before the fix Paragraphs B-F were absorbed into item (III) of Paragraph A.
+    ast = _corpus_ast("FA2026", "enacted")
+    by_path = {n["path"]: n for n in ast["nodes"]}
+    base = "FA2026/schFIRST/ptI/subB"
+    assert {f"{base}/paraB", f"{base}/paraC", f"{base}/paraE"} <= set(by_path)
+    item = by_path[f"{base}/paraA/(III)"]
+    assert item["end"] - item["start"] < 800
+    assert item["end"] <= by_path[f"{base}/paraB"]["start"]

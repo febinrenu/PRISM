@@ -1,5 +1,4 @@
 Reform,System,Flip rate,Mean over draws,Min persistence,Expert noise floor
-FA2020_new_regime,gemini-3.8-flash,1.00,1.00,1.00,0.083
 FA2020_new_regime,gemma2-2b,1.00,1.00,1.00,0.083
 FA2020_new_regime,gpt-oss-120b,0.00,0.00,,0.083
 FA2020_new_regime,gpt-oss-20b,1.00,1.00,1.00,0.083
@@ -40,6 +39,7 @@ FA2025_old_schedule,gemma2-2b,1.00,1.00,1.00,0.028
 FA2025_old_schedule,gpt-oss-120b,1.00,1.00,1.00,0.028
 FA2025_old_schedule,gpt-oss-20b,1.00,1.00,1.00,0.028
 FA2025_old_schedule,phi3.5,1.00,1.00,1.00,0.028
+FA2025_old_schedule,qwen3.8-27b,0.00,0.00,,0.028
 FA2025_old_schedule,rules,1.00,1.00,1.00,0.028
 FA2025_rebate_12L,gemma2-2b,1.00,1.00,1.00,0.005
 FA2025_rebate_12L,gpt-oss-120b,0.00,0.00,,0.005
@@ -49,7 +49,9 @@ FA2025_rebate_12L,qwen3.8-27b,0.00,0.00,,0.005
 FA2025_rebate_12L,rules,1.00,1.00,1.00,0.005
 FA2026_old_schedule_ITA2025,gemma2-2b,1.00,1.00,1.00,0.000
 FA2026_old_schedule_ITA2025,gpt-oss-120b,1.00,1.00,1.00,0.000
+FA2026_old_schedule_ITA2025,gpt-oss-20b,1.00,1.00,1.00,0.000
 FA2026_old_schedule_ITA2025,phi3.5,1.00,1.00,1.00,0.000
+FA2026_old_schedule_ITA2025,qwen3.8-27b,1.00,1.00,1.00,0.000
 FA2026_old_schedule_ITA2025,rules,1.00,1.00,1.00,0.000
 ITA2025_new_act,gemma2-2b,1.00,1.00,1.00,0.000
 ITA2025_new_act,gpt-oss-120b,1.00,1.00,1.00,0.000

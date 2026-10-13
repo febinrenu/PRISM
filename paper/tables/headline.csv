@@ -1,5 +1,4 @@
 Reform,System,Assembled,Flip rate,Flip rate (original tests),dRev expert (cr),dRev system (cr),Decile L1,Review
-FA2020_new_regime,gemini-3.8-flash,no,1.00,1.00,"-13,900",,,new.slabs: no slab rows
 FA2020_new_regime,gemma2-2b,no,1.00,1.00,"-13,900",,,new.slabs: no slab rows
 FA2020_new_regime,gpt-oss-120b,yes,0.00,0.00,"-13,900","-13,900",0.0000,
 FA2020_new_regime,gpt-oss-20b,no,1.00,1.00,"-13,900",,,new.slabs: no slab rows
@@ -40,6 +39,7 @@ FA2025_old_schedule,gemma2-2b,no,1.00,1.00,"-34,632",,,"old.slabs.below_60: no s
 FA2025_old_schedule,gpt-oss-120b,no,1.00,1.00,"-34,632",,,old.slabs.below_60: no open top band
 FA2025_old_schedule,gpt-oss-20b,no,1.00,1.00,"-34,632",,,"old.slabs.below_60: no slab rows, old.slabs.80_plus: no slab rows"
 FA2025_old_schedule,phi3.5,no,1.00,1.00,"-34,632",,,"old.slabs.60_to_80: no slab rows, old.slabs.80_plus: no slab rows"
+FA2025_old_schedule,qwen3.8-27b,yes,0.00,0.00,"-34,632","-34,632",0.0000,
 FA2025_old_schedule,rules,no,1.00,1.00,"-34,632",,,"old.slabs.below_60: no slab rows, old.slabs.60_to_80: no slab rows, old.slabs.80_plus: no slab rows"
 FA2025_rebate_12L,gemma2-2b,no,1.00,1.00,"-191,612",,,"new.slabs: no slab rows, new.rebate: no rebate effect"
 FA2025_rebate_12L,gpt-oss-120b,yes,0.00,0.00,"-191,612","-187,535",0.0038,
@@ -48,8 +48,10 @@ FA2025_rebate_12L,phi3.5,no,1.00,1.00,"-191,612",,,"new.slabs: no slab rows, new
 FA2025_rebate_12L,qwen3.8-27b,yes,0.00,0.00,"-191,612","-187,535",0.0038,
 FA2025_rebate_12L,rules,no,1.00,1.00,"-191,612",,,new.rebate: no rebate effect
 FA2026_old_schedule_ITA2025,gemma2-2b,no,1.00,1.00,0,,,"old.slabs.below_60: no slab rows, old.slabs.60_to_80: no slab rows, old.slabs.80_plus: no slab rows"
-FA2026_old_schedule_ITA2025,gpt-oss-120b,no,1.00,1.00,0,,,old.slabs.80_plus: gap or overlap between bands at 0
+FA2026_old_schedule_ITA2025,gpt-oss-120b,no,1.00,1.00,0,,,old.slabs.80_plus: no open top band
+FA2026_old_schedule_ITA2025,gpt-oss-20b,no,1.00,1.00,0,,,old.slabs.60_to_80: no slab rows
 FA2026_old_schedule_ITA2025,phi3.5,no,1.00,1.00,0,,,"old.slabs.below_60: no slab rows, old.slabs.60_to_80: no slab rows, old.slabs.80_plus: no slab rows"
+FA2026_old_schedule_ITA2025,qwen3.8-27b,no,1.00,1.00,0,,,old.slabs.below_60: no slab rows
 FA2026_old_schedule_ITA2025,rules,no,1.00,1.00,0,,,"old.slabs.below_60: no slab rows, old.slabs.60_to_80: no slab rows, old.slabs.80_plus: no slab rows"
 ITA2025_new_act,gemma2-2b,no,1.00,1.00,0,,,"new.slabs: no slab rows, new.rebate: no rebate effect"
 ITA2025_new_act,gpt-oss-120b,no,1.00,1.00,0,,,"new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False)"

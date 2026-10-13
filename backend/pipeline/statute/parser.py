@@ -54,6 +54,7 @@ _CHAPTER_RE = re.compile(r"^CHAPTER\s+([IVXLC]+(?:-?[A-Z]{1,2})?)\b\.?\s*(.*)$")
 _PART_RE = re.compile(r"^PART\s+([IVXLC]+|[A-Z])\b\.?\s*(.*)$")
 _SCHED_PARA_RE = re.compile(r"^Paragraph\s+([A-Z])\b\.?\s*$")
 _TRAILING_SCHED_PARA_RE = re.compile(r"\s+Paragraph\s+([A-Z])\.?\s*$")
+_INLINE_SCHED_PARA_RE = re.compile(r"^Paragraph\s+([A-Z])\s+(?:In the case of|Surcharge|Rates?\b)")
 # A lettered sub-part of a schedule Part: "A.––INCOME-TAX UNDER THE INCOME-TAX ACT, 1961"
 _SUBPART_RE = re.compile(r"^([A-Z])\.\s*[–—-]{1,3}\s*([A-Z][A-Z0-9 ,.()\-–]+?(?:\s+Paragraph\s+[A-Z]\.?)?)\s*$")
 _TABLE_LEAD_IN_RE = re.compile(r"following\s+Table\s*[:,]?\s*[—–-]*\s*$", re.IGNORECASE)
@@ -451,6 +452,20 @@ class _Builder:
                 self._open_sched_paragraph(para.group(1), p)
             return
         m = _SCHED_PARA_RE.match(raw)
+        if m is None and self.quote is None and self._schedule_ancestor() is not None:
+            # "Paragraph B In the case of every co-operative society,—" with
+            # the heading run into its first line (Finance Act 2026): the
+            # paragraph opens here and the line is its lead-in.
+            m = _INLINE_SCHED_PARA_RE.match(raw)
+            if m and self._part_ancestor() is not None:
+                node = Node(kind="paragraph", number=m.group(1), heading=f"Paragraph {m.group(1)}",
+                            paragraph=p, indent=p.x0, label_type="PARAGRAPH")
+                para = self.container if self.container.kind == "paragraph" else None
+                parent = para.parent if para is not None else self.container
+                self._attach(parent, node)
+                self.container, self.stack = node, []
+                return
+            m = None
         if m and p.centred and self.quote is None and self._schedule_ancestor() is not None:
             # "Paragraph A" divides a schedule Part (rates for individuals,
             # co-operative societies, firms …).
