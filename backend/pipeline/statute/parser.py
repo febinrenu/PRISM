@@ -106,6 +106,7 @@ class Paragraph:
     end: int = 0
     is_table_row: bool = False
     centred: bool = False
+    space_before: bool = False     # joined to the previous paragraph by a space in the canonical text
 
     @property
     def x0(self) -> float:
@@ -191,6 +192,7 @@ def build_paragraphs(lines: list[Line], col_left: float, col_right: float) -> li
                    and (prev is None or prev.page != ln.page or _TERMINAL_RE.search(prev.text)
                         or prev_para.centred or ln.text.isupper()))
         new = prev is None
+        heading_split = False
         if prev is not None:
             same_page = prev.page == ln.page
             vgap = ln.y0 - prev.y0 if same_page else spacing
@@ -207,8 +209,14 @@ def build_paragraphs(lines: list[Line], col_left: float, col_right: float) -> li
                 new = True
             elif ln.bold and not prev.bold and _SECTION_RE.match(ln.text.lstrip(_QUOTE_OPEN)):
                 new = True
+            elif (ln.bold and not prev.bold and _TERMINAL_RE.search(prev.text) and not structural
+                    and len(ln.text) < 160):
+                # A bold line after a finished sentence: the heading printed
+                # above the next section (Income-tax Act 2025).
+                new = heading_split = True
         if new:
-            paras.append(Paragraph(lines=[ln], is_table_row=ln.is_table_row, centred=centred))
+            paras.append(Paragraph(lines=[ln], is_table_row=ln.is_table_row, centred=centred,
+                                   space_before=heading_split))
         else:
             prev_para.lines.append(ln)
 
@@ -289,6 +297,8 @@ class _Builder:
         self.pending_note: Optional[str] = None
         self.last_text = ""                  # previous paragraph, for lead-in detection
         self.table_anchor: Optional[Node] = None   # provision whose lead-in opened a table
+        self.held: Optional[tuple[Paragraph, Optional[str]]] = None   # possible heading above a section
+        self.heading_above: Optional[str] = None
 
     # helpers ---------------------------------------------------------------
     def _active_stack(self) -> list[Node]:
@@ -399,7 +409,47 @@ class _Builder:
         self.quote_stack = []
 
     # main ------------------------------------------------------------------
+    def _heading_above(self, p: Paragraph) -> bool:
+        """A short bold sentence that may be the heading printed above the next
+        section ('Relief when salary, etc., is paid in arrears or in advance.')."""
+        text = p.text.strip()
+        return (self.quote is None and not p.centred and not p.is_table_row
+                and self._schedule_ancestor() is None
+                and all(ln.bold for ln in p.lines) and len(text) < 160 and text.endswith(".")
+                and not _starts_structurally(text) and not _SECTION_RE.match(text))
+
+    def _opens_section(self, p: Paragraph) -> bool:
+        sec = _SECTION_RE.match(p.text.lstrip(_QUOTE_OPEN))
+        return bool(sec) and self.quote is None and self._accept_section(sec.group(1), p, False)
+
     def add(self, p: Paragraph) -> None:
+        """Paragraphs arrive in reading order. A possible heading is held back
+        until the next paragraph shows whether it opens a section; if it does
+        not, the held paragraph is added as it would have been."""
+        if self.held is not None:
+            held, note = self.held
+            self.held = None
+            if self._opens_section(p):
+                self.heading_above = held.text.strip().rstrip(". ")
+                self._add_paragraph(p)
+                self.heading_above = None
+                return
+            current_note, self.pending_note = self.pending_note, note
+            self._add_paragraph(held)
+            self.pending_note = current_note
+        if self._heading_above(p):
+            self.held = (p, self.pending_note)
+            return
+        self._add_paragraph(p)
+
+    def flush(self) -> None:
+        if self.held is not None:
+            held, note = self.held
+            self.held = None
+            self.pending_note = note
+            self._add_paragraph(held)
+
+    def _add_paragraph(self, p: Paragraph) -> None:
         raw = p.text
         if p.lines[0].kind == "marginal_note":
             return
@@ -589,6 +639,8 @@ class _Builder:
         hm = _INLINE_HEADING_RE.match(rest)
         if hm and not heading and len(hm.group(1)) < 120:
             heading = hm.group(1).strip()
+        if not heading and self.heading_above:
+            heading = self.heading_above
         if not heading and self.pending_note:
             heading = self.pending_note
         self.pending_note = None
@@ -749,14 +801,18 @@ def parse_statute(pdf_path: str, statute: str, version: str, kind: str = "act",
     toc = parse_toc(front)
 
     # Canonical text: one body paragraph per line.
+    # A heading split off the end of a sentence keeps the space that joined
+    # it before, so the canonical text (and every offset into it) is unchanged.
     offset = 0
     chunks = []
-    for p in body:
+    for i, p in enumerate(body):
+        if i:
+            chunks.append(" " if p.space_before else "\n")
         p.start = offset
         p.end = offset + len(p.text)
         chunks.append(p.text)
         offset = p.end + 1
-    text = "\n".join(chunks)
+    text = "".join(chunks)
 
     # Marginal notes, used as section headings when the TOC lacks one. A note
     # wrapped over several short lines ("Amendment of" / "section 2.") is one.
@@ -773,6 +829,7 @@ def parse_statute(pdf_path: str, statute: str, version: str, kind: str = "act",
             if nt.page == first.page and abs(nt.y0 - first.y0) <= 6 and not _MARGIN_CITATION_RE.match(nt.text):
                 builder.pending_note = nt.text.rstrip(". ")
         builder.add(p)
+    builder.flush()
     builder.finish_inline_children()
     _assign_paths(builder.root, statute, {})
 

@@ -256,3 +256,14 @@ def test_corpus_fa2026_inline_paragraph_headings_close_the_previous_paragraph():
     item = by_path[f"{base}/paraA/(III)"]
     assert item["end"] - item["start"] < 800
     assert item["end"] <= by_path[f"{base}/paraB"]["start"]
+
+
+def test_corpus_ita2025_headings_above_sections():
+    # The 2025 Act prints each section's heading as a bold line above it;
+    # it was being appended to the previous provision.
+    ast = _corpus_ast("ITA2025", "amended_fa2026")
+    text = (CORPUS / "ITA2025" / "amended_fa2026" / "text.txt").read_text(encoding="utf-8")
+    secs = {n["number"]: n for n in ast["nodes"] if n["kind"] == "section" and not n["quoted"]}
+    assert secs["157"]["heading"].startswith("Relief when salary")
+    assert "Relief when salary" not in text[secs["156"]["start"]:secs["156"]["end"]]
+    assert sum(1 for n in secs.values() if n["heading"]) > 400
