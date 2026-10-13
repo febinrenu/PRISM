@@ -71,6 +71,7 @@ export interface DocumentMeta {
   pages: number;
   file_size_kb: number;
   status: "pending" | "processing" | "complete" | "error";
+  owner_id?: string | null;   // null: shared (anonymous upload or demo)
 }
 
 export interface GraphNode {

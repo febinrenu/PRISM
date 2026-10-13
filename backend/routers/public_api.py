@@ -49,7 +49,7 @@ async def v1_upload(request: Request, file: UploadFile = File(...), user: dict =
     from routers.upload import ingest_pdf, read_capped  # reuse the app's ingest path
 
     data = await read_capped(file)
-    doc_id, meta = await ingest_pdf(file.filename or "upload.pdf", data)
+    doc_id, meta = await ingest_pdf(file.filename or "upload.pdf", data, owner_id=str(user["id"]))
     users.record_document(user["id"], doc_id, meta.filename)
     _meter(user, "documents/upload")
     return {"doc_id": doc_id, "filename": meta.filename, "pages": meta.pages,

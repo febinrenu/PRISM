@@ -12,7 +12,8 @@ GET  /api/rag/backend           → active LLM backend descriptor
 import json
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from auth.deps import can_manage, optional_user
+from fastapi import Depends, APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -70,7 +71,11 @@ def ingest_all():
 
 
 @router.delete("/rag/corpus/{doc_id}")
-def remove(doc_id: str):
+def remove(doc_id: str, user: dict | None = Depends(optional_user)):
+    from storage import store
+    meta = store.get_meta(doc_id)
+    if meta is not None and not can_manage(meta, user):
+        raise HTTPException(status_code=403, detail="Only the document's owner can remove it.")
     corpus_builder.remove_document(doc_id)
     return {"removed": doc_id, "corpus": corpus_builder.corpus_stats()}
 

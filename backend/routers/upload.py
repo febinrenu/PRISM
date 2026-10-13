@@ -4,7 +4,8 @@ POST /api/upload → returns doc_id + metadata
 """
 import asyncio
 import uuid
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from auth.deps import optional_user
+from fastapi import Depends, APIRouter, UploadFile, File, HTTPException
 
 from config import UPLOAD_DIR, MAX_FILE_SIZE_MB, MAX_PDF_PAGES
 from models.schemas import DocumentMeta
@@ -40,7 +41,7 @@ async def read_capped(file: UploadFile) -> bytes:
     return b"".join(chunks)
 
 
-async def ingest_pdf(filename: str, content: bytes) -> tuple[str, DocumentMeta]:
+async def ingest_pdf(filename: str, content: bytes, owner_id: str | None = None) -> tuple[str, DocumentMeta]:
     """Persist an uploaded PDF and its metadata. Shared by the web upload route
     and the public /v1 API so both take exactly the same ingest path."""
     if not filename or not filename.lower().endswith(".pdf"):
@@ -78,6 +79,7 @@ async def ingest_pdf(filename: str, content: bytes) -> tuple[str, DocumentMeta]:
         pages=page_count,
         file_size_kb=round(len(content) / 1024, 1),
         status="pending",
+        owner_id=owner_id,
     )
     save_meta(meta)
     save_path(doc_id, str(file_path))
@@ -85,9 +87,9 @@ async def ingest_pdf(filename: str, content: bytes) -> tuple[str, DocumentMeta]:
 
 
 @router.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)) -> dict:
+async def upload_pdf(file: UploadFile = File(...), user: dict | None = Depends(optional_user)) -> dict:
     content = await read_capped(file)
-    doc_id, meta = await ingest_pdf(file.filename or "", content)
+    doc_id, meta = await ingest_pdf(file.filename or "", content, owner_id=str(user["id"]) if user else None)
     return {
         "doc_id": doc_id,
         "filename": meta.filename,

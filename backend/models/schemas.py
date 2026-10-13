@@ -82,6 +82,10 @@ class DocumentMeta(BaseModel):
     file_size_kb: float
     status: Literal["pending", "processing", "complete", "error"] = "pending"
     pdf_path: Optional[str] = None
+    # Uploader's user id; None for anonymous uploads and the demo, which are
+    # shared. Listing is scoped to the owner; a document is read by its
+    # unguessable id (an unlisted link), so the id is the capability.
+    owner_id: Optional[str] = None
 
 
 class GraphNode(BaseModel):

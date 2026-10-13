@@ -2,7 +2,8 @@
 Data endpoints for retrieving analysis results.
 """
 import os
-from fastapi import APIRouter, HTTPException
+from auth.deps import can_list, optional_user
+from fastapi import Depends, APIRouter, HTTPException
 from config import DEMO_DIR, DEMO_PDF_NAME
 from storage.store import get_result, get_meta, list_documents, save_meta, save_path
 
@@ -183,6 +184,7 @@ async def trigger_demo_post():
 
 
 @router.get("/documents")
-async def list_docs():
-    docs = list_documents()
+async def list_docs(user: dict | None = Depends(optional_user)):
+    """Shared documents, plus the signed-in user's own (admins see all)."""
+    docs = [d for d in list_documents() if can_list(d, user)]
     return {"documents": [d.model_dump() for d in docs]}

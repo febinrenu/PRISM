@@ -33,6 +33,30 @@ async def current_user(authorization: str | None = Header(None)) -> dict:
     return user
 
 
+async def optional_user(authorization: str | None = Header(None)) -> dict | None:
+    """The signed-in user, or None (anonymous, or a token that is missing,
+    invalid or expired): for routes that work without signing in."""
+    token = _bearer(authorization)
+    if not token or token.startswith("prism_sk_"):
+        return None
+    payload = security.decode_token(token)
+    return users.get_user_by_id(payload["sub"]) if payload else None
+
+
+def can_manage(meta, user: dict | None) -> bool:
+    """Owner or admin; a shared (ownerless) document by anyone."""
+    if meta is None:
+        return False
+    if meta.owner_id is None:
+        return True
+    return bool(user) and (str(user.get("id")) == meta.owner_id or user.get("role") == "admin")
+
+
+def can_list(meta, user: dict | None) -> bool:
+    return meta.owner_id is None or (bool(user) and (str(user.get("id")) == meta.owner_id
+                                                     or user.get("role") == "admin"))
+
+
 async def api_key_user(authorization: str | None = Header(None)) -> dict:
     key = _bearer(authorization)
     if not key or not key.startswith("prism_sk_"):

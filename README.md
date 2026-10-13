@@ -93,8 +93,15 @@ or `start.bat` on Windows, or `docker compose up --build`.
 - **Research** (`/research`): expert-vs-extracted results, validation and
   sensitivity.
 - **Annotate** (`/annotate`): the blind annotation tool.
-- **Chat** (`/chat`): retrieval-augmented questions over the corpus, answers
-  marked grounded only when they cite real sources.
+- **Chat** (`/chat`): retrieval-augmented questions over the corpus (BM25 and
+  dense retrieval fused and re-ranked), answers marked grounded only when they
+  cite real sources.
+- **Statutes** (`/statutes`): browse the parsed corpus by chapter and section.
+
+Documents uploaded while signed in belong to the uploader: the document list
+shows a user their own documents and the shared ones (the demo, anonymous
+uploads), and only the owner or an admin can remove a document from the chat
+corpus. A document is opened by its unguessable id, like an unlisted link.
 
 ## Configuration
 

@@ -68,7 +68,7 @@ export const api = {
     form.append("file", file);
     return apiFetch<{ doc_id: string; filename: string; pages: number; file_size_kb: number }>(
       "/api/upload",
-      { method: "POST", body: form }
+      { method: "POST", body: form, headers: authHeaders() }
     );
   },
 
@@ -116,7 +116,7 @@ export const api = {
     apiFetch<AnalysisStats & { doc_id: string }>(`/api/stats/${docId}`),
 
   listDocuments: async () =>
-    apiFetch<{ documents: DocumentMeta[] }>("/api/documents"),
+    apiFetch<{ documents: DocumentMeta[] }>("/api/documents", { headers: authHeaders() }),
 
   health: async () => apiFetch<{ status: string }>("/health"),
 
@@ -221,6 +221,7 @@ export const api = {
   removeFromCorpus: async (docId: string) =>
     phase2Fetch<{ removed: string; corpus: CorpusStats }>(`/api/rag/corpus/${docId}`, {
       method: "DELETE",
+      headers: authHeaders(),
     }),
 
   // ── Phase 3, Module F: auth + dashboard + admin ──────────────────────────
