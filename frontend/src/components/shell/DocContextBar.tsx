@@ -33,8 +33,8 @@ export default function DocContextBar({
     <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-bg-base px-4 py-2 sm:px-6">
       <div className="flex min-w-0 items-center gap-2">
         <FileText className="h-4 w-4 shrink-0 text-text-dim" aria-hidden />
-        <span className="max-w-[16rem] truncate text-[14px] text-text-primary" title={filename ?? docId}>
-          {filename ?? docId}
+        <span className="max-w-[16rem] truncate text-[14px] text-text-primary" title={filename || docId}>
+          {filename || docId}
         </span>
         {status}
       </div>

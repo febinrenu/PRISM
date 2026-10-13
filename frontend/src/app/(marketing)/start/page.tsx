@@ -41,7 +41,7 @@ export default function StartPage() {
         title="Bring a statute. Read it clause by clause."
         lede="Upload an Act, a Bill or a Finance Act. PRISM parses its structure, tags every clause, and builds a workspace where each finding links back to the words that support it."
       />
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <section aria-labelledby="upload-h">
           <h2 id="upload-h" className="sr-only">
             Upload

@@ -90,9 +90,9 @@ export default function StatutesPage() {
         title="The parsed corpus"
         lede="Every Act in the corpus as the parser reads it: chapters, sections, sub-sections and provisos, with the exact text each one covers. Every provision has its own link."
         actions={
-          statutes ? (
-            <label className="flex flex-col gap-1.5 text-[13px] text-text-muted">
-              Statute
+          <label className="flex flex-col gap-1.5 text-[13px] text-text-muted">
+            Statute
+            {statutes ? (
               <select
                 value={sel.s ?? ""}
                 onChange={(e) => {
@@ -107,8 +107,12 @@ export default function StatutesPage() {
                   </option>
                 ))}
               </select>
-            </label>
-          ) : null
+            ) : (
+              <select disabled className={cn(inputClass, "w-[min(32rem,90vw)]")} aria-label="Statute">
+                <option>Loading statutes…</option>
+              </select>
+            )}
+          </label>
         }
       />
 
@@ -116,7 +120,7 @@ export default function StatutesPage() {
 
       {!error && (
         <div className="grid gap-6 md:grid-cols-[19rem_minmax(0,1fr)]">
-          <aside className="flex max-h-[78vh] flex-col overflow-hidden rounded-[6px] border border-border bg-bg-surface md:sticky md:top-20">
+          <aside className="flex h-[60vh] flex-col overflow-hidden md:h-[78vh] rounded-[6px] border border-border bg-bg-surface md:sticky md:top-20">
             <div className="border-b border-border p-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-dim" aria-hidden />

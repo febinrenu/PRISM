@@ -164,7 +164,7 @@ export function EmptyState({
       <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border-light text-text-muted">
         {icon ?? <span className="font-serif text-xl leading-none">§</span>}
       </div>
-      <h3 className="font-serif text-2xl text-text-primary">{title}</h3>
+      <h2 className="font-serif text-2xl text-text-primary">{title}</h2>
       {children ? <p className="max-w-md text-[14px] leading-relaxed text-text-muted">{children}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>

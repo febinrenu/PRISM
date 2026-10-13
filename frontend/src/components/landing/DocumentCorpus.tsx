@@ -25,7 +25,7 @@ export default function DocumentCorpus({ limit = 8 }: { limit?: number }) {
     return <EmptyState title="Nothing analysed yet">Upload a statute above, or open the demo.</EmptyState>;
 
   return (
-    <ul className="divide-y divide-border overflow-hidden rounded-[8px] border border-border bg-bg-surface">
+    <ul className="w-full min-w-0 divide-y divide-border overflow-hidden rounded-[8px] border border-border bg-bg-surface">
       {docs.map((d) => {
         const openable = d.status === "complete" || d.status === "processing";
         const body = (

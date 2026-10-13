@@ -73,7 +73,8 @@
 [data-tier="0"] .story-canvas {
   display: none;
 }
-[data-tier="0"] .static-field {
+[data-tier="0"] .static-field,
+[data-canvas="pending"] .static-field {
   display: block;
 }
 

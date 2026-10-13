@@ -77,7 +77,7 @@ export const tokens = {
     primary: paper[100],
     secondary: "#C4BFB3",
     muted: "#9A958B",
-    dim: "#76726A",
+    dim: "#8A857B",
     inverse: ink[900],
   },
   accent: {

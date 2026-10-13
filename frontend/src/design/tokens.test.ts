@@ -18,6 +18,7 @@ describe("tokens", () => {
       expect(contrast(tokens.text.primary, bg)).toBeGreaterThanOrEqual(7);
       expect(contrast(tokens.text.secondary, bg)).toBeGreaterThanOrEqual(4.5);
       expect(contrast(tokens.text.muted, bg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(tokens.text.dim, bg)).toBeGreaterThanOrEqual(4.5);
     }
   });
 

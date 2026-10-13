@@ -75,7 +75,12 @@ function Verdict({ run }: { run?: Run }) {
       title={err > 1 ? `revenue error ${fmtCr(err)}` : "identical to the expert reading"}
     >
       {(f * 100).toFixed(0)}% flips
-      {err > 1 && <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-label="revenue differs" />}
+      {err > 1 && (
+        <>
+          <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden />
+          <span className="sr-only">revenue differs</span>
+        </>
+      )}
     </span>
   );
 }

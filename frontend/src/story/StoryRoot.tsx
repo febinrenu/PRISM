@@ -31,19 +31,34 @@ export default function StoryRoot() {
   const root = useRef<HTMLDivElement>(null);
   const lenisRef = useRef<LenisRef>(null);
   const [tier, setTier] = useState<Tier | null>(null);
+  // Modest devices (tier 1) start the WebGL scenes on the first interaction,
+  // so loading the page never waits on them; the CSS field shows meanwhile.
+  const [canvasOn, setCanvasOn] = useState(false);
   const [load, setLoad] = useState({ done: 0, total: 1, hidden: false });
 
   useEffect(() => {
     const t = detectTier();
     state.tier = t;
     setTier(t);
+    if (t >= 2) setCanvasOn(true);
+    if (t !== 1) return;
+    const start = () => setCanvasOn(true);
+    const opts = { once: true, passive: true } as const;
+    window.addEventListener("scroll", start, opts);
+    window.addEventListener("pointerdown", start, opts);
+    window.addEventListener("keydown", start, opts);
+    return () => {
+      window.removeEventListener("scroll", start);
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
+    };
   }, []);
 
   // Real loading progress: fonts, the scene module and the two data files.
   useEffect(() => {
     if (tier === null) return;
     const tasks: Promise<unknown>[] = [document.fonts?.ready ?? Promise.resolve()];
-    if (tier > 0) tasks.push(loadCanvas(), fetchStory("population"), fetchStory("constellation"));
+    if (tier > 0 && canvasOn) tasks.push(loadCanvas(), fetchStory("population"), fetchStory("constellation"));
     setLoad({ done: 0, total: tasks.length, hidden: false });
     let live = true;
     tasks.forEach((p) =>
@@ -52,7 +67,7 @@ export default function StoryRoot() {
     return () => {
       live = false;
     };
-  }, [tier]);
+  }, [tier, canvasOn]);
   useEffect(() => {
     if (load.done >= load.total && !load.hidden) {
       const id = setTimeout(() => setLoad((l) => ({ ...l, hidden: true })), 700);
@@ -128,7 +143,7 @@ export default function StoryRoot() {
       const tl = gsap.timeline({ delay: 0.15 });
       tl.from(split.words, { yPercent: 115, duration: 1.25, ease: "expo.out", stagger: 0.06 }).from(
         ".story-lede",
-        { opacity: 0, y: 16, duration: 0.9, ease: "expo.out", stagger: 0.1 },
+        { y: 16, duration: 0.9, ease: "expo.out", stagger: 0.1 },
         "-=0.8"
       );
       return () => split.revert();
@@ -145,9 +160,9 @@ export default function StoryRoot() {
   }, []);
 
   const content = (
-    <div ref={root} data-tier={tier ?? 2} className="relative">
+    <div ref={root} data-tier={tier ?? 2} data-canvas={canvasOn ? "on" : "pending"} className="relative">
       <div className="static-field" aria-hidden />
-      {tier !== null && tier > 0 && (
+      {tier !== null && tier > 0 && canvasOn && (
         <div className="story-canvas fixed inset-0 z-0" aria-hidden>
           <StoryCanvas key={tier} onDecline={onDecline} />
         </div>

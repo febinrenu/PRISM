@@ -23,7 +23,7 @@ export default function DashboardPage() {
     return (
       <PageContainer>
         <PageHeader kicker="Dashboard" title="Your documents and API key" />
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="grid gap-10 lg:grid-cols-2 [&>*]:min-w-0">
           <Panel>
             <EmptyState
               title="Sign in to see your dashboard"
@@ -82,7 +82,7 @@ export default function DashboardPage() {
       {error ? (
         <ErrorState message={String(error.message ?? error)} onRetry={() => mutate()} />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3 [&>*]:min-w-0">
           <Panel kicker="Access" title="API key" className="lg:col-span-1">
             <div className="flex items-center gap-2 rounded-[4px] border border-border bg-bg-base p-2.5">
               <KeyRound className="h-4 w-4 shrink-0 text-text-dim" aria-hidden />
