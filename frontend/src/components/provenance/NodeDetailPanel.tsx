@@ -552,7 +552,7 @@ export default function NodeDetailPanel({
                   {node.type}
                 </p>
                 <p
-                  className="text-xs font-display font-semibold truncate text-text-primary"
+                  className="text-xs font-display truncate text-text-primary"
                   style={{ maxWidth: 170 }}
                 >
                   {node.label}

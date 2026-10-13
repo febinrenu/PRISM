@@ -63,7 +63,7 @@ export default function AnalyzePage({
 
           <div className="flex items-center gap-2.5">
             <PrismMark size={28} />
-            <span className="font-display font-bold text-sm text-text-primary">
+            <span className="font-display text-sm text-text-primary">
               PRISM
             </span>
             <span className="text-micro font-mono px-1.5 py-0.5 rounded text-accent-primary border border-accent-primary/35 bg-accent-primary/10">
@@ -145,7 +145,7 @@ export default function AnalyzePage({
               return (
                 <div key={s.label} className="flex items-center gap-2 px-5 py-2.5 border-r border-border">
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: s.color }} />
-                  <span className="font-display font-bold text-base" style={{ color: s.color }}>
+                  <span className="font-display text-base" style={{ color: s.color }}>
                     {s.value}
                   </span>
                   <span className="text-micro font-mono uppercase tracking-wider text-text-muted">

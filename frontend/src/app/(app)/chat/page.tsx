@@ -90,7 +90,7 @@ export default function ChatPage() {
             <PrismMark size={28} />
           </Link>
           <div>
-            <h1 className="font-display text-lg uppercase tracking-wider text-text-primary flex items-center gap-2">
+            <h1 className="font-display text-lg text-text-primary flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-accent-primary" /> RAG Legal Assistant
             </h1>
             <p className="font-mono text-micro uppercase tracking-widest text-text-muted">
@@ -198,7 +198,7 @@ export default function ChatPage() {
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto">
                 <PrismMark size={56} />
-                <h2 className="mt-6 font-display text-2xl uppercase tracking-wider text-text-primary">
+                <h2 className="mt-6 font-display text-2xl text-text-primary">
                   Ask the corpus
                 </h2>
                 <p className="mt-3 text-sm text-text-secondary leading-relaxed">

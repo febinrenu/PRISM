@@ -57,7 +57,7 @@ function SimResultCard({
         >
           {slot}
         </span>
-        <span className="text-xs font-display font-medium text-text-primary truncate">{name}</span>
+        <span className="text-xs font-display text-text-primary truncate">{name}</span>
         {verdict && (
           <span
             className="ml-auto text-micro font-mono uppercase px-2 py-0.5 rounded-full border flex-shrink-0"
@@ -74,13 +74,13 @@ function SimResultCard({
       <GiniChart steps={state.steps} />
       <div className="grid grid-cols-2 gap-2 mt-3">
         <div className="rounded-lg py-2 px-1 text-center bg-bg-deep/50 border border-border">
-          <p className="font-display font-bold text-lg text-text-primary">
+          <p className="font-display text-lg text-text-primary">
             {state.finalGini != null ? state.finalGini.toFixed(3) : "—"}
           </p>
           <p className="text-micro font-mono uppercase text-text-muted">Final Gini</p>
         </div>
         <div className="rounded-lg py-2 px-1 text-center bg-bg-deep/50 border border-border">
-          <p className="font-display font-bold text-lg" style={{ color: tokens.status.success }}>
+          <p className="font-display text-lg" style={{ color: tokens.status.success }}>
             {state.finalCompliance != null ? `${(state.finalCompliance * 100).toFixed(1)}%` : "—"}
           </p>
           <p className="text-micro font-mono uppercase text-text-muted">Compliance</p>

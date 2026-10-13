@@ -105,7 +105,7 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
           </Link>
           <div className="w-px h-4 bg-border" />
           <PrismMark size={24} />
-          <span className="font-display font-bold text-sm text-text-primary">Simulation Theater</span>
+          <span className="font-display text-sm text-text-primary">Simulation Theater</span>
           <span className="text-micro font-mono px-1.5 py-0.5 rounded text-status-success border border-status-success/35 bg-status-success/10">
             Module C · Mesa ABM
           </span>

@@ -81,7 +81,7 @@ export default function DiffPDFPane({
         >
           {label}
         </span>
-        <span className="text-xs font-display font-medium text-text-primary truncate">
+        <span className="text-xs font-display text-text-primary truncate">
           {filename}
         </span>
         {isLoaded && (

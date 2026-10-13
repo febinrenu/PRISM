@@ -41,7 +41,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
       <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-text-muted" />
-          <span className="text-xs font-display font-medium text-text-primary">
+          <span className="text-xs font-display text-text-primary">
             Document Viewer
           </span>
           {isLoaded && (

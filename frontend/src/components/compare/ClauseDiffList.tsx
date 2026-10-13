@@ -152,7 +152,7 @@ export default function ClauseDiffList({
   return (
     <div className="glass-card flex flex-col h-full overflow-hidden">
       <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
-        <span className="text-xs font-display font-medium text-text-primary">Clause changes</span>
+        <span className="text-xs font-display text-text-primary">Clause changes</span>
         <div className="flex items-center gap-2">
           {(Object.keys(KIND_META) as DiffKind[]).map((kind) => (
             <span

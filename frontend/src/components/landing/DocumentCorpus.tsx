@@ -1,144 +1,59 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import useSWR from "swr";
+import { ArrowUpRight, FileText } from "lucide-react";
 import { api } from "@/lib/api";
-import { useDocumentStore } from "@/hooks/useDocumentStore";
-import { useRouter } from "next/navigation";
+import { EmptyState, ErrorState, Skeleton, StatusTag } from "@/components/ui/kit";
 import type { DocumentMeta } from "@/types";
-import { FileText, GitBranch, CheckCircle2, Loader2, Clock, AlertCircle, Database } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { tokens } from "@/lib/tokens";
 
-const STATUS_STYLES = {
-  complete:   { color: tokens.status.success, Icon: CheckCircle2, label: "Complete" },
-  processing: { color: tokens.status.warning, Icon: Loader2,      label: "Processing…" },
-  pending:    { color: tokens.text.secondary, Icon: Clock,         label: "Pending" },
-  error:      { color: tokens.status.error,   Icon: AlertCircle,   label: "Error" },
-};
+/** The documents you can open: shared ones plus your own uploads. */
+export default function DocumentCorpus({ limit = 8 }: { limit?: number }) {
+  const { data, error, isLoading, mutate } = useSWR("documents", () => api.listDocuments());
 
-function DocCard({ doc, index }: { doc: DocumentMeta; index: number }) {
-  const router = useRouter();
-  const { setDocId } = useDocumentStore();
-  const status = STATUS_STYLES[doc.status] || STATUS_STYLES.pending;
-  const StatusIcon = status.Icon;
-
-  const handleOpen = () => {
-    setDocId(doc.doc_id, doc.filename, doc.pages);
-    router.push(`/analyze/${doc.doc_id}`);
-  };
+  if (isLoading)
+    return (
+      <div className="space-y-2" aria-label="Loading documents">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-[68px]" />
+        ))}
+      </div>
+    );
+  if (error) return <ErrorState offline onRetry={() => mutate()} />;
+  const docs: DocumentMeta[] = (data?.documents ?? []).slice().reverse().slice(0, limit);
+  if (docs.length === 0)
+    return <EmptyState title="Nothing analysed yet">Upload a statute above, or open the demo.</EmptyState>;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.07 }}
-      onClick={doc.status === "complete" || doc.status === "processing" ? handleOpen : undefined}
-      className="group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-200 bg-bg-surface/70 border border-border"
-      style={{
-        cursor: doc.status === "complete" || doc.status === "processing" ? "pointer" : "default",
-      }}
-    >
-      {/* Icon */}
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-accent-primary/10 border border-accent-primary/20">
-        <FileText className="w-5 h-5 text-accent-primary" />
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm truncate text-text-primary">{doc.filename}</p>
-        <div className="flex items-center gap-3 mt-0.5">
-          <span className="text-micro font-mono text-text-muted">
-            {doc.pages > 0 ? `${doc.pages}p` : "—"}
-          </span>
-          <span className="text-micro font-mono text-text-muted">
-            {doc.file_size_kb > 0 ? `${(doc.file_size_kb / 1024).toFixed(1)} MB` : "—"}
-          </span>
-          <span className="text-micro font-mono text-text-dim">
-            {doc.doc_id.slice(0, 8)}
-          </span>
-        </div>
-      </div>
-
-      {/* Status */}
-      <div className="flex items-center gap-2">
-        <span
-          className="flex items-center gap-1.5 text-micro font-mono px-2 py-1 rounded-lg"
-          style={{
-            color: status.color,
-            background: `${status.color}18`,
-            border: `1px solid ${status.color}40`,
-          }}
-        >
-          <StatusIcon className={`w-3 h-3 ${doc.status === "processing" ? "animate-spin" : ""}`} />
-          {status.label}
-        </span>
-
-        {doc.status === "complete" && (
-          <div className="flex items-center gap-1 text-micro font-mono px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity bg-accent-primary/10 border border-accent-primary/25 text-accent-primary">
-            <GitBranch className="w-3 h-3" />
-            Open
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-export default function DocumentCorpus() {
-  const [docs, setDocs] = useState<DocumentMeta[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.listDocuments()
-      .then((res) => setDocs(res.documents || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || docs.length === 0) return null;
-
-  const completedDocs = docs.filter((d) => d.status === "complete");
-  const recentDocs = docs.slice(-6).reverse(); // Show most recent 6
-
-  return (
-    <AnimatePresence>
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 px-6 py-16 max-w-7xl mx-auto border-t border-border"
-      >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Database className="w-4 h-4 text-accent-primary" />
-              <p className="font-mono text-xs uppercase tracking-widest text-accent-primary">
-                Document Corpus
-              </p>
-            </div>
-            <h2 className="font-display font-bold text-2xl text-text-primary">
-              Recent Analyses
-            </h2>
-            <p className="text-sm mt-1 text-text-muted">
-              {completedDocs.length} document{completedDocs.length !== 1 ? "s" : ""} analyzed in this session
-            </p>
-          </div>
-          {completedDocs.length >= 2 && (
-            <a
-              href={`/compare?a=${completedDocs[completedDocs.length - 1].doc_id}`}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all bg-accent-primary/10 border border-accent-primary/25 text-accent-primary"
-            >
-              <GitBranch className="w-3.5 h-3.5" />
-              Compare Documents
-            </a>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          {recentDocs.map((doc, i) => (
-            <DocCard key={doc.doc_id} doc={doc} index={i} />
-          ))}
-        </div>
-      </motion.section>
-    </AnimatePresence>
+    <ul className="divide-y divide-border overflow-hidden rounded-[8px] border border-border bg-bg-surface">
+      {docs.map((d) => {
+        const openable = d.status === "complete" || d.status === "processing";
+        const body = (
+          <>
+            <FileText className="h-5 w-5 shrink-0 text-text-muted" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[15px] text-text-primary">{d.filename}</span>
+              <span className="mt-0.5 block font-mono text-micro text-text-dim">
+                {d.pages > 0 ? `${d.pages} pages` : "pages unknown"} · {(d.file_size_kb / 1024).toFixed(1)} MB
+                {d.owner_id ? " · yours" : " · shared"}
+              </span>
+            </span>
+            <StatusTag status={d.status} />
+            {openable && <ArrowUpRight className="h-4 w-4 text-text-dim transition-colors group-hover:text-signal" aria-hidden />}
+          </>
+        );
+        return (
+          <li key={d.doc_id}>
+            {openable ? (
+              <Link href={`/analyze/${d.doc_id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-bg-elevated">
+                {body}
+              </Link>
+            ) : (
+              <div className="flex items-center gap-4 px-5 py-4 opacity-70">{body}</div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

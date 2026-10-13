@@ -67,7 +67,7 @@ export default function ProcessingOverlay() {
                   <PrismMark size={30} />
                 </div>
               </div>
-              <h2 className="font-display font-bold text-2xl mb-1 text-text-primary">
+              <h2 className="font-display text-2xl mb-1 text-text-primary">
                 {stage === "error" ? "Analysis Failed" : "Running Pipeline…"}
               </h2>
               <p className="text-sm font-mono truncate max-w-xs mx-auto text-text-secondary">

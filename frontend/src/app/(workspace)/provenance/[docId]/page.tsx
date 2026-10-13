@@ -84,7 +84,7 @@ export default function ProvenancePage({
           <div className="w-px h-4 bg-border" />
           <div className="flex items-center gap-2">
             <PrismMark size={24} />
-            <span className="font-display font-semibold text-sm text-text-primary">Provenance Explorer</span>
+            <span className="font-display text-sm text-text-primary">Provenance Explorer</span>
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export default function ProvenancePage({
                 <Network className="w-5 h-5 text-accent-primary" />
               </div>
               <div className="flex-1 min-w-0 pr-4">
-                <p className="font-display font-bold text-sm mb-1 text-text-primary">
+                <p className="font-display text-sm mb-1 text-text-primary">
                   Knowledge Provenance Graph
                 </p>
                 <p className="text-xs leading-relaxed mb-3 text-text-secondary">

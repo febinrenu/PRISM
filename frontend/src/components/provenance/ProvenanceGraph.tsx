@@ -73,7 +73,7 @@ function PrismNode({ data }: NodeProps<PrismFlowNode>) {
         >
           {data.nodeType}
         </div>
-        <div className="text-xs font-display font-medium truncate text-text-primary">
+        <div className="text-xs font-display truncate text-text-primary">
           {data.label}
         </div>
         {data.entityCount !== undefined && (

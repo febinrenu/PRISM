@@ -93,7 +93,7 @@ export default function InspectPanel({ set, system, onClose }: { set: string; sy
     <section className="bg-bg-surface border border-accent-primary/30 rounded-sm p-4 space-y-4" aria-label={`What ${system} read`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-display uppercase tracking-wider text-sm">What {system} read: {set}</h3>
+          <h3 className="font-display text-sm">What {system} read: {set}</h3>
           <p className="text-xs text-text-muted mt-1">
             Each provision the reform depends on, with the spans the system quoted highlighted, the effects it extracted,
             and the parameter they assembled into next to the expert&apos;s. Read from cached outputs; no model is called.

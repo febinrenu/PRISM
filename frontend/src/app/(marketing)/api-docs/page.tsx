@@ -36,7 +36,7 @@ export default function ApiDocsPage() {
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl uppercase tracking-wider flex items-center gap-2">
+            <h1 className="font-display text-2xl flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-accent-primary" /> Public API
             </h1>
             <p className="font-mono text-micro uppercase tracking-widest text-text-muted mt-1">
@@ -55,7 +55,7 @@ export default function ApiDocsPage() {
 
         {/* Auth */}
         <div className="glass-card p-6 mb-6">
-          <h3 className="font-display uppercase tracking-wider text-sm mb-3">Authentication</h3>
+          <h3 className="font-display text-sm mb-3">Authentication</h3>
           <p className="text-[13px] text-text-secondary leading-relaxed mb-3">
             Every request needs your API key (find it on your{" "}
             <a href="/dashboard" className="text-accent-primary hover:text-accent-bright">Dashboard</a>) as a bearer token:
@@ -68,7 +68,7 @@ export default function ApiDocsPage() {
         {/* Example */}
         <div className="glass-card p-6 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display uppercase tracking-wider text-sm">Example — RAG query</h3>
+            <h3 className="font-display text-sm">Example — RAG query</h3>
             <button
               onClick={() => {
                 navigator.clipboard.writeText(curl);
@@ -88,7 +88,7 @@ export default function ApiDocsPage() {
 
         {/* Endpoint reference */}
         <div className="glass-card p-6">
-          <h3 className="font-display uppercase tracking-wider text-sm mb-4">Endpoints</h3>
+          <h3 className="font-display text-sm mb-4">Endpoints</h3>
           <ul className="flex flex-col divide-y divide-border">
             {ENDPOINTS.map((e) => (
               <li key={e.path} className="flex items-center gap-4 py-3">

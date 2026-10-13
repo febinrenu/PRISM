@@ -251,7 +251,7 @@ function CompareArenaPage() {
           </Link>
           <div className="w-px h-4 bg-border" />
           <PrismMark size={24} />
-          <span className="font-display font-bold text-sm text-text-primary">
+          <span className="font-display text-sm text-text-primary">
             Policy Diff Arena
           </span>
           <span

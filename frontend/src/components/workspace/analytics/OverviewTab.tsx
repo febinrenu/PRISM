@@ -23,7 +23,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string |
   return (
     <div className="rounded-xl p-4 bg-bg-surface/70 border border-border">
       <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-muted">{label}</p>
-      <p className="font-display font-bold text-2xl" style={{ color: color || tokens.text.primary }}>{value}</p>
+      <p className="font-display text-2xl" style={{ color: color || tokens.text.primary }}>{value}</p>
       {sub && <p className="text-micro mt-0.5 text-text-muted">{sub}</p>}
     </div>
   );
@@ -225,7 +225,7 @@ export default function OverviewTab() {
               const color = conf === "HIGH" ? tokens.status.success : conf === "MEDIUM" ? tokens.status.warning : tokens.text.muted;
               return (
                 <div key={conf} className="flex-1 text-center">
-                  <div className="text-lg font-display font-bold" style={{ color }}>{pct}%</div>
+                  <div className="text-lg font-display " style={{ color }}>{pct}%</div>
                   <div className="text-micro font-mono uppercase text-text-muted">{conf}</div>
                   <div className="text-micro font-mono mt-0.5 text-text-dim">{count}</div>
                 </div>

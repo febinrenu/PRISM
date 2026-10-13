@@ -313,7 +313,7 @@ export default function CausalTab() {
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-accent-primary/5 border border-accent-primary/20">
         <Zap className="w-5 h-5 flex-shrink-0 text-accent-primary" />
         <div className="flex-1 min-w-0">
-          <p className="font-display font-bold text-lg text-text-primary">
+          <p className="font-display text-lg text-text-primary">
             {patterns.length} causal structures
           </p>
           <p className="text-xs mt-0.5 text-text-secondary">

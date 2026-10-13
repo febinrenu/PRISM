@@ -51,7 +51,7 @@ export default function AnnotateHome() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display text-2xl uppercase tracking-wider">Annotation</h1>
+            <h1 className="font-display text-2xl ">Annotation</h1>
             <p className="text-sm text-text-muted mt-1 max-w-2xl">
               Mark every rule each provision states, quoting spans straight from the text. You see only the provision and your own
               work. Follow <span className="text-text-secondary">docs/annotation_guidelines.md</span>.
@@ -83,7 +83,7 @@ export default function AnnotateHome() {
                 }`}
               >
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display uppercase tracking-wider">{s.set}</span>
+                  <span className="font-display ">{s.set}</span>
                   <span className="font-mono text-xs text-text-muted">{s.done}/{s.items} done</span>
                 </div>
                 <div className="h-1 bg-bg-overlay rounded-full mt-3 overflow-hidden">

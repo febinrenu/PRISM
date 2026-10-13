@@ -85,7 +85,7 @@ export default function AdminPage() {
       <div className="animated-grid" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
-        <h1 className="font-display text-2xl uppercase tracking-wider flex items-center gap-2 mb-8">
+        <h1 className="font-display text-2xl flex items-center gap-2 mb-8">
           <ShieldEllipsis className="w-5 h-5 text-accent-primary" /> Admin Dashboard
         </h1>
 
@@ -108,7 +108,7 @@ export default function AdminPage() {
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* LLM backend switcher */}
           <div className="glass-card p-6">
-            <h3 className="font-display uppercase tracking-wider text-sm mb-4">LLM Backend</h3>
+            <h3 className="font-display text-sm mb-4">LLM Backend</h3>
             <div className="flex items-center gap-2 mb-4 font-mono text-micro text-text-secondary">
               {metrics?.llm_backend.cloud ? <Cloud className="w-4 h-4" /> : <Cpu className="w-4 h-4" />}
               Active: <span className="text-accent-primary">{metrics?.llm_backend.model}</span>
@@ -139,7 +139,7 @@ export default function AdminPage() {
 
           {/* Corpus manager */}
           <div className="glass-card p-6">
-            <h3 className="font-display uppercase tracking-wider text-sm mb-4">Corpus Manager</h3>
+            <h3 className="font-display text-sm mb-4">Corpus Manager</h3>
             <div className="font-mono text-micro text-text-secondary mb-4">
               {metrics?.corpus.documents.length ?? 0} documents ·{" "}
               {metrics?.corpus.total_clauses.toLocaleString() ?? 0} clauses ·{" "}
@@ -158,7 +158,7 @@ export default function AdminPage() {
 
         {/* Users table */}
         <div className="glass-card p-6">
-          <h3 className="font-display uppercase tracking-wider text-sm mb-4">Users</h3>
+          <h3 className="font-display text-sm mb-4">Users</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>

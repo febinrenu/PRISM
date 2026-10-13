@@ -97,7 +97,7 @@ export default function ClauseFeed() {
       <div className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="font-display font-semibold text-sm text-text-primary">Clauses</h3>
+            <h3 className="font-display text-sm text-text-primary">Clauses</h3>
             <p className="text-micro font-mono mt-0.5 text-text-muted">
               {isProcessing
                 ? `Processing ${processedCount} of ${totalClauses}…`

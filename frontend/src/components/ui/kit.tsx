@@ -221,3 +221,37 @@ export function Kbd({ children, className }: { children: React.ReactNode; classN
     </kbd>
   );
 }
+
+/* ── Form fields ───────────────────────────────────────────────────────── */
+
+export const inputClass =
+  "w-full rounded-[4px] border border-border-light bg-bg-base px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-dim transition-colors hover:border-glow focus:border-signal focus:outline-none";
+
+export function Field({
+  id,
+  label,
+  hint,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  hint?: string;
+  error?: string | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] text-text-secondary">
+        {label}
+      </label>
+      {children}
+      {hint && !error ? <p className="text-[12px] text-text-dim">{hint}</p> : null}
+      {error ? (
+        <p role="alert" className="text-[12px] text-status-error">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

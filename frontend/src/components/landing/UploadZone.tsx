@@ -1,198 +1,135 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, Loader2, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
+
+import { useCallback, useId, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AlertCircle, FileUp, Loader2, ScrollText } from "lucide-react";
 import { api } from "@/lib/api";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
-import { tokens, alpha } from "@/lib/tokens";
+import { cn } from "@/lib/utils";
 
+const MAX_MB = 50;
+
+/** Drop or choose a PDF, or open the demo statute. Keyboard operable. */
 export default function UploadZone() {
   const router = useRouter();
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isLoadingDemo, setIsLoadingDemo] = useState(false);
+  const inputId = useId();
+  const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState<"upload" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const { setDocId, reset } = useDocumentStore();
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.name.toLowerCase().endsWith(".pdf")) {
-      setError("Please upload a PDF file.");
-      return;
-    }
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.name.toLowerCase().endsWith(".pdf")) return setError("That file is not a PDF.");
+      if (file.size > MAX_MB * 1024 * 1024) return setError(`That PDF is larger than ${MAX_MB} MB.`);
+      setError(null);
+      setBusy("upload");
+      reset();
+      try {
+        const r = await api.uploadPdf(file);
+        setDocId(r.doc_id, r.filename, r.pages);
+        router.push(`/analyze/${r.doc_id}`);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "The upload failed. Is the analysis server running?");
+        setBusy(null);
+      }
+    },
+    [router, setDocId, reset]
+  );
+
+  const openDemo = useCallback(async () => {
     setError(null);
-    setIsUploading(true);
+    setBusy("demo");
     reset();
     try {
-      const result = await api.uploadPdf(file);
-      setDocId(result.doc_id, result.filename, result.pages);
-      router.push(`/analyze/${result.doc_id}`);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Upload failed. Is the backend running?");
-    } finally {
-      setIsUploading(false);
+      const r = await api.triggerDemo();
+      setDocId(r.doc_id, r.filename, r.pages);
+      router.push(`/analyze/${r.doc_id}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "The demo could not be opened.");
+      setBusy(null);
     }
   }, [router, setDocId, reset]);
-
-  const handleDemo = useCallback(async () => {
-    setError(null);
-    setIsLoadingDemo(true);
-    reset();
-    try {
-      const result = await api.triggerDemo();
-      setDocId(result.doc_id, result.filename, result.pages);
-      router.push(`/analyze/${result.doc_id}`);
-    } catch (e: unknown) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : "Demo PDF not found. Place income_tax_2025.pdf in backend/data/demo/"
-      );
-    } finally {
-      setIsLoadingDemo(false);
-    }
-  }, [router, setDocId, reset]);
-
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
 
   return (
-    <div className="w-full max-w-3xl space-y-4">
-      {/* Drop zone */}
-      <motion.div
-        className="relative rounded-2xl cursor-pointer overflow-hidden transition-all duration-300"
-        style={{
-          border: isDragging
-            ? `1px solid ${alpha(tokens.accent.primary, 0.8)}`
-            : `1px solid ${tokens.border.light}`,
-          background: isDragging
-            ? `linear-gradient(160deg, ${alpha(tokens.accent.primary, 0.16)}, ${alpha(tokens.bg.elevated, 0.95)})`
-            : `linear-gradient(160deg, ${alpha(tokens.bg.elevated, 0.86)}, ${alpha(tokens.bg.surface, 0.9)})`,
-          boxShadow: isDragging
-            ? `0 26px 50px ${alpha(tokens.accent.primary, 0.18)}`
-            : "0 16px 32px rgba(0,0,0,0.25)",
+    <div className="space-y-4">
+      <label
+        htmlFor={inputId}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
         }}
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={onDrop}
-        onClick={() => !isUploading && inputRef.current?.click()}
-        whileTap={{ scale: 0.995 }}
-      >
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-2xl border-accent-primary/50" />
-        <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-2xl border-accent-primary/50" />
-        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-2xl border-accent-primary/50" />
-        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-2xl border-accent-primary/50" />
-
-        <div className="relative p-12 flex flex-col md:flex-row items-center gap-8">
-          {/* Icon */}
-          <motion.div
-            className="relative flex-shrink-0"
-            animate={isDragging ? { y: [-4, 4, -4] } : {}}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center bg-accent-primary/10 border border-accent-primary/35">
-              {isUploading ? (
-                <Loader2 className="w-9 h-9 animate-spin text-accent-primary" />
-              ) : (
-                <Upload className="w-9 h-9 text-accent-primary" />
-              )}
-            </div>
-            {!isUploading && (
-              <motion.div
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 flex items-center justify-center bg-status-success border-bg-base"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-text-primary" />
-              </motion.div>
-            )}
-          </motion.div>
-
-          {/* Text */}
-          <div className="flex-1 text-center md:text-left">
-            <h3 className="font-display font-bold text-2xl mb-2 text-text-primary">
-              {isDragging ? "Release to analyze" : isUploading ? "Uploading…" : "Upload Legal Document"}
-            </h3>
-            <p className="text-sm leading-relaxed mb-4 text-text-secondary">
-              Drop any legal PDF — Acts, Bills, Policies, Regulations, Contracts.
-              The pipeline runs entirely locally and privately.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-              {["PDF only", "Max 50MB", "Local & Private"].map((tag) => (
-                <span key={tag} className="text-micro font-mono px-2 py-1 rounded-lg uppercase tracking-wider text-text-muted border border-border bg-bg-deep/35">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-text-inverse pointer-events-none"
-            style={{ background: `linear-gradient(135deg, ${tokens.accent.primary}, ${tokens.accent.bright})` }}>
-            <FileText className="w-4 h-4" />
-            <span>Browse</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        </div>
-
-        <input ref={inputRef} type="file" accept=".pdf" className="hidden"
-          onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFile(file); }} />
-      </motion.div>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-border" />
-        <span className="font-mono text-xs uppercase tracking-widest text-text-muted">or try the demo</span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
-
-      {/* Demo button */}
-      <motion.button
-        onClick={handleDemo}
-        disabled={isLoadingDemo || isUploading}
-        className="w-full py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{
-          border: `1px solid ${alpha(tokens.accent.primary, 0.38)}`,
-          background: alpha(tokens.accent.primary, 0.08),
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          const f = e.dataTransfer.files[0];
+          if (f) handleFile(f);
         }}
-        whileHover={{ background: alpha(tokens.accent.primary, 0.16) }}
-        whileTap={{ scale: 0.99 }}
-      >
-        {isLoadingDemo ? (
-          <Loader2 className="w-4 h-4 animate-spin text-accent-primary" />
-        ) : (
-          <Sparkles className="w-4 h-4 text-accent-primary" />
+        className={cn(
+          "group relative flex cursor-pointer flex-col items-start gap-6 overflow-hidden rounded-[8px] border border-dashed p-8 transition-colors duration-300 sm:flex-row sm:items-center sm:p-10",
+          "focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-signal",
+          dragging ? "border-signal bg-signal/[0.06]" : "border-border-light bg-bg-surface hover:border-glow"
         )}
-        <span className="text-text-primary">
-          {isLoadingDemo ? "Loading demo…" : "Try Demo — Income Tax Bill 2025"}
+      >
+        <div className="ruled opacity-60" aria-hidden />
+        <span
+          className={cn(
+            "relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[6px] border transition-colors",
+            dragging ? "border-signal text-signal" : "border-border-light text-text-secondary group-hover:text-text-primary"
+          )}
+        >
+          {busy === "upload" ? <Loader2 className="h-7 w-7 animate-spin" /> : <FileUp className="h-7 w-7" />}
         </span>
-        {!isLoadingDemo && (
-          <span className="ml-auto text-micro font-mono px-2 py-0.5 rounded text-text-muted border border-border bg-bg-deep/30">
-            ~200 clauses
+        <span className="relative flex-1">
+          <span className="block font-serif text-[28px] leading-tight text-text-primary">
+            {dragging ? "Drop it here" : busy === "upload" ? "Uploading…" : "Drop a statute PDF, or choose one"}
           </span>
-        )}
-      </motion.button>
+          <span className="mt-2 block max-w-lg text-[14px] leading-relaxed text-text-muted">
+            Acts, Bills and Finance Acts work best: the parser reads chapters, sections, provisos and schedules. Up to{" "}
+            {MAX_MB} MB.
+          </span>
+        </span>
+        <span className="relative inline-flex h-10 items-center rounded-[4px] bg-paper px-4 text-[14px] font-medium text-ink">
+          Choose file
+        </span>
+        <input
+          id={inputId}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="sr-only"
+          disabled={busy !== null}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleFile(f);
+          }}
+        />
+      </label>
 
-      {/* Error */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -8, height: 0 }}
-            className="flex items-start gap-2.5 p-4 rounded-xl text-sm bg-status-error/10 border border-status-error/20"
-          >
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-status-error" />
-            <span className="text-status-error">{error}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <button
+        type="button"
+        onClick={openDemo}
+        disabled={busy !== null}
+        className="flex w-full items-center gap-4 rounded-[8px] border border-border bg-bg-surface px-5 py-4 text-left transition-colors hover:border-border-light disabled:opacity-50"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[4px] border border-signal/40 text-signal">
+          {busy === "demo" ? <Loader2 className="h-5 w-5 animate-spin" /> : <ScrollText className="h-5 w-5" />}
+        </span>
+        <span className="flex-1">
+          <span className="block text-[15px] text-text-primary">Open the demo: the Income-tax Bill, 2025</span>
+          <span className="block text-[13px] text-text-muted">Already analysed, so it opens straight away.</span>
+        </span>
+      </button>
+
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2.5 rounded-[6px] border border-status-critical/40 bg-status-critical/10 p-4 text-[14px] text-status-error"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          {error}
+        </div>
+      )}
     </div>
   );
 }

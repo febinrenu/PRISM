@@ -72,7 +72,7 @@ export default function CorpusPage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl uppercase tracking-wider flex items-center gap-2">
+            <h1 className="font-display text-2xl flex items-center gap-2">
               <Database className="w-5 h-5 text-accent-primary" /> Corpus Explorer
             </h1>
             <p className="font-mono text-micro uppercase tracking-widest text-text-muted mt-1">
@@ -155,7 +155,7 @@ export default function CorpusPage() {
         {(notIndexed.length > 0 || (corpus && corpus.documents.length === 0)) && !offline && (
           <div className="mt-8 glass-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display uppercase tracking-wider text-sm flex items-center gap-2">
+              <h3 className="font-display text-sm flex items-center gap-2">
                 <Plus className="w-4 h-4 text-accent-primary" /> Add to corpus
               </h3>
               <button
