@@ -26,7 +26,7 @@ export default function TokenBarChart({ topTokens }: Props) {
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
         <XAxis
           type="number"
-          tick={{ fill: tokens.text.dim, fontSize: 10, fontFamily: "monospace" }}
+          tick={{ fill: tokens.text.dim, fontSize: 12, fontFamily: "monospace" }}
           stroke={alpha(tokens.accent.primary, 0.2)}
           tickFormatter={(v: number) => v.toFixed(2)}
         />
@@ -34,7 +34,7 @@ export default function TokenBarChart({ topTokens }: Props) {
           type="category"
           dataKey="token"
           width={90}
-          tick={{ fill: tokens.text.secondary, fontSize: 11, fontFamily: "monospace" }}
+          tick={{ fill: tokens.text.secondary, fontSize: 12, fontFamily: "monospace" }}
           stroke="transparent"
         />
         <RechartsTooltip
@@ -43,7 +43,7 @@ export default function TokenBarChart({ topTokens }: Props) {
             background: tokens.bg.overlay,
             border: `1px solid ${tokens.border.light}`,
             borderRadius: 4,
-            fontSize: 11,
+            fontSize: 12,
             fontFamily: "monospace",
             color: tokens.text.secondary,
           }}

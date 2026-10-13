@@ -140,7 +140,7 @@ const TYPE_ICONS: Record<string, React.ElementType> = {
 function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[9px] font-mono uppercase tracking-widest mb-1 text-text-dim">
+      <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-dim">
         {label}
       </p>
       <div className="rounded-lg px-2.5 py-1.5 bg-bg-surface/80 border border-border">
@@ -159,7 +159,7 @@ function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
 function TextBlock({ label, text }: { label: string; text: string }) {
   return (
     <div>
-      <p className="text-[9px] font-mono uppercase tracking-widest mb-1 text-text-dim">
+      <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-dim">
         {label}
       </p>
       <div className="rounded-lg px-2.5 py-2 bg-bg-surface/80 border border-border">
@@ -185,7 +185,7 @@ function ConfidenceBar({ value }: { value: number }) {
           style={{ width: `${pct}%`, background: color, transition: "width 0.4s" }}
         />
       </div>
-      <span className="text-[10px] font-mono" style={{ color }}>
+      <span className="text-micro font-mono" style={{ color }}>
         {pct}%
       </span>
     </div>
@@ -196,7 +196,7 @@ function EntityPill({ label, text }: { label: string; text?: string }) {
   const ec = ENTITY_COLORS[label as EntityLabel];
   return (
     <span
-      className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded"
+      className="inline-flex items-center gap-1 text-micro font-mono px-1.5 py-0.5 rounded"
       style={{
         background: ec?.bg ?? alpha(tokens.accent.primary, 0.12),
         color: ec?.text ?? tokens.text.secondary,
@@ -228,13 +228,13 @@ function ExplainerCard({
       <div className="flex items-center gap-1.5">
         <Info className="w-3 h-3" style={{ color }} />
         <p
-          className="text-[9px] font-mono uppercase tracking-widest"
+          className="text-micro font-mono uppercase tracking-widest"
           style={{ color }}
         >
           {title}
         </p>
       </div>
-      <p className="text-[10px] leading-relaxed text-text-secondary">
+      <p className="text-micro leading-relaxed text-text-secondary">
         {body}
       </p>
     </div>
@@ -248,7 +248,7 @@ function ExplainLink({ docId, clauseId }: { docId?: string; clauseId?: string })
   return (
     <Link
       href={`/explain/${docId}/${clauseId}`}
-      className="inline-flex items-center gap-1.5 text-[10px] font-mono text-accent-primary hover:underline"
+      className="inline-flex items-center gap-1.5 text-micro font-mono text-accent-primary hover:underline"
     >
       <Sparkles className="w-3 h-3" /> View LIME explanation <ExternalLink className="w-3 h-3" />
     </Link>
@@ -274,7 +274,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
         {section && (
           <div className="flex items-center gap-1.5">
             <Layers className="w-3 h-3 flex-shrink-0 text-text-dim" />
-            <p className="text-[10px] font-mono text-text-muted">
+            <p className="text-micro font-mono text-text-muted">
               {section}
             </p>
           </div>
@@ -301,7 +301,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
               <p className="font-bold text-sm" style={{ color: s.color }}>
                 {s.value}
               </p>
-              <p className="text-[8px] font-mono uppercase mt-0.5 text-text-dim">
+              <p className="text-micro font-mono uppercase mt-0.5 text-text-dim">
                 {s.label}
               </p>
             </div>
@@ -317,7 +317,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
             }}
           >
             <AlertTriangle className="w-3 h-3 flex-shrink-0" style={{ color: RISK_STYLE[riskTier]?.color ?? tokens.accent.primary }} />
-            <span className="text-[10px] font-mono" style={{ color: RISK_STYLE[riskTier]?.color ?? tokens.accent.primary }}>
+            <span className="text-micro font-mono" style={{ color: RISK_STYLE[riskTier]?.color ?? tokens.accent.primary }}>
               {riskTier} risk tier
             </span>
           </div>
@@ -347,7 +347,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
           <div className="flex items-center gap-2">
             <EntityPill label={label} text={node.label} />
             {freq > 1 && (
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-accent-primary/10 border border-accent-primary/20 text-accent-primary">
+              <span className="text-micro font-mono px-1.5 py-0.5 rounded bg-accent-primary/10 border border-accent-primary/20 text-accent-primary">
                 ×{freq} clauses
               </span>
             )}
@@ -366,10 +366,10 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
               <MetaIcon className="w-3.5 h-3.5" style={{ color: meta.color }} />
             </div>
             <div>
-              <p className="text-[9px] font-mono uppercase tracking-widest mb-0.5" style={{ color: meta.color }}>
+              <p className="text-micro font-mono uppercase tracking-widest mb-0.5" style={{ color: meta.color }}>
                 {label}
               </p>
-              <p className="text-[10px] leading-relaxed text-text-secondary">
+              <p className="text-micro leading-relaxed text-text-secondary">
                 {meta.description}
               </p>
             </div>
@@ -384,7 +384,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
 
         {(d.confidence as string) && (
           <div>
-            <p className="text-[9px] font-mono uppercase tracking-widest mb-1 text-text-dim">
+            <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-dim">
               Extraction confidence
             </p>
             <ConfidenceBar
@@ -396,7 +396,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
                   : 0.25
               }
             />
-            <p className="text-[9px] font-mono mt-1 text-text-dim">
+            <p className="text-micro font-mono mt-1 text-text-dim">
               {(d.confidence as string) === "HIGH"
                 ? "Matched a highly specific legal pattern"
                 : (d.confidence as string) === "MEDIUM"
@@ -427,7 +427,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
       <div className="space-y-3">
         {patternType && (
           <div
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-micro font-mono"
             style={{
               background: alpha(tokens.node.causal, 0.1),
               border: `1px solid ${alpha(tokens.node.causal, 0.25)}`,
@@ -463,7 +463,7 @@ function NodeContent({ node, docId }: { node: GraphNode; docId?: string }) {
             />
             {impactScore !== undefined && (
               <div className="ml-3 flex-1">
-                <p className="text-[9px] font-mono uppercase tracking-widest mb-1 text-text-dim">
+                <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-dim">
                   Impact score
                 </p>
                 <ConfidenceBar value={impactScore} />
@@ -546,7 +546,7 @@ export default function NodeDetailPanel({
               </div>
               <div className="min-w-0">
                 <p
-                  className="text-[9px] font-mono uppercase tracking-widest"
+                  className="text-micro font-mono uppercase tracking-widest"
                   style={{ color: `${typeColor}99` }}
                 >
                   {node.type}

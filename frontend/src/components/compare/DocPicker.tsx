@@ -35,7 +35,7 @@ function DocColumn({
         >
           {slot}
         </span>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-text-muted">
+        <p className="text-micro font-mono uppercase tracking-widest text-text-muted">
           {slot === "A" ? "Document A · baseline" : "Document B · revision"}
         </p>
       </div>
@@ -50,7 +50,7 @@ function DocColumn({
               disabled={isDisabled}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left border transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               style={{
-                background: isSelected ? alpha(accent, 0.12) : "rgba(255,255,255,0.02)",
+                background: isSelected ? alpha(accent, 0.12) : alpha(tokens.paper[100], 0.02),
                 borderColor: isSelected ? alpha(accent, 0.55) : tokens.border.DEFAULT,
               }}
             >
@@ -65,13 +65,13 @@ function DocColumn({
                 >
                   {doc.filename}
                 </span>
-                <span className="block text-[9px] font-mono text-text-muted mt-0.5">
+                <span className="block text-micro font-mono text-text-muted mt-0.5">
                   {doc.pages}p · {Math.round(doc.file_size_kb)} KB
                 </span>
               </span>
               {isSelected && (
                 <span
-                  className="text-[9px] font-mono px-1.5 py-0.5 rounded-full flex-shrink-0 border"
+                  className="text-micro font-mono px-1.5 py-0.5 rounded-full flex-shrink-0 border"
                   style={{ color: accent, borderColor: alpha(accent, 0.4) }}
                 >
                   selected
@@ -175,7 +175,7 @@ export default function DocPicker({
           />
           <div className="flex-shrink-0 self-center flex flex-col items-center gap-2 px-1">
             <Swords className="w-5 h-5 text-accent-primary" />
-            <span className="text-[9px] font-mono uppercase tracking-widest text-text-dim">vs</span>
+            <span className="text-micro font-mono uppercase tracking-widest text-text-dim">vs</span>
           </div>
           <DocColumn
             slot="B"

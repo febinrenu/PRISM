@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-muted transition-colors",
+      "relative px-3 py-2 font-mono text-micro uppercase tracking-[0.12em] text-text-muted transition-colors",
       "hover:text-text-secondary data-[state=active]:text-accent-primary focus-visible:outline-none",
       className
     )}

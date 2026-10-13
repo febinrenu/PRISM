@@ -13,7 +13,7 @@ export default function RuleVsLLMTable({ clause }: { clause: Clause }) {
     return (
       <div className="glass-card p-6 text-center">
         <p className="text-sm text-text-secondary">Tabular data — not analyzed as a prose clause.</p>
-        <p className="text-[10px] text-text-dim font-mono mt-2">
+        <p className="text-micro text-text-dim font-mono mt-2">
           Causal extraction and token attribution apply to prose clauses only.
         </p>
       </div>
@@ -72,9 +72,9 @@ export default function RuleVsLLMTable({ clause }: { clause: Clause }) {
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border">
-            <th className="text-left px-4 py-2.5 kicker !text-[9px]">Dimension</th>
-            <th className="text-left px-4 py-2.5 kicker !text-[9px]">Rule-based · Phase 1</th>
-            <th className="text-left px-4 py-2.5 kicker !text-[9px]">Phi-3.5-mini · Phase 2</th>
+            <th className="text-left px-4 py-2.5 kicker !text-micro">Dimension</th>
+            <th className="text-left px-4 py-2.5 kicker !text-micro">Rule-based · Phase 1</th>
+            <th className="text-left px-4 py-2.5 kicker !text-micro">Phi-3.5-mini · Phase 2</th>
           </tr>
         </thead>
         <tbody>
@@ -84,10 +84,10 @@ export default function RuleVsLLMTable({ clause }: { clause: Clause }) {
               className="border-b border-border last:border-0"
               style={row.disagree ? { background: alpha(tokens.status.warning, 0.06) } : undefined}
             >
-              <td className="px-4 py-3 font-mono text-[10px] text-text-muted whitespace-nowrap align-top">
+              <td className="px-4 py-3 font-mono text-micro text-text-muted whitespace-nowrap align-top">
                 {row.dimension}
                 {row.disagree && (
-                  <span className="block mt-1 text-[9px]" style={{ color: tokens.status.warning }}>
+                  <span className="block mt-1 text-micro" style={{ color: tokens.status.warning }}>
                     ▲ disagreement
                   </span>
                 )}

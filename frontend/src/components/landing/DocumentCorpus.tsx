@@ -46,13 +46,13 @@ function DocCard({ doc, index }: { doc: DocumentMeta; index: number }) {
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-sm truncate text-text-primary">{doc.filename}</p>
         <div className="flex items-center gap-3 mt-0.5">
-          <span className="text-[10px] font-mono text-text-muted">
+          <span className="text-micro font-mono text-text-muted">
             {doc.pages > 0 ? `${doc.pages}p` : "—"}
           </span>
-          <span className="text-[10px] font-mono text-text-muted">
+          <span className="text-micro font-mono text-text-muted">
             {doc.file_size_kb > 0 ? `${(doc.file_size_kb / 1024).toFixed(1)} MB` : "—"}
           </span>
-          <span className="text-[9px] font-mono text-text-dim">
+          <span className="text-micro font-mono text-text-dim">
             {doc.doc_id.slice(0, 8)}
           </span>
         </div>
@@ -61,7 +61,7 @@ function DocCard({ doc, index }: { doc: DocumentMeta; index: number }) {
       {/* Status */}
       <div className="flex items-center gap-2">
         <span
-          className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg"
+          className="flex items-center gap-1.5 text-micro font-mono px-2 py-1 rounded-lg"
           style={{
             color: status.color,
             background: `${status.color}18`,
@@ -73,7 +73,7 @@ function DocCard({ doc, index }: { doc: DocumentMeta; index: number }) {
         </span>
 
         {doc.status === "complete" && (
-          <div className="flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity bg-accent-primary/10 border border-accent-primary/25 text-accent-primary">
+          <div className="flex items-center gap-1 text-micro font-mono px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity bg-accent-primary/10 border border-accent-primary/25 text-accent-primary">
             <GitBranch className="w-3 h-3" />
             Open
           </div>

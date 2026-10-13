@@ -19,7 +19,7 @@ export default function CitationCard({ citation }: { citation: RAGCitation }) {
         className="w-full flex items-start gap-3 p-3 text-left transition-colors hover:bg-bg-elevated"
       >
         <div
-          className="shrink-0 w-6 h-6 rounded-sm flex items-center justify-center font-mono text-[11px] font-bold"
+          className="shrink-0 w-6 h-6 rounded-sm flex items-center justify-center font-mono text-micro font-bold"
           style={{
             color: tokens.accent.primary,
             background: alpha(tokens.accent.primary, 0.12),
@@ -31,12 +31,12 @@ export default function CitationCard({ citation }: { citation: RAGCitation }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <FileText className="w-3 h-3 text-text-muted shrink-0" />
-            <span className="font-mono text-[11px] text-text-primary truncate">
+            <span className="font-mono text-micro text-text-primary truncate">
               {citation.doc_name}
             </span>
-            <span className="font-mono text-[10px] text-text-muted">p.{citation.page}</span>
+            <span className="font-mono text-micro text-text-muted">p.{citation.page}</span>
             <span
-              className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm"
+              className="font-mono text-micro px-1.5 py-0.5 rounded-sm"
               style={{
                 color: tokens.status.success,
                 background: alpha(tokens.status.success, 0.12),
@@ -46,7 +46,7 @@ export default function CitationCard({ citation }: { citation: RAGCitation }) {
             </span>
           </div>
           {citation.section && (
-            <p className="mt-1 font-mono text-[10px] text-text-muted truncate">{citation.section}</p>
+            <p className="mt-1 font-mono text-micro text-text-muted truncate">{citation.section}</p>
           )}
           {!open && (
             <p className="mt-1.5 text-[12px] leading-snug text-text-secondary line-clamp-2">
@@ -69,7 +69,7 @@ export default function CitationCard({ citation }: { citation: RAGCitation }) {
               {citation.entity_types.map((t) => (
                 <span
                   key={t}
-                  className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm text-text-muted border border-border"
+                  className="font-mono text-micro uppercase tracking-wider px-1.5 py-0.5 rounded-sm text-text-muted border border-border"
                 >
                   {t}
                 </span>
@@ -78,7 +78,7 @@ export default function CitationCard({ citation }: { citation: RAGCitation }) {
           )}
           <Link
             href={`/explain/${citation.doc_id}/${citation.clause_id}`}
-            className="mt-2.5 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent-primary hover:text-accent-bright transition-colors"
+            className="mt-2.5 inline-flex items-center gap-1.5 font-mono text-micro uppercase tracking-widest text-accent-primary hover:text-accent-bright transition-colors"
           >
             <ExternalLink className="w-3 h-3" />
             Open in Explainability Studio

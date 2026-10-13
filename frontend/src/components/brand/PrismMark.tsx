@@ -4,38 +4,39 @@ import { tokens } from "@/lib/tokens";
 type PrismMarkProps = {
   size?: number;
   className?: string;
+  /** Draw for a paper background instead of ink. */
+  onPaper?: boolean;
+  title?: string;
 };
 
-export default function PrismMark({ size = 32, className }: PrismMarkProps) {
+/**
+ * The mark: a plain ray (the text of the law) enters a prism and leaves as a
+ * single vermilion signal (the reading that can be checked).
+ */
+export default function PrismMark({ size = 32, className, onPaper = false, title = "PRISM" }: PrismMarkProps) {
+  const line = onPaper ? tokens.ink[900] : tokens.paper[100];
+  const out = onPaper ? tokens.signal.ink : tokens.signal[500];
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 56 56"
-      role="img"
-      aria-label="PRISM logo"
+      viewBox="0 0 32 32"
       className={className}
+      {...(title ? { role: "img", "aria-label": title } : { "aria-hidden": true })}
     >
-      <defs>
-        <linearGradient id="prism-top" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={tokens.accent.bright} />
-          <stop offset="100%" stopColor={tokens.accent.primary} />
-        </linearGradient>
-        <linearGradient id="prism-left" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={tokens.accent.primary} />
-          <stop offset="100%" stopColor={tokens.accent.secondary} />
-        </linearGradient>
-        <linearGradient id="prism-right" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={tokens.entity.BENEFICIARY.text} />
-          <stop offset="100%" stopColor={tokens.entity.BENEFICIARY.base} />
-        </linearGradient>
-      </defs>
-
-      <rect x="2" y="2" width="52" height="52" rx="13" fill={tokens.bg.elevated} stroke={tokens.border.DEFAULT} />
-      <polygon points="28,10 42,20 28,28 14,20" fill="url(#prism-top)" />
-      <polygon points="14,20 28,28 28,46 14,34" fill="url(#prism-left)" />
-      <polygon points="42,20 28,28 28,46 42,34" fill="url(#prism-right)" />
-      <polyline points="28,10 42,20 42,34 28,46 14,34 14,20 28,10" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1" />
+      <path d="M16 4.5 L28.5 26.5 H3.5 Z" fill="none" stroke={line} strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M0.5 19.2 L10.4 16.4" stroke={line} strokeWidth="1.4" strokeLinecap="round" opacity="0.75" />
+      <path d="M10.4 16.4 L21.2 17.6" stroke={line} strokeWidth="1" strokeLinecap="round" opacity="0.35" />
+      <path d="M21.2 17.6 L31.5 22.4" stroke={out} strokeWidth="2.2" strokeLinecap="round" />
     </svg>
+  );
+}
+
+export function Wordmark({ className, onPaper = false }: { className?: string; onPaper?: boolean }) {
+  return (
+    <span className={`inline-flex items-center gap-2.5 ${className ?? ""}`}>
+      <PrismMark size={26} onPaper={onPaper} title="" />
+      <span className="font-sans font-semibold tracking-[0.22em] text-[13px] leading-none">PRISM</span>
+    </span>
   );
 }

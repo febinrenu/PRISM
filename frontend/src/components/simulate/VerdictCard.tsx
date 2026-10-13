@@ -65,7 +65,7 @@ const VerdictCard = forwardRef<HTMLDivElement, Props>(function VerdictCard(
     >
       <div className="flex flex-col md:flex-row md:items-center gap-6">
         <div className="flex-shrink-0">
-          <p className="kicker !text-[9px] mb-2">Simulation verdict</p>
+          <p className="kicker !text-micro mb-2">Simulation verdict</p>
           <p className="font-display text-5xl leading-none" style={{ color: style.color }}>
             {style.emoji} {style.title}
           </p>
@@ -73,7 +73,7 @@ const VerdictCard = forwardRef<HTMLDivElement, Props>(function VerdictCard(
         <div className="flex-1 min-w-0">
           <p className="text-sm text-text-secondary leading-relaxed">{insight}</p>
           {lowRate != null && highRate != null && (
-            <p className="mt-3 text-[11px] font-mono text-text-muted">
+            <p className="mt-3 text-micro font-mono text-text-muted">
               Effective-rate basis:{" "}
               <span style={{ color: tokens.agent.low_income }}>
                 low-income {(lowRate * 100).toFixed(1)}%
@@ -88,7 +88,7 @@ const VerdictCard = forwardRef<HTMLDivElement, Props>(function VerdictCard(
         <button
           onClick={onExport}
           disabled={exporting}
-          className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-primary/40 bg-accent-primary/10 text-accent-primary text-[11px] font-mono font-semibold uppercase tracking-wider hover:bg-accent-primary/20 transition-colors disabled:opacity-50"
+          className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-accent-primary/40 bg-accent-primary/10 text-accent-primary text-micro font-mono font-semibold uppercase tracking-wider hover:bg-accent-primary/20 transition-colors disabled:opacity-50"
         >
           {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
           {exporting ? "Rendering…" : "Export impact report"}

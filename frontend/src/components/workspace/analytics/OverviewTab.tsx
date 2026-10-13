@@ -22,9 +22,9 @@ const RISK_COLORS: Record<RiskTier, string> = {
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl p-4 bg-bg-surface/70 border border-border">
-      <p className="text-[10px] font-mono uppercase tracking-widest mb-1 text-text-muted">{label}</p>
+      <p className="text-micro font-mono uppercase tracking-widest mb-1 text-text-muted">{label}</p>
       <p className="font-display font-bold text-2xl" style={{ color: color || tokens.text.primary }}>{value}</p>
-      {sub && <p className="text-[11px] mt-0.5 text-text-muted">{sub}</p>}
+      {sub && <p className="text-micro mt-0.5 text-text-muted">{sub}</p>}
     </div>
   );
 }
@@ -114,10 +114,10 @@ export default function OverviewTab() {
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-entity-actor/10 border border-entity-actor/20">
           <Globe className="w-4 h-4 flex-shrink-0" style={{ color: tokens.entity.ACTOR.text }} />
           <div>
-            <p className="text-[9px] font-mono uppercase tracking-widest text-text-muted">Detected Domain</p>
+            <p className="text-micro font-mono uppercase tracking-widest text-text-muted">Detected Domain</p>
             <p className="font-semibold text-sm" style={{ color: tokens.entity.ACTOR.text }}>{domain}</p>
           </div>
-          <div className="ml-auto text-[9px] font-mono px-2 py-1 rounded-lg bg-entity-actor/10 border border-entity-actor/20"
+          <div className="ml-auto text-micro font-mono px-2 py-1 rounded-lg bg-entity-actor/10 border border-entity-actor/20"
             style={{ color: tokens.entity.ACTOR.text }}>
             AUTO-DETECTED
           </div>
@@ -146,7 +146,7 @@ export default function OverviewTab() {
               const pct = Math.round((count / totalRisk) * 100);
               return (
                 <div key={tier} className="flex items-center gap-2">
-                  <span className="text-[9px] font-mono w-16 text-right" style={{ color: RISK_COLORS[tier] }}>
+                  <span className="text-micro font-mono w-16 text-right" style={{ color: RISK_COLORS[tier] }}>
                     {tier}
                   </span>
                   <div className="flex-1 h-2 rounded-full bg-bg-deep">
@@ -155,7 +155,7 @@ export default function OverviewTab() {
                       style={{ width: `${pct}%`, background: RISK_COLORS[tier] }}
                     />
                   </div>
-                  <span className="text-[9px] font-mono w-8" style={{ color: RISK_COLORS[tier] }}>
+                  <span className="text-micro font-mono w-8" style={{ color: RISK_COLORS[tier] }}>
                     {count}×
                   </span>
                 </div>
@@ -199,9 +199,9 @@ export default function OverviewTab() {
                 <div key={d.name} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                    <span className="text-[10px] font-mono text-text-secondary">{d.name}</span>
+                    <span className="text-micro font-mono text-text-secondary">{d.name}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-text-muted">{d.value}</span>
+                  <span className="text-micro font-mono text-text-muted">{d.value}</span>
                 </div>
               ))}
             </div>
@@ -226,8 +226,8 @@ export default function OverviewTab() {
               return (
                 <div key={conf} className="flex-1 text-center">
                   <div className="text-lg font-display font-bold" style={{ color }}>{pct}%</div>
-                  <div className="text-[9px] font-mono uppercase text-text-muted">{conf}</div>
-                  <div className="text-[9px] font-mono mt-0.5 text-text-dim">{count}</div>
+                  <div className="text-micro font-mono uppercase text-text-muted">{conf}</div>
+                  <div className="text-micro font-mono mt-0.5 text-text-dim">{count}</div>
                 </div>
               );
             })}
@@ -241,7 +241,7 @@ export default function OverviewTab() {
           <p className="text-xs font-mono uppercase tracking-widest mb-3 text-text-muted">Clauses per Section</p>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={sectionData} barSize={14}>
-              <XAxis dataKey="name" tick={{ fontSize: 9, fill: tokens.text.muted, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: tokens.text.muted, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
               <YAxis hide />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(tokens.accent.primary, 0.07) }} />
               <Bar dataKey="count" fill={tokens.accent.primary} radius={[3, 3, 0, 0]} />
@@ -253,15 +253,15 @@ export default function OverviewTab() {
       {/* Most complex clause */}
       {mostComplex && (
         <div className="rounded-xl p-4 bg-accent-primary/5 border border-accent-primary/15">
-          <p className="text-[10px] font-mono uppercase tracking-widest mb-2 text-accent-primary">
+          <p className="text-micro font-mono uppercase tracking-widest mb-2 text-accent-primary">
             Most Dense Clause
           </p>
           <p className="text-xs leading-relaxed line-clamp-3 text-text-secondary">{mostComplex.text}</p>
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-[10px] font-mono text-text-muted">
+            <span className="text-micro font-mono text-text-muted">
               §{mostComplex.section_hierarchy.join(".")} · p.{mostComplex.page}
             </span>
-            <span className="ml-auto text-[10px] font-mono text-accent-primary">
+            <span className="ml-auto text-micro font-mono text-accent-primary">
               {mostComplex.entities.length} entities
             </span>
           </div>

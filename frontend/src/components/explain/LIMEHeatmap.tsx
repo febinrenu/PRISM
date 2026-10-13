@@ -61,7 +61,7 @@ export default function LIMEHeatmap({ clauseText, limeTokens }: Props) {
                 </mark>
               </TooltipTrigger>
               <TooltipContent>
-                <div className="font-mono text-[11px] space-y-0.5">
+                <div className="font-mono text-micro space-y-0.5">
                   <p>Token: “{segment.token.token}”</p>
                   <p style={{ color }}>
                     LIME weight: {weight >= 0 ? "+" : ""}{weight.toFixed(4)}

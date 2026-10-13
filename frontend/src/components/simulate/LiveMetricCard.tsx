@@ -28,7 +28,7 @@ export default function LiveMetricCard({ label, value, format, spark, accent, gr
 
   return (
     <div className="glass-card p-4 flex flex-col gap-2 min-w-0">
-      <span className="kicker !text-[9px] truncate">{label}</span>
+      <span className="kicker !text-micro truncate">{label}</span>
       <motion.span className="font-display text-2xl leading-none truncate" style={{ color }}>
         {value == null ? "—" : text}
       </motion.span>

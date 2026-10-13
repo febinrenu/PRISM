@@ -1,28 +1,44 @@
-import type { Metadata } from "next";
-import { Manrope, Playfair_Display, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Instrument_Serif } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth";
+import Providers from "@/components/shell/Providers";
 
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const SITE = "PRISM: does a machine read the law the way the law reads?";
+const DESCRIPTION =
+  "PRISM extracts tax rules from Indian statutes with language models, runs them on a population, and checks whether the policy conclusions match expert-coded law, tracing every difference back to a clause.";
 
 export const metadata: Metadata = {
-  title: "PRISM — Legal Intelligence Platform",
-  description:
-    "PRISM reads legal documents, extracts structured intelligence, and maps societal impact — with full explainability.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  title: { default: SITE, template: "%s · PRISM" },
+  description: DESCRIPTION,
   icons: { icon: "/favicon.svg" },
+  openGraph: { title: SITE, description: DESCRIPTION, type: "website", siteName: "PRISM" },
+  twitter: { card: "summary_large_image", title: SITE, description: DESCRIPTION },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#0C0D0E",
+  colorScheme: "dark",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${manrope.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
-      <body className="antialiased min-h-screen app-shell font-sans bg-bg-base text-text-primary">
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`}>
+      <body className="grain app-shell min-h-dvh bg-bg-base font-sans text-text-primary antialiased">
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

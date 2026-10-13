@@ -124,13 +124,13 @@ export default function DeepReasoningCard({
           <BrainCircuit className="w-4 h-4 text-accent-primary" />
           <div>
             <p className="text-sm font-display text-text-primary">Deep reasoning</p>
-            <p className="text-[10px] font-mono text-text-dim mt-0.5">
+            <p className="text-micro font-mono text-text-dim mt-0.5">
               A fuller, multi-paragraph rationale generated on demand
             </p>
           </div>
         </div>
         {state.status === "complete" && (
-          <span className="text-[10px] font-mono text-text-dim flex items-center gap-2 whitespace-nowrap">
+          <span className="text-micro font-mono text-text-dim flex items-center gap-2 whitespace-nowrap">
             {state.model && <span>{state.model}</span>}
             {state.cached
               ? <span className="px-1.5 py-0.5 rounded border border-border text-text-muted">cached</span>
@@ -177,7 +177,7 @@ export default function DeepReasoningCard({
           <p className="text-xs font-mono text-status-error leading-relaxed">{state.message}</p>
           <button
             onClick={() => generate(false)}
-            className="flex items-center gap-1.5 text-[10px] font-mono text-text-muted hover:text-accent-primary transition-colors"
+            className="flex items-center gap-1.5 text-micro font-mono text-text-muted hover:text-accent-primary transition-colors"
           >
             <RefreshCw className="w-3 h-3" /> Retry
           </button>
@@ -199,7 +199,7 @@ export default function DeepReasoningCard({
           )}
           <button
             onClick={() => generate(true)}
-            className="flex items-center gap-1.5 text-[10px] font-mono text-text-dim hover:text-accent-primary transition-colors"
+            className="flex items-center gap-1.5 text-micro font-mono text-text-dim hover:text-accent-primary transition-colors"
             style={{ color: tokens.text.dim }}
             title="Discard the cached rationale and generate a fresh one"
           >

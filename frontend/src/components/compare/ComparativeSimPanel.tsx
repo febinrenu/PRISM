@@ -19,8 +19,8 @@ function ProgressBar({ state, label }: { state: SimulationState; label: string }
   return (
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px] font-mono text-text-muted truncate">{label}</span>
-        <span className="text-[10px] font-mono text-accent-primary flex-shrink-0 ml-2">{pct}%</span>
+        <span className="text-micro font-mono text-text-muted truncate">{label}</span>
+        <span className="text-micro font-mono text-accent-primary flex-shrink-0 ml-2">{pct}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-bg-elevated overflow-hidden">
         <div
@@ -48,7 +48,7 @@ function SimResultCard({
     <div className="glass-card p-4">
       <div className="flex items-center gap-2 mb-3">
         <span
-          className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold border flex-shrink-0"
+          className="w-6 h-6 rounded-lg flex items-center justify-center text-micro font-bold border flex-shrink-0"
           style={{
             color: accent,
             borderColor: alpha(accent, 0.35),
@@ -60,7 +60,7 @@ function SimResultCard({
         <span className="text-xs font-display font-medium text-text-primary truncate">{name}</span>
         {verdict && (
           <span
-            className="ml-auto text-[9px] font-mono uppercase px-2 py-0.5 rounded-full border flex-shrink-0"
+            className="ml-auto text-micro font-mono uppercase px-2 py-0.5 rounded-full border flex-shrink-0"
             style={{
               color: VERDICT_COLOR[verdict],
               borderColor: alpha(VERDICT_COLOR[verdict], 0.4),
@@ -77,13 +77,13 @@ function SimResultCard({
           <p className="font-display font-bold text-lg text-text-primary">
             {state.finalGini != null ? state.finalGini.toFixed(3) : "—"}
           </p>
-          <p className="text-[9px] font-mono uppercase text-text-muted">Final Gini</p>
+          <p className="text-micro font-mono uppercase text-text-muted">Final Gini</p>
         </div>
         <div className="rounded-lg py-2 px-1 text-center bg-bg-deep/50 border border-border">
           <p className="font-display font-bold text-lg" style={{ color: tokens.status.success }}>
             {state.finalCompliance != null ? `${(state.finalCompliance * 100).toFixed(1)}%` : "—"}
           </p>
-          <p className="text-[9px] font-mono uppercase text-text-muted">Compliance</p>
+          <p className="text-micro font-mono uppercase text-text-muted">Compliance</p>
         </div>
       </div>
     </div>

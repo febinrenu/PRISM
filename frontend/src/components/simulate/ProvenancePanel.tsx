@@ -47,7 +47,7 @@ export default function ProvenancePanel({
       <div className="flex items-center gap-3 mb-1">
         <GitBranch className="w-4 h-4 text-accent-primary" />
         <p className="font-display text-sm text-text-primary">Provenance — trace every finding to its source</p>
-        <span className="text-[10px] font-mono text-text-dim">outcome → rule → clause → LLM → LIME</span>
+        <span className="text-micro font-mono text-text-dim">outcome → rule → clause → LLM → LIME</span>
       </div>
       <p className="text-xs text-text-muted mb-4 max-w-2xl leading-relaxed">
         Each rule the simulation acted on links back to the exact statute clause that produced it,
@@ -110,18 +110,18 @@ function ProvenanceRow({
           style={{ transform: open ? "rotate(90deg)" : "none" }}
         />
         <span
-          className="text-[9px] font-mono px-1.5 py-0.5 rounded flex-shrink-0"
+          className="text-micro font-mono px-1.5 py-0.5 rounded flex-shrink-0"
           style={{ color: sourceColor, border: `1px solid ${alpha(sourceColor, 0.35)}`, background: alpha(sourceColor, 0.1) }}
         >
           {link.rule?.source === "llm" ? "LLM" : "RULE"}
         </span>
         <span className="text-xs text-text-secondary truncate flex-1">{description}</span>
         {link.matched_template && (
-          <span className="text-[9px] font-mono text-text-dim flex-shrink-0" title="matched Module-C template">
+          <span className="text-micro font-mono text-text-dim flex-shrink-0" title="matched Module-C template">
             ⌘ {link.matched_template}
           </span>
         )}
-        <span className="text-[9px] font-mono text-text-dim flex-shrink-0">p.{link.clause.page}</span>
+        <span className="text-micro font-mono text-text-dim flex-shrink-0">p.{link.clause.page}</span>
       </button>
 
       <AnimatePresence initial={false}>
@@ -135,7 +135,7 @@ function ProvenanceRow({
             <div className="px-4 pb-4 pt-1 space-y-3 border-t border-border/60">
               {/* Source clause */}
               <div>
-                <p className="kicker !text-[8px] mb-1 flex items-center gap-1.5">
+                <p className="kicker !text-micro mb-1 flex items-center gap-1.5">
                   <FileText className="w-3 h-3" /> Source clause · page {link.clause.page}
                   {link.clause.section_hierarchy.length > 0 && (
                     <span className="text-text-dim normal-case tracking-normal">
@@ -143,7 +143,7 @@ function ProvenanceRow({
                     </span>
                   )}
                 </p>
-                <p className="text-[11px] text-text-muted leading-relaxed max-h-28 overflow-y-auto">
+                <p className="text-micro text-text-muted leading-relaxed max-h-28 overflow-y-auto">
                   {link.clause.text}
                 </p>
               </div>
@@ -160,7 +160,7 @@ function ProvenanceRow({
               {/* LIME top tokens */}
               {link.lime && link.lime.top_tokens.length > 0 && (
                 <div>
-                  <p className="kicker !text-[8px] mb-1.5 flex items-center gap-1.5">
+                  <p className="kicker !text-micro mb-1.5 flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3" /> Top LIME tokens
                     <span className="text-text-dim normal-case tracking-normal">({link.lime.mode})</span>
                     {typeof link.lime.fidelity === "number" && (
@@ -175,7 +175,7 @@ function ProvenanceRow({
                       return (
                         <span
                           key={`${tok}-${i}`}
-                          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                          className="text-micro font-mono px-1.5 py-0.5 rounded"
                           style={{ color: c, border: `1px solid ${alpha(c, 0.3)}`, background: alpha(c, 0.08) }}
                         >
                           {tok} {w >= 0 ? "+" : ""}{w.toFixed(2)}
@@ -188,7 +188,7 @@ function ProvenanceRow({
 
               <Link
                 href={`/explain/${docId}/${link.clause_id}`}
-                className="inline-flex items-center gap-1.5 text-[10px] font-mono text-accent-primary hover:underline"
+                className="inline-flex items-center gap-1.5 text-micro font-mono text-accent-primary hover:underline"
               >
                 Open in Explainability Studio <ExternalLink className="w-3 h-3" />
               </Link>
@@ -203,8 +203,8 @@ function ProvenanceRow({
 function ExtractionField({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="rounded-md border border-border/60 p-2" style={{ background: alpha(tokens.bg.base, 0.5) }}>
-      <p className="text-[8px] font-mono uppercase tracking-wider text-text-dim mb-0.5">{label}</p>
-      <p className="text-[11px] text-text-secondary leading-snug">{value || <span className="text-text-dim">—</span>}</p>
+      <p className="text-micro font-mono uppercase tracking-wider text-text-dim mb-0.5">{label}</p>
+      <p className="text-micro text-text-secondary leading-snug">{value || <span className="text-text-dim">—</span>}</p>
     </div>
   );
 }

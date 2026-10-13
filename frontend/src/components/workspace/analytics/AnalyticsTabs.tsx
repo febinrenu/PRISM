@@ -69,7 +69,7 @@ export default function AnalyticsTabs() {
           <div className="ml-auto mr-2 flex items-center gap-2">
             <Link
               href={`/simulate/${docId}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all bg-status-success/10 border border-status-success/30 text-status-success hover:bg-status-success/20"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all bg-status-success/10 border border-status-success/30 text-status-success hover:bg-status-success/20"
               title="Open the Simulation Theater"
             >
               <FlaskConical style={{ width: 11, height: 11 }} />
@@ -78,7 +78,7 @@ export default function AnalyticsTabs() {
             <button
               onClick={handleExport}
               disabled={exporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all disabled:opacity-50 bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all disabled:opacity-50 bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20"
               title="Download HTML analysis report"
             >
               <Download style={{ width: 11, height: 11 }} />

@@ -24,12 +24,12 @@ const AGENT_SERIES: Array<{ key: AgentType; label: string }> = [
   { key: "large_corporate", label: "Corporate" },
 ];
 
-const AXIS_TICK = { fill: tokens.text.dim, fontSize: 10, fontFamily: "monospace" };
+const AXIS_TICK = { fill: tokens.text.dim, fontSize: 12, fontFamily: "monospace" };
 const TOOLTIP_STYLE = {
   background: tokens.bg.overlay,
   border: `1px solid ${tokens.border.light}`,
   borderRadius: 4,
-  fontSize: 11,
+  fontSize: 12,
   fontFamily: "monospace",
   color: tokens.text.secondary,
 };
@@ -49,7 +49,7 @@ export function ComplianceChart({ steps }: { steps: SimulationStep[] }) {
         <XAxis dataKey="step" tick={AXIS_TICK} stroke={GRID} />
         <YAxis domain={[0, 100]} tick={AXIS_TICK} stroke={GRID} tickFormatter={(v: number) => `${v}%`} />
         <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${Number(v).toFixed(1)}%`]} />
-        <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+        <Legend wrapperStyle={{ fontSize: 12, fontFamily: "monospace" }} />
         {AGENT_SERIES.map(({ key, label }) => (
           <Line
             key={key}
@@ -92,7 +92,7 @@ export function BurdenChart({ steps }: { steps: SimulationStep[] }) {
           tickFormatter={formatRupees}
         />
         <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [formatRupees(Number(v))]} />
-        <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+        <Legend wrapperStyle={{ fontSize: 12, fontFamily: "monospace" }} />
         {AGENT_SERIES.map(({ key, label }) => (
           <Bar key={key} dataKey={key} name={label} fill={tokens.agent[key]} isAnimationActive={false} />
         ))}
@@ -167,7 +167,7 @@ export function RevenueChart({ steps }: { steps: SimulationStep[] }) {
         <XAxis dataKey="step" tick={AXIS_TICK} stroke={GRID} />
         <YAxis tick={AXIS_TICK} stroke={GRID} tickFormatter={formatRupees} />
         <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [formatRupees(Number(v))]} />
-        <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+        <Legend wrapperStyle={{ fontSize: 12, fontFamily: "monospace" }} />
         <Area
           type="monotone"
           dataKey="compliance"
@@ -213,7 +213,7 @@ export function EffectiveRateChart({ steps }: { steps: SimulationStep[] }) {
         <XAxis dataKey="step" tick={AXIS_TICK} stroke={GRID} />
         <YAxis tick={AXIS_TICK} stroke={GRID} tickFormatter={(v: number) => `${v}%`} />
         <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${Number(v).toFixed(2)}%`]} />
-        <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+        <Legend wrapperStyle={{ fontSize: 12, fontFamily: "monospace" }} />
         {BAND_SERIES.map(({ key, label }) => (
           <Line
             key={key}

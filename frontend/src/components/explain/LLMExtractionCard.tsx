@@ -18,7 +18,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
       <div className="glass-card p-6 text-center">
         <p className="text-sm text-status-error font-mono">LLM output could not be parsed</p>
         {rule.parse_error && (
-          <p className="text-[10px] text-text-dim font-mono mt-2 break-all">{rule.parse_error}</p>
+          <p className="text-micro text-text-dim font-mono mt-2 break-all">{rule.parse_error}</p>
         )}
       </div>
     );
@@ -33,7 +33,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
             <p className="text-sm font-display text-text-primary">
               {rule.is_causal ? "Causal rule extracted" : "No causal rule found"}
             </p>
-            <p className="text-[10px] font-mono text-text-dim mt-0.5">
+            <p className="text-micro font-mono text-text-dim mt-0.5">
               {rule.model} · {rule.extraction_time_ms}ms
             </p>
           </div>
@@ -52,7 +52,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
                 className="rounded-r border-l-2 pl-3 py-2"
                 style={{ borderColor: color, background: alpha(color, 0.06) }}
               >
-                <p className="text-[9px] font-mono uppercase tracking-[0.18em] mb-1" style={{ color }}>
+                <p className="text-micro font-mono uppercase tracking-[0.18em] mb-1" style={{ color }}>
                   {label}
                 </p>
                 <p className="text-xs text-text-secondary leading-relaxed">{value}</p>
@@ -62,7 +62,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
 
           {rule.actors.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="kicker !text-[9px] mr-1">Actors</span>
+              <span className="kicker !text-micro mr-1">Actors</span>
               {rule.actors.map((actor) => (
                 <Badge key={actor} entity="ACTOR">{actor}</Badge>
               ))}
@@ -70,7 +70,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
           )}
           {rule.thresholds.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="kicker !text-[9px] mr-1">Thresholds</span>
+              <span className="kicker !text-micro mr-1">Thresholds</span>
               {rule.thresholds.map((threshold) => (
                 <Badge key={threshold} entity="THRESHOLD">{threshold}</Badge>
               ))}
@@ -85,7 +85,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
           <p className="font-display italic text-sm text-text-secondary leading-relaxed pr-8">
             “{rule.reasoning}”
           </p>
-          <footer className="text-[10px] font-mono text-text-dim mt-2">— the model’s own reasoning</footer>
+          <footer className="text-micro font-mono text-text-dim mt-2">— the model’s own reasoning</footer>
         </blockquote>
       )}
     </div>

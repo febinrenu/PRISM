@@ -48,10 +48,10 @@ export default function AttentionCard({
     <div className="glass-card p-6">
       <div className="flex items-center gap-2 mb-1">
         <Layers className="w-3.5 h-3.5 text-accent-primary" />
-        <span className="kicker !text-[9px]">Transformer attention</span>
-        <span className="text-[10px] font-mono text-text-dim">encoder salience</span>
+        <span className="kicker !text-micro">Transformer attention</span>
+        <span className="text-micro font-mono text-text-dim">encoder salience</span>
       </div>
-      <p className="text-[10px] font-mono text-text-dim mb-4">
+      <p className="text-micro font-mono text-text-dim mb-4">
         Mean self-attention received per token across all heads/layers — a second lens beside LIME.
         Explains the MiniLM encoder, not the Phi-3.5 generator.
       </p>

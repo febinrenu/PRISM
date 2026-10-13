@@ -45,7 +45,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
             Document Viewer
           </span>
           {isLoaded && (
-            <span className="text-[10px] text-text-muted font-mono bg-bg-elevated px-1.5 py-0.5 rounded border border-border">
+            <span className="text-micro text-text-muted font-mono bg-bg-elevated px-1.5 py-0.5 rounded border border-border">
               {numPages}p
             </span>
           )}
@@ -58,7 +58,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
           >
             <ZoomOut className="w-3.5 h-3.5 text-text-muted" />
           </button>
-          <span className="text-[10px] font-mono text-text-muted w-10 text-center">
+          <span className="text-micro font-mono text-text-muted w-10 text-center">
             {Math.round(scale * 100)}%
           </span>
           <button
@@ -200,7 +200,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex-shrink-0 px-4 py-2 border-t border-border bg-accent-primary/5 text-[10px] text-accent-primary font-mono"
+          className="flex-shrink-0 px-4 py-2 border-t border-border bg-accent-primary/5 text-micro text-accent-primary font-mono"
         >
           → Viewing clause on page {selectedClause.page}
         </motion.div>

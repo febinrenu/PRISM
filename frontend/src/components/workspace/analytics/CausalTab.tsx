@@ -85,7 +85,7 @@ function PatternBadge({ type }: { type: string }) {
   const cfg = PATTERN_CONFIG[type] || PATTERN_CONFIG.IF_THEN;
   return (
     <span
-      className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full"
+      className="inline-flex items-center gap-1 text-micro font-mono font-semibold px-2 py-0.5 rounded-full"
       style={{ background: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}` }}
     >
       {cfg.icon} {cfg.label}
@@ -97,7 +97,7 @@ function RiskBadge({ tier }: { tier: RiskTier }) {
   const cfg = RISK_CONFIG[tier];
   return (
     <span
-      className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+      className="inline-flex items-center gap-1 text-micro font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
       style={{ background: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}` }}
     >
       {tier === "CRITICAL" && <AlertTriangle className="w-2.5 h-2.5" />}
@@ -115,14 +115,14 @@ function ImpactBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[9px] font-mono text-text-muted">Impact</span>
+      <span className="text-micro font-mono text-text-muted">Impact</span>
       <div className="flex-1 h-[3px] rounded-full bg-bg-elevated/60">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <span className="text-[9px] font-mono w-6 text-right" style={{ color }}>{pct}%</span>
+      <span className="text-micro font-mono w-6 text-right" style={{ color }}>{pct}%</span>
     </div>
   );
 }
@@ -152,7 +152,7 @@ function SpanBlock({
     >
       <div className="flex items-center justify-between">
         <span
-          className="text-[9px] font-mono font-bold uppercase tracking-widest"
+          className="text-micro font-mono font-bold uppercase tracking-widest"
           style={{ color: accentColor }}
         >
           {label}
@@ -160,7 +160,7 @@ function SpanBlock({
         {isLong && (
           <button
             onClick={(e) => { e.stopPropagation(); setExpanded((x) => !x); }}
-            className="flex items-center gap-0.5 text-[9px] font-mono transition-opacity opacity-60 hover:opacity-100"
+            className="flex items-center gap-0.5 text-micro font-mono transition-opacity opacity-60 hover:opacity-100"
             style={{ color: accentColor }}
           >
             {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -203,7 +203,7 @@ function CausalCard({ p, index }: { p: any; index: number }) {
             <PatternBadge type={p.pattern_type} />
             <RiskBadge tier={p.risk_tier} />
           </div>
-          <span className="text-[10px] font-mono text-text-muted">
+          <span className="text-micro font-mono text-text-muted">
             {p.section ? `§ ${p.section}` : `p.${p.page}`}
           </span>
         </div>
@@ -219,7 +219,7 @@ function CausalCard({ p, index }: { p: any; index: number }) {
           />
 
           <div className="flex justify-center">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-mono uppercase tracking-wider bg-bg-deep/60 border border-border text-text-muted">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-mono uppercase tracking-wider bg-bg-deep/60 border border-border text-text-muted">
               <ArrowRight className="w-2.5 h-2.5" />
               implies
             </div>
@@ -240,9 +240,9 @@ function CausalCard({ p, index }: { p: any; index: number }) {
           {p.explanation && (
             <div className="flex items-start gap-2 mt-1 pt-2.5 border-t border-border">
               <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-accent-primary/15 border border-accent-primary/30">
-                <span className="text-[8px] font-bold text-accent-primary">i</span>
+                <span className="text-micro font-bold text-accent-primary">i</span>
               </div>
-              <p className="text-[11px] leading-relaxed text-text-secondary">
+              <p className="text-micro leading-relaxed text-text-secondary">
                 {p.explanation}
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function CausalTab() {
           {RISK_ORDER.map((tier) => riskCounts[tier] > 0 && (
             <div
               key={tier}
-              className="flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-lg cursor-pointer transition-opacity"
+              className="flex items-center gap-1 text-micro font-mono px-2 py-1 rounded-lg cursor-pointer transition-opacity"
               style={{
                 background: RISK_CONFIG[tier].bg,
                 border: `1px solid ${RISK_CONFIG[tier].border}`,
@@ -344,13 +344,13 @@ export default function CausalTab() {
       {/* ── Risk filter bar ── */}
       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-surface/80 border border-border">
         <Filter className="w-3.5 h-3.5 flex-shrink-0 text-text-muted" />
-        <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
+        <span className="text-micro font-mono uppercase tracking-wider text-text-muted">
           Filter by risk:
         </span>
         <div className="flex gap-1.5 flex-wrap">
           <button
             onClick={() => setRiskFilter("ALL")}
-            className="text-[10px] font-mono px-2 py-0.5 rounded-full transition-all"
+            className="text-micro font-mono px-2 py-0.5 rounded-full transition-all"
             style={{
               background: riskFilter === "ALL" ? alpha(tokens.accent.primary, 0.15) : "transparent",
               border: "1px solid",
@@ -364,7 +364,7 @@ export default function CausalTab() {
             <button
               key={tier}
               onClick={() => setRiskFilter(riskFilter === tier ? "ALL" : tier)}
-              className="text-[10px] font-mono px-2 py-0.5 rounded-full transition-all"
+              className="text-micro font-mono px-2 py-0.5 rounded-full transition-all"
               style={{
                 background: riskFilter === tier ? RISK_CONFIG[tier].bg : "transparent",
                 border: "1px solid",
@@ -381,7 +381,7 @@ export default function CausalTab() {
           {Object.entries(typeCounts).map(([type, count]) => {
             const cfg = PATTERN_CONFIG[type];
             return (
-              <span key={type} className="text-[10px] font-mono" style={{ color: cfg?.text || tokens.text.secondary }}>
+              <span key={type} className="text-micro font-mono" style={{ color: cfg?.text || tokens.text.secondary }}>
                 {cfg?.icon} {count}
               </span>
             );
@@ -392,7 +392,7 @@ export default function CausalTab() {
       {/* ── How to read ── */}
       <div className="flex items-start gap-3 p-3 rounded-xl text-xs bg-bg-surface/80 border border-border">
         <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-accent-primary/15 border border-accent-primary/30">
-          <span className="text-[9px] font-bold text-accent-primary">i</span>
+          <span className="text-micro font-bold text-accent-primary">i</span>
         </div>
         <p className="text-text-secondary">
           Each card shows a logical relationship — an IF/CONDITION triggering a THEN/ACTION.

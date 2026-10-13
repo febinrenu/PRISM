@@ -9,6 +9,16 @@ import type {
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+/** Backend origin, for the pages that fetch research and corpus routes directly. */
+export const API_BASE = API;
+
+/** GET a JSON route; throws on a non-2xx response. */
+export async function getJSON<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API}${path}`, init);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
 /** Bearer token store (browser localStorage) for the JWT-backed auth flow. */
 const TOKEN_KEY = "prism_token";
 export const tokenStore = {

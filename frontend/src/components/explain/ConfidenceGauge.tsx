@@ -49,7 +49,7 @@ export default function ConfidenceGauge({ value, label, size = 130 }: Props) {
           textAnchor="middle"
           dominantBaseline="central"
           fill={tokens.text.primary}
-          style={{ fontSize: size / 4.6, fontFamily: "var(--font-playfair), serif", fontWeight: 600 }}
+          style={{ fontSize: size / 4.6, fontFamily: "var(--font-serif), serif", fontWeight: 400 }}
         >
           {Math.round(clamped * 100)}%
         </text>
@@ -58,7 +58,7 @@ export default function ConfidenceGauge({ value, label, size = 130 }: Props) {
           y="66%"
           textAnchor="middle"
           fill={tokens.text.dim}
-          style={{ fontSize: 9, fontFamily: "var(--font-mono), monospace", letterSpacing: "0.15em" }}
+          style={{ fontSize: 12, fontFamily: "var(--font-mono), monospace", letterSpacing: "0.15em" }}
         >
           {label.toUpperCase()}
         </text>

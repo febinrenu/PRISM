@@ -34,7 +34,7 @@ function WordDiff({ a, b, expanded }: { a: string; b: string; expanded: boolean 
   const parts = useMemo(() => diffWords(a, b), [a, b]);
   return (
     <p
-      className={`text-[11px] leading-relaxed ${expanded ? "" : "line-clamp-3"}`}
+      className={`text-micro leading-relaxed ${expanded ? "" : "line-clamp-3"}`}
       style={{ wordBreak: "break-word" }}
     >
       {parts.map((part, i) =>
@@ -96,14 +96,14 @@ function DiffRowItem({
       <div className="flex items-center gap-2 mb-1.5">
         <meta.Icon className="w-3 h-3 flex-shrink-0" style={{ color: meta.color }} />
         <span
-          className="text-[9px] font-mono uppercase tracking-widest"
+          className="text-micro font-mono uppercase tracking-widest"
           style={{ color: meta.color }}
         >
           {meta.label}
         </span>
         {row.kind === "modified" && row.similarity != null && (
           <span
-            className="text-[9px] font-mono px-1.5 py-0.5 rounded-full border"
+            className="text-micro font-mono px-1.5 py-0.5 rounded-full border"
             style={{
               color: meta.color,
               borderColor: alpha(meta.color, 0.4),
@@ -113,7 +113,7 @@ function DiffRowItem({
             {Math.round(row.similarity * 100)}% similar
           </span>
         )}
-        <span className="ml-auto text-[9px] font-mono text-text-dim">
+        <span className="ml-auto text-micro font-mono text-text-dim">
           {page != null ? `p.${page}` : ""}
         </span>
       </div>
@@ -121,11 +121,11 @@ function DiffRowItem({
       {row.kind === "modified" && row.clauseA && row.clauseB ? (
         <WordDiff a={row.clauseA.text} b={row.clauseB.text} expanded={selected} />
       ) : sourceClause ? (
-        <p className="text-[11px] leading-relaxed text-text-secondary">
+        <p className="text-micro leading-relaxed text-text-secondary">
           {selected ? sourceClause.text : preview(sourceClause.text)}
         </p>
       ) : (
-        <p className="text-[11px] font-mono text-text-dim">clause text unavailable</p>
+        <p className="text-micro font-mono text-text-dim">clause text unavailable</p>
       )}
     </button>
   );
@@ -157,7 +157,7 @@ export default function ClauseDiffList({
           {(Object.keys(KIND_META) as DiffKind[]).map((kind) => (
             <span
               key={kind}
-              className="text-[9px] font-mono"
+              className="text-micro font-mono"
               style={{ color: KIND_META[kind].color }}
             >
               {counts[kind]} {kind}
@@ -168,7 +168,7 @@ export default function ClauseDiffList({
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {rows.length === 0 ? (
-          <p className="text-[11px] font-mono text-text-muted text-center py-10 leading-relaxed">
+          <p className="text-micro font-mono text-text-muted text-center py-10 leading-relaxed">
             No clause-level differences detected —
             <br />
             the documents match clause for clause.

@@ -134,7 +134,7 @@ export default function ProcessingOverlay() {
                               </span>
                             )}
                             {status === "done" && (
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-status-success">Done</span>
+                              <span className="text-micro font-mono uppercase tracking-wider text-status-success">Done</span>
                             )}
                           </div>
                           <p className="text-xs text-text-muted">
@@ -184,7 +184,7 @@ export default function ProcessingOverlay() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
-                className="text-center text-[11px] mt-6 font-mono text-text-dim"
+                className="text-center text-micro mt-6 font-mono text-text-dim"
               >
                 First run downloads sentence-transformer model (~80MB)
               </motion.p>

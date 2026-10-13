@@ -101,19 +101,19 @@ export default function PipelineDiagram() {
               }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-widest"
+                <span className="text-micro font-mono uppercase tracking-widest"
                   style={{ color: mod.active ? mod.color : tokens.text.muted }}>
                   {mod.phase}
                 </span>
                 {!mod.active ? (
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg-elevated/40 border border-border">
                     <Lock className="w-2.5 h-2.5 text-text-muted" />
-                    <span className="text-[9px] font-mono uppercase tracking-wider text-text-muted">Soon</span>
+                    <span className="text-micro font-mono uppercase tracking-wider text-text-muted">Soon</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-success/10 border border-status-success/30">
                     <div className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse" />
-                    <span className="text-[9px] font-mono text-status-success uppercase tracking-wider">Live</span>
+                    <span className="text-micro font-mono text-status-success uppercase tracking-wider">Live</span>
                   </div>
                 )}
               </div>
@@ -124,7 +124,7 @@ export default function PipelineDiagram() {
               </div>
 
               <div>
-                <p className="font-mono text-[11px] mb-0.5" style={{ color: mod.color }}>{mod.subtitle}</p>
+                <p className="font-mono text-micro mb-0.5" style={{ color: mod.color }}>{mod.subtitle}</p>
                 <h3 className="font-display font-bold text-base leading-tight text-text-primary">{mod.title}</h3>
               </div>
 

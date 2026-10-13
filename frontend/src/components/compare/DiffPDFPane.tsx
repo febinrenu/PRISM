@@ -72,7 +72,7 @@ export default function DiffPDFPane({
       {/* Header */}
       <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 border-b border-border">
         <span
-          className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 border"
+          className="w-6 h-6 rounded-lg flex items-center justify-center text-micro font-bold flex-shrink-0 border"
           style={{
             color: paneAccent,
             borderColor: alpha(paneAccent, 0.35),
@@ -85,7 +85,7 @@ export default function DiffPDFPane({
           {filename}
         </span>
         {isLoaded && (
-          <span className="ml-auto text-[10px] font-mono text-text-muted flex-shrink-0">
+          <span className="ml-auto text-micro font-mono text-text-muted flex-shrink-0">
             {numPages}p
           </span>
         )}
@@ -97,7 +97,7 @@ export default function DiffPDFPane({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-text-muted">
               <div className="w-7 h-7 border-2 border-accent-primary/30 border-t-accent-primary rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-[10px] font-mono">Loading PDF…</p>
+              <p className="text-micro font-mono">Loading PDF…</p>
             </div>
           </div>
         )}
@@ -111,7 +111,7 @@ export default function DiffPDFPane({
             <div className="flex flex-col items-center justify-center h-full p-6 text-center text-text-muted gap-2">
               <FileText className="w-8 h-8 opacity-30" />
               <p className="text-xs font-medium text-text-secondary">PDF preview unavailable</p>
-              <p className="text-[10px] font-mono text-text-dim">
+              <p className="text-micro font-mono text-text-dim">
                 Clause changes remain browsable in the center column.
               </p>
             </div>
@@ -182,17 +182,17 @@ export default function DiffPDFPane({
         <button
           onClick={() => onPageChange(Math.max(1, safePage - 1))}
           disabled={!isLoaded || safePage <= 1}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[10px] font-mono text-text-muted hover:text-text-primary hover:border-accent-primary/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-micro font-mono text-text-muted hover:text-text-primary hover:border-accent-primary/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronLeft className="w-3 h-3" /> Prev
         </button>
-        <span className="text-[10px] font-mono text-text-muted">
+        <span className="text-micro font-mono text-text-muted">
           {safePage} / {numPages || "—"}
         </span>
         <button
           onClick={() => onPageChange(Math.min(numPages || safePage, safePage + 1))}
           disabled={!isLoaded || safePage >= numPages}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[10px] font-mono text-text-muted hover:text-text-primary hover:border-accent-primary/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-micro font-mono text-text-muted hover:text-text-primary hover:border-accent-primary/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           Next <ChevronRight className="w-3 h-3" />
         </button>

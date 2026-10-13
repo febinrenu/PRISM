@@ -132,7 +132,7 @@ export default function EntityNetworkTab() {
     <div className="p-4 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs font-mono uppercase tracking-widest text-text-muted">Entity Co-occurrence</p>
-        <p className="text-[10px] font-mono text-text-dim">Click node to filter clauses</p>
+        <p className="text-micro font-mono text-text-dim">Click node to filter clauses</p>
       </div>
       <div className="rounded-xl overflow-hidden border border-border" style={{ height: 340 }}>
         <ReactFlow
@@ -155,7 +155,7 @@ export default function EntityNetworkTab() {
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
-      <p className="text-[10px] font-mono text-text-dim">Node size = frequency · Edge thickness = co-occurrence</p>
+      <p className="text-micro font-mono text-text-dim">Node size = frequency · Edge thickness = co-occurrence</p>
     </div>
   );
 }

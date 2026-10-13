@@ -61,7 +61,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
         {AGENT_SLIDERS.map((slider) => (
           <div key={slider.key}>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-mono text-text-secondary flex items-center gap-2">
+              <label className="text-micro font-mono text-text-secondary flex items-center gap-2">
                 <span
                   className="inline-block w-2 h-2 rounded-full"
                   style={{ background: tokens.agent[slider.key as AgentType] }}
@@ -83,7 +83,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-[11px] font-mono text-text-secondary">Simulation steps (months)</label>
+            <label className="text-micro font-mono text-text-secondary">Simulation steps (months)</label>
             <span className="text-xs font-display text-text-primary">{nSteps}</span>
           </div>
           <Slider
@@ -101,8 +101,8 @@ export default function SimulationControls({ running, availableRules, prefilterC
       <div className="rounded-lg border border-border px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-mono text-text-secondary">Agent calibration</p>
-            <p className="text-[10px] font-mono text-text-dim mt-0.5">
+            <p className="text-micro font-mono text-text-secondary">Agent calibration</p>
+            <p className="text-micro font-mono text-text-dim mt-0.5">
               {CALIBRATION_OPTIONS.find((o) => o.value === calibrationMode)?.hint}
             </p>
           </div>
@@ -115,7 +115,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
                   type="button"
                   onClick={() => setCalibrationMode(opt.value)}
                   disabled={running}
-                  className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 text-micro font-mono uppercase tracking-wider transition-colors disabled:opacity-50"
                   style={{
                     background: active ? alpha(tokens.accent.primary, 0.15) : "transparent",
                     color: active ? tokens.accent.primary : tokens.text.dim,
@@ -132,8 +132,8 @@ export default function SimulationControls({ running, availableRules, prefilterC
       {/* Adaptive agents toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
         <div>
-          <p className="text-[11px] font-mono text-text-secondary">Adaptive agents (Q-learning)</p>
-          <p className="text-[10px] font-mono text-text-dim mt-0.5">
+          <p className="text-micro font-mono text-text-secondary">Adaptive agents (Q-learning)</p>
+          <p className="text-micro font-mono text-text-dim mt-0.5">
             Agents learn a comply/defect policy over the run instead of a fixed tendency —
             watch behavior converge as enforcement bites.
           </p>
@@ -157,7 +157,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
       {/* Rule filter */}
       {availableRules && availableRules.length > 0 && (
         <div>
-          <p className="kicker !text-[9px] mb-2">
+          <p className="kicker !text-micro mb-2">
             Active policy rules{" "}
             <span className="text-text-dim normal-case tracking-normal">
               — {selectedRules ? `${selectedRules.size} selected` : "all"}
@@ -217,7 +217,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
             </>
           )}
         </button>
-        <p className="text-[10px] font-mono text-text-dim">
+        <p className="text-micro font-mono text-text-dim">
           {totalAgents.toLocaleString()} agents · {nSteps} steps · Mesa ABM · seeded
         </p>
       </div>

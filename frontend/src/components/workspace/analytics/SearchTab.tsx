@@ -46,11 +46,11 @@ function HitCard({ hit, index }: { hit: SearchHit; index: number }) {
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-bg-deep/50">
         <div className="flex items-center gap-2">
           <FileText className="w-3 h-3 text-text-muted" />
-          <span className="text-[10px] font-mono text-text-secondary">
+          <span className="text-micro font-mono text-text-secondary">
             {hit.section !== "—" ? `§ ${hit.section}` : `Page ${hit.page}`}
           </span>
           <span className="text-text-dim">·</span>
-          <span className="text-[10px] font-mono text-text-muted">p.{hit.page}</span>
+          <span className="text-micro font-mono text-text-muted">p.{hit.page}</span>
         </div>
         <div className="flex items-center gap-2">
           {/* Similarity score */}
@@ -61,20 +61,20 @@ function HitCard({ hit, index }: { hit: SearchHit; index: number }) {
                 style={{ width: `${hit.score * 100}%`, background: scoreColor }}
               />
             </div>
-            <span className="text-[9px] font-mono" style={{ color: scoreColor }}>
+            <span className="text-micro font-mono" style={{ color: scoreColor }}>
               {Math.round(hit.score * 100)}%
             </span>
           </div>
           {/* Risk badge */}
           <span
-            className="text-[9px] font-mono px-1.5 py-0.5 rounded-full uppercase"
+            className="text-micro font-mono px-1.5 py-0.5 rounded-full uppercase"
             style={{ background: risk.bg, color: risk.text, border: `1px solid ${risk.border}` }}
           >
             {hit.risk_tier === "CRITICAL" && "⚠ "}
             {hit.risk_tier}
           </span>
           {hit.causal_count > 0 && (
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-accent-primary/10 border border-accent-primary/25 text-accent-bright">
+            <span className="text-micro font-mono px-1.5 py-0.5 rounded-full bg-accent-primary/10 border border-accent-primary/25 text-accent-bright">
               <Zap className="w-2.5 h-2.5 inline mr-0.5" />
               {hit.causal_count}
             </span>
@@ -103,7 +103,7 @@ function HitCard({ hit, index }: { hit: SearchHit; index: number }) {
               return (
                 <span
                   key={i}
-                  className="text-[9px] font-mono px-1.5 py-0.5 rounded-full"
+                  className="text-micro font-mono px-1.5 py-0.5 rounded-full"
                   style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
                 >
                   {e.label}
@@ -191,7 +191,7 @@ export default function SearchTab() {
       {/* ── Suggested queries ── */}
       {!result && !loading && (
         <div className="space-y-2">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-text-dim">
+          <p className="text-micro font-mono uppercase tracking-widest text-text-dim">
             Try asking:
           </p>
           <div className="flex flex-col gap-1.5">
@@ -224,10 +224,10 @@ export default function SearchTab() {
           <div className="p-4 rounded-2xl bg-accent-primary/5 border border-accent-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-accent-primary" />
-              <span className="text-[10px] font-mono uppercase tracking-wider text-accent-primary">
+              <span className="text-micro font-mono uppercase tracking-wider text-accent-primary">
                 Synthesized Answer
               </span>
-              <span className="ml-auto text-[10px] font-mono text-text-muted">
+              <span className="ml-auto text-micro font-mono text-text-muted">
                 {result.total_searched} clauses searched
               </span>
             </div>
@@ -241,7 +241,7 @@ export default function SearchTab() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-3.5 h-3.5 text-text-muted" />
-                <p className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
+                <p className="text-micro font-mono uppercase tracking-wider text-text-muted">
                   {result.hits.length} relevant clause{result.hits.length !== 1 ? "s" : ""}
                 </p>
               </div>

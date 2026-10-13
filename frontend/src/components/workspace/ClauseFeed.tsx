@@ -98,7 +98,7 @@ export default function ClauseFeed() {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="font-display font-semibold text-sm text-text-primary">Clauses</h3>
-            <p className="text-[11px] font-mono mt-0.5 text-text-muted">
+            <p className="text-micro font-mono mt-0.5 text-text-muted">
               {isProcessing
                 ? `Processing ${processedCount} of ${totalClauses}…`
                 : `${filtered.length} of ${clauses.length} clauses${clauses.length > MAX_VISIBLE ? ` (showing ${MAX_VISIBLE})` : ""}`}
@@ -115,7 +115,7 @@ export default function ClauseFeed() {
         {selectedClauseIds.size > 0 && (
           <div className="mb-3">
             <span
-              className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full"
+              className="inline-flex items-center gap-1.5 text-micro font-mono px-2.5 py-1 rounded-full"
               style={{
                 background: alpha(tokens.accent.primary, 0.1),
                 border: `1px solid ${alpha(tokens.accent.primary, 0.35)}`,
@@ -142,12 +142,12 @@ export default function ClauseFeed() {
               <button
                 onClick={() => setOutlineOpen((o) => !o)}
                 aria-expanded={outlineOpen}
-                className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-md border border-border text-text-secondary hover:text-text-primary hover:border-accent-primary/40 transition-colors"
+                className="inline-flex items-center gap-1.5 text-micro font-mono px-2.5 py-1 rounded-md border border-border text-text-secondary hover:text-text-primary hover:border-accent-primary/40 transition-colors"
               >
                 <ListTree className="w-3.5 h-3.5" /> Structure
               </button>
               {scope && scope.length > 0 && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md bg-accent-primary/10 text-accent-bright min-w-0">
+                <span className="inline-flex items-center gap-1 text-micro font-mono px-2 py-1 rounded-md bg-accent-primary/10 text-accent-bright min-w-0">
                   <span className="truncate">{scope.join(" › ")}</span>
                   <button onClick={() => setScope(null)} aria-label="Show all clauses" className="hover:opacity-70">
                     <X className="w-3 h-3" />

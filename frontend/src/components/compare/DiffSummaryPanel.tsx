@@ -18,7 +18,7 @@ function DiffStat({ label, value, color }: { label: string; value: number; color
       <p className="font-display text-2xl leading-none mb-1" style={{ color }}>
         {value}
       </p>
-      <p className="text-[9px] font-mono uppercase tracking-widest text-text-muted">{label}</p>
+      <p className="text-micro font-mono uppercase tracking-widest text-text-muted">{label}</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ export default function DiffSummaryPanel({ result }: { result: CompareResult }) 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Risk delta chips */}
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-text-muted mb-2.5">
+          <p className="text-micro font-mono uppercase tracking-widest text-text-muted mb-2.5">
             Risk delta · A → B
           </p>
           <div className="flex flex-wrap gap-2">
@@ -81,7 +81,7 @@ export default function DiffSummaryPanel({ result }: { result: CompareResult }) 
               return (
                 <span
                   key={tier}
-                  className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1.5 rounded-lg border"
+                  className="flex items-center gap-1.5 text-micro font-mono px-2.5 py-1.5 rounded-lg border"
                   style={{
                     color: text,
                     background: alpha(base, 0.1),
@@ -102,11 +102,11 @@ export default function DiffSummaryPanel({ result }: { result: CompareResult }) 
 
         {/* New obligations / penalties in B */}
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-text-muted mb-2.5">
+          <p className="text-micro font-mono uppercase tracking-widest text-text-muted mb-2.5">
             New obligations &amp; penalties in B
           </p>
           {newHighlights.length === 0 ? (
-            <p className="text-[11px] font-mono text-text-dim">
+            <p className="text-micro font-mono text-text-dim">
               No new OBLIGATION or PENALTY entities introduced.
             </p>
           ) : (
@@ -126,7 +126,7 @@ export default function DiffSummaryPanel({ result }: { result: CompareResult }) 
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <Sparkles className="w-3.5 h-3.5 text-accent-primary" />
-            <p className="text-[10px] font-mono uppercase tracking-widest text-text-muted">
+            <p className="text-micro font-mono uppercase tracking-widest text-text-muted">
               New causal rules in B ({newRules.length})
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function DiffSummaryPanel({ result }: { result: CompareResult }) 
             {newRules.map((rule, i) => (
               <div
                 key={`${rule.clause_id}-${i}`}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-bg-elevated/50 border border-border text-[11px]"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-bg-elevated/50 border border-border text-micro"
               >
                 <span className="text-text-secondary truncate flex-1 min-w-0">
                   {rule.condition ?? "—"}

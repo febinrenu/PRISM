@@ -68,7 +68,7 @@ function PrismNode({ data }: NodeProps<PrismFlowNode>) {
       <Handle type="target" position={Position.Top} style={HANDLE_STYLE} isConnectable={false} />
       <div className="text-center px-2" style={{ maxWidth: data.maxWidth }}>
         <div
-          className="text-[8px] font-mono mb-0.5 uppercase tracking-widest"
+          className="text-micro font-mono mb-0.5 uppercase tracking-widest"
           style={{ color: `${data.color}AA` }}
         >
           {data.nodeType}
@@ -77,10 +77,10 @@ function PrismNode({ data }: NodeProps<PrismFlowNode>) {
           {data.label}
         </div>
         {data.entityCount !== undefined && (
-          <div className="text-[9px] text-text-muted">{data.entityCount} entities</div>
+          <div className="text-micro text-text-muted">{data.entityCount} entities</div>
         )}
         {data.frequency !== undefined && data.frequency > 1 && (
-          <div className="text-[9px] text-text-muted">×{data.frequency}</div>
+          <div className="text-micro text-text-muted">×{data.frequency}</div>
         )}
       </div>
       <Handle type="source" position={Position.Bottom} style={HANDLE_STYLE} isConnectable={false} />
@@ -155,7 +155,7 @@ function buildFlowEdges(graphEdges: GraphEdge[]): Edge[] {
     source: e.source,
     target: e.target,
     label: e.label,
-    labelStyle: { fill: tokens.text.muted, fontSize: 9, fontFamily: "JetBrains Mono" },
+    labelStyle: { fill: tokens.text.muted, fontSize: 12, fontFamily: "JetBrains Mono" },
     style: {
       stroke: e.label === "triggers" ? alpha(tokens.accent.primary, 0.5) : alpha(tokens.accent.primary, 0.2),
       strokeWidth: e.label === "triggers" ? 2 : 1,

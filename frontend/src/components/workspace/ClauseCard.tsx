@@ -148,13 +148,13 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 min-w-0">
           <FileText className="w-3.5 h-3.5 flex-shrink-0 text-text-muted" />
-          <span className="text-[11px] font-mono truncate text-text-muted">
+          <span className="text-micro font-mono truncate text-text-muted">
             {clause.section_hierarchy.length > 0
               ? `§ ${clause.section_hierarchy.join(".")}`
               : `Page ${clause.page}`}
           </span>
           <span className="text-text-dim">·</span>
-          <span className="text-[11px] font-mono text-text-muted">p.{clause.page}</span>
+          <span className="text-micro font-mono text-text-muted">p.{clause.page}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {/* Risk tier badge */}
@@ -162,7 +162,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
             <motion.span
               animate={maxRisk === "CRITICAL" ? { opacity: [0.7, 1, 0.7] } : {}}
               transition={{ duration: 1.8, repeat: Infinity }}
-              className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full"
+              className="flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full"
               style={{
                 background: alpha(maxRiskStyle.base, 0.12),
                 border: `1px solid ${alpha(maxRiskStyle.base, 0.35)}`,
@@ -174,7 +174,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
             </motion.span>
           )}
           {hasCausal && (
-            <span className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-primary/10 border border-accent-primary/30 text-accent-bright">
+            <span className="flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full bg-accent-primary/10 border border-accent-primary/30 text-accent-bright">
               <Zap style={{ width: 10, height: 10 }} />
               IF→THEN
             </span>
@@ -182,7 +182,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
           {/* Phase 2: LLM extraction badge */}
           {clause.llm_extraction?.is_causal && (
             <span
-              className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full"
+              className="flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full"
               style={{
                 background: alpha(tokens.status.info, 0.1),
                 border: `1px solid ${alpha(tokens.status.info, 0.3)}`,
@@ -215,7 +215,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
       {/* Complexity bar */}
       {clause.complexity_score > 0 && (
         <div className="mt-3 flex items-center gap-2">
-          <span className="text-[10px] font-mono text-text-dim">Density</span>
+          <span className="text-micro font-mono text-text-dim">Density</span>
           <div className="flex-1 h-[2px] rounded-full bg-border">
             <div
               className="h-full rounded-full"
@@ -238,15 +238,15 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
           <Link
             href={`/explain/${clause.doc_id}/${clause.clause_id}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-[10px] font-mono text-text-muted hover:text-accent-primary transition-colors"
+            className="flex items-center gap-1 text-micro font-mono text-text-muted hover:text-accent-primary transition-colors"
           >
             <Sparkles style={{ width: 10, height: 10 }} /> Explain this
           </Link>
-          <span className="text-text-dim text-[10px]">·</span>
+          <span className="text-text-dim text-micro">·</span>
           <Link
             href={`/simulate/${clause.doc_id}?clause=${clause.clause_id}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-[10px] font-mono text-text-muted hover:text-status-success transition-colors"
+            className="flex items-center gap-1 text-micro font-mono text-text-muted hover:text-status-success transition-colors"
           >
             <FlaskConical style={{ width: 10, height: 10 }} /> Simulate impact
           </Link>

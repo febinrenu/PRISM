@@ -122,7 +122,7 @@ export default function InspectPanel({ set, system, onClose }: { set: string; sy
           </dl>
           {t.units.map((u) => (
             <div key={u.path} className="px-3 py-2 border-t border-border space-y-2">
-              <p className="text-[11px] font-mono text-text-muted">
+              <p className="text-micro font-mono text-text-muted">
                 {u.path} · {u.status} · {u.rules} rule{u.rules === 1 ? "" : "s"}
                 {u.hallucinated_fields > 0 && ` · ${u.hallucinated_fields} quote(s) not found in the statute`}
               </p>

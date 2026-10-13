@@ -2,6 +2,21 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
-    "react/display-name": "off"
-  }
+    "react/display-name": "off",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          { "group": ["three", "three/*", "@react-three/*"], "message": "WebGL lives in src/story or src/components/three only." },
+          { "group": ["gsap", "gsap/*", "@gsap/react", "lenis", "lenis/*"], "message": "GSAP and Lenis live in src/story only." }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/story/**", "src/components/three/**"],
+      "rules": { "no-restricted-imports": "off" }
+    }
+  ]
 }

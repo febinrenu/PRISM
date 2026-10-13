@@ -3,23 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-mono uppercase tracking-[0.14em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent-primary focus-visible:ring-offset-1 focus-visible:ring-offset-bg-base disabled:pointer-events-none disabled:opacity-40",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-[4px] font-medium transition-[background-color,border-color,color,transform] duration-200 ease-out-expo active:translate-y-px disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       variant: {
-        primary:
-          "bg-accent-primary text-text-inverse hover:bg-accent-bright border border-transparent",
-        outline:
-          "border border-light text-accent-primary hover:border-glow hover:bg-bg-elevated",
-        ghost:
-          "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
-        danger:
-          "border border-status-error/40 text-status-error hover:bg-status-error/10",
+        /** Ink text on vermilion: the one primary action on a view. */
+        primary: "bg-signal text-ink hover:bg-signal-soft border border-transparent",
+        /** Paper fill: strong but not the signal. */
+        secondary: "bg-paper text-ink hover:bg-paper-200 border border-transparent",
+        outline: "border border-light text-text-primary hover:border-glow hover:bg-bg-elevated",
+        ghost: "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
+        quiet: "text-text-muted hover:text-text-primary border border-transparent",
+        link: "text-text-primary underline decoration-border-light underline-offset-4 hover:decoration-signal px-0 h-auto",
+        danger: "border border-status-critical/45 text-status-error hover:bg-status-critical/10",
       },
       size: {
-        sm: "h-8 px-3 text-[10px]",
-        md: "h-10 px-5 text-[11px]",
-        lg: "h-12 px-7 text-xs",
+        sm: "h-8 px-3 text-[13px]",
+        md: "h-10 px-4 text-sm",
+        lg: "h-12 px-6 text-[15px]",
+        icon: "h-9 w-9 p-0",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },
@@ -31,8 +33,8 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  ({ className, variant, size, type = "button", ...props }, ref) => (
+    <button ref={ref} type={type} className={cn(buttonVariants({ variant, size }), className)} {...props} />
   )
 );
 Button.displayName = "Button";

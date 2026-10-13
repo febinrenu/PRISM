@@ -125,7 +125,7 @@ export default function UploadZone() {
             </p>
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               {["PDF only", "Max 50MB", "Local & Private"].map((tag) => (
-                <span key={tag} className="text-[10px] font-mono px-2 py-1 rounded-lg uppercase tracking-wider text-text-muted border border-border bg-bg-deep/35">
+                <span key={tag} className="text-micro font-mono px-2 py-1 rounded-lg uppercase tracking-wider text-text-muted border border-border bg-bg-deep/35">
                   {tag}
                 </span>
               ))}
@@ -173,7 +173,7 @@ export default function UploadZone() {
           {isLoadingDemo ? "Loading demo…" : "Try Demo — Income Tax Bill 2025"}
         </span>
         {!isLoadingDemo && (
-          <span className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded text-text-muted border border-border bg-bg-deep/30">
+          <span className="ml-auto text-micro font-mono px-2 py-0.5 rounded text-text-muted border border-border bg-bg-deep/30">
             ~200 clauses
           </span>
         )}

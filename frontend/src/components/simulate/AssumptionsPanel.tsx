@@ -63,7 +63,7 @@ export default function AssumptionsPanel() {
         <ShieldCheck className="w-4 h-4 flex-shrink-0 text-accent-primary" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-display text-text-primary">Model assumptions</p>
-          <p className="text-[10px] font-mono text-text-dim mt-0.5">
+          <p className="text-micro font-mono text-text-dim mt-0.5">
             Every parameter behind the simulation, with source & rationale
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function AssumptionsPanel() {
         >
           {Object.entries(groups).map(([group, rows]) => (
             <div key={group}>
-              <p className="kicker !text-[9px] mb-3">{group}</p>
+              <p className="kicker !text-micro mb-3">{group}</p>
               <div className="space-y-2">
                 {rows.map((p) => {
                   const tag = TAG_STYLE[p.tag];
@@ -95,7 +95,7 @@ export default function AssumptionsPanel() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-display text-text-primary">{p.label}</span>
                           <span
-                            className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-full border flex-shrink-0"
+                            className="text-micro font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-full border flex-shrink-0"
                             style={{
                               color: tag.color,
                               borderColor: alpha(tag.color, 0.4),
@@ -105,7 +105,7 @@ export default function AssumptionsPanel() {
                             {tag.label}
                           </span>
                         </div>
-                        <p className="text-[11px] text-text-muted leading-relaxed mt-1">{p.rationale}</p>
+                        <p className="text-micro text-text-muted leading-relaxed mt-1">{p.rationale}</p>
                       </div>
                       <span className="text-xs font-mono text-accent-primary sm:text-right whitespace-nowrap">
                         {formatValue(p.value)}

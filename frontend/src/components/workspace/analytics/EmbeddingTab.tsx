@@ -332,7 +332,7 @@ export default function EmbeddingTab() {
         <Layers className="w-7 h-7 opacity-30" />
         <p className="font-mono text-sm">{message}</p>
         {done && points.length === 0 && (
-          <p className="font-mono text-[10px] text-text-dim max-w-xs text-center leading-relaxed">
+          <p className="font-mono text-micro text-text-dim max-w-xs text-center leading-relaxed">
             The semantic scatter needs the UMAP projection, which didn’t complete for this
             document. All other analysis is available.
           </p>
@@ -360,7 +360,7 @@ export default function EmbeddingTab() {
           {selectedClauseIds.size > 0 && (
             <button
               onClick={() => setSelectedClauseIds(new Set<string>())}
-              className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full transition-colors"
+              className="inline-flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full transition-colors"
               style={{
                 background: alpha(tokens.accent.primary, 0.1),
                 border: `1px solid ${alpha(tokens.accent.primary, 0.35)}`,
@@ -373,7 +373,7 @@ export default function EmbeddingTab() {
           )}
           <button
             onClick={() => setLassoMode((v) => !v)}
-            className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full transition-colors"
+            className="inline-flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full transition-colors"
             style={{
               background: lassoMode ? alpha(tokens.accent.primary, 0.15) : "transparent",
               border: `1px solid ${lassoMode ? alpha(tokens.accent.primary, 0.5) : tokens.border.DEFAULT}`,
@@ -384,7 +384,7 @@ export default function EmbeddingTab() {
             <Lasso className="w-3 h-3" />
             Lasso
           </button>
-          <p className="text-[10px] font-mono text-text-dim">
+          <p className="text-micro font-mono text-text-dim">
             {lassoMode
               ? `${points.length} clauses · drag to select`
               : `${points.length} clauses · scroll to zoom · click to explore`}
@@ -436,10 +436,10 @@ export default function EmbeddingTab() {
             {/* Panel header */}
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-[9px] font-mono uppercase tracking-widest text-text-muted">
+                <p className="text-micro font-mono uppercase tracking-widest text-text-muted">
                   Clause · Page {selectedClause.page}
                 </p>
-                <p className="text-[10px] font-mono mt-0.5 text-text-secondary">
+                <p className="text-micro font-mono mt-0.5 text-text-secondary">
                   {selectedClause.section_hierarchy?.slice(-1)[0] ?? "—"}
                 </p>
               </div>
@@ -453,11 +453,11 @@ export default function EmbeddingTab() {
 
             {/* Full text */}
             <div>
-              <p className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-text-dim">
+              <p className="text-micro font-mono uppercase tracking-widest mb-1.5 text-text-dim">
                 Full text
               </p>
               <p
-                className="text-[11px] leading-relaxed text-text-secondary bg-bg-surface/80 border border-border"
+                className="text-micro leading-relaxed text-text-secondary bg-bg-surface/80 border border-border"
                 style={{
                   borderRadius: 8,
                   padding: "8px 10px",
@@ -472,7 +472,7 @@ export default function EmbeddingTab() {
             {/* Entities */}
             {selectedClause.entities.length > 0 && (
               <div>
-                <p className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-text-dim">
+                <p className="text-micro font-mono uppercase tracking-widest mb-1.5 text-text-dim">
                   Legal entities ({selectedClause.entities.length})
                 </p>
                 <div className="flex flex-wrap gap-1">
@@ -483,7 +483,7 @@ export default function EmbeddingTab() {
                     return (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded"
+                        className="inline-flex items-center gap-1 text-micro font-mono px-1.5 py-0.5 rounded"
                         style={{
                           background: ec?.bg ?? alpha(tokens.accent.primary, 0.12),
                           color: ec?.text ?? tokens.text.secondary,
@@ -506,7 +506,7 @@ export default function EmbeddingTab() {
             {/* Causal patterns */}
             {selectedClause.causal_patterns.length > 0 && (
               <div>
-                <p className="text-[9px] font-mono uppercase tracking-widest mb-1.5 text-text-dim">
+                <p className="text-micro font-mono uppercase tracking-widest mb-1.5 text-text-dim">
                   Causal patterns
                 </p>
                 <div className="space-y-1">
@@ -515,7 +515,7 @@ export default function EmbeddingTab() {
                     return (
                       <div
                         key={i}
-                        className="flex items-center gap-1.5 text-[9px] font-mono px-2 py-1 rounded bg-bg-surface/80 border border-border"
+                        className="flex items-center gap-1.5 text-micro font-mono px-2 py-1 rounded bg-bg-surface/80 border border-border"
                       >
                         <span
                           className="w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -539,11 +539,11 @@ export default function EmbeddingTab() {
             <div className="rounded-xl p-3 space-y-1.5 bg-accent-primary/5 border border-accent-primary/15">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-accent-primary" />
-                <p className="text-[9px] font-mono uppercase tracking-widest text-accent-primary">
+                <p className="text-micro font-mono uppercase tracking-widest text-accent-primary">
                   Why here?
                 </p>
               </div>
-              <p className="text-[10px] leading-relaxed text-text-secondary">
+              <p className="text-micro leading-relaxed text-text-secondary">
                 {CLUSTER_REASON[selectedPoint.dominantLabel]}
               </p>
             </div>
@@ -553,7 +553,7 @@ export default function EmbeddingTab() {
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <GitBranch className="w-3 h-3 text-text-dim" />
-                  <p className="text-[9px] font-mono uppercase tracking-widest text-text-dim">
+                  <p className="text-micro font-mono uppercase tracking-widest text-text-dim">
                     Nearest semantic clauses
                   </p>
                 </div>
@@ -568,14 +568,14 @@ export default function EmbeddingTab() {
                       className="w-full text-left rounded-lg p-2 transition-all bg-bg-surface/70 border border-border"
                     >
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[9px] font-mono text-text-muted">
+                        <span className="text-micro font-mono text-text-muted">
                           p.{nc.page}
                         </span>
-                        <span className="text-[9px] font-mono text-text-dim">
+                        <span className="text-micro font-mono text-text-dim">
                           dist {dist.toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-[10px] leading-snug text-text-secondary">
+                      <p className="text-micro leading-snug text-text-secondary">
                         {nc.text.slice(0, 65)}…
                       </p>
                     </button>
@@ -598,7 +598,7 @@ export default function EmbeddingTab() {
                 style={{ background: colors.hex }}
               />
               <span
-                className="text-[10px] font-mono text-text-muted"
+                className="text-micro font-mono text-text-muted"
                 title={ENTITY_MEANING[label]}
               >
                 {label}
@@ -606,7 +606,7 @@ export default function EmbeddingTab() {
             </div>
           ))}
         {!selectedId && (
-          <span className="ml-auto text-[9px] font-mono text-text-dim">
+          <span className="ml-auto text-micro font-mono text-text-dim">
             ↑ click any dot to explore
           </span>
         )}

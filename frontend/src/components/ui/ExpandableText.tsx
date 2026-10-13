@@ -39,7 +39,7 @@ export default function ExpandableText({
           e.stopPropagation();
           setExpanded((x) => !x);
         }}
-        className="inline-flex items-center gap-0.5 text-[9px] font-mono uppercase tracking-wider align-baseline transition-opacity opacity-70 hover:opacity-100"
+        className="inline-flex items-center gap-0.5 text-micro font-mono uppercase tracking-wider align-baseline transition-opacity opacity-70 hover:opacity-100"
         style={accentColor ? { color: accentColor } : undefined}
       >
         {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}

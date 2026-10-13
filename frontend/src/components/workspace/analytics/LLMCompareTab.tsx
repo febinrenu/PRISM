@@ -67,18 +67,18 @@ export default function LLMCompareTab() {
                 style={{ width: llmTotal ? `${(llmProcessed / llmTotal) * 100}%` : "0%" }}
               />
             </div>
-            <span className="text-[10px] font-mono text-text-muted whitespace-nowrap">
+            <span className="text-micro font-mono text-text-muted whitespace-nowrap">
               {llmProcessed}/{llmTotal}
             </span>
           </div>
         )}
         {llmStage === "error" && (
-          <span className="flex items-center gap-1.5 text-[11px] font-mono text-status-error">
+          <span className="flex items-center gap-1.5 text-micro font-mono text-status-error">
             <CircleSlash className="w-3.5 h-3.5" /> Extraction failed — is Ollama running?
           </span>
         )}
         {llmSummary && (
-          <div className="flex items-center gap-3 text-[10px] font-mono text-text-muted ml-auto">
+          <div className="flex items-center gap-3 text-micro font-mono text-text-muted ml-auto">
             <span style={{ color: tokens.status.success }}>◼ both {llmSummary.agreement.both}</span>
             <span style={{ color: tokens.status.info }}>◼ llm {llmSummary.agreement.llm_only}</span>
             <span style={{ color: tokens.accent.primary }}>◼ rules {llmSummary.agreement.rule_only}</span>
@@ -99,7 +99,7 @@ export default function LLMCompareTab() {
               <div className="flex items-center justify-between gap-2 mb-3">
                 <button
                   onClick={() => setSelectedClauseId(clause.clause_id)}
-                  className="text-[10px] font-mono text-text-muted hover:text-accent-primary transition-colors"
+                  className="text-micro font-mono text-text-muted hover:text-accent-primary transition-colors"
                 >
                   {clause.section_hierarchy.length > 0
                     ? `§${clause.section_hierarchy.join(".")}`
@@ -120,7 +120,7 @@ export default function LLMCompareTab() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="space-y-1.5">
-                  <p className="kicker !text-[9px]">Rule-based (Phase 1)</p>
+                  <p className="kicker !text-micro">Rule-based (Phase 1)</p>
                   {clause.causal_patterns.length > 0 ? (
                     clause.causal_patterns.slice(0, 2).map((p, i) => (
                       <p key={i} className="text-text-secondary leading-relaxed">
@@ -133,7 +133,7 @@ export default function LLMCompareTab() {
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <p className="kicker !text-[9px]">Phi-3.5-mini (Phase 2)</p>
+                  <p className="kicker !text-micro">Phi-3.5-mini (Phase 2)</p>
                   {rule.is_causal ? (
                     <>
                       {rule.condition && (
@@ -158,12 +158,12 @@ export default function LLMCompareTab() {
               </div>
 
               <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-                <span className="text-[10px] font-mono text-text-dim">
+                <span className="text-micro font-mono text-text-dim">
                   confidence {Math.round(rule.confidence * 100)}% · {rule.extraction_time_ms}ms
                 </span>
                 <Link
                   href={`/explain/${docId}/${clause.clause_id}`}
-                  className="ml-auto flex items-center gap-1 text-[10px] font-mono text-accent-primary hover:text-accent-bright transition-colors"
+                  className="ml-auto flex items-center gap-1 text-micro font-mono text-accent-primary hover:text-accent-bright transition-colors"
                 >
                   Explain this <ExternalLink className="w-3 h-3" />
                 </Link>
