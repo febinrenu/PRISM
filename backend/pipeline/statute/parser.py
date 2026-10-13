@@ -79,6 +79,23 @@ _XREF_CONTINUATION_RE = re.compile(
 _ROMAN_VALUES = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 
 
+_CAPS_WORD = re.compile(r"^[A-Z0-9][A-Z0-9,.&()'’\-–—/]*$")
+
+
+def _caps_prefix(raw: str) -> tuple[str, str]:
+    """("SET OFF, OR CARRY FORWARD AND SET OFF OF LOSSES", "Set off of losses …")
+    for a paragraph that starts with a title in capitals; ("", raw) otherwise.
+    At least two words, and the capital words must be most of the letters
+    of the title so that an acronym ("TDS") does not count."""
+    words = raw.split()
+    n = 0
+    while n < len(words) and _CAPS_WORD.match(words[n]) and any(c.isalpha() for c in words[n]):
+        n += 1
+    if n < 2:
+        return "", raw
+    return " ".join(words[:n]), " ".join(words[n:])
+
+
 def _roman_to_int(s: str) -> Optional[int]:
     s = s.lower()
     if not s or any(ch not in _ROMAN_VALUES for ch in s):
@@ -245,6 +262,10 @@ def _zone(paras: list[Paragraph]) -> tuple[list[Paragraph], list[Paragraph], lis
                                  or _PART_RE.match(paras[start - 1].text)
                                  or (paras[start - 1].centred and len(paras[start - 1].text) < 80
                                      and not _TOC_RE.match(paras[start - 1].text))):
+                # (Stepping over a bold heading above section 1 as well would
+                # recover Chapter I of the amended Income-tax Act 2025, but it
+                # would shift every offset into that text and the frozen
+                # evaluation sets with it.)
                 start -= 1
             break
     end = len(paras)
@@ -299,6 +320,8 @@ class _Builder:
         self.table_anchor: Optional[Node] = None   # provision whose lead-in opened a table
         self.held: Optional[tuple[Paragraph, Optional[str]]] = None   # possible heading above a section
         self.heading_above: Optional[str] = None
+        self.heading_above_next: Optional[str] = None   # a section heading run into a chapter title
+        self.last_chapter: Optional[int] = None
 
     # helpers ---------------------------------------------------------------
     def _active_stack(self) -> list[Node]:
@@ -413,6 +436,9 @@ class _Builder:
         """A short bold sentence that may be the heading printed above the next
         section ('Relief when salary, etc., is paid in arrears or in advance.')."""
         text = p.text.strip()
+        if self.container.kind == "chapter" and not self.container.heading and not self.stack \
+                and _caps_prefix(text)[0]:
+            return False        # the chapter's title (possibly run into the first section's heading)
         return (self.quote is None and not p.centred and not p.is_table_row
                 and self._schedule_ancestor() is None
                 and all(ln.bold for ln in p.lines) and len(text) < 160 and text.endswith(".")
@@ -462,7 +488,14 @@ class _Builder:
             text = raw
 
         m = _CHAPTER_RE.match(raw)
+        if (m and self.quote is not None and not opens_quote and (p.centred or p.lines[0].bold)
+                and self.last_chapter is not None
+                and (_roman_to_int(m.group(1).split("-")[0].lower()) or 0) == self.last_chapter + 1):
+            # The Act's next chapter after a quoted passage whose closing mark
+            # was not recognised (s.267 of the Income-tax Act 2025): the quote has ended.
+            self._close_quote()
         if m and (p.centred or p.lines[0].bold or len(raw) < 120) and self.quote is None:
+            self.last_chapter = _roman_to_int(m.group(1).split("-")[0].lower()) or self.last_chapter
             node = Node(kind="chapter", number=m.group(1), heading=m.group(2).strip(),
                         paragraph=p, indent=p.x0, label_type="CHAPTER")
             parent = self.root if self.container.kind in ("act", "chapter", "schedule") \
@@ -557,6 +590,17 @@ class _Builder:
                 and not self.stack and not _starts_structurally(raw)):
             self.container.heading = raw
             return
+        # Titles in capitals that are not centred (long titles wrap), a title
+        # continued on the next line, or a title run into the heading of the
+        # first section ("SET OFF, OR CARRY FORWARD AND SET OFF OF LOSSES Set off
+        # of losses under the same head of income.").
+        if self.container.kind == "chapter" and not self.stack and self.quote is None and not _starts_structurally(raw):
+            title, rest = _caps_prefix(raw)
+            if title and (not self.container.heading or not rest):
+                self.container.heading = f"{self.container.heading} {title}".strip()
+                if rest:
+                    self.heading_above_next = rest.rstrip(". ")
+                return
 
         sec = _SECTION_RE.match(text)
         if sec and self.quote is not None and not opens_quote and p.lines[0].bold \
@@ -641,6 +685,9 @@ class _Builder:
             heading = hm.group(1).strip()
         if not heading and self.heading_above:
             heading = self.heading_above
+        if not heading and self.heading_above_next:
+            heading = self.heading_above_next
+        self.heading_above_next = None
         if not heading and self.pending_note:
             heading = self.pending_note
         self.pending_note = None

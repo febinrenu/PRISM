@@ -267,3 +267,14 @@ def test_corpus_ita2025_headings_above_sections():
     assert secs["157"]["heading"].startswith("Relief when salary")
     assert "Relief when salary" not in text[secs["156"]["start"]:secs["156"]["end"]]
     assert sum(1 for n in secs.values() if n["heading"]) > 400
+
+
+def test_corpus_ita2025_chapter_titles():
+    # Long titles are not centred; some run into the first section's heading;
+    # Chapter XVI follows a quoted passage whose closing mark was missed.
+    ast = _corpus_ast("ITA2025", "amended_fa2026")
+    titles = {n["number"]: n["heading"] for n in ast["nodes"] if n["kind"] == "chapter"}
+    assert titles["VII"] == "SET OFF, OR CARRY FORWARD AND SET OFF OF LOSSES"
+    assert titles["XVI"] == "PROCEDURE FOR ASSESSMENT"
+    assert titles["XVII"] == "SPECIAL PROVISIONS RELATING TO CERTAIN PERSONS"
+    assert all(titles.values())
