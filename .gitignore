@@ -54,3 +54,4 @@ training/*.gguf
 training/Modelfile
 backend/data/eval/v2/faithfulness/
 backend/data/batch/
+backend/data/eval/v2/rag/

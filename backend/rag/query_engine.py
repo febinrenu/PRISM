@@ -73,14 +73,20 @@ def assess_grounding(answer: str, n_sources: int) -> dict:
 
 
 def retrieve(question: str, doc_ids: Optional[list[str]] = None, top_k: int = RAG_TOP_K) -> list[dict]:
-    return corpus_builder.semantic_search(question, n_results=top_k, doc_ids=doc_ids)
+    return corpus_builder.hybrid_search(question, n_results=top_k, doc_ids=doc_ids)
 
 
 def retrieval_confidence(hits: list[dict]) -> float:
+    """The re-ranker's top score on a 0-1 scale (the benchmark's best signal
+    for an unanswerable question); mean dense similarity as a fallback."""
+    from rag.hybrid import confidence
+    scores = [h["rerank_score"] for h in hits if h.get("rerank_score") is not None]
+    if scores:
+        return confidence(scores)
     if not hits:
         return 0.0
-    top = [h["similarity"] for h in hits[: min(4, len(hits))]]
-    return round(sum(top) / len(top), 3)
+    top = [h["similarity"] for h in hits[: min(4, len(hits))] if h.get("similarity") is not None]
+    return round(sum(top) / len(top), 3) if top else 0.0
 
 
 def citations(hits: list[dict]) -> list[dict]:

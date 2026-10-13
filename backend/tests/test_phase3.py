@@ -125,3 +125,13 @@ def test_gold_builder_shapes():
     assert all("gold_entities" in it and it["reviewed"] is False for it in ner)
     assert all("gold_is_causal" in it for it in causal)
     assert all("gold_clause_id" in it and it["question"] for it in rag)
+
+
+def test_hybrid_fusion_and_bm25():
+    from rag.hybrid import BM25, rrf
+    bm = BM25(["rebate of income-tax for individuals", "penalty for failure to furnish return", "capital gains"])
+    s = bm.scores("penalty for not furnishing the return")
+    assert int(s.argmax()) == 1
+    fused = rrf(["a", "b", "c"], ["c", "a"])
+    assert sorted(fused, key=fused.get, reverse=True)[0] == "a"
+    assert BM25(["x"]).scores("unrelated words").max() == 0

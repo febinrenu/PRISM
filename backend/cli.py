@@ -432,6 +432,16 @@ def cmd_error_injection(args) -> int:
     return 0
 
 
+def cmd_eval_rag(args) -> int:
+    from eval.v2 import rag_eval
+
+    out = rag_eval.evaluate(args.per_statute, args.rerank_depth)
+    for system, r in out["results"].items():
+        print(f"{system:14s} R@1 {r['r@1']['mean']:.3f}  R@5 {r['r@5']['mean']:.3f}  MRR {r['mrr@10']['mean']:.3f}"
+              f"  nDCG {r['ndcg@10']['mean']:.3f}  abstention AUROC {r['abstention_auroc']}")
+    return 0
+
+
 def cmd_reanalyze(args) -> int:
     """Re-run the web workspace's analysis of a stored document (e.g. after a
     parser change). Long documents take tens of minutes."""
@@ -582,6 +592,11 @@ def main(argv=None) -> int:
     p = sub.add_parser("error-injection", help="inject typed extraction errors into the expert law and score them")
     p.add_argument("--draws", type=int, default=32)
     p.set_defaults(func=cmd_error_injection)
+
+    p = sub.add_parser("eval-rag", help="retrieval benchmark over the statute corpus (resumable)")
+    p.add_argument("--per-statute", type=int, default=150)
+    p.add_argument("--rerank-depth", type=int, default=30)
+    p.set_defaults(func=cmd_eval_rag)
 
     p = sub.add_parser("reanalyze", help="re-run the workspace analysis of a stored document")
     p.add_argument("--doc", required=True)

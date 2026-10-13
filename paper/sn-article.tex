@@ -640,6 +640,42 @@ metrics do not measure. And the safeguard that matters is validation of the
 executable law (complete schedules, scoped benefits, no silent defaults),
 which converts errors that would mislead into errors that are seen.
 
+\begin{appendices}
+
+\section{Retrieval over the statute corpus}\label{app:rag}
+
+PRISM's question-answering interface retrieves statute provisions before a
+language model answers from them, so retrieval quality bounds the quality of
+its answers. We measured it on a benchmark derived from the statutes'
+structure. The index holds the \res{ragchunks} extraction units of the
+Income-tax Act 2025, the CGST Act, the Code on Wages and six Finance Acts,
+each unit's own text with its section heading removed. The queries are
+\res{ragqueries} official section headings of the first three Acts (generic
+headings that recur are excluded); a query is answered when a unit of the
+section it heads is retrieved. The \res{ragunanswerable} headings of the
+Digital Personal Data Protection Act, which is not indexed, test whether a
+retriever's top score can signal that the corpus has no answer. Headings
+are short, written by the drafters and not by users, so the benchmark
+measures how well a retriever links a provision's subject to its text;
+questions written by the annotators will complement it.
+
+\Cref{tab:rag} shows the results. The dense encoder used by the web
+application (MiniLM) retrieves the right section within five results for
+\res{ragrfive@minilm} of the queries, fewer than BM25
+(\res{ragrfive@bm25}). A stronger encoder (bge-small, \res{ragrfive@bge-small}),
+reciprocal-rank fusion with BM25 (\res{ragrfive@hybrid}) and a cross-encoder
+re-ranking of the fused candidates (\res{ragrfive@hybrid+rerank}) each
+improve on it; the re-ranker also separates unanswerable queries best
+(AUROC \res{ragauroc@hybrid+rerank}). Fusing BM25 with the application's
+own MiniLM embeddings and re-ranking reaches \res{ragrfive@hybrid-minilm+rerank}
+(abstention AUROC \res{ragauroc@hybrid-minilm+rerank}) without re-embedding the
+corpus; this is the configuration the application now uses, and its
+re-ranker score is the confidence it reports.
+
+\input{tables/rag}
+
+\end{appendices}
+
 \backmatter
 
 \bmhead{Data and code availability}

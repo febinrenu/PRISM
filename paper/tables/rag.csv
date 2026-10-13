@@ -1,0 +1,8 @@
+Retriever,R@1,R@5 (95% CI),MRR@10,nDCG@10,Abstention AUROC
+BM25,0.31,0.57 (0.51-0.62),0.42,0.43,0.68
+MiniLM (dense),0.28,0.52 (0.47-0.57),0.38,0.39,0.76
+bge-small (dense),0.37,0.64 (0.59-0.69),0.49,0.50,0.84
+Hybrid BM25 + bge (RRF),0.39,0.67 (0.61-0.71),0.51,0.52,0.78
+"Hybrid BM25 + bge, re-ranked",0.49,0.73 (0.68-0.78),0.59,0.59,0.85
+Hybrid BM25 + MiniLM (RRF),0.35,0.61 (0.56-0.66),0.46,0.48,0.68
+"Hybrid BM25 + MiniLM, re-ranked (application)",0.48,0.72 (0.67-0.76),0.58,0.58,0.85

@@ -128,14 +128,63 @@ def semantic_search(query: str, n_results: int = 8, doc_ids: Optional[list[str]]
     docs = res.get("documents", [[]])[0]
     metas = res.get("metadatas", [[]])[0]
     dists = res.get("distances", [[]])[0]
-    for doc, meta, dist in zip(docs, metas, dists):
+    ids = res.get("ids", [[]])[0]
+    for cid, doc, meta, dist in zip(ids, docs, metas, dists):
         # cosine distance → similarity
         hits.append({
+            "id": cid,
             "text": doc,
             "similarity": round(1.0 - float(dist), 4),
             **meta,
         })
     return hits
+
+
+_lexical = {"count": -1, "index": None, "ids": [], "texts": {}, "metas": {}}
+
+
+def _lexical_index():
+    """BM25 over every clause in the corpus, rebuilt when the corpus changes."""
+    from rag.hybrid import BM25
+    collection = _get_collection()
+    n = collection.count()
+    with _lock:
+        if _lexical["count"] != n:
+            got = collection.get(include=["documents", "metadatas"]) if n else {"ids": [], "documents": [], "metadatas": []}
+            ids, docs, metas = got.get("ids", []), got.get("documents", []), got.get("metadatas", [])
+            _lexical.update(count=n, ids=list(ids), texts=dict(zip(ids, docs)), metas=dict(zip(ids, metas)),
+                            index=BM25(list(docs)) if docs else None)
+    return _lexical
+
+
+def hybrid_search(query: str, n_results: int = 8, doc_ids: Optional[list[str]] = None,
+                  depth: int = 30) -> list[dict]:
+    """BM25 and MiniLM candidates fused by reciprocal rank and re-ranked by a
+    cross-encoder (rag/hybrid.py; chosen on the retrieval benchmark)."""
+    from rag.hybrid import fuse_and_rerank
+    dense = semantic_search(query, n_results=50, doc_ids=doc_ids)
+    lex = _lexical_index()
+    lexical: list[str] = []
+    if lex["index"] is not None:
+        scores = lex["index"].scores(query)
+        order = np.argsort(-scores)
+        wanted = set(doc_ids) if doc_ids else None
+        for i in order[:400]:
+            if scores[i] <= 0:
+                break
+            cid = lex["ids"][i]
+            if wanted is None or lex["metas"][cid].get("doc_id") in wanted:
+                lexical.append(cid)
+            if len(lexical) >= 50:
+                break
+    texts = {**lex["texts"], **{h["id"]: h["text"] for h in dense}}
+    by_id = {h["id"]: h for h in dense}
+    out = []
+    for cid, score in fuse_and_rerank(query, [h["id"] for h in dense], lexical, texts, n_results, depth):
+        hit = dict(by_id.get(cid) or {"id": cid, "text": texts[cid], "similarity": None, **lex["metas"].get(cid, {})})
+        hit["rerank_score"] = round(score, 4)
+        out.append(hit)
+    return out
 
 
 def corpus_stats() -> dict:
