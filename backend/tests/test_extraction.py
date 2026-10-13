@@ -180,3 +180,26 @@ def test_key_pool_rotates_cools_and_retires():
     pool.retire("b", "m")
     with pytest.raises(QuotaExhausted):
         pool.pick("m")
+
+
+def test_batch_export_import_round_trip(tmp_path, monkeypatch):
+    import json
+    from pipeline.extraction import batch, cache
+    from pipeline.extraction.backends import generate_json
+    monkeypatch.setattr(cache, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(batch, "BATCH_DIR", tmp_path / "batch")
+    path, n = batch.export("mistral-7b", ["pilot"], k=0)
+    reqs = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines()]
+    assert reqs[0]["system"] == "mistral-7b" and n == len(reqs) - 1 == 30
+    first = reqs[1]
+    resp = tmp_path / "batch" / "mistral-7b.responses.jsonl"
+    resp.write_text(json.dumps({"system": "mistral-7b"}) + "\n"
+                    + json.dumps({"key": first["key"], "text": '{"rules": []}', "model_version": "v0.3"}) + "\n"
+                    + json.dumps({"key": "not-a-request", "text": "x"}) + "\n", encoding="utf-8")
+    out = batch.import_responses(resp)
+    assert out["stored"] == 1 and out["unknown_keys"] == 1
+    res = generate_json("mistral-7b", first["prompt"], temperature=first["temperature"], seed=first["seed"],
+                        prompt_version=3)
+    assert res.cached and res.text == '{"rules": []}'
+    # a second export leaves out what is already answered
+    assert batch.export("mistral-7b", ["pilot"], k=0)[1] == 29

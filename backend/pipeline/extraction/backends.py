@@ -58,6 +58,10 @@ SYSTEMS: dict[str, System] = {s.name: s for s in [
     # (pinned model ids; the ":free" routes have per-account daily limits).
     System("gemma-4-31b", "openrouter", "google/gemma-4-31b-it:free"),
     System("nemotron-3-super", "openrouter", "nvidia/nemotron-3-super-120b-a12b:free"),
+    # Open-weight models run in batch on a GPU host (pipeline/extraction/batch.py);
+    # never called live. Model ids are Hugging Face repositories.
+    System("llama-3.1-8b", "batch", "meta-llama/Llama-3.1-8B-Instruct"),
+    System("mistral-7b", "batch", "mistralai/Mistral-7B-Instruct-v0.3"),
 ]}
 
 

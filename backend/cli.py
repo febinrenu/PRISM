@@ -432,6 +432,23 @@ def cmd_error_injection(args) -> int:
     return 0
 
 
+def cmd_batch_export(args) -> int:
+    from pipeline.extraction.batch import export
+
+    path, n = export(args.system, args.scope.split(","), args.k)
+    print(f"{n} requests written to {path}")
+    return 0
+
+
+def cmd_batch_import(args) -> int:
+    from pathlib import Path
+
+    from pipeline.extraction.batch import import_responses
+
+    print(json.dumps(import_responses(Path(args.responses)), indent=1))
+    return 0
+
+
 def cmd_reproduce(args) -> int:
     from reproduce import reproduce
 
@@ -541,6 +558,16 @@ def main(argv=None) -> int:
     p = sub.add_parser("error-injection", help="inject typed extraction errors into the expert law and score them")
     p.add_argument("--draws", type=int, default=32)
     p.set_defaults(func=cmd_error_injection)
+
+    p = sub.add_parser("batch-export", help="write the prompts a batch (GPU-host) system needs")
+    p.add_argument("--system", required=True)
+    p.add_argument("--scope", default="experiment,test,dev", help="experiment and/or evaluation splits")
+    p.add_argument("--k", type=int, default=4, help="self-consistency samples for the experiment")
+    p.set_defaults(func=cmd_batch_export)
+
+    p = sub.add_parser("batch-import", help="store a batch system's answers in the cache")
+    p.add_argument("responses")
+    p.set_defaults(func=cmd_batch_import)
 
     p = sub.add_parser("reproduce", help="regenerate every paper table from cached outputs, without model calls")
     p.add_argument("--sensitivity", action="store_true", help="also re-run the Sobol analysis (slow)")
