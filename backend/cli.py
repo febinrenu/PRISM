@@ -498,6 +498,17 @@ def cmd_batch_import(args) -> int:
     return 0
 
 
+def cmd_story_export(args) -> int:
+    from simulation.experiment.story import export
+
+    stale = 0
+    for path, fresh in export(check=args.check):
+        stale += not fresh
+        state = "up to date" if fresh else ("STALE" if args.check else "wrote")
+        print(f"{state:10s} {path}")
+    return 1 if (args.check and stale) else 0
+
+
 def cmd_reproduce(args) -> int:
     from reproduce import reproduce
 
@@ -630,6 +641,9 @@ def main(argv=None) -> int:
     p.add_argument("responses")
     p.set_defaults(func=cmd_batch_import)
 
+    p = sub.add_parser("story-export", help="write the landing story's data snapshot from existing results")
+    p.add_argument("--check", action="store_true", help="exit 1 if a snapshot file is stale; write nothing")
+    p.set_defaults(func=cmd_story_export)
     p = sub.add_parser("reproduce", help="regenerate every paper table from cached outputs, without model calls")
     p.add_argument("--sensitivity", action="store_true", help="also re-run the Sobol analysis (slow)")
     p.add_argument("--draws", type=int, default=64)

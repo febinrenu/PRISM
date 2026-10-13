@@ -10,6 +10,9 @@ Read-only access to the research results for the web app.
                                            their quoted spans, review reason (cache only)
     GET /api/research/error-injection      typed errors injected into the expert law
     GET /api/research/provision-sets       the experimental design
+    GET /api/research/story                the landing story's data snapshot
+    GET /api/research/population/{ay}      effective tax rate by decile: previous vs expert law
+    GET /api/research/population/{set}/{system}  the same, plus a system's reading of the reform
 """
 import json
 
@@ -144,3 +147,28 @@ def inspect(set_name: str, system: str):
     return {"set": set_name, "system": system, "ay": spec["ay"], "statute": "/".join(spec["statute"]),
             "complete": run["complete"] if run else None,
             "attribution": (run or {}).get("attribution"), "targets": targets}
+
+
+@router.get("/research/story")
+def story():
+    """The snapshot written by `python -m cli story-export`."""
+    return _load("story.json")
+
+
+@router.get("/research/population/{ay}")
+def population(ay: str):
+    from simulation.experiment.story import ay_deciles
+    from simulation.rac import gold
+    if ay not in gold.build_gold():
+        raise HTTPException(status_code=404, detail="No expert law for that assessment year")
+    return ay_deciles(ay)
+
+
+@router.get("/research/population/{set_name}/{system}")
+def population_for_system(set_name: str, system: str):
+    from simulation.experiment.story import decile_view
+    if set_name not in PROVISION_SETS:
+        raise HTTPException(status_code=404, detail="Unknown provision set")
+    if not (RESULTS_DIR / f"{set_name}__{system}.json").exists():
+        raise HTTPException(status_code=404, detail="No run for that system")
+    return decile_view(set_name, system)
