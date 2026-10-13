@@ -188,10 +188,12 @@ band the slab schedule, the rebate under s.87A (s.156 of the 2025 Act) with
 its marginal relief, the standard deduction, the surcharge bands with
 marginal relief and the cap introduced for the new regime, and the health and
 education cess. Every value carries a citation to its Act and provision, and
-every slab table was compared row by row with the parsed statute. A second,
-blind coding was produced automatically by a language model reading statute
-excerpts; it is reported as an automated cross-check, not as human
-inter-coder agreement.
+every slab table was compared row by row with the parsed statute. Where the
+rule-based baseline can read a table, it reproduces the coded schedule
+exactly, an independent check that involves no language model.
+% TODO before submission: a blind second coding (human, or automated and
+% reported as such) and the comparison with the official tax calculator
+% (docs/official_calculator_check.csv).
 
 %% ─────────────────────────────────────────────────────────────────────────────
 \section{From statute to parameters}\label{sec:pipeline}
@@ -224,14 +226,18 @@ interest and time limits.
 \subsection{Extraction systems}
 All language models receive the same versioned prompt, one provision per
 call, with the enclosing section's opening words as context when a long
-provision is split. The systems are GPT-OSS-120B and GPT-OSS-20B \citep{openai2025gptoss} and
-Qwen3.8-27B (served by Groq), Gemini 3.8 Flash, the local models Phi-3.5-mini
-\citep{abdin2024phi3} and Gemma-2-2B \citep{gemmateam2024gemma2} (4-bit, through Ollama), and a rule-based baseline that reads
-slab rows and fee clauses with patterns. Decoding is greedy (temperature 0,
-fixed seed). GPT-OSS-20B runs at low reasoning effort: at the default effort
-it spent its whole 4,096-token output budget on reasoning for two of the
-experiment's provisions and returned no answer, and the free tier's limit of
-8,000 tokens per minute rules out a larger budget.
+provision is split. The systems are GPT-OSS-120B and GPT-OSS-20B
+\citep{openai2025gptoss} and Qwen3.8-27B, served by Groq; the local models
+Phi-3.5-mini \citep{abdin2024phi3} and Gemma-2-2B \citep{gemmateam2024gemma2}
+(4-bit, through Ollama); and a rule-based baseline that reads slab rows and
+fee clauses with patterns. Decoding is greedy (temperature 0, fixed seed).
+The hosted models were used on free tiers, which fixed two settings.
+GPT-OSS-20B runs at low reasoning effort: at the default effort it spent its
+whole 4,096-token output budget on reasoning for two of the experiment's
+provisions and returned no answer, and the limit of 8,000 tokens per minute
+rules out a larger budget. Qwen3.8-27B runs without reasoning: its free tier
+allows 1,000 output tokens per minute, which its answers with reasoning
+exceeded.
 
 Every quoted span must be found in the provision: exactly, after
 normalising whitespace and quotation marks, or by fuzzy alignment with a
@@ -564,8 +570,8 @@ do not present the spans as explanations in that stronger sense
 
 \paragraph{Expert coding.} The parameters were coded by one person with a
 citation for every value and checked row by row against the parsed statutes;
-the rule baseline reproduces them exactly wherever it can read a table. A
-second, blind coding was automated, not human.
+the rule baseline reproduces them exactly wherever it can read a table. There
+is no independent second human coding.
 
 \paragraph{Population.} No microdata were available. The population
 reproduces the published distribution of returns by construction; levels of

@@ -7,16 +7,14 @@ done about it.
 ## Construct validity
 
 - **Expert coding.** The income-tax parameters were coded by one person, with
-  a citation for every value, and the slab tables were checked row by row
-  against the parsed statutes. The second coding is a *blind automated
-  coding* (a language model reading statute excerpts, `cli gold-blind`), not
-  an independent human coder. The paper reports it as such. A practitioner
-  spot-check is planned and optional.
-- **Pre-registered conclusions.** The conclusion list (`experiment/conclusions.py`)
-  was fixed before any language-model run was scored. Some conclusions are
-  correlated: the ten decile directions usually move together. So the flip
-  rate is reported alongside the individual flips, not as an independent
-  count.
+  a citation for every value. Every slab table was checked row by row against
+  the parsed statutes, and the rule baseline reproduces the coded schedule
+  exactly wherever it can read a table. There is no independent second
+  coding yet. An automated blind coding (`cli gold-blind`) was attempted but
+  never completed: its prompts for AY 2024-25 and 2027-28 exceed the free
+  tiers' per-request limits. A practitioner spot-check and the
+  official-calculator comparison (`docs/official_calculator_check.csv`)
+  remain to be done.
 - **Deviation from pre-registration (2026-10-03).** The direction
   conclusions were first read with near-exact sign tests: ₹1 lakh of
   revenue, an effective-rate change of 1e-7, and a Kakwani change of 1e-6.
