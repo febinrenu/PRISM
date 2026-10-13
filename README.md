@@ -20,14 +20,14 @@ from. A web workspace exposes the same pipeline for any uploaded statute.
 | Corpus | Downloads official statute PDFs, records URL and SHA-256 | `pipeline/statute/corpus.py`, `data/corpus/sources.json` |
 | Structure | Layout cleaning (running heads, margin line numbers, marginal notes, footnotes), then a statute AST: Part / Chapter / Section / Sub-section / Clause / Proviso / Explanation / Schedule / tables, quoted Finance Act insertions, exact offsets and page boxes, content-addressed node ids | `pipeline/statute/layout.py`, `parser.py` |
 | Rule schema | `LegalRule`: modality, subject, conditions, action, consequence, exceptions, cross-references, typed quantities and executable effects, all grounded to statute spans | `models/rules.py` |
-| Extraction | Rule-based baseline and language models (Ollama Phi-3.5 / Gemma-2B; Groq GPT-OSS-120B / 20B, Qwen3.8-27B; Gemini Flash) behind one JSON interface; every quoted span is verified against the statute or rejected; self-consistency sampling gives calibrated confidence | `pipeline/extraction/` |
+| Extraction | Rule-based baseline and language models behind one JSON interface: local (Ollama Phi-3.5, Gemma-2B), hosted (Groq GPT-OSS-120B / 20B, Qwen3.8-27B; OpenRouter Gemma 4 31B, Nemotron-3-Super) and open-weight batch systems run on a GPU host (Llama-3.1-8B, Mistral-7B). Every quoted span is verified against the statute or rejected; self-consistency sampling gives confidence | `pipeline/extraction/` |
 | Engines | Statute-faithful personal income-tax calculator (slabs by age, s.87A rebate with marginal relief, surcharge with marginal relief and caps, cess, statutory rounding); a generic rule engine for fees and penalties with defeasible exceptions | `simulation/rac/`, `policy/` |
 | Expert coding | Income-tax parameters AY 2020-21 to tax year 2026-27, every value cited; slab tables checked row by row against the parsed statutes | `simulation/rac/gold/` |
 | Assembly | One deterministic assembler from any system's rules to engine parameters; unfillable targets become review items, never defaults | `simulation/translate/assemble.py` |
 | Population | Weighted taxpayer population reproducing the Income Tax Return Statistics exactly, with Chapter VI-A deductions by rank matching | `simulation/population/` |
 | Microsimulation | Regime choice, revenue, decile effective rates, Gini, Kakwani, Reynolds–Smolensky and Suits indices | `simulation/engine/` |
 | Validation | In-sample reproduction of reported tax, held-out forecasts against a naive baseline, reform costs against Budget speeches, Morris + Sobol sensitivity | `simulation/backtest/`, `simulation/engine/sensitivity.py` |
-| Experiment | Five Finance Act reforms × systems: outcome divergence and pre-registered conclusion flips | `simulation/experiment/` |
+| Experiment | Ten personal income-tax reforms × systems: pre-registered conclusion flips, exact Shapley attribution to provisions, robustness to population assumptions, McNemar and sign tests; a controlled study injecting typed extraction errors | `simulation/experiment/` |
 | Evaluation | Frozen stratified evaluation sets (300 test / 102 dev / 30 pilot), blind double annotation tool, agreement and system scoring | `eval/v2/`, `routers/annotate.py`, `frontend/src/app/annotate/` |
 
 ## Reproducing the results
@@ -45,16 +45,28 @@ python -m cli gold-export                # expert income-tax parameters
 
 python -m cli backtest                   # microsimulation validation
 python -m cli sensitivity                # Morris + Sobol indices
-python -m cli experiment                 # expert vs extracted (needs GROQ_API_KEY / GEMINI_API_KEY)
+python -m cli experiment                 # expert vs extracted (hosted systems need API keys)
+python -m cli experiment-stats           # robustness of flips, system comparisons
+python -m cli error-injection            # typed errors injected into the expert law
 
 python -m cli eval-run --system rules --split test
 python -m cli eval-agree --split pilot   # annotator agreement
 python -m cli eval-score --system gpt-oss-120b --split test
+python -m cli eval-faithfulness --system gpt-oss-120b --split dev
+
+python -m cli reproduce                  # every paper table from the cache, no model calls
 ```
 
 Every run writes a manifest (git commit, package versions, model digests,
 seeds, configuration) to `data/runs/`. Model outputs are cached
-content-addressed in `data/cache/llm/`, so a rerun calls no model twice.
+content-addressed in `data/cache/llm/`, so a rerun calls no model twice;
+`cli reproduce` regenerates every table in `paper/tables/` (and the numbers
+cited in the manuscript) with model calls disabled.
+
+**Open-weight systems in batch.** `cli batch-export --system mistral-7b`
+writes every prompt the study needs; `training/kaggle_batch_extract.ipynb`
+runs them on a free Kaggle GPU with vLLM; `cli batch-import` stores the
+answers in the cache, after which the system runs like any other.
 
 ## Annotation
 
@@ -86,9 +98,11 @@ or `start.bat` on Windows, or `docker compose up --build`.
 
 ## Configuration
 
-Copy `backend/.env.example` to `backend/.env`. Language-model keys
-(`GROQ_API_KEY`, `GEMINI_API_KEY`) are only needed for the hosted systems;
-everything else runs locally (Ollama for local models).
+Copy `backend/.env.example` to `backend/.env`. Keys are only needed for the
+hosted systems: `GROQ_API_KEY` (plus optional `GROQ_API_KEYS`, comma-separated)
+and `OPENROUTER_API_KEYS`. Several keys are used in rotation: a per-minute
+limit cools one key, a daily limit retires it for that model. Everything else
+runs locally (Ollama for local models).
 
 ## Tests
 
