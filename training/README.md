@@ -6,14 +6,14 @@ provisions? This directory builds the training data, trains QLoRA adapters
 on a Kaggle/Colab GPU, and turns the result into an Ollama model that the
 evaluation and the headline experiment use as system `prism-legal`.
 
-## 1. Silver data (local, needs `GROQ_API_KEY` and `GEMINI_API_KEY`)
+## 1. Silver data (local, needs `GROQ_API_KEY`; extra keys in `GROQ_API_KEYS` are rotated)
 
 ```bash
 python training/build_dataset.py --pool 800 --dry-run   # sample + leakage report only
 python training/build_dataset.py --pool 800
 ```
 
-- Two teachers (GPT-OSS-120B and Gemini Flash) extract every sampled
+- Two teachers from different model families (GPT-OSS-120B and Qwen3.8-27B) extract every sampled
   provision with the production prompt. Only provisions where they agree
   after grounding (same rules, modalities, effect kinds and numbers) are kept;
   the target is the grounded record, so every quoted string is statute text.
