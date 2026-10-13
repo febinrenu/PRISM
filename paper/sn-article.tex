@@ -412,6 +412,17 @@ across the whole range of those assumptions (\cref{sec:robustness}).
 
 \subsection{Do extracted rules reach the expert's conclusions?}
 \input{tables/headline}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/assembly.pdf}
+\caption{Outcome of every system on every reform. Blue: the system's rules
+assembled into a complete law, whose conclusions were compared with the
+expert's ("same": all conclusions agree). Grey: a target could not be
+filled, so the run has no conclusion; the cell names the cause.}
+\label{fig:assembly}
+\end{figure}
+
 Two outcomes are possible for a system on a reform: its rules assemble into
 a complete law, or a target cannot be filled and the run has no conclusion.
 \Cref{tab:headline} shows both. Of the \res{reforms} reforms, Qwen3.8-27B's
@@ -504,6 +515,17 @@ row, the previous year's table, a dropped marginal-relief clause, a dropped
 rebate, the previous year's rebate, a misread rebate amount, the rebate of
 the other regime, and the previous year's standard deduction.
 \input{tables/error_injection}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/error_injection.pdf}
+\caption{Typed errors injected into the expert law, one provision at a time:
+percentage of the reform's pre-registered conclusions that change (for the
+most affected target of the reform). Outlined empty cells: the error changes
+no conclusion; blank: the error does not apply to the reform.}
+\label{fig:injection}
+\end{figure}
+
 Of the \res{injections} injections, \res{injectionsflipping} changed at least
 one conclusion. Three patterns stand out.
 

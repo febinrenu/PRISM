@@ -317,6 +317,8 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
             extract = lambda u: rb(u)[0]  # noqa: E731
         faithfulness.evaluate(system, split, extract=extract, progress=lambda _m: None)
     written.append(numbers_file(RESULTS_DIR, load_runs()))
+    import paper_figures
+    written += paper_figures.all_figures(RESULTS_DIR, load_runs())
     for extra in (faithfulness_table(), extraction_table()):
         if extra is not None:
             written.append(extra)
