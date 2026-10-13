@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import TopNav from "@/components/nav/TopNav";
+import InspectPanel from "@/components/research/InspectPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -77,7 +78,7 @@ function InjectionMap({ rows }: { rows: InjRow[] }) {
   );
 }
 
-function AttributionPanel({ a }: { a: Attribution }) {
+function AttributionPanel({ a, complete }: { a: Attribution; complete: boolean }) {
   if (a.players.length === 0) {
     return a.failed_targets.length === 0
       ? <p className="text-xs text-status-success">Every targeted parameter matches the expert reading.</p>
@@ -87,6 +88,11 @@ function AttributionPanel({ a }: { a: Attribution }) {
   return (
     <div className="space-y-1.5 text-xs">
       <p className="text-text-muted">Where the divergence comes from (Shapley share of revenue error)</p>
+      {!complete && (
+        <p className="text-status-warning">
+          Partly assembled: shown for the provisions that were read; the run has no conclusion.
+        </p>
+      )}
       {a.players.map((p) => (
         <div key={p.target} className="flex items-center gap-2" title={p.provision}>
           <span className="w-36 truncate font-mono">{p.target}</span>
@@ -124,6 +130,7 @@ export default function ResearchPage() {
   const [stats, setStats] = useState<any>(null);
   const [inj, setInj] = useState<InjRow[] | null>(null);
   const [active, setActive] = useState<string | null>(null);
+  const [inspected, setInspected] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -137,7 +144,11 @@ export default function ResearchPage() {
         setDesign(d ?? {});
         setBacktest(b);
         setSens(s);
-        if (d) setActive(Object.keys(d)[0]);
+        // ?set=<provision set>&inspect=<system> opens a specific case directly
+        const q = new URLSearchParams(window.location.search);
+        const wanted = q.get("set");
+        if (d) setActive(wanted && wanted in d ? wanted : Object.keys(d)[0]);
+        if (q.get("inspect")) setInspected(q.get("inspect"));
       })
       .catch((e) => setError(String(e)));
   }, []);
@@ -205,7 +216,13 @@ export default function ResearchPage() {
                   <div key={sys} className="bg-bg-surface border border-border rounded-sm p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-sm">{sys}</span>
-                      <Cell run={r} />
+                      <span className="flex items-center gap-3">
+                        <Cell run={r} />
+                        <button onClick={() => setInspected(sys)}
+                          className="text-[11px] px-2 py-0.5 rounded border border-border text-text-secondary hover:text-text-primary hover:border-accent-primary/40">
+                          Inspect
+                        </button>
+                      </span>
                     </div>
                     <div className="space-y-1.5 text-xs">
                       <p className="text-text-muted">Revenue change vs previous year&apos;s law</p>
@@ -231,7 +248,7 @@ export default function ResearchPage() {
                       <dt className="text-text-muted">Self-consistency samples</dt>
                       <dd className="tabular-nums text-right">{r.samples}</dd>
                     </dl>
-                    {r.attribution && <AttributionPanel a={r.attribution} />}
+                    {r.attribution && <AttributionPanel a={r.attribution} complete={r.complete} />}
                     {r.review.length > 0 && (
                       <ul className="text-xs text-status-error space-y-0.5">
                         {r.review.map((v, i) => <li key={i}>{v.target}: {v.reason}</li>)}
@@ -248,6 +265,10 @@ export default function ResearchPage() {
               })}
             </div>
           </section>
+        )}
+
+        {active && inspected && (
+          <InspectPanel set={active} system={inspected} onClose={() => setInspected(null)} />
         )}
 
         {inj && inj.length > 0 && <InjectionMap rows={inj} />}

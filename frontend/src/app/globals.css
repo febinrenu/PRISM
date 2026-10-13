@@ -183,3 +183,10 @@ body {
     letter-spacing: -0.025em;
   }
 }
+
+/* Statute text: no ligatures or contextual alternates — "(c)" must stay a
+   clause label, never become ©. */
+.statute-text {
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0, "liga" 0, "dlig" 0;
+}

@@ -60,7 +60,7 @@ function EntityPill({ entity }: { entity: Entity }) {
 
 function HighlightedText({ text, entities }: { text: string; entities: Entity[] }) {
   if (!entities.length) {
-    return <p className="text-sm leading-relaxed text-text-secondary">{text}</p>;
+    return <p className="statute-text text-sm leading-relaxed text-text-secondary">{text}</p>;
   }
 
   const sorted = [...entities].sort((a, b) => a.start - b.start);
@@ -80,7 +80,7 @@ function HighlightedText({ text, entities }: { text: string; entities: Entity[] 
   }
 
   return (
-    <p className="text-sm leading-relaxed text-text-secondary">
+    <p className="statute-text text-sm leading-relaxed text-text-secondary">
       {parts.map((part, i) => {
         if (!part.entity) return <span key={i}>{part.text}</span>;
         const colors = ENTITY_COLORS[part.entity.label] || ENTITY_COLORS["OBLIGATION"];

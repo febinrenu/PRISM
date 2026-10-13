@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS
 from routers import (upload, analyze, data, pdf, intelligence, llm, explain,
-                     simulate, rag, auth_routes, public_api, admin, annotate, research)
+                     simulate, rag, auth_routes, public_api, admin, annotate, research, corpus)
 from storage import store
 
 
@@ -102,6 +102,7 @@ app.include_router(auth_routes.router, prefix="/api", tags=["auth"])
 app.include_router(admin.router, prefix="/api", tags=["admin"])
 app.include_router(annotate.router, prefix="/api", tags=["annotate"])
 app.include_router(research.router, prefix="/api", tags=["research"])
+app.include_router(corpus.router, prefix="/api", tags=["corpus"])
 app.include_router(public_api.router, tags=["public-v1"])  # /v1/... (no /api prefix)
 
 

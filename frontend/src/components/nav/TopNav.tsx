@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, LayoutDashboard, MessageSquare, Network, ShieldEllipsis, BookOpen, LogOut, PenLine, FlaskConical } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, MessageSquare, Network, ShieldEllipsis, BookOpen, LogOut, PenLine, FlaskConical, ScrollText } from "lucide-react";
 import PrismMark from "@/components/brand/PrismMark";
 import { useAuth } from "@/lib/auth";
 
 const LINKS = [
   { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/statutes", label: "Statutes", icon: ScrollText },
   { href: "/corpus", label: "Corpus", icon: Network },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/annotate", label: "Annotate", icon: PenLine },

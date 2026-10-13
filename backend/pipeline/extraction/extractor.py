@@ -148,6 +148,23 @@ def to_record(unit: Unit, system: str, raw_text: str, *, model: str, model_versi
     return rec, stats
 
 
+def cached_record(unit: Unit, system: str, *, temperature: float = 0.0, seed: int = 0) -> Optional[ExtractionRecord]:
+    """The record for a unit if the model's output is cached; never calls a
+    model (used by read-only views)."""
+    from pipeline.extraction import cache
+    from pipeline.extraction.backends import SYSTEMS as _S
+    sysdef = _S[system]
+    prompt = prompts.render(unit.text, unit.context)
+    key = cache.key(provider=sysdef.provider, model=sysdef.model, prompt=prompt, temperature=temperature,
+                    seed=seed, prompt_version=prompts.EXTRACTION_PROMPT_VERSION,
+                    options=dict(sysdef.options) or None)
+    hit = cache.get(key)
+    if hit is None:
+        return None
+    return to_record(unit, system, hit["text"], model=sysdef.model, model_version=hit.get("model_version"),
+                     cache_key=key)[0]
+
+
 def extract_unit(unit: Unit, system: str, *, temperature: float = 0.0, seed: int = 0,
                  use_cache: bool = True) -> tuple[ExtractionRecord, dict]:
     if system not in SYSTEMS:

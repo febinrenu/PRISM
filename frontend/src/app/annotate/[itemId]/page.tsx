@@ -59,7 +59,7 @@ function Highlighted({ text, rule, onRef }: { text: string; rule: AnnRule | null
     return { s, e, field: top?.field };
   });
   return (
-    <div ref={onRef} className="whitespace-pre-wrap leading-7 text-[15px] text-text-primary select-text" style={{ fontFamily: "Georgia, serif" }}>
+    <div ref={onRef} className="statute-text whitespace-pre-wrap leading-7 text-[15px] text-text-primary select-text" style={{ fontFamily: "Georgia, serif" }}>
       {segments.map((seg) => (
         <span
           key={seg.s}
@@ -256,7 +256,7 @@ export default function AnnotateItem() {
           {/* Provision */}
           <section className="space-y-3">
             {(view.heading || view.context) && (
-              <div className="text-xs text-text-muted bg-bg-surface border border-border rounded-sm p-3 whitespace-pre-wrap">
+              <div className="statute-text text-xs text-text-muted bg-bg-surface border border-border rounded-sm p-3 whitespace-pre-wrap">
                 <span className="font-mono uppercase tracking-wider text-[11px] text-text-dim">Context (do not annotate)</span>
                 <div className="mt-1">{view.context || view.heading}</div>
               </div>
