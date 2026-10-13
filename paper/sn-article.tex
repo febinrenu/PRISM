@@ -528,10 +528,36 @@ validation of executable rules, not only their extraction, decides whether
 an extraction error becomes a wrong policy conclusion or a visible gap.
 
 \subsection{Extraction quality and faithfulness}
-% RESULTS: surface metrics against adjudicated human annotation of the
-% frozen test set (tables/extraction), set against the outcome measures;
-% ERASER comprehensiveness and sufficiency of the grounded spans
-% \citep{deyoung2020eraser} (tables/faithfulness).
+% RESULTS (pending human annotation): surface metrics against adjudicated
+% annotation of the frozen test set (tables/extraction), set against the
+% outcome measures.
+
+Every field a system extracts is grounded in a span of the provision. We
+tested whether those spans are also the evidence the extraction depends on,
+with the ERASER measures \citep{deyoung2020eraser}: each provision of the
+development set was extracted again without its cited spans, with only
+them, and with random spans of the same lengths deleted
+(\cref{tab:faithfulness}). For the rule baseline, deleting the cited spans
+changes the output more than deleting random text (comprehensiveness
+\res{faithcomprehensiveness@rules@test} against
+\res{faithrandomcomprehensiveness@rules@test}), as it must for a system
+that reads only those spans. For the language models it does not:
+GPT-OSS-120B scores \res{faithcomprehensiveness@gpt-oss-120b@dev} against
+\res{faithrandomcomprehensiveness@gpt-oss-120b@dev} for random deletion,
+and GPT-OSS-20B \res{faithcomprehensiveness@gpt-oss-20b@dev} against
+\res{faithrandomcomprehensiveness@gpt-oss-20b@dev}; keeping only the cited
+spans preserves about half of the extraction (sufficiency
+\res{faithsufficiency@gpt-oss-120b@dev} and
+\res{faithsufficiency@gpt-oss-20b@dev}). On average the cited spans cover a
+share of \res{faithrationaleshare@gpt-oss-120b@dev} (GPT-OSS-120B) and
+\res{faithrationaleshare@gpt-oss-20b@dev} (GPT-OSS-20B) of each provision,
+so both deletions remove much of the text. Grounding guarantees that every quoted
+span is statute text, which is what the provenance chain needs; it does not
+show that the model relied on those spans more than on their context, and we
+do not present the spans as explanations in that stronger sense
+\citep{jacovi2020faithful}.
+
+\input{tables/faithfulness}
 
 %% ─────────────────────────────────────────────────────────────────────────────
 \section{Threats to validity}\label{sec:threats}
