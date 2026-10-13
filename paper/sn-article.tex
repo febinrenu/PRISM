@@ -674,6 +674,60 @@ re-ranker score is the confidence it reports.
 
 \input{tables/rag}
 
+\section{A behavioural extension}\label{app:behaviour}
+
+The static microsimulation assumes that taxpayers report what they earn.
+To ask the paper's question of a behavioural prediction, we built an
+agent-based model of compliance in Mesa \citep{mesa2025} and describe it
+in full, following the ODD+D protocol \citep{muller2013describing}, in the
+repository (\texttt{docs/ODD+D.md}). Taxpayers sampled from the calibrated
+population each period choose how much income to conceal, maximising
+expected utility as in \citet{allingham1972income}. A tax-morale cost,
+heterogeneous across agents and partly scaled by the honesty of their network
+neighbours \citep{myles1996model,hashimzade2013applications}, enters the
+choice. Salaried income is reported by employers and is almost impossible to
+conceal \citep{kleven2011unwilling}. Beliefs about audit risk adapt to the
+audits an agent observes among its neighbours in a small-world network
+\citep{watts1998collective}. The law enters twice: the tax schedule, through
+the same calculator, and the penalty of s.439 of the Income-tax Act 2025.
+That penalty is 50\% of the tax on under-reported income (s.439(9)) and
+200\% where the under-reporting results from misreporting (s.439(10)), which
+is the rate a deliberate evader faces.
+
+No published Indian data identify the behavioural parameters (perceived
+audit risk, risk aversion, tax morale, the evadable share of salaries).
+With realistic audit rates the model reproduces the familiar result that
+taxpayers without strong morale conceal most of the income they can
+\citep{alm2012measuring}: the median predicted gap on non-salaried income is
+\res{bhothermedian}. Its levels are therefore not predictions. What it can
+show is how much a misread penalty provision matters relative to that
+uncertainty.
+
+Across \res{bhdraws} draws of the behavioural parameters, the predicted tax
+gap under the expert's penalty lies between \res{bhgapfive} and
+\res{bhgapninetyfive} (5th--95th percentile). Applying the under-reporting
+rate of 50\% to deliberate concealment raises it by \res{bhdiffmean} on
+average (\res{bhdifffive} to \res{bhdiffninetyfive}), roughly a third of
+that range. In the Sobol analysis (\res{bhruns} runs) the penalty rate is
+the second most influential input (total index \res{bhst@penalty_rate}),
+after the evadable share of salaries (\res{bhst@salaried_evadable}) and
+ahead of tax morale (\res{bhst@morale}), risk aversion
+(\res{bhst@risk_aversion}) and the audit rate (\res{bhst@audit_rate})
+(\cref{tab:behaviour_sobol}). Reading the penalty provision correctly
+therefore matters for behavioural predictions about as much as the
+behavioural assumptions themselves.
+
+\Cref{tab:behaviour_systems} shows what the systems read from s.439(10).
+\res{bhcorrect} of them extract the 200\% rate exactly, and so give the
+expert's predictions. The others extract no rate and leave the model
+without a penalty, mirroring the failures of assembly in the main
+experiment. Seed-to-seed variation of the tax gap falls from
+\res{bhsdsmall} with 1,000 agents to \res{bhsdlarge} with 10,000; the
+paired comparisons use common random numbers.
+
+\input{tables/behaviour_sobol}
+\input{tables/behaviour_systems}
+
 \end{appendices}
 
 \backmatter
