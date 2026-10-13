@@ -432,6 +432,21 @@ def cmd_error_injection(args) -> int:
     return 0
 
 
+def cmd_behaviour(args) -> int:
+    from simulation.behaviour.experiment import report
+
+    out = report()
+    p = out["paired"]
+    print(f"tax gap with the expert penalty (200%): median {p['expert_gap_across_draws']['median']:.3f} "
+          f"(5-95%: {p['expert_gap_across_draws']['p5']:.3f}-{p['expert_gap_across_draws']['p95']:.3f})")
+    print(f"misread penalty (50%) raises the gap by {p['difference']['mean']:.3f} on average "
+          f"(5-95%: {p['difference']['p5']:.3f}-{p['difference']['p95']:.3f})")
+    for name, v in sorted(out["sobol"]["indices"]["tax_gap"].items(), key=lambda kv: -kv[1].get("ST", 0)):
+        if name != "range":
+            print(f"  {name:18s} ST {v['ST']:.3f}")
+    return 0
+
+
 def cmd_eval_rag(args) -> int:
     from eval.v2 import rag_eval
 
@@ -592,6 +607,9 @@ def main(argv=None) -> int:
     p = sub.add_parser("error-injection", help="inject typed extraction errors into the expert law and score them")
     p.add_argument("--draws", type=int, default=32)
     p.set_defaults(func=cmd_error_injection)
+
+    p = sub.add_parser("behaviour", help="compliance ABM: penalty misreading vs behavioural uncertainty (resumable)")
+    p.set_defaults(func=cmd_behaviour)
 
     p = sub.add_parser("eval-rag", help="retrieval benchmark over the statute corpus (resumable)")
     p.add_argument("--per-statute", type=int, default=150)

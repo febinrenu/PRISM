@@ -1,0 +1,7 @@
+System,Status,Penalty rate read from s.439(10),Same as expert (2.00)
+gpt-oss-120b,ok,2.00,yes
+gpt-oss-20b,ok,none,no
+qwen3.8-27b,ok,2.00,yes
+phi3.5,ok,none,no
+gemma2-2b,ok,none,no
+rules,ok,none,no

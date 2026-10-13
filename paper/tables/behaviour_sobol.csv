@@ -1,0 +1,9 @@
+Input,ST (tax gap),"ST (gap, non-salaried)"
+salaried evadable,0.78,0.00
+penalty rate,0.14,0.38
+morale,0.10,0.28
+risk aversion,0.07,0.20
+norm weight,0.05,0.11
+audit rate,0.05,0.14
+belief weight,0.01,0.02
+initial belief,0.00,0.00
