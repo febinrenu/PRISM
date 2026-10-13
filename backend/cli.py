@@ -432,6 +432,30 @@ def cmd_error_injection(args) -> int:
     return 0
 
 
+def cmd_reanalyze(args) -> int:
+    """Re-run the web workspace's analysis of a stored document (e.g. after a
+    parser change). Long documents take tens of minutes."""
+    import time
+
+    from routers.analyze import _pipeline_worker
+    from storage import store
+
+    meta = store.get_meta(args.doc)
+    if meta is None:
+        print(f"unknown document {args.doc}")
+        return 1
+    t0 = time.time()
+    last = {"stage": None}
+
+    def emit(ev: dict) -> None:
+        if ev.get("stage") != last["stage"] or ev.get("stage") in ("error", "complete"):
+            print(f"{time.time() - t0:7.1f}s {ev.get('stage')}: {str(ev.get('message', ''))[:100]}", flush=True)
+            last["stage"] = ev.get("stage")
+
+    _pipeline_worker(args.doc, meta.pdf_path, meta.filename, emit)
+    return 0
+
+
 def cmd_batch_export(args) -> int:
     from pipeline.extraction.batch import export
 
@@ -558,6 +582,10 @@ def main(argv=None) -> int:
     p = sub.add_parser("error-injection", help="inject typed extraction errors into the expert law and score them")
     p.add_argument("--draws", type=int, default=32)
     p.set_defaults(func=cmd_error_injection)
+
+    p = sub.add_parser("reanalyze", help="re-run the workspace analysis of a stored document")
+    p.add_argument("--doc", required=True)
+    p.set_defaults(func=cmd_reanalyze)
 
     p = sub.add_parser("batch-export", help="write the prompts a batch (GPU-host) system needs")
     p.add_argument("--system", required=True)
