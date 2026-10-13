@@ -171,6 +171,7 @@ def build(size: int, teachers: tuple[str, str] = TEACHERS, dry_run: bool = False
         return report
 
     kept, negatives, outcome = [], [], Counter()
+    processed = 0
     for i, u in enumerate(units, 1):
         try:
             a = extract_unit(u, teachers[0])[0]
@@ -178,14 +179,24 @@ def build(size: int, teachers: tuple[str, str] = TEACHERS, dry_run: bool = False
         except Exception as exc:  # a quota or network failure stops the build; cached work is kept
             report["stopped_at"] = {"index": i, "error": str(exc)[:300]}
             break
-        if not teachers_agree(a, b, u.unit_id):
+        processed = i
+        if teachers_agree(a, b, u.unit_id):
+            outcome["agree"] += 1
+            (negatives if not a.rules else kept).append(example(u, a))
+        else:
             outcome["disagree"] += 1
-            continue
-        outcome["agree"] += 1
-        (negatives if not a.rules else kept).append(example(u, a))
         if i % 25 == 0:
-            print(f"{i}/{len(units)}  agree={outcome['agree']} disagree={outcome['disagree']}")
+            # Checkpoint: a build cut short (time limit, quota) still leaves a
+            # consistent dataset and report for the provisions done so far.
+            _write(report, kept, negatives, outcome, processed, max_negative_share)
+            print(f"{i}/{len(units)}  agree={outcome['agree']} disagree={outcome['disagree']}", flush=True)
+    else:
+        report.pop("stopped_at", None)
+    return _write(report, kept, negatives, outcome, processed, max_negative_share)
 
+
+def _write(report: dict, kept: list, negatives: list, outcome: Counter, processed: int,
+           max_negative_share: float) -> dict:
     cap = int(max_negative_share * len(kept) / (1 - max_negative_share)) if kept else 0
     rows = kept + negatives[:cap]
     random.Random(SEED).shuffle(rows)
@@ -196,6 +207,7 @@ def build(size: int, teachers: tuple[str, str] = TEACHERS, dry_run: bool = False
     effect_kinds = Counter(e["kind"] for r in rows for rule in json.loads(r["completion"][0]["content"])["rules"]
                            for e in rule["effects"])
     report.update({
+        "processed": processed,
         "teacher_outcomes": dict(outcome),
         "agreement_rate": round(outcome["agree"] / max(1, sum(outcome.values())), 4),
         "examples": len(rows), "with_rules": len(kept), "no_rule": min(len(negatives), cap),
