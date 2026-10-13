@@ -6,6 +6,10 @@ import pytest
 
 from simulation.experiment import story
 
+pytestmark = pytest.mark.skipif(
+    not (story.RESULTS_DIR / f"{story.FOCUS_SET}__{story.FOCUS_SYSTEM}.json").exists(),
+    reason="experiment results are not present (they are not in the repository)")
+
 
 @pytest.fixture(scope="module")
 def built():

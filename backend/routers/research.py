@@ -151,7 +151,12 @@ def inspect(set_name: str, system: str):
 
 @router.get("/research/story")
 def story():
-    """The snapshot written by `python -m cli story-export`."""
+    """The snapshot written by `python -m cli story-export` (experiment
+    results are not in the repository; the copy bundled with the frontend
+    is the fallback)."""
+    from simulation.experiment.story import CORE_OUT
+    if not (RESULTS_DIR / "story.json").exists() and CORE_OUT.exists():
+        return json.loads(CORE_OUT.read_text(encoding="utf-8"))
     return _load("story.json")
 
 
