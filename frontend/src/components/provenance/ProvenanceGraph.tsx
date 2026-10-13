@@ -1,285 +1,281 @@
 "use client";
-import { useMemo, useCallback, useEffect, type CSSProperties, type MouseEvent } from "react";
+
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
 import {
-  ReactFlow,
   Background,
-  Controls,
-  MiniMap,
-  Handle,
-  Position,
-  type Node,
-  type Edge,
-  type NodeProps,
   BackgroundVariant,
-  MarkerType,
-  useNodesState,
-  useEdgesState,
+  Controls,
+  Handle,
+  MiniMap,
+  Position,
+  ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
+  type Edge,
+  type Node,
+  type NodeProps,
 } from "@xyflow/react";
+import { ChevronRight, Minus } from "lucide-react";
 import { NODE_TYPE_COLORS } from "@/lib/colors";
-import { tokens, alpha } from "@/lib/tokens";
-import type { GraphNode, GraphEdge } from "@/types";
+import { alpha, tokens } from "@/lib/tokens";
+import { cn } from "@/lib/utils";
+import type { GraphEdge, GraphNode } from "@/types";
 
-const NODE_SHAPES: Record<string, { bg: string; border: string }> = {
-  document: { bg: alpha(tokens.node.document, 0.15), border: alpha(tokens.node.document, 0.5) },
-  chapter:  { bg: alpha(tokens.node.chapter, 0.15),  border: alpha(tokens.node.chapter, 0.5)  },
-  section:  { bg: alpha(tokens.node.section, 0.12),  border: alpha(tokens.node.section, 0.4)  },
-  clause:   { bg: alpha(tokens.bg.surface, 0.8),     border: tokens.border.DEFAULT             },
-  entity:   { bg: alpha(tokens.node.entity, 0.12),   border: alpha(tokens.node.entity, 0.4)   },
-  causal:   { bg: alpha(tokens.node.causal, 0.12),   border: alpha(tokens.node.causal, 0.4)   },
-};
+/**
+ * The provenance graph as a collapsible tree, read left to right:
+ * document → chapter → clause → entity / rule. Only expanded branches are
+ * drawn, children come in pages, so a 4,000-node graph stays legible.
+ */
 
-const NODE_SIZES: Record<string, { width: number; height: number }> = {
-  document: { width: 160, height: 60 },
-  chapter:  { width: 120, height: 48 },
-  section:  { width: 110, height: 44 },
-  clause:   { width: 180, height: 64 },
-  entity:   { width: 100, height: 40 },
-  causal:   { width: 130, height: 48 },
-};
+const RANK: Record<string, number> = { document: 0, chapter: 1, section: 2, clause: 3, entity: 4, causal: 4 };
+const PAGE = 30;
+const COL = 290;
+const ROW = 46;
 
-// ── Custom node ───────────────────────────────────────────────────────────────
-export type PrismNodeData = {
-  nodeType: GraphNode["type"];
-  label: string;
-  color: string;
-  maxWidth: number;
-  entityCount?: number;
-  frequency?: number;
-  raw: GraphNode;
-};
-
-type PrismFlowNode = Node<PrismNodeData, "prism">;
-
-const HANDLE_STYLE: CSSProperties = {
-  opacity: 0,
-  width: 4,
-  height: 4,
-  minWidth: 0,
-  minHeight: 0,
-  border: "none",
-  background: "transparent",
-  pointerEvents: "none",
-};
-
-function PrismNode({ data }: NodeProps<PrismFlowNode>) {
-  return (
-    <>
-      <Handle type="target" position={Position.Top} style={HANDLE_STYLE} isConnectable={false} />
-      <div className="text-center px-2" style={{ maxWidth: data.maxWidth }}>
-        <div
-          className="text-micro font-mono mb-0.5 uppercase tracking-widest"
-          style={{ color: `${data.color}AA` }}
-        >
-          {data.nodeType}
-        </div>
-        <div className="text-xs font-display truncate text-text-primary">
-          {data.label}
-        </div>
-        {data.entityCount !== undefined && (
-          <div className="text-micro text-text-muted">{data.entityCount} entities</div>
-        )}
-        {data.frequency !== undefined && data.frequency > 1 && (
-          <div className="text-micro text-text-muted">×{data.frequency}</div>
-        )}
-      </div>
-      <Handle type="source" position={Position.Bottom} style={HANDLE_STYLE} isConnectable={false} />
-    </>
-  );
+export interface TreeIndex {
+  byId: Map<string, GraphNode>;
+  children: Map<string, string[]>;
+  parent: Map<string, string>;
+  root: string | null;
+  edgeLabel: Map<string, string>;
 }
 
-// Module-level so the object identity is stable across renders.
-const nodeTypes = { prism: PrismNode };
-
-// ── Graph building ────────────────────────────────────────────────────────────
-const TYPE_ORDER = ["document", "chapter", "section", "clause", "entity", "causal"];
-
-function buildFlowNodes(graphNodes: GraphNode[]): PrismFlowNode[] {
-  const byType: Record<string, GraphNode[]> = {};
-  graphNodes.forEach((n) => {
-    if (!byType[n.type]) byType[n.type] = [];
-    byType[n.type].push(n);
-  });
-
-  const VERTICAL_SPACING = 120;
-  const HORIZONTAL_SPACING = 220;
-
-  const nodes: PrismFlowNode[] = [];
-
-  TYPE_ORDER.forEach((type, rowIdx) => {
-    const items = byType[type] || [];
-    const rowWidth = items.length * HORIZONTAL_SPACING;
-    items.forEach((item, colIdx) => {
-      const shape = NODE_SHAPES[type] || NODE_SHAPES.clause;
-      const size = NODE_SIZES[type] || NODE_SIZES.clause;
-      const color = NODE_TYPE_COLORS[type] || tokens.accent.primary;
-
-      nodes.push({
-        id: item.id,
-        position: {
-          x: colIdx * HORIZONTAL_SPACING - rowWidth / 2 + HORIZONTAL_SPACING / 2,
-          y: rowIdx * VERTICAL_SPACING,
-        },
-        data: {
-          nodeType: item.type,
-          label: item.label,
-          color,
-          maxWidth: size.width - 16,
-          entityCount:
-            typeof item.data.entity_count === "number" ? item.data.entity_count : undefined,
-          frequency: typeof item.data.frequency === "number" ? item.data.frequency : undefined,
-          raw: item,
-        },
-        style: {
-          width: size.width,
-          height: size.height,
-          background: shape.bg,
-          border: `1px solid ${shape.border}`,
-          borderRadius: type === "entity" ? "50%" : type === "causal" ? "8px" : "12px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-        },
-        type: "prism",
-      });
-    });
-  });
-
-  return nodes;
-}
-
-function buildFlowEdges(graphEdges: GraphEdge[]): Edge[] {
-  return graphEdges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    label: e.label,
-    labelStyle: { fill: tokens.text.muted, fontSize: 12, fontFamily: "JetBrains Mono" },
-    style: {
-      stroke: e.label === "triggers" ? alpha(tokens.accent.primary, 0.5) : alpha(tokens.accent.primary, 0.2),
-      strokeWidth: e.label === "triggers" ? 2 : 1,
-      strokeDasharray: e.label === "triggers" ? "4 2" : "none",
-    },
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      color: e.label === "triggers" ? alpha(tokens.accent.primary, 0.7) : alpha(tokens.accent.primary, 0.4),
-    },
-    animated: e.label === "triggers",
-    type: "default",
-  }));
-}
-
-// ── Visibility filtering ──────────────────────────────────────────────────────
-const ANCESTOR_TYPES = new Set(["document", "chapter", "section"]);
-
-function computeVisibleIds(
-  graphNodes: GraphNode[],
-  graphEdges: GraphEdge[],
-  hiddenTypes: Set<string>,
-  causalOnly: boolean,
-  search: string
-): Set<string> {
-  const typeById = new Map(graphNodes.map((n) => [n.id, n.type]));
-
-  // "Causal only": causal nodes + clauses connected to them + those clauses' ancestors.
-  let causalScope: Set<string> | null = null;
-  if (causalOnly) {
-    causalScope = new Set<string>();
-    graphNodes.forEach((n) => {
-      if (n.type === "causal") causalScope!.add(n.id);
-    });
-    graphEdges.forEach((e) => {
-      const st = typeById.get(e.source);
-      const tt = typeById.get(e.target);
-      if (st === "clause" && tt === "causal") causalScope!.add(e.source);
-      if (st === "causal" && tt === "clause") causalScope!.add(e.target);
-    });
-    // Walk structural edges upward until fixpoint to include ancestors.
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const e of graphEdges) {
-        const st = typeById.get(e.source);
-        if (
-          st !== undefined &&
-          ANCESTOR_TYPES.has(st) &&
-          causalScope.has(e.target) &&
-          !causalScope.has(e.source)
-        ) {
-          causalScope.add(e.source);
-          changed = true;
-        }
-      }
+/** Parent of each node = its nearest structural ancestor; entities may repeat under several clauses. */
+export function buildTree(nodes: GraphNode[], edges: GraphEdge[]): TreeIndex {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const best = new Map<string, string>();
+  const children = new Map<string, string[]>();
+  const edgeLabel = new Map<string, string>();
+  const add = (p: string, c: string) => {
+    const list = children.get(p) ?? [];
+    list.push(c);
+    children.set(p, list);
+  };
+  for (const e of edges) {
+    const s = byId.get(e.source);
+    const t = byId.get(e.target);
+    if (!s || !t) continue;
+    let [p, c] = [s, t];
+    if (RANK[p.type] > RANK[c.type]) [p, c] = [c, p];
+    if (RANK[p.type] === RANK[c.type]) continue;
+    edgeLabel.set(`${p.id}>${c.id}`, e.label ?? "");
+    if (c.type === "entity") {
+      add(p.id, c.id);
+      continue;
     }
+    const cur = best.get(c.id);
+    if (!cur || RANK[byId.get(cur)!.type] < RANK[p.type]) best.set(c.id, p.id);
   }
-
-  const q = search.trim().toLowerCase();
-  const visible = new Set<string>();
-  graphNodes.forEach((n) => {
-    // Document root is always visible so the graph never loses its anchor.
-    if (n.type === "document") {
-      visible.add(n.id);
-      return;
-    }
-    if (hiddenTypes.has(n.type)) return;
-    if (causalScope && !causalScope.has(n.id)) return;
-    if (q && !n.label.toLowerCase().includes(q)) return;
-    visible.add(n.id);
-  });
-  return visible;
+  best.forEach((p, c) => add(p, c));
+  const root = nodes.find((n) => n.type === "document")?.id ?? null;
+  return { byId, children, parent: best, root, edgeLabel };
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-export default function ProvenanceGraph({
-  graphNodes,
-  graphEdges,
-  onNodeSelect,
-  hiddenTypes,
-  causalOnly = false,
-  nodeSearch = "",
-}: {
+type Data = {
+  node: GraphNode;
+  childCount: number;
+  expanded: boolean;
+  match: boolean;
+  selected: boolean;
+  more?: number;
+};
+type FlowNode = Node<Data, "prov">;
+
+const ProvNode = memo(function ProvNode({ data }: NodeProps<FlowNode>) {
+  const { node, childCount, expanded, match, selected, more } = data;
+  const color = NODE_TYPE_COLORS[node.type] ?? tokens.paper[100];
+  if (more !== undefined)
+    return (
+      <div className="flex h-9 w-[240px] items-center justify-center rounded-[4px] border border-dashed border-border-light text-[12.5px] text-text-muted hover:border-glow hover:text-text-primary">
+        <Handle type="target" position={Position.Left} className="!opacity-0" isConnectable={false} />
+        Show {Math.min(more, PAGE)} more of {more}
+      </div>
+    );
+  return (
+    <div
+      className={cn(
+        "flex h-9 w-[240px] items-center gap-2 rounded-[4px] border bg-bg-surface px-2.5 text-left transition-colors",
+        selected ? "border-signal shadow-glow-sm" : match ? "border-status-warning" : "border-border hover:border-border-light"
+      )}
+      title={node.label}
+    >
+      <Handle type="target" position={Position.Left} className="!opacity-0" isConnectable={false} />
+      <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: color }} aria-hidden />
+      <span className="min-w-0 flex-1 truncate text-[12.5px] text-text-primary">{node.label}</span>
+      {childCount > 0 && (
+        <span className="flex shrink-0 items-center gap-0.5 font-mono text-[12px] text-text-dim">
+          {childCount}
+          {expanded ? <Minus className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+        </span>
+      )}
+      <Handle type="source" position={Position.Right} className="!opacity-0" isConnectable={false} />
+    </div>
+  );
+});
+
+const nodeTypes = { prov: ProvNode };
+
+interface Props {
   graphNodes: GraphNode[];
   graphEdges: GraphEdge[];
   onNodeSelect: (node: GraphNode | null) => void;
   hiddenTypes?: Set<string>;
   causalOnly?: boolean;
   nodeSearch?: string;
-}) {
-  const initialNodes = useMemo(() => buildFlowNodes(graphNodes), [graphNodes]);
-  const initialEdges = useMemo(() => buildFlowEdges(graphEdges), [graphEdges]);
+  selectedId?: string | null;
+}
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<PrismFlowNode>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+function Graph({ graphNodes, graphEdges, onNodeSelect, hiddenTypes, causalOnly = false, nodeSearch = "", selectedId }: Props) {
+  const tree = useMemo(() => buildTree(graphNodes, graphEdges), [graphNodes, graphEdges]);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(tree.root ? [tree.root] : []));
+  const [pages, setPages] = useState<Map<string, number>>(new Map());
+  const flow = useReactFlow();
 
-  const visibleIds = useMemo(
-    () =>
-      computeVisibleIds(
-        graphNodes,
-        graphEdges,
-        hiddenTypes ?? new Set<string>(),
-        causalOnly,
-        nodeSearch
-      ),
-    [graphNodes, graphEdges, hiddenTypes, causalOnly, nodeSearch]
+  // Which nodes may appear at all (type filters, causal-only).
+  const allowed = useMemo(() => {
+    const hidden = hiddenTypes ?? new Set<string>();
+    let keep: Set<string> | null = null;
+    if (causalOnly) {
+      const k = new Set<string>();
+      tree.byId.forEach((n) => {
+        if (n.type !== "causal") return;
+        let cur: string | undefined = n.id;
+        while (cur) {
+          k.add(cur);
+          cur = tree.parent.get(cur);
+        }
+      });
+      keep = k;
+    }
+    return (id: string) => {
+      const n = tree.byId.get(id);
+      if (!n) return false;
+      if (n.type === "document") return true;
+      if (hidden.has(n.type)) return false;
+      if (keep && n.type !== "entity" && !keep.has(id)) return false;
+      if (keep && n.type === "entity") return false;
+      return true;
+    };
+  }, [tree, hiddenTypes, causalOnly]);
+
+  // Search: highlight matches and open the branches that lead to them.
+  const matches = useMemo(() => {
+    const q = nodeSearch.trim().toLowerCase();
+    if (q.length < 2) return new Set<string>();
+    const out = new Set<string>();
+    for (const n of graphNodes) {
+      if (n.type !== "document" && n.label.toLowerCase().includes(q) && allowed(n.id)) out.add(n.id);
+      if (out.size >= 40) break;
+    }
+    return out;
+  }, [nodeSearch, graphNodes, allowed]);
+
+  useEffect(() => {
+    if (matches.size === 0) return;
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      matches.forEach((m) => {
+        let cur = tree.parent.get(m);
+        while (cur) {
+          next.add(cur);
+          cur = tree.parent.get(cur);
+        }
+      });
+      return next;
+    });
+  }, [matches, tree]);
+
+  const { nodes, edges } = useMemo(() => {
+    const nodes: FlowNode[] = [];
+    const edges: Edge[] = [];
+    if (!tree.root) return { nodes, edges };
+    let row = 0;
+    const place = (id: string, key: string, depth: number, parentKey: string | null) => {
+      const n = tree.byId.get(id)!;
+      const kids = (tree.children.get(id) ?? []).filter(allowed);
+      const isOpen = expanded.has(key) && kids.length > 0;
+      const startRow = row;
+      const childRows: number[] = [];
+      if (isOpen) {
+        const shown = Math.min(kids.length, PAGE * (pages.get(key) ?? 1));
+        const before = row;
+        for (const c of kids.slice(0, shown)) {
+          const childKey = tree.byId.get(c)?.type === "entity" ? `${c}@${key}` : c;
+          childRows.push(row);
+          place(c, childKey, depth + 1, key);
+        }
+        if (shown < kids.length) {
+          const moreKey = `more:${key}`;
+          childRows.push(row);
+          nodes.push({
+            id: moreKey,
+            type: "prov",
+            position: { x: (depth + 1) * COL, y: row * ROW },
+            data: { node: n, childCount: 0, expanded: false, match: false, selected: false, more: kids.length - shown },
+          });
+          edges.push({ id: `${key}>${moreKey}`, source: key, target: moreKey, style: { stroke: tokens.border.light } });
+          row++;
+        }
+        if (row === before) row++;
+      } else {
+        row++;
+      }
+      const y = isOpen && childRows.length ? ((childRows[0] + childRows[childRows.length - 1]) / 2) * ROW : startRow * ROW;
+      nodes.push({
+        id: key,
+        type: "prov",
+        position: { x: depth * COL, y },
+        data: {
+          node: n,
+          childCount: kids.length,
+          expanded: isOpen,
+          match: matches.has(id),
+          selected: selectedId === id,
+        },
+      });
+      if (parentKey) {
+        const label = tree.edgeLabel.get(`${tree.byId.get(parentKey.split("@")[0])?.id}>${id}`);
+        const trig = label === "triggers";
+        edges.push({
+          id: `${parentKey}>${key}`,
+          source: parentKey,
+          target: key,
+          type: "smoothstep",
+          style: { stroke: trig ? alpha(tokens.signal[500], 0.75) : tokens.border.light, strokeWidth: trig ? 1.5 : 1 },
+        });
+      }
+    };
+    place(tree.root, tree.root, 0, null);
+    return { nodes, edges };
+  }, [tree, expanded, pages, allowed, matches, selectedId]);
+
+  // Open on the root and its first children, not the whole first page.
+  const initialFit = useMemo(
+    () => [{ id: tree.root ?? "" }, ...nodes.filter((n) => n.id !== tree.root).slice(0, 10).map((n) => ({ id: n.id }))],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tree]
   );
 
-  // Toggle `hidden` in place — keeps positions (and any drags) stable.
-  useEffect(() => {
-    setNodes((nds) => nds.map((n) => ({ ...n, hidden: !visibleIds.has(n.id) })));
-    setEdges((eds) =>
-      eds.map((e) => ({
-        ...e,
-        hidden: !visibleIds.has(e.source) || !visibleIds.has(e.target),
-      }))
-    );
-  }, [visibleIds, setNodes, setEdges]);
-
   const onNodeClick = useCallback(
-    (_: MouseEvent, node: PrismFlowNode) => {
-      onNodeSelect(node.data.raw);
+    (_: unknown, n: FlowNode) => {
+      if (n.data.more !== undefined) {
+        const key = n.id.slice(5);
+        setPages((p) => new Map(p).set(key, (p.get(key) ?? 1) + 1));
+        return;
+      }
+      onNodeSelect(n.data.node);
+      if (n.data.childCount > 0) {
+        setExpanded((prev) => {
+          const next = new Set(prev);
+          if (next.has(n.id)) next.delete(n.id);
+          else next.add(n.id);
+          return next;
+        });
+        setTimeout(() => flow.setCenter(n.position.x + 260, n.position.y + 18, { zoom: flow.getZoom(), duration: 500 }), 30);
+      }
     },
-    [onNodeSelect]
+    [onNodeSelect, flow]
   );
 
   return (
@@ -287,25 +283,34 @@ export default function ProvenanceGraph({
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
       onPaneClick={() => onNodeSelect(null)}
       fitView
-      fitViewOptions={{ padding: 0.2 }}
+      fitViewOptions={{ padding: 0.2, maxZoom: 1, nodes: initialFit }}
       proOptions={{ hideAttribution: true }}
-      style={{ background: "transparent" }}
-      nodesDraggable
+      nodesDraggable={false}
       nodesConnectable={false}
-      minZoom={0.05}
-      maxZoom={4}
+      minZoom={0.1}
+      maxZoom={2}
+      className="!bg-transparent"
     >
-      <Background variant={BackgroundVariant.Dots} color={tokens.border.DEFAULT} gap={32} size={1} />
-      <Controls />
-      <MiniMap<PrismFlowNode>
-        nodeColor={(n) => NODE_TYPE_COLORS[n.data.nodeType] ?? tokens.accent.primary}
-        maskColor={alpha(tokens.bg.deep, 0.85)}
+      <Background variant={BackgroundVariant.Dots} color={tokens.border.light} gap={28} size={1} />
+      <Controls showInteractive={false} position="bottom-left" />
+      <MiniMap<FlowNode>
+        pannable
+        zoomable
+        nodeColor={(n) => (n.data.more !== undefined ? tokens.ink[600] : NODE_TYPE_COLORS[n.data.node.type] ?? tokens.paper[100])}
+        maskColor={alpha(tokens.ink[950], 0.8)}
+        className="!hidden md:!block"
       />
     </ReactFlow>
+  );
+}
+
+export default function ProvenanceGraph(props: Props) {
+  return (
+    <ReactFlowProvider>
+      <Graph {...props} />
+    </ReactFlowProvider>
   );
 }

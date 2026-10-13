@@ -1,18 +1,9 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  GitBranch,
-  FileText,
-  CheckCircle2,
-  BarChart3,
-  Zap,
-  Network,
-} from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import Link from "next/link";
+import { Panel as RPanel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Network } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
 import { useAnalysisSession } from "@/hooks/useAnalysisSession";
 import { useLLMExtraction } from "@/hooks/useLLMExtraction";
@@ -20,217 +11,129 @@ import ProcessingOverlay from "@/components/workspace/ProcessingOverlay";
 import ClauseFeed from "@/components/workspace/ClauseFeed";
 import AnalyticsTabs from "@/components/workspace/analytics/AnalyticsTabs";
 import PDFViewerPanel from "@/components/workspace/PDFViewerPanel";
-import PrismMark from "@/components/brand/PrismMark";
-import { alpha, tokens } from "@/lib/tokens";
+import DocContextBar from "@/components/shell/DocContextBar";
+import { StatusTag } from "@/components/ui/kit";
+import { cn } from "@/lib/utils";
 
-export default function AnalyzePage({
-  params,
-}: {
-  params: { docId: string };
-}) {
+function Handle() {
+  return (
+    <PanelResizeHandle className="group relative w-px bg-border outline-none data-[resize-handle-state=drag]:bg-signal data-[resize-handle-state=hover]:bg-border-glow">
+      <span className="absolute inset-y-0 -left-1.5 -right-1.5" aria-hidden />
+    </PanelResizeHandle>
+  );
+}
+
+const MOBILE_TABS = [
+  ["clauses", "Clauses"],
+  ["analysis", "Analysis"],
+  ["document", "Document"],
+] as const;
+
+export default function AnalyzePage({ params }: { params: { docId: string } }) {
   const { docId } = params;
   const { stage, filename, clauses, stats, llmStage, llmProcessed, llmTotal } = useDocumentStore();
-  const [pdfOpen, setPdfOpen] = useState(true);
+  const [mobileTab, setMobileTab] = useState<(typeof MOBILE_TABS)[number][0]>("clauses");
 
   useAnalysisSession(docId);
-  // Hydrates cached Phi-3.5 extractions into clause cards; re-attaches to
-  // a live extraction job if one is running server-side.
+  // Hydrates cached model extractions into clause cards; re-attaches to a
+  // live extraction job if one is running server-side.
   useLLMExtraction(docId);
 
   const isComplete = stage === "complete";
-  const isActive = stage !== "idle";
   const entityCount = stats?.total_entities ?? clauses.reduce((n, c) => n + c.entities.length, 0);
   const causalCount = stats?.causal_patterns_found ?? clauses.reduce((n, c) => n + c.causal_patterns.length, 0);
+  const figures: [string, number | string][] = [
+    ["clauses", clauses.length],
+    ["entities", entityCount],
+    ["condition → consequence", causalCount],
+    ["pages", stats?.total_pages ?? "–"],
+  ];
+  const status = isComplete ? "complete" : stage === "idle" ? "pending" : stage === "error" ? "error" : "processing";
 
   return (
-    <div className="h-[calc(100dvh-3.5rem)] flex flex-col overflow-hidden app-shell bg-bg-base">
+    <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
       <ProcessingOverlay />
-      <div className="gradient-orb-1" style={{ opacity: 0.36 }} />
-      <div className="gradient-orb-2" style={{ opacity: 0.3 }} />
-      <div className="noise-overlay" style={{ opacity: 0.05 }} />
-
-      <nav className="content-layer flex-shrink-0 flex items-center justify-between px-5 py-3 z-10 bg-bg-deep/90 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-4 min-w-0">
-          <Link
-            href="/start"
-            className="flex items-center gap-1.5 text-xs font-mono transition-all duration-200 group text-text-muted hover:text-text-primary"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-            Back
-          </Link>
-
-          <div className="w-px h-4 bg-border" />
-
-          <div className="flex items-center gap-2.5">
-            <PrismMark size={28} />
-            <span className="font-display text-sm text-text-primary">
-              PRISM
-            </span>
-            <span className="text-micro font-mono px-1.5 py-0.5 rounded text-accent-primary border border-accent-primary/35 bg-accent-primary/10">
-              Analysis
-            </span>
-          </div>
-
-          {filename && (
-            <>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-1.5 max-w-[220px]">
-                <FileText className="w-3 h-3 flex-shrink-0 text-text-muted" />
-                <span className="text-micro font-mono truncate text-text-secondary">
-                  {filename}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <AnimatePresence>
-            {isComplete && (
-              <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-3"
-              >
-                <div className="flex items-center gap-1.5 text-micro font-mono text-status-success">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Complete
-                </div>
-                {stats?.domain && (
-                  <span
-                    className="text-micro font-mono px-2 py-1 rounded-lg bg-entity-actor/10 border border-entity-actor/25"
-                    style={{ color: tokens.entity.ACTOR.text }}
-                  >
-                    {stats.domain}
-                  </span>
-                )}
-                <Link
-                  href={`/compare?a=${docId}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-status-success/10 border border-status-success/25 text-status-success"
-                >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  Compare
-                </Link>
-                <Link
-                  href={`/provenance/${docId}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-accent-primary/10 hover:bg-accent-primary/20 border border-accent-primary/35 text-accent-primary"
-                >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  Knowledge Graph
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </nav>
-
-      <AnimatePresence>
+      <DocContextBar docId={docId} filename={filename} view="analyze" status={<StatusTag status={status} />}>
         {isComplete && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="content-layer flex-shrink-0 flex items-center gap-0 overflow-hidden border-b border-border bg-bg-surface/70"
-          >
-            {[
-              { icon: FileText, label: "Clauses", value: clauses.length, color: tokens.text.primary },
-              { icon: Network, label: "Entities", value: entityCount, color: tokens.accent.primary },
-              { icon: Zap, label: "Causal", value: causalCount, color: tokens.status.warning },
-              { icon: BarChart3, label: "Pages", value: stats?.total_pages ?? "-", color: tokens.text.secondary },
-              ...(stats?.causal_risk_counts?.CRITICAL
-                ? [{ icon: Zap, label: "Critical", value: stats.causal_risk_counts.CRITICAL, color: tokens.status.error }]
-                : []),
-            ].map((s) => {
-              const Icon = s.icon;
-              return (
-                <div key={s.label} className="flex items-center gap-2 px-5 py-2.5 border-r border-border">
-                  <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: s.color }} />
-                  <span className="font-display text-base" style={{ color: s.color }}>
-                    {s.value}
-                  </span>
-                  <span className="text-micro font-mono uppercase tracking-wider text-text-muted">
-                    {s.label}
-                  </span>
-                </div>
-              );
-            })}
-            <div className="ml-auto px-5 py-2.5 text-micro font-mono text-text-dim">
-              {stats?.graph_nodes ?? 0} graph nodes · {stats?.graph_edges ?? 0} edges
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Phase 2 banner — live LLM extraction status */}
-      <AnimatePresence>
-        {llmStage === "running" && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="content-layer flex-shrink-0 flex items-center gap-3 px-5 py-2 border-b border-border overflow-hidden"
-            style={{ background: alpha(tokens.hue.blue.base, 0.06) }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-status-info animate-pulse" />
-            <span className="text-micro font-mono text-status-info">
-              Phase 2 active — Phi-3.5-mini extracting causal rules ({llmProcessed}/{llmTotal || "…"})
-            </span>
-            <div className="flex-1 max-w-[240px] h-1 rounded-full bg-bg-elevated overflow-hidden">
-              <div
-                className="h-full bg-status-info transition-all duration-500"
-                style={{ width: llmTotal ? `${(llmProcessed / llmTotal) * 100}%` : "4%" }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 3-column workspace: PDF (collapsible) | clause feed | analytics */}
-      <motion.div
-        className="content-layer flex-1 flex overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isActive ? 1 : 0 }}
-        transition={{ duration: 0.35, delay: 0.1 }}
-      >
-        <div
-          className="flex-shrink-0 flex flex-col overflow-hidden border-r border-border transition-[width] duration-300"
-          style={{ width: pdfOpen ? "min(30vw, 460px)" : "44px" }}
-        >
-          {pdfOpen ? (
-            <div className="flex flex-col h-full min-h-0">
-              <div className="flex-1 min-h-0">
-                <PDFViewerPanel docId={docId} />
+          <dl className="hidden items-center gap-5 xl:flex">
+            {figures.map(([k, v]) => (
+              <div key={k} className="flex items-baseline gap-1.5">
+                <dd className="font-mono text-[13px] text-text-primary">{typeof v === "number" ? v.toLocaleString("en-IN") : v}</dd>
+                <dt className="text-[12px] text-text-muted">{k}</dt>
               </div>
-              <button
-                onClick={() => setPdfOpen(false)}
-                className="flex-shrink-0 flex items-center justify-center gap-1.5 py-1.5 border-t border-border text-micro font-mono text-text-dim hover:text-text-secondary transition-colors"
-              >
-                <PanelLeftClose className="w-3 h-3" /> Collapse
-              </button>
-            </div>
-          ) : (
+            ))}
+            {stats?.domain && stats.domain !== "General Legislation" && (
+              <div className="text-[12px] text-text-muted" title="A keyword guess, not a classification">
+                reads as <span className="text-text-secondary">{stats.domain}</span>
+              </div>
+            )}
+          </dl>
+        )}
+        {isComplete && (
+          <Link
+            href={`/provenance/${docId}`}
+            className="hidden h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary md:inline-flex"
+          >
+            <Network className="h-3.5 w-3.5" /> Graph
+          </Link>
+        )}
+      </DocContextBar>
+
+      {llmStage === "running" && (
+        <div role="status" className="flex shrink-0 items-center gap-3 border-b border-border bg-status-info/[0.06] px-4 py-2 sm:px-6">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-status-info" aria-hidden />
+          <span className="text-[13px] text-status-info">
+            A language model is reading clauses into rules ({llmProcessed} of {llmTotal || "…"})
+          </span>
+          <span className="h-1 max-w-[240px] flex-1 overflow-hidden rounded-full bg-ink-700">
+            <span
+              className="block h-full bg-status-info transition-[width] duration-500"
+              style={{ width: llmTotal ? `${(llmProcessed / llmTotal) * 100}%` : "4%" }}
+            />
+          </span>
+        </div>
+      )}
+
+      {/* Desktop: three resizable panes, sizes remembered. */}
+      <div className="hidden min-h-0 flex-1 lg:flex">
+        <PanelGroup direction="horizontal" autoSaveId="prism-analyze" className="min-h-0 flex-1">
+          <RPanel defaultSize={28} minSize={12} collapsible collapsedSize={0} order={1} className="flex min-h-0 flex-col">
+            <PDFViewerPanel docId={docId} />
+          </RPanel>
+          <Handle />
+          <RPanel defaultSize={30} minSize={20} order={2} className="flex min-h-0 flex-col">
+            <ClauseFeed />
+          </RPanel>
+          <Handle />
+          <RPanel defaultSize={42} minSize={28} order={3} className="flex min-h-0 flex-col">
+            <AnalyticsTabs />
+          </RPanel>
+        </PanelGroup>
+      </div>
+
+      {/* Narrow screens: one pane at a time. */}
+      <div className="flex min-h-0 flex-1 flex-col lg:hidden">
+        <div role="tablist" aria-label="Workspace panes" className="flex shrink-0 border-b border-border">
+          {MOBILE_TABS.map(([id, label]) => (
             <button
-              onClick={() => setPdfOpen(true)}
-              className="h-full w-full flex flex-col items-center justify-center gap-2 text-text-dim hover:text-accent-primary hover:bg-bg-elevated transition-colors"
-              title="Open document viewer"
+              key={id}
+              role="tab"
+              type="button"
+              aria-selected={mobileTab === id}
+              onClick={() => setMobileTab(id)}
+              className={cn("relative flex-1 py-2.5 text-[14px]", mobileTab === id ? "text-text-primary" : "text-text-muted")}
             >
-              <PanelLeftOpen className="w-4 h-4" />
-              <span
-                className="text-micro font-mono uppercase tracking-widest"
-                style={{ writingMode: "vertical-rl" }}
-              >
-                Document
-              </span>
+              {label}
+              {mobileTab === id && <span aria-hidden className="absolute inset-x-6 bottom-0 h-[2px] bg-signal" />}
             </button>
-          )}
+          ))}
         </div>
-        <div className="flex-shrink-0 flex flex-col overflow-hidden border-r border-border w-[340px] xl:w-[400px]">
-          <ClauseFeed />
+        <div role="tabpanel" className="flex min-h-0 flex-1 flex-col">
+          {mobileTab === "clauses" && <ClauseFeed />}
+          {mobileTab === "analysis" && <AnalyticsTabs />}
+          {mobileTab === "document" && <PDFViewerPanel docId={docId} />}
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          <AnalyticsTabs />
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

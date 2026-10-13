@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Search, Loader2, X, ListTree, ChevronRight } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
 import ClauseCard from "./ClauseCard";
@@ -55,11 +55,6 @@ export default function ClauseFeed() {
   const feedRef = useRef<HTMLDivElement>(null);
   const isProcessing = stage === "ner" || stage === "parsing" || stage === "segmentation";
 
-  useEffect(() => {
-    if (isProcessing && feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
-    }
-  }, [clauses.length, isProcessing]);
 
   const toggleLabel = (label: EntityLabel) => {
     setActiveLabels((prev) => {
@@ -70,10 +65,7 @@ export default function ClauseFeed() {
     });
   };
 
-  const MAX_VISIBLE = isProcessing ? 80 : clauses.length;
-  const visibleClauses = clauses.slice(0, MAX_VISIBLE);
-
-  const filtered: Clause[] = visibleClauses.filter((c) => {
+  const filtered: Clause[] = clauses.filter((c) => {
     if (selectedClauseIds.size > 0 && !selectedClauseIds.has(c.clause_id)) return false;
     if (scope && scope.length > 0 && !scope.every((s, i) => (c.section_hierarchy ?? [])[i] === s)) return false;
     if (search && !c.text.toLowerCase().includes(search.toLowerCase())) return false;
@@ -91,6 +83,32 @@ export default function ClauseFeed() {
     return true;
   });
 
+  // Thousands of clauses: render only the ones in view.
+  const virtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => feedRef.current,
+    estimateSize: () => 150,
+    overscan: 6,
+    getItemKey: (i) => filtered[i].clause_id,
+  });
+
+  // Follow the stream while the document is processing.
+  useEffect(() => {
+    if (isProcessing && filtered.length > 0) virtualizer.scrollToIndex(filtered.length - 1, { align: "end" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clauses.length, isProcessing]);
+
+  // Bring a clause selected elsewhere (map, graph, search) into view.
+  useEffect(() => {
+    if (!selectedClauseId) return;
+    const i = filtered.findIndex((c) => c.clause_id === selectedClauseId);
+    if (i < 0) return;
+    const items = virtualizer.getVirtualItems();
+    const shown = items.some((v) => v.index === i && v.start >= (feedRef.current?.scrollTop ?? 0));
+    if (!shown) virtualizer.scrollToIndex(i, { align: "center" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClauseId]);
+
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
@@ -101,14 +119,10 @@ export default function ClauseFeed() {
             <p className="text-micro font-mono mt-0.5 text-text-muted">
               {isProcessing
                 ? `Processing ${processedCount} of ${totalClauses}…`
-                : `${filtered.length} of ${clauses.length} clauses${clauses.length > MAX_VISIBLE ? ` (showing ${MAX_VISIBLE})` : ""}`}
+                : `${filtered.length.toLocaleString("en-IN")} of ${clauses.length.toLocaleString("en-IN")} clauses`}
             </p>
           </div>
-          {isProcessing && (
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}>
-              <Loader2 className="w-4 h-4 text-accent-primary" />
-            </motion.div>
-          )}
+          {isProcessing && <Loader2 className="h-4 w-4 animate-spin text-signal" aria-label="Processing" />}
         </div>
 
         {/* UMAP lasso selection chip */}
@@ -248,45 +262,43 @@ export default function ClauseFeed() {
         </div>
       </div>
 
-      {/* Clause list */}
-      <div
-        ref={feedRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-2 min-h-0"
-      >
+      {/* Clause list (virtualised) */}
+      <div ref={feedRef} className="scroll-thin min-h-0 flex-1 overflow-y-auto px-4 py-3" role="list" aria-label="Clauses">
         {clauses.length === 0 && !isProcessing && (
-          <div className="flex flex-col items-center justify-center h-48 text-text-muted">
-            <p className="font-mono text-sm">No clauses yet</p>
+          <div className="flex h-48 flex-col items-center justify-center text-[14px] text-text-muted">No clauses yet.</div>
+        )}
+        {clauses.length > 0 && filtered.length === 0 && (
+          <div className="flex h-48 flex-col items-center justify-center gap-2 text-center text-[14px] text-text-muted">
+            No clause matches these filters.
           </div>
         )}
-
-        <AnimatePresence mode="popLayout">
-          {filtered.map((clause) => (
-            <ClauseCard
-              key={clause.clause_id}
-              clause={clause}
-              isSelected={selectedClauseId === clause.clause_id}
-              onSelect={() => setSelectedClauseId(
-                selectedClauseId === clause.clause_id ? null : clause.clause_id
-              )}
-            />
-          ))}
-        </AnimatePresence>
-
-        {/* Shimmer while processing */}
-        {isProcessing && (
-          <>
-            {[1, 2].map((n) => (
-              <div key={n} className="rounded-xl p-4 space-y-3 border border-border">
-                <div className="shimmer h-3 rounded w-1/3" />
-                <div className="shimmer h-3 rounded w-full" />
-                <div className="shimmer h-3 rounded w-4/5" />
-                <div className="flex gap-2 mt-2">
-                  <div className="shimmer h-5 rounded-full w-20" />
-                  <div className="shimmer h-5 rounded-full w-16" />
-                </div>
+        <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+          {virtualizer.getVirtualItems().map((v) => {
+            const clause = filtered[v.index];
+            return (
+              <div
+                key={v.key}
+                data-index={v.index}
+                ref={virtualizer.measureElement}
+                role="listitem"
+                className="absolute left-0 top-0 w-full pb-2"
+                style={{ transform: `translateY(${v.start}px)` }}
+              >
+                <ClauseCard
+                  clause={clause}
+                  isSelected={selectedClauseId === clause.clause_id}
+                  onSelect={() => setSelectedClauseId(selectedClauseId === clause.clause_id ? null : clause.clause_id)}
+                />
               </div>
-            ))}
-          </>
+            );
+          })}
+        </div>
+        {isProcessing && (
+          <div className="space-y-3 rounded-[6px] border border-border p-4" aria-hidden>
+            <div className="shimmer h-3 w-1/3" />
+            <div className="shimmer h-3 w-full" />
+            <div className="shimmer h-3 w-4/5" />
+          </div>
         )}
       </div>
     </div>

@@ -81,11 +81,10 @@ export default function AdminPage() {
     : [];
 
   return (
-    <div className="relative app-shell bg-bg-base text-text-primary">
-      <div className="animated-grid" />
+    <div className="relative">
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
-        <h1 className="font-display text-2xl flex items-center gap-2 mb-8">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+        <h1 className="font-serif text-headline text-text-primary flex items-center gap-3 mb-8">
           <ShieldEllipsis className="w-5 h-5 text-accent-primary" /> Admin Dashboard
         </h1>
 

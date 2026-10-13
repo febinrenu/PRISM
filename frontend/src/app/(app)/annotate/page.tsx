@@ -47,11 +47,11 @@ export default function AnnotateHome() {
   const nextTodo = items.find((i) => i.status !== "done");
 
   return (
-    <div className="relative app-shell bg-bg-base text-text-primary">
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
+    <div className="relative">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display text-2xl ">Annotation</h1>
+            <h1 className="font-serif text-headline text-text-primary">Annotation</h1>
             <p className="text-sm text-text-muted mt-1 max-w-2xl">
               Mark every rule each provision states, quoting spans straight from the text. You see only the provision and your own
               work. Follow <span className="text-text-secondary">docs/annotation_guidelines.md</span>.

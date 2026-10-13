@@ -30,13 +30,12 @@ export default function ApiDocsPage() {
   -d '{"question": "What are the penalties for late filing?"}'`;
 
   return (
-    <div className="relative app-shell bg-bg-base text-text-primary">
-      <div className="animated-grid" />
+    <div className="relative">
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-8">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl flex items-center gap-2">
+            <h1 className="font-serif text-headline text-text-primary flex items-center gap-3">
               <BookOpen className="w-5 h-5 text-accent-primary" /> Public API
             </h1>
             <p className="font-mono text-micro uppercase tracking-widest text-text-muted mt-1">

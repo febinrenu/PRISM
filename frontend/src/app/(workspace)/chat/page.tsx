@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Send, Square, Sparkles, Database, Loader2, RefreshCw,
-  Cpu, Cloud, ShieldCheck, AlertTriangle, MessageSquare,
+  Send, Square, Sparkles, Database, Loader2, RefreshCw,
+  Cpu, Cloud, ShieldCheck, AlertTriangle,
 } from "lucide-react";
 import PrismMark from "@/components/brand/PrismMark";
+import { cn } from "@/lib/utils";
 import CitationCard from "@/components/chat/CitationCard";
 import { useRAGChat } from "@/hooks/useRAGChat";
 import { api, Phase2UnavailableError } from "@/lib/api";
-import { tokens, alpha } from "@/lib/tokens";
 import type { CorpusStats, LLMBackendInfo } from "@/types";
 
 const SUGGESTIONS = [
@@ -79,51 +78,41 @@ export default function ChatPage() {
   const empty = corpus && corpus.total_clauses === 0;
 
   return (
-    <div className="relative app-shell bg-bg-base text-text-primary flex flex-col">
-      <div className="animated-grid" />
-
-      {/* Header */}
-      <nav className="relative z-20 px-6 py-4 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <PrismMark size={28} />
-          </Link>
-          <div>
-            <h1 className="font-display text-lg text-text-primary flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-accent-primary" /> RAG Legal Assistant
-            </h1>
-            <p className="font-mono text-micro uppercase tracking-widest text-text-muted">
-              Grounded · Cited · {strict ? "Strict corpus" : "Extended knowledge"}
-            </p>
-          </div>
+    <div className="flex h-[calc(100dvh-3.5rem)] flex-col">
+      <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-4 py-3 sm:px-6">
+        <div>
+          <h1 className="font-serif text-[22px] leading-none text-text-primary">Ask the corpus</h1>
+          <p className="mt-1 text-[12.5px] text-text-muted">
+            Answers built from retrieved statute clauses, each cited · {strict ? "corpus only" : "corpus and general knowledge"}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {backend && (
-            <span className="hidden sm:inline-flex items-center gap-1.5 font-mono text-micro uppercase tracking-widest px-2.5 py-1.5 rounded-sm border border-border text-text-secondary">
-              {backend.cloud ? <Cloud className="w-3 h-3" /> : <Cpu className="w-3 h-3" />}
+            <span className="hidden items-center gap-1.5 rounded-[4px] border border-border px-2.5 py-1.5 font-mono text-[12px] text-text-secondary sm:inline-flex">
+              {backend.cloud ? <Cloud className="h-3.5 w-3.5" /> : <Cpu className="h-3.5 w-3.5" />}
               {backend.model}
             </span>
           )}
           {messages.length > 0 && (
             <button
+              type="button"
               onClick={reset}
-              className="inline-flex items-center gap-1.5 font-mono text-micro uppercase tracking-widest px-2.5 py-1.5 rounded-sm border border-border text-text-muted hover:text-text-primary hover:border-light transition-colors"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary"
             >
-              <RefreshCw className="w-3 h-3" /> New chat
+              <RefreshCw className="h-3.5 w-3.5" /> New chat
             </button>
           )}
         </div>
-      </nav>
+      </div>
 
-      <div className="relative z-10 flex flex-1 min-h-0 max-w-7xl w-full mx-auto">
+      <div className="flex min-h-0 w-full flex-1">
         {/* Corpus sidebar */}
         <aside className="hidden md:flex flex-col w-72 shrink-0 border-r border-border p-5 gap-4 overflow-y-auto">
           <div className="flex items-center gap-2 font-mono text-micro uppercase tracking-widest text-text-muted">
             <Database className="w-3.5 h-3.5" />
             Corpus
             {corpus && (
-              <span className="ml-auto text-accent-primary">
+              <span className="ml-auto normal-case tracking-normal text-text-secondary">
                 {corpus.total_clauses.toLocaleString()} clauses
               </span>
             )}
@@ -143,7 +132,7 @@ export default function ChatPage() {
               <button
                 onClick={ingestAll}
                 disabled={ingesting}
-                className="w-full inline-flex items-center justify-center gap-2 font-mono text-micro uppercase tracking-widest px-3 py-2 rounded-sm text-text-inverse bg-accent-primary disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[4px] bg-signal px-3 py-2 text-[13px] font-medium text-ink disabled:opacity-60"
               >
                 {ingesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
                 Index all documents
@@ -157,13 +146,14 @@ export default function ChatPage() {
               return (
                 <button
                   key={d.doc_id}
+                  type="button"
+                  aria-pressed={selected.has(d.doc_id)}
                   onClick={() => toggleDoc(d.doc_id)}
-                  className="text-left rounded-md border p-3 transition-colors"
-                  style={{
-                    borderColor: selected.has(d.doc_id) ? alpha(tokens.accent.primary, 0.4) : tokens.border.DEFAULT,
-                    background: selected.has(d.doc_id) ? alpha(tokens.accent.primary, 0.08) : "transparent",
-                    opacity: on ? 1 : 0.5,
-                  }}
+                  className={cn(
+                    "rounded-[4px] border p-3 text-left transition-colors",
+                    selected.has(d.doc_id) ? "border-signal/45 bg-signal/[0.06]" : "border-border hover:border-border-light",
+                    !on && "opacity-50"
+                  )}
                 >
                   <div className="font-mono text-micro text-text-primary truncate">{d.doc_name}</div>
                   <div className="mt-1 font-mono text-micro uppercase tracking-wider text-text-muted">
@@ -198,12 +188,10 @@ export default function ChatPage() {
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto">
                 <PrismMark size={56} />
-                <h2 className="mt-6 font-display text-2xl text-text-primary">
-                  Ask the corpus
-                </h2>
+                <h2 className="mt-6 font-serif text-title text-text-primary">What does the law say about…</h2>
                 <p className="mt-3 text-sm text-text-secondary leading-relaxed">
-                  Every answer is grounded in retrieved statute clauses and cited by source.
-                  Nothing is invented — if it isn&apos;t in the corpus, PRISM says so.
+                  Every answer is built from retrieved statute clauses and cites them. When the corpus does not support an
+                  answer, it says so instead of guessing.
                 </p>
                 <div className="mt-8 grid gap-2 w-full">
                   {SUGGESTIONS.map((s) => (
@@ -227,7 +215,7 @@ export default function ChatPage() {
                     className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
                   >
                     {m.role === "user" ? (
-                      <div className="max-w-[85%] rounded-lg rounded-tr-sm px-4 py-2.5 bg-accent-primary text-text-inverse text-[14px] leading-relaxed">
+                      <div className="max-w-[85%] rounded-[8px] rounded-tr-[2px] bg-paper px-4 py-2.5 text-[15px] leading-relaxed text-ink">
                         {m.content}
                       </div>
                     ) : (
@@ -236,7 +224,7 @@ export default function ChatPage() {
                           {m.content ? (
                             <p className="text-[14px] leading-relaxed text-text-primary whitespace-pre-wrap">
                               {m.content}
-                              {m.streaming && <span className="ml-0.5 animate-pulse text-accent-primary">▊</span>}
+                              {m.streaming && <span className="ml-0.5 animate-pulse text-signal">▊</span>}
                             </p>
                           ) : m.error ? (
                             <p className="flex items-center gap-2 text-[13px] text-status-error">
@@ -287,15 +275,16 @@ export default function ChatPage() {
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-2 mb-2">
                 <button
+                  type="button"
+                  aria-pressed={strict}
                   onClick={() => setStrict((s) => !s)}
-                  className="inline-flex items-center gap-1.5 font-mono text-micro uppercase tracking-widest px-2 py-1 rounded-sm border transition-colors"
-                  style={{
-                    borderColor: strict ? alpha(tokens.status.success, 0.4) : tokens.border.DEFAULT,
-                    color: strict ? tokens.status.success : tokens.text.muted,
-                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-[4px] border px-2 py-1 text-[12.5px] transition-colors",
+                    strict ? "border-status-success/40 text-status-success" : "border-border text-text-muted"
+                  )}
                 >
-                  <ShieldCheck className="w-3 h-3" />
-                  {strict ? "Strict RAG" : "Extended"}
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  {strict ? "Corpus only" : "Extended"}
                 </button>
                 <span className="font-mono text-micro text-text-dim">
                   {strict ? "Answers only from corpus sources" : "Corpus + general legal knowledge"}
@@ -314,7 +303,8 @@ export default function ChatPage() {
                   rows={1}
                   placeholder={empty ? "Index a document first…" : "Ask a question about the loaded statutes…"}
                   disabled={!!empty || offline}
-                  className="flex-1 resize-none rounded-md border border-border bg-bg-surface px-4 py-3 text-[14px] text-text-primary placeholder:text-text-dim focus:outline-none focus:border-light disabled:opacity-50 max-h-32"
+                  aria-label="Your question"
+                  className="max-h-32 flex-1 resize-none rounded-[4px] border border-border-light bg-bg-surface px-4 py-3 text-[15px] text-text-primary placeholder:text-text-dim hover:border-glow focus:border-signal focus:outline-none disabled:opacity-50"
                 />
                 {busy ? (
                   <button
@@ -328,7 +318,7 @@ export default function ChatPage() {
                   <button
                     onClick={submit}
                     disabled={!input.trim() || !!empty || offline}
-                    className="shrink-0 h-11 w-11 flex items-center justify-center rounded-md bg-accent-primary text-text-inverse disabled:opacity-40 transition-opacity"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] bg-signal text-ink transition-opacity disabled:opacity-40"
                     aria-label="Send"
                   >
                     <Send className="w-4 h-4" />
@@ -337,7 +327,8 @@ export default function ChatPage() {
               </div>
               <p className="mt-2 flex items-center gap-1.5 font-mono text-micro text-text-dim">
                 <Sparkles className="w-3 h-3" />
-                PRISM cites its sources. Verify against the linked clauses before relying on any answer.
+                Retrieval finds the right section in its top five about three times in four. Check the cited clauses
+                before relying on an answer.
               </p>
             </div>
           </div>

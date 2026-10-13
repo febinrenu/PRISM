@@ -117,25 +117,7 @@ export default function DocPicker({
   }, [a, b, router]);
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-14">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
-      >
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <span className="h-px w-8 bg-accent-primary/60" />
-          <span className="kicker">Module D · Comparative intelligence</span>
-          <span className="h-px w-8 bg-accent-primary/60" />
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl text-text-primary mb-3">
-          Policy Diff Arena
-        </h1>
-        <p className="text-sm text-text-muted max-w-xl mx-auto leading-relaxed">
-          Put two versions of a law side by side — clause-level changes, entity and risk
-          deltas, and a comparative agent-based simulation of who bears the difference.
-        </p>
-      </motion.div>
+    <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
 
       {docs === null ? (
         <div className="flex items-center justify-center gap-2 py-16 text-text-muted">

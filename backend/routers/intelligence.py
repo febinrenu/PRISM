@@ -288,24 +288,31 @@ def _build_checklist(obligations: list, risk_matrix: dict) -> list[dict]:
 
 
 def _detect_domain(clauses) -> str:
-    """Detect legal domain from entity and keyword patterns."""
-    text_sample = " ".join(c.text[:200] for c in clauses[:50]).lower()
+    """Guess the legal domain from keyword counts over the whole document.
+
+    Hyphens are read as spaces ("income-tax" is "income tax"), and terms are
+    counted, not just found, so a stray "employee" in a tax Act's table of
+    contents does not outvote hundreds of uses of "assessee"."""
+    import re
+    text = " ".join(c.text[:400] for c in clauses).lower().replace("-", " ")
 
     domain_signals = {
-        "Income Tax": ["income tax", "assessment year", "taxable income", "deduction", "tds", "assessee", "itr"],
-        "Labor Law": ["employee", "employer", "wages", "termination", "dismissal", "grievance", "trade union"],
+        "Income Tax": ["income tax", "assessment year", "tax year", "taxable income", "total income", "assessee",
+                       "deduction", "rebate", "surcharge", "tds"],
+        "Goods and Services Tax": ["input tax credit", "supply of goods", "taxable supply", "gst", "registered person"],
+        "Labour Law": ["employee", "employer", "wages", "termination", "dismissal", "grievance", "trade union"],
         "Environment": ["pollution", "emission", "environmental", "waste", "discharge", "ecology"],
         "Procurement": ["tender", "procurement", "bidder", "contract award", "rfp", "purchase order"],
-        "Competition Law": ["monopoly", "cartel", "dominant position", "anti-competitive", "merger"],
-        "Data Protection": ["personal data", "data subject", "controller", "processor", "gdpr", "privacy"],
+        "Competition Law": ["monopoly", "cartel", "dominant position", "anti competitive", "merger"],
+        "Data Protection": ["personal data", "data principal", "data fiduciary", "data subject", "controller",
+                            "processor", "privacy"],
     }
-
-    scores: dict[str, int] = {}
-    for domain, signals in domain_signals.items():
-        scores[domain] = sum(1 for s in signals if s in text_sample)
-
+    scores = {d: sum(len(re.findall(r"\b" + re.escape(t) + r"\b", text)) for t in terms)
+              for d, terms in domain_signals.items()}
     best = max(scores, key=lambda k: scores[k])
-    return best if scores[best] >= 2 else "General Legislation"
+    ranked = sorted(scores.values(), reverse=True)
+    # A clear lead over the runner-up, not just any hits.
+    return best if ranked[0] >= 5 and ranked[0] >= 1.5 * ranked[1] else "General Legislation"
 
 
 def _now_iso() -> str:

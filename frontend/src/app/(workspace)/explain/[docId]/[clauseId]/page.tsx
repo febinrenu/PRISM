@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowLeft, ChevronRight, CircleOff, FlaskConical, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ChevronRight, CircleOff, FlaskConical, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 import { useExplanation } from "@/hooks/useExplanation";
 import LIMEHeatmap from "@/components/explain/LIMEHeatmap";
@@ -12,7 +11,11 @@ import AttentionCard from "@/components/explain/AttentionCard";
 import LLMExtractionCard from "@/components/explain/LLMExtractionCard";
 import DeepReasoningCard from "@/components/explain/DeepReasoningCard";
 import RuleVsLLMTable from "@/components/explain/RuleVsLLMTable";
-import PrismMark from "@/components/brand/PrismMark";
+import DocContextBar from "@/components/shell/DocContextBar";
+import { Breadcrumbs } from "@/components/shell/PageHeader";
+import { Callout } from "@/components/ui/kit";
+import { useDocumentStore } from "@/hooks/useDocumentStore";
+import { cn } from "@/lib/utils";
 import type { Clause } from "@/types";
 
 export default function ExplainPage({
@@ -25,6 +28,7 @@ export default function ExplainPage({
   const [clause, setClause] = useState<Clause | null>(null);
   const [clauseError, setClauseError] = useState<string | null>(null);
   const { state, rerun } = useExplanation(docId, clauseId, mode);
+  const filename = useDocumentStore((st) => (st.docId === docId ? st.filename : null));
 
   useEffect(() => {
     let cancelled = false;
@@ -49,87 +53,62 @@ export default function ExplainPage({
     : clauseId.slice(-6);
 
   return (
-    <div className="app-shell bg-bg-base">
-      <div className="gradient-orb-1" style={{ opacity: 0.3 }} />
-      <div className="gradient-orb-2" style={{ opacity: 0.25 }} />
-
-      {/* Nav + breadcrumb */}
-      <nav className="content-layer sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-bg-deep/90 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href={`/analyze/${docId}`}
-            className="flex items-center gap-1.5 text-xs font-mono text-text-muted hover:text-text-primary transition-colors group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Workspace
-          </Link>
-          <div className="w-px h-4 bg-border" />
-          <PrismMark size={24} />
-          <div className="flex items-center gap-1.5 text-micro font-mono text-text-muted min-w-0">
-            <span className="truncate max-w-[140px]">Document</span>
-            <ChevronRight className="w-3 h-3 flex-shrink-0" />
-            <span>{section}</span>
-            <ChevronRight className="w-3 h-3 flex-shrink-0" />
-            <span className="text-accent-primary">Explainability</span>
-          </div>
+    <div>
+      <DocContextBar docId={docId} filename={filename} view="explain">
+        <div role="group" aria-label="Explanation mode" className="flex overflow-hidden rounded-[4px] border border-border-light">
+          {(["proxy", "llm"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={mode === m}
+              onClick={() => setMode(m)}
+              className={cn(
+                "px-3 py-1.5 text-[13px] transition-colors",
+                mode === m ? "bg-paper text-ink" : "text-text-muted hover:text-text-primary"
+              )}
+              title={
+                m === "proxy"
+                  ? "Explains the rule-based classifier: about a second"
+                  : "Every LIME sample is classified by the configured language model: a minute or more"
+              }
+            >
+              {m === "proxy" ? "Rule-based (fast)" : "Language model"}
+            </button>
+          ))}
         </div>
+        <button
+          type="button"
+          onClick={rerun}
+          className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary"
+        >
+          <RefreshCw className="h-3.5 w-3.5" /> Rerun
+        </button>
+      </DocContextBar>
 
-        {/* Mode toggle */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-lg border border-border overflow-hidden">
-            {(["proxy", "llm"] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`px-3 py-1.5 text-micro font-mono uppercase tracking-wider transition-colors ${
-                  mode === m
-                    ? "bg-accent-primary/15 text-accent-primary"
-                    : "text-text-dim hover:text-text-secondary"
-                }`}
-                title={
-                  m === "proxy"
-                    ? "Fast preview — explains the Phase 1 rule-based classifier (~1s)"
-                    : "Faithful — every LIME sample is classified by Phi-3.5-mini (~1–3 min)"
-                }
-              >
-                {m === "proxy" ? "Fast preview" : "LLM faithful"}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={rerun}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-micro font-mono text-text-muted hover:text-accent-primary hover:border-accent-primary/40 transition-colors"
-          >
-            <RefreshCw className="w-3 h-3" /> Refresh
-          </button>
-        </div>
-      </nav>
-
-      <div className="content-layer max-w-7xl mx-auto px-6 py-8">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="h-px w-8 bg-accent-primary/60" />
-            <span className="kicker">Explainability Studio</span>
-          </div>
-          <h1 className="font-display text-3xl md:text-4xl text-text-primary mb-1">
-            Inside the model’s reading of {section}
-          </h1>
-          <p className="text-sm text-text-muted max-w-2xl leading-relaxed">
-            LIME perturbs the clause hundreds of ways and watches the classifier respond — tokens
-            tinted green push the clause toward a causal reading, red push away.
-            {mode === "proxy" && (
-              <span className="text-status-warning"> Fast preview explains the rule-based classifier, not the LLM.</span>
-            )}
-          </p>
-        </motion.div>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Breadcrumbs
+          className="mb-6"
+          items={[
+            { label: "Workspace", href: `/analyze/${docId}` },
+            { label: section },
+            { label: "Explanation" },
+          ]}
+        />
+        <div className="kicker mb-3">Explanation</div>
+        <h1 className="max-w-3xl font-serif text-headline text-text-primary">Why this reading of {section}?</h1>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-secondary">
+          LIME rewrites the clause hundreds of ways and watches the classifier respond: highlighted words push the clause
+          toward a condition → consequence reading or away from it.
+          {mode === "proxy" && " This mode explains the rule-based classifier, not the language model."}
+        </p>
+        <Callout tone="warn" className="mt-6 max-w-3xl" title="Read these as commentary, not proof">
+          In the research evaluation, the spans models cite as evidence were no more faithful than random spans of the same
+          length, and attention weights are not explanations. Use these views to probe a reading, not to certify it.
+        </Callout>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           {/* Left: LIME heatmap */}
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="space-y-4"
-          >
+          <section className="space-y-4">
             <div className="glass-card p-6 min-h-[280px]">
               <div className="flex items-center justify-between mb-4">
                 <span className="kicker !text-micro">Token attribution</span>
@@ -156,7 +135,7 @@ export default function ExplainPage({
                 <div className="flex flex-col items-center justify-center py-14 gap-4">
                   <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
                   <p className="text-xs font-mono text-text-muted">
-                    Classifying perturbation {state.done}/{state.total} with Phi-3.5-mini…
+                    Classifying perturbation {state.done} of {state.total} with the language model…
                   </p>
                   <div className="w-56 h-1 rounded-full bg-bg-elevated overflow-hidden">
                     <div
@@ -188,15 +167,10 @@ export default function ExplainPage({
             {clause && clause.clause_type !== "table" && (
               <AttentionCard docId={docId} clauseId={clauseId} clauseText={clause.text} />
             )}
-          </motion.section>
+          </section>
 
           {/* Right: LLM extraction breakdown */}
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
-            className="space-y-4"
-          >
+          <section className="space-y-4">
             {clauseError && <OfflineState label={clauseError} />}
             {clause?.clause_type === "table" ? (
               <div className="glass-card p-6 text-center space-y-3">
@@ -211,10 +185,10 @@ export default function ExplainPage({
             ) : clause ? (
               <div className="glass-card p-6 text-center space-y-3">
                 <Sparkles className="w-6 h-6 text-text-dim mx-auto" />
-                <p className="text-sm text-text-secondary">This clause wasn’t selected for LLM extraction.</p>
-                <p className="text-xs text-text-muted">
-                  Phi-3.5-mini prioritizes clauses with an obligation or penalty. Run LLM extraction
-                  from the workspace’s LLM tab (use “all” scope to include every clause).
+                <p className="text-sm text-text-secondary">No model extraction for this clause yet.</p>
+                <p className="text-[13px] text-text-muted">
+                  Extraction runs first on clauses with an obligation or penalty. Run it from the workspace&apos;s LLM tab,
+                  with the &ldquo;all&rdquo; scope to include every clause.
                 </p>
               </div>
             ) : null}
@@ -232,16 +206,14 @@ export default function ExplainPage({
                 >
                   <FlaskConical className="w-4 h-4 text-status-success" />
                   <div>
-                    <p className="text-xs font-semibold text-text-primary">Simulate this clause’s impact</p>
-                    <p className="text-micro font-mono text-text-dim">
-                      Open the Simulation Theater pre-filtered to this rule
-                    </p>
+                    <p className="text-[14px] text-text-primary">Try this clause in the policy sandbox</p>
+                    <p className="text-[12px] text-text-dim">An illustrative simulation, pre-filtered to this rule</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-text-dim ml-auto group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </>
             )}
-          </motion.section>
+          </section>
         </div>
       </div>
     </div>

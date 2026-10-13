@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { AlertTriangle, ArrowLeft, CircleOff, FlaskConical } from "lucide-react";
+import { AlertTriangle, CircleOff, FlaskConical } from "lucide-react";
 import { api, Phase2UnavailableError } from "@/lib/api";
 import { useSimulation } from "@/hooks/useSimulation";
 import SimulationControls, { type ControlValues } from "@/components/simulate/SimulationControls";
@@ -20,7 +19,9 @@ import {
   RevenueChart,
   formatRupees,
 } from "@/components/simulate/SimulationCharts";
-import PrismMark from "@/components/brand/PrismMark";
+import DocContextBar from "@/components/shell/DocContextBar";
+import { Callout, SandboxTag } from "@/components/ui/kit";
+import { useDocumentStore } from "@/hooks/useDocumentStore";
 import { tokens } from "@/lib/tokens";
 import type { SimulationRuleInfo } from "@/types";
 
@@ -30,6 +31,7 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
   const prefilterClause = searchParams.get("clause");
 
   const { state, run } = useSimulation(docId);
+  const filename = useDocumentStore((s) => (s.docId === docId ? s.filename : null));
   const [availableRules, setAvailableRules] = useState<SimulationRuleInfo[] | null>(null);
   const [rulesError, setRulesError] = useState<string | null>(null);
   const [noRules, setNoRules] = useState(false);
@@ -91,47 +93,33 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
   };
 
   return (
-    <div className="app-shell bg-bg-base">
-      <div className="gradient-orb-1" style={{ opacity: 0.3 }} />
-      <div className="gradient-orb-3" style={{ opacity: 0.25 }} />
-
-      <nav className="content-layer sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-bg-deep/90 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/analyze/${docId}`}
-            className="flex items-center gap-1.5 text-xs font-mono text-text-muted hover:text-text-primary transition-colors group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Workspace
-          </Link>
-          <div className="w-px h-4 bg-border" />
-          <PrismMark size={24} />
-          <span className="font-display text-sm text-text-primary">Simulation Theater</span>
-          <span className="text-micro font-mono px-1.5 py-0.5 rounded text-status-success border border-status-success/35 bg-status-success/10">
-            Module C · Mesa ABM
-          </span>
-        </div>
+    <div>
+      <DocContextBar docId={docId} filename={filename} view="simulate" status={<SandboxTag />}>
         {state.created && (
-          <span className="text-micro font-mono text-text-dim">
-            {state.created.rules_source === "llm" ? "LLM-extracted rules" : "rule-based fallback"} ·{" "}
+          <span className="hidden font-mono text-[12px] text-text-dim md:inline">
+            {state.created.rules_source === "llm" ? "model-extracted rules" : "rule-based rules"} ·{" "}
             {state.created.active_rules.length} active · seed 42
           </span>
         )}
-      </nav>
+      </DocContextBar>
 
-      <div className="content-layer max-w-7xl mx-auto px-6 py-8 space-y-6" ref={exportRef}>
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="h-px w-8 bg-accent-primary/60" />
-            <span className="kicker">Socioeconomic impact</span>
-          </div>
-          <h1 className="font-display text-3xl md:text-4xl text-text-primary mb-1">
-            Watch the law land on a synthetic society
-          </h1>
-          <p className="text-sm text-text-muted max-w-2xl leading-relaxed">
-            Five agent populations respond to the extracted policy rules month by month —
-            compliance, financial burden, and inequality unfold live as the simulation streams.
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" ref={exportRef}>
+        <header className="pb-2 pt-4">
+          <div className="kicker mb-3">Policy sandbox</div>
+          <h1 className="max-w-3xl font-serif text-headline text-text-primary">Try the law on a synthetic society</h1>
+          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-secondary">
+            Five groups of agents respond to the rules extracted from this document, month by month: compliance, burden and
+            inequality unfold as the run streams.
           </p>
-        </motion.div>
+          <Callout tone="warn" className="mt-6 max-w-3xl" title="An illustrative model, not a forecast">
+            Several of its parameters are assumed rather than estimated (see the assumptions panel below). For results that
+            are validated against published tax statistics, use the{" "}
+            <Link href="/research" className="text-text-primary underline underline-offset-4">
+              research view
+            </Link>
+            .
+          </Callout>
+        </header>
 
         {rulesError === "offline" && (
           <OfflinePanel label="Simulation module offline — start the backend with Phase 2 modules enabled." />
@@ -156,10 +144,7 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
             />
 
             {state.created?.unmatched_rule_ids && state.created.unmatched_rule_ids.length > 0 && (
-              <div
-                className="glass-card px-5 py-4 flex items-start gap-3"
-                style={{ borderColor: `${tokens.status.warning}59` }}
-              >
+              <div className="glass-card flex items-start gap-3 border-status-warning/35 px-5 py-4">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-status-warning" />
                 <p className="text-xs text-text-secondary leading-relaxed">
                   {state.created.unmatched_rule_ids.length} requested rule
@@ -284,8 +269,8 @@ function ChartCard({
   return (
     <div className="glass-card p-4">
       <div className="flex items-baseline justify-between mb-3">
-        <p className="text-xs font-display text-text-primary">{title}</p>
-        <p className="text-micro font-mono text-text-dim">{subtitle}</p>
+        <p className="text-[14px] text-text-primary">{title}</p>
+        <p className="font-mono text-micro text-text-dim">{subtitle}</p>
       </div>
       {children}
     </div>

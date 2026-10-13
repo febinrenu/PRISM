@@ -225,7 +225,7 @@ export default function AnnotateItem() {
   );
 
   return (
-    <div className="relative app-shell bg-bg-base text-text-primary">
+    <div className="relative">
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">

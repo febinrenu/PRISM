@@ -4,15 +4,14 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { AlertTriangle, ArrowLeft, ArrowRight } from "lucide-react";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
-import PrismMark from "@/components/brand/PrismMark";
 import DocPicker from "@/components/compare/DocPicker";
 import DiffSummaryPanel from "@/components/compare/DiffSummaryPanel";
 import ClauseDiffList, { type DiffKind, type DiffRow } from "@/components/compare/ClauseDiffList";
 import DiffPDFPane from "@/components/compare/DiffPDFPane";
 import ComparativeSimPanel from "@/components/compare/ComparativeSimPanel";
-import { tokens, alpha } from "@/lib/tokens";
+import { tokens } from "@/lib/tokens";
 import type { Clause, CompareResult } from "@/types";
 
 interface ArenaData {
@@ -236,46 +235,26 @@ function CompareArenaPage() {
   const ready = Boolean(a && b && a !== b);
 
   return (
-    <div className="app-shell bg-bg-base">
-      <div className="gradient-orb-1" style={{ opacity: 0.3 }} />
-      <div className="gradient-orb-3" style={{ opacity: 0.25 }} />
+    <div>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-4 pb-6 pt-10 sm:pt-14 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-3xl">
+            <div className="kicker mb-3">Compare</div>
+            <h1 className="font-serif text-headline text-text-primary">Two statutes, clause by clause</h1>
+            <p className="mt-4 text-[15px] leading-relaxed text-text-secondary">
+              Clauses are matched by meaning, so a renumbered or reworded provision still finds its counterpart. Added,
+              removed and changed clauses are marked, with both PDFs side by side.
+            </p>
+          </div>
+          {ready && (
+            <Link href="/compare" className="text-[14px] text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
+              Choose other documents
+            </Link>
+          )}
+        </header>
+      </div>
 
-      <nav className="content-layer sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-bg-deep/90 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/start"
-            className="flex items-center gap-1.5 text-xs font-mono text-text-muted hover:text-text-primary transition-colors group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />{" "}
-            Home
-          </Link>
-          <div className="w-px h-4 bg-border" />
-          <PrismMark size={24} />
-          <span className="font-display text-sm text-text-primary">
-            Policy Diff Arena
-          </span>
-          <span
-            className="text-micro font-mono px-1.5 py-0.5 rounded border"
-            style={{
-              color: tokens.diff.added,
-              borderColor: alpha(tokens.diff.added, 0.35),
-              background: alpha(tokens.diff.added, 0.1),
-            }}
-          >
-            Module D · Diff engine
-          </span>
-        </div>
-        {ready && (
-          <Link
-            href="/compare"
-            className="text-micro font-mono text-text-dim hover:text-text-primary transition-colors"
-          >
-            Change documents
-          </Link>
-        )}
-      </nav>
-
-      <div className="content-layer">
+      <div>
         {ready ? <Arena docIdA={a as string} docIdB={b as string} /> : <DocPicker initialA={a} initialB={b} />}
       </div>
     </div>

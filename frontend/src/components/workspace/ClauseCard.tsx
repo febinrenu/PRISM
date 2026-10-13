@@ -1,7 +1,7 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Zap, FileText, AlertTriangle, Bot, Sparkles, FlaskConical } from "lucide-react";
 import type { Clause, Entity, RiskTier } from "@/types";
 import { ENTITY_COLORS } from "@/lib/colors";
@@ -124,25 +124,24 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
   const maxRiskStyle = maxRisk ? riskStyle(maxRisk) : null;
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      layout
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
       onClick={onSelect}
-      className="group relative rounded-xl p-4 cursor-pointer transition-all duration-200"
-      style={{
-        background: isSelected ? alpha(tokens.accent.primary, 0.07) : alpha(tokens.bg.surface, 0.7),
-        border: isSelected
-          ? `1px solid ${alpha(tokens.accent.primary, 0.35)}`
-          : `1px solid ${tokens.border.DEFAULT}`,
-        boxShadow: isSelected ? `0 0 20px ${alpha(tokens.accent.primary, 0.08)}` : "none",
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
       }}
-      whileHover={{
-        borderColor: alpha(tokens.accent.primary, 0.25),
-        background: alpha(tokens.bg.surface, 0.9),
-      }}
+      className={cn(
+        "group relative cursor-pointer rounded-[6px] border p-4 transition-colors duration-200",
+        isSelected
+          ? "border-signal/45 bg-signal/[0.06]"
+          : "border-border bg-bg-surface hover:border-border-light hover:bg-bg-elevated"
+      )}
     >
       {/* Top row: metadata */}
       <div className="flex items-center justify-between mb-3">
@@ -159,9 +158,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
         <div className="flex items-center gap-1.5">
           {/* Risk tier badge */}
           {maxRisk && maxRiskStyle && maxRisk !== "LOW" && (
-            <motion.span
-              animate={maxRisk === "CRITICAL" ? { opacity: [0.7, 1, 0.7] } : {}}
-              transition={{ duration: 1.8, repeat: Infinity }}
+            <span
               className="flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full"
               style={{
                 background: alpha(maxRiskStyle.base, 0.12),
@@ -169,9 +166,9 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
                 color: maxRiskStyle.text,
               }}
             >
-              {maxRisk === "CRITICAL" && <AlertTriangle style={{ width: 9, height: 9 }} />}
+              {maxRisk === "CRITICAL" && <AlertTriangle className="h-3 w-3" />}
               {RISK_LABELS[maxRisk]}
-            </motion.span>
+            </span>
           )}
           {hasCausal && (
             <span className="flex items-center gap-1 text-micro font-mono px-2 py-0.5 rounded-full bg-accent-primary/10 border border-accent-primary/30 text-accent-bright">
@@ -252,7 +249,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
           </Link>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 });
 
