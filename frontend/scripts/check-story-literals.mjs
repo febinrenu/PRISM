@@ -3,12 +3,18 @@
  * The landing story may only print numbers that come from the snapshot
  * (src/content/story.core.json, written by `python -m cli story-export`).
  * This scans the story's copy (JSX text and prose string literals in
- * src/story/acts.tsx and figures.tsx) for digits that are not identifiers:
+ * src/story/dom/*.tsx and figures.tsx) for digits that are not identifiers:
  * years, assessment years, section numbers, clause labels.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
-const FILES = ["src/story/acts.tsx", "src/story/figures.tsx"];
+const FILES = [
+  ...readdirSync(new URL("../src/story/dom/", import.meta.url))
+    // copy lives here; the overlay, preloader and cursor carry only CSS geometry
+    .filter((f) => f.endsWith(".tsx") && !["Overlay.tsx", "Preloader.tsx", "Cursor.tsx"].includes(f))
+    .map((f) => `src/story/dom/${f}`),
+  "src/story/figures.tsx",
+];
 const ALLOWED = [
   /\b(?:19|20)\d{2}(?:-\d{2})?\b/g, // years and assessment years: 2025, 2022-23
   /\b(?:section|sections|s\.)\s?\d+[A-Z]*\b/gi, // section 156, s.87A

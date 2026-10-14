@@ -1,50 +1,44 @@
 /**
- * Mutable per-frame story state shared by the DOM (scroll) and the WebGL
- * scenes. Written by the scroll handler, read inside useFrame: no React
- * renders per frame. `subscribe` notifies only when the active act changes.
+ * Per-frame story state shared by the scroll loop, the DOM layer and the
+ * WebGL scene. Written once per tick, read inside useFrame: nothing here
+ * causes a React render except the chapter change (`subscribe`).
  */
-
-export const ACTS = [
-  "prologue",
-  "text",
-  "reading",
-  "curve",
-  "society",
-  "verdict",
-  "faults",
-  "provenance",
-  "limits",
-  "finale",
-] as const;
-export type ActId = (typeof ACTS)[number];
+import { ACTS, newDirector, type Director } from "./config";
 
 export type Tier = 0 | 1 | 2 | 3;
 
-export interface CameraPose {
-  position: [number, number, number];
-  target: [number, number, number];
-  fov: number;
-}
-
 export const state = {
-  /** Scroll progress through each act's sticky phase, unclamped (0..1 inside). */
-  local: new Float32Array(ACTS.length).fill(-1),
-  active: 0,
-  /** Scroll velocity in px/frame, smoothed. */
+  /** Smoothed scroll position in viewport heights. */
+  y: 0,
+  /** Viewport height in px, fixed except when the width changes. */
+  vh: 800,
+  /** Scroll velocity in vh per second, smoothed (one source). */
   velocity: 0,
-  pointer: { x: 0, y: 0 },
+  pointer: { x: 0, y: 0, px: -1, py: -1 },
   tier: 2 as Tier,
-  camera: { position: [0, 0, 10], target: [0, 0, 0], fov: 35 } as CameraPose,
-  /** Seconds since the story mounted; advanced by the GSAP ticker. */
+  /** Seconds of story time; advanced with a clamped step. */
   time: 0,
+  director: newDirector(),
+  /** Particles drawn this tier. */
+  count: 0,
+  /** ?freeze=1: time stands still (reproducible screenshots). */
+  freeze: false,
+  /** Distance from the camera to what it looks at (particle depth of field). */
+  focusDist: 10,
+  /** The current act (index into ACTS). */
+  active: 0,
 };
+
+export type { Director };
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
 export function subscribe(l: Listener) {
   listeners.add(l);
-  return () => listeners.delete(l);
+  return () => {
+    listeners.delete(l);
+  };
 }
 
 export function setActive(i: number) {
@@ -54,29 +48,4 @@ export function setActive(i: number) {
 }
 
 export const getActive = () => state.active;
-
-export function actIndex(id: ActId) {
-  return ACTS.indexOf(id);
-}
-
-/* ── small maths used by every scene ─────────────────────────────────── */
-
-export const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
-export const smooth = (a: number, b: number, x: number) => {
-  const t = clamp((x - a) / (b - a));
-  return t * t * (3 - 2 * t);
-};
-export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-export const easeOut = (t: number) => 1 - Math.pow(1 - clamp(t), 3);
-
-/**
- * How present an act's scene is: fades in while its section approaches
- * (local -0.35 → 0) and out as it leaves (1 → 1.35).
- */
-export function presence(act: number) {
-  const l = state.local[act];
-  return smooth(-0.35, 0.02, l) * (1 - smooth(0.98, 1.35, l));
-}
-
-/** Clamped progress within an act. */
-export const progress = (act: number) => clamp(state.local[act]);
+export const actCount = ACTS.length;

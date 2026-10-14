@@ -1,111 +1,128 @@
-/* Story layout. Acts are tall; their panel sticks while the reader scrolls. */
-.act {
-  height: var(--act-len, 250dvh);
+/* The story. Acts are tall sections; each one's stage sticks while its beats play. */
+.story-act {
+  height: calc(var(--vhpx, 1vh) * var(--len));
+}
+.story-stage {
+  height: calc(var(--vhpx, 1vh) * 100);
 }
 
-/* Steps reveal as the act's progress passes their threshold. */
-[data-at] {
+/* A soft scrim behind the copy so the scene never fights the words. */
+.story-scrim-left {
+  background: linear-gradient(90deg, rgba(12, 13, 14, 0.82) 0%, rgba(12, 13, 14, 0.55) 30%, rgba(12, 13, 14, 0) 52%);
+}
+.story-scrim-right {
+  background: linear-gradient(270deg, rgba(12, 13, 14, 0.82) 0%, rgba(12, 13, 14, 0.55) 30%, rgba(12, 13, 14, 0) 52%);
+}
+.story-scrim-center {
+  background: radial-gradient(ellipse at 50% 55%, rgba(12, 13, 14, 0.7) 0%, rgba(12, 13, 14, 0) 70%);
+}
+#hero .story-scrim {
+  opacity: 0.6;
+}
+@media (max-width: 1023px) {
+  .story-scrim-left,
+  .story-scrim-right,
+  .story-scrim-center {
+    background: linear-gradient(0deg, rgba(12, 13, 14, 0.92) 0%, rgba(12, 13, 14, 0.7) 38%, rgba(12, 13, 14, 0) 62%);
+  }
+}
+[data-tier="0"] .story-scrim {
+  display: none;
+}
+
+/* Beats are hidden until the controller brings them in. */
+.story-root:not([data-tier="0"]) .beat {
+  visibility: hidden;
   opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  filter: blur(8px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
 }
-[data-at][data-on] {
-  opacity: 1;
-  transform: none;
-  filter: none;
+.story-root .beat {
+  pointer-events: auto;
 }
-[data-at="-1"] {
-  opacity: 1;
-  transform: none;
-  filter: none;
+.split-word {
+  will-change: transform;
 }
 
-/* The DOM figures are the screen-reader equivalent of the canvas. */
-.fig-static {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  clip: rect(0 0 0 0) !important;
-  white-space: nowrap;
-  margin: 0 !important;
+/* The canvas carries its own film grain; the page grain stays off here. */
+html:has(.story-root) .grain::after {
+  display: none;
 }
 
-/* Tier 0 (no WebGL or reduced motion): a plain, readable page. */
-[data-tier="0"] .act {
+/* Progress: the six hues of the spectrum, in order. */
+.story-progress {
+  background: linear-gradient(90deg, #d24f98, #b8852a, #1c9c82, #2c98bf, #4f7fe6, #8d6be3);
+}
+
+/* Tier 0 (no WebGL, reduced motion, no JavaScript): a plain, readable page. */
+[data-tier="0"] .story-act {
   height: auto;
 }
-[data-tier="0"] .act-panel {
+[data-tier="0"] .story-stage {
   position: relative;
   height: auto;
-  min-height: 0;
   overflow: visible;
-  padding-top: 18vh;
 }
-[data-tier="0"] #prologue .act-panel {
+[data-tier="0"] .story-copy {
+  align-items: flex-start;
+  padding-top: 14vh;
+  padding-bottom: 4vh;
+}
+[data-tier="0"] #hero .story-copy {
   min-height: 100dvh;
-  padding-top: 0;
+  padding-top: 9rem;
 }
-[data-tier="0"] .act-panel > div {
-  height: auto;
-}
-[data-tier="0"] [data-at] {
-  opacity: 1;
-  transform: none;
-  filter: none;
-  transition: none;
-}
-[data-tier="0"] .fig-static {
-  position: relative !important;
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-  clip: auto !important;
-  white-space: normal;
-  margin: 2.5rem clamp(1.25rem, 4.4vw, 4rem) 0 !important;
-}
-[data-tier="0"] #prologue .act-panel > div {
-  padding-top: 7rem;
-}
-[data-tier="0"] .story-canvas {
-  display: none;
-}
-[data-tier="0"] .static-field,
-[data-canvas="pending"] .static-field {
-  display: block;
+[data-tier="0"] .beats {
+  display: flex;
+  flex-direction: column;
+  gap: 4.5rem;
 }
 
-.static-field {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: linear-gradient(to bottom, rgba(241, 237, 228, 0.05) 1px, transparent 1px);
-  background-size: 100% 30px;
-  -webkit-mask-image: radial-gradient(ellipse at 50% 70%, black 20%, transparent 75%);
-  mask-image: radial-gradient(ellipse at 50% 70%, black 20%, transparent 75%);
+/* The cursor. */
+.story-cursor,
+.story-cursor body,
+.story-cursor a,
+.story-cursor button {
+  cursor: none;
+}
+.story-cursor input,
+.story-cursor textarea {
+  cursor: text;
+}
+.story-ring {
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1px solid rgba(241, 237, 228, 0.55);
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s;
+}
+.story-ring[data-on],
+html[data-pick] .story-ring {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background: rgba(241, 237, 228, 0.12);
+}
+.story-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #f1ede4;
+  mix-blend-mode: difference;
+}
+html[data-pick] body {
+  cursor: pointer;
 }
 
-.scroll-cue {
-  animation: cue 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-}
-@keyframes cue {
-  0%, 100% { opacity: 0.3; transform: translate(-50%, 0); }
-  50% { opacity: 1; transform: translate(-50%, 6px); }
+.story-card[data-tone="signal"] {
+  border-color: rgba(255, 79, 31, 0.6);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-at] {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition: none;
-  }
-  .scroll-cue {
-    animation: none;
+  .story-root .beat {
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }

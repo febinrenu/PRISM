@@ -63,7 +63,7 @@ export function Num({ k, suffix, className }: { k: string; suffix?: string; clas
   const e = n(k);
   return (
     <span className={cn("tabular whitespace-nowrap", className)}>
-      {e.value}
+      <span data-count={e.value}>{e.value}</span>
       {suffix}
       <SourceRef source={e.source} label={k} />
     </span>
@@ -75,7 +75,7 @@ export function PNum({ k, suffix, className }: { k: string; suffix?: string; cla
   const e = pn(k);
   return (
     <span className={cn("tabular whitespace-nowrap", className)}>
-      {e.value}
+      <span data-count={e.value}>{e.value}</span>
       {suffix}
       <SourceRef source={e.source} label={k} />
     </span>

@@ -7,10 +7,19 @@ const numbers = (core as { numbers: Record<string, { value: string; source: { fi
 
 describe("story snapshot", () => {
   it("has every paper number the story cites", () => {
-    const src = ["acts.tsx", "ui.tsx"].map((f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8")).join("\n");
+    const src = ["dom/Acts.tsx", "ui.tsx"].map((f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8")).join("\n");
     const keys = Array.from(src.matchAll(/<Num k="([^"]+)"/g)).map((m) => m[1]);
     expect(keys.length).toBeGreaterThan(10);
     for (const k of keys) expect(numbers[k], k).toBeDefined();
+  });
+
+  it("has every pipeline number the story cites", () => {
+    const src = readFileSync(new URL("./dom/Acts.tsx", import.meta.url), "utf8");
+    const pipe = (core as { pipeline: { numbers: Record<string, unknown> } }).pipeline.numbers;
+    const keys = Array.from(src.matchAll(/<PNum k=\{?[`"]([^`"$]+)/g)).map((m) => m[1]);
+    expect(keys.length).toBeGreaterThan(5);
+    for (const k of keys) if (!k.endsWith("@")) expect(pipe[k], k).toBeDefined();
+    for (const l of ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"]) expect(pipe[`entity@${l}`]).toBeDefined();
   });
 
   it("sources every number to the paper's generated file", () => {

@@ -29,13 +29,20 @@ const WIDTHS = arg("widths", "390,1440").split(",").map(Number);
 const SCROLL = arg("scroll", "0").split(",").map(Number);
 const WAIT = Number(arg("wait", "2500"));
 // --story "text:0.5,curve:0.8": scroll to a point inside each act of the landing story.
+// --query "tier=3&freeze=1": appended to every route.
+const QUERY = arg("query", "");
 const STORY = arg("story", "");
 
 mkdirSync(OUT, { recursive: true });
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: true,
-  args: flag("nowebgl") ? ["--disable-webgl", "--disable-3d-apis"] : ["--use-angle=default", "--enable-unsafe-swiftshader"],
+  // --gpu renders with the real GPU (ANGLE on D3D11); the default is SwiftShader (tier 1)
+  args: flag("nowebgl")
+    ? ["--disable-webgl", "--disable-3d-apis"]
+    : flag("gpu")
+      ? ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"]
+      : ["--use-angle=default", "--enable-unsafe-swiftshader"],
 });
 
 for (const route of ROUTES) {
@@ -48,7 +55,7 @@ for (const route of ROUTES) {
     await page.setViewport({ width: w, height: w < 600 ? 844 : 900, deviceScaleFactor: 1 });
     if (flag("reduced")) await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     try {
-      await page.goto(BASE + route, { waitUntil: "networkidle2", timeout: 60000 });
+      await page.goto(BASE + route + (QUERY ? `?${QUERY}` : ""), { waitUntil: "networkidle2", timeout: 60000 });
     } catch (e) {
       errors.push(`goto: ${e.message}`);
     }
