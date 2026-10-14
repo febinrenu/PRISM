@@ -99,16 +99,16 @@ export default function StatutesPage() {
                   setFilter("");
                   select(e.target.value, null);
                 }}
-                className={cn(inputClass, "max-w-[min(32rem,90vw)] pr-8")}
+                className={cn(inputClass, "w-[min(40rem,90vw)] truncate pr-8")}
               >
                 {statutes.map((s) => (
                   <option key={s.key} value={s.key}>
-                    {s.title} · {s.key.split("/")[1].replace(/_/g, " ")} · {s.sections} sections
+                    {s.title} · {s.sections} sections
                   </option>
                 ))}
               </select>
             ) : (
-              <select disabled className={cn(inputClass, "w-[min(32rem,90vw)]")} aria-label="Statute">
+              <select disabled className={cn(inputClass, "w-[min(40rem,90vw)]")} aria-label="Statute">
                 <option>Loading statutes…</option>
               </select>
             )}

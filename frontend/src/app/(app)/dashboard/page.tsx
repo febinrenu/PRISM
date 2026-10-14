@@ -65,7 +65,8 @@ export default function DashboardPage() {
       setRotating(false);
     }
   };
-  const usagePct = data ? Math.min(100, Math.round((data.usage_total / Math.max(data.quota_per_hour, 1)) * 100)) : 0;
+  const usedHour = data ? data.usage_hour ?? data.usage_total : 0;
+  const usagePct = data ? Math.min(100, Math.round((usedHour / Math.max(data.quota_per_hour, 1)) * 100)) : 0;
 
   return (
     <PageContainer>
@@ -104,7 +105,7 @@ export default function DashboardPage() {
               <div className="mb-1.5 flex items-center justify-between text-[13px] text-text-muted">
                 <span>Calls this hour</span>
                 <span className="font-mono">
-                  {data?.usage_total ?? 0} / {data?.quota_per_hour ?? "–"}
+                  {usedHour} / {data?.quota_per_hour ?? "–"}
                 </span>
               </div>
               <div
@@ -148,20 +149,26 @@ export default function DashboardPage() {
             {!data ? (
               <div className="p-5 text-[13px] text-text-muted">Loading…</div>
             ) : data.simulations.length === 0 ? (
-              <EmptyState title="No sandbox runs">Runs of the illustrative policy simulator you save appear here.</EmptyState>
+              <EmptyState title="No sandbox runs">Runs of the illustrative policy simulator appear here when you are signed in.</EmptyState>
             ) : (
               <ul className="divide-y divide-border">
                 {data.simulations.slice(0, 8).map((s, i) => {
                   let verdict = "";
+                  let name = s.doc_id;
                   try {
-                    verdict = JSON.parse(s.results).verdict ?? "";
+                    const r = JSON.parse(s.results);
+                    verdict = r.verdict ?? r.policy_verdict ?? "";
+                    name = r.doc_name ?? s.doc_id;
                   } catch {
                     verdict = "";
                   }
                   return (
                     <li key={i}>
                       <Link href={`/simulate/${s.doc_id}`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-bg-elevated">
-                        <span className="truncate font-mono text-[13px] text-text-secondary">{s.doc_id}</span>
+                        <span className="min-w-0 truncate text-[13px] text-text-secondary">
+                          {name}
+                          <span className="ml-2 font-mono text-[12px] text-text-dim">{new Date(s.created_at).toLocaleDateString("en-IN")}</span>
+                        </span>
                         <span className="text-[12px] text-text-muted">{verdict}</span>
                       </Link>
                     </li>

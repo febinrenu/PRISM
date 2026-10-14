@@ -90,6 +90,9 @@ async def ingest_pdf(filename: str, content: bytes, owner_id: str | None = None)
 async def upload_pdf(file: UploadFile = File(...), user: dict | None = Depends(optional_user)) -> dict:
     content = await read_capped(file)
     doc_id, meta = await ingest_pdf(file.filename or "", content, owner_id=str(user["id"]) if user else None)
+    if user:
+        from auth import users
+        users.record_document(user["id"], doc_id, meta.filename, status=meta.status)
     return {
         "doc_id": doc_id,
         "filename": meta.filename,

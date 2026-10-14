@@ -431,14 +431,17 @@ function Limits() {
         <Headline id="limits-h" className="mx-auto max-w-[18ch] text-center">
           The honest part.
         </Headline>
-        <div className="mt-12 grid gap-px overflow-hidden rounded-[6px] border border-border bg-border sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-12 grid gap-px overflow-hidden rounded-[6px] border border-border bg-border max-sm:-mx-5 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-3 max-sm:overflow-x-auto max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:px-5 max-sm:pb-2 sm:grid-cols-2 lg:grid-cols-5">
           {items.map((it) => (
-            <article key={it.title} data-rise="" className="bg-ink/85 p-5 backdrop-blur-sm">
+            <article key={it.title} data-rise="" className="bg-ink/85 p-5 backdrop-blur-sm max-sm:w-[80vw] max-sm:shrink-0 max-sm:snap-start max-sm:rounded-[6px] max-sm:border max-sm:border-border">
               <h3 className="font-mono text-micro uppercase tracking-[0.16em] text-text-muted">{it.title}</h3>
               <p className="mt-3 text-[14px] leading-[1.6] text-text-secondary">{it.body}</p>
             </article>
           ))}
         </div>
+        <p data-rise="" aria-hidden className="mt-3 hidden text-center font-mono text-micro uppercase tracking-[0.18em] text-text-dim max-sm:block">
+          Swipe for more →
+        </p>
       </Beat>
     </ActSection>
   );
@@ -467,13 +470,13 @@ function End() {
               href={l.href}
               data-rise=""
               data-magnetic=""
-              className={cn("group flex min-h-[9.5rem] flex-col justify-between gap-6 bg-ink/85 p-5 backdrop-blur-sm transition-colors hover:bg-ink-800", i === 0 && "bg-ink-800")}
+              className={cn("group flex flex-col justify-between gap-6 bg-ink/85 p-5 backdrop-blur-sm transition-colors hover:bg-ink-800 max-sm:gap-1 max-sm:py-3.5 sm:min-h-[9.5rem]", i === 0 && "bg-ink-800")}
             >
               <span className="flex items-center justify-between text-[17px] text-text-primary">
                 {l.title}
                 <ArrowUpRight className="h-4 w-4 text-text-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-signal" />
               </span>
-              <span className="text-[13px] leading-relaxed text-text-muted">{l.body}</span>
+              <span className="text-[13px] leading-relaxed text-text-muted max-sm:hidden">{l.body}</span>
             </CurtainLink>
           ))}
         </div>

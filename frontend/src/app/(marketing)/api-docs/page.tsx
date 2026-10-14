@@ -7,6 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const ENDPOINTS: { method: string; path: string; desc: string }[] = [
   { method: "POST", path: "/v1/documents/upload", desc: "Upload a PDF, returns doc_id" },
+  { method: "POST", path: "/v1/analyze/{doc_id}", desc: "Run the full analysis (blocking), returns stats" },
   { method: "GET", path: "/v1/documents/{doc_id}", desc: "Document status + metadata" },
   { method: "GET", path: "/v1/clauses/{doc_id}", desc: "All extracted clauses" },
   { method: "GET", path: "/v1/causal/{doc_id}", desc: "LLM-extracted causal rules" },

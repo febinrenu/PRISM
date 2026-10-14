@@ -165,7 +165,7 @@ export default function ComparativeSimPanel({
         <div className="glass-card p-8 flex flex-col items-center gap-2 text-center">
           <CircleOff className="w-5 h-5 text-text-dim" />
           <p className="text-xs font-mono text-text-muted">
-            Simulation module offline — start the backend with Phase 2 modules enabled.
+            The sandbox is unavailable: the analysis server could not be reached.
           </p>
         </div>
       )}

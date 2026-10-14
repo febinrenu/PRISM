@@ -12,7 +12,7 @@ GET  /api/rag/backend           → active LLM backend descriptor
 import json
 from typing import Optional
 
-from auth.deps import can_manage, optional_user
+from auth.deps import can_list, can_manage, optional_user
 from fastapi import Depends, APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -48,7 +48,9 @@ async def get_corpus():
 
 
 @router.post("/rag/ingest/{doc_id}")
-def ingest(doc_id: str):
+def ingest(doc_id: str, user: dict | None = Depends(optional_user)):
+    if not can_list(store.get_meta(doc_id), user):
+        raise HTTPException(status_code=403, detail="Only the owner can add a private document to the corpus.")
     if store.get_result(doc_id) is None:
         raise HTTPException(status_code=404, detail=f"No analysis results for {doc_id}.")
     try:
@@ -58,10 +60,11 @@ def ingest(doc_id: str):
 
 
 @router.post("/rag/ingest-all")
-def ingest_all():
+def ingest_all(user: dict | None = Depends(optional_user)):
+    """Index every analysed document the caller may see: shared ones and their own."""
     results = []
     for meta in store.list_documents():
-        if store.get_result(meta.doc_id) is None:
+        if not can_list(meta, user) or store.get_result(meta.doc_id) is None:
             continue
         try:
             results.append(corpus_builder.ingest_document(meta.doc_id))

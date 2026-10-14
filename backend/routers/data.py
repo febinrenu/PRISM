@@ -26,6 +26,16 @@ async def get_clauses(doc_id: str):
     return {"doc_id": doc_id, "clauses": [c.model_dump() for c in result.clauses]}
 
 
+@router.get("/clause/{doc_id}/{clause_id}")
+async def get_clause(doc_id: str, clause_id: str):
+    """One clause, without sending the whole document."""
+    result = _require_result(doc_id)
+    for c in result.clauses:
+        if c.clause_id == clause_id:
+            return {"doc_id": doc_id, "clause": c.model_dump()}
+    raise HTTPException(status_code=404, detail=f"Clause {clause_id} not found in {doc_id}.")
+
+
 @router.get("/entities/{doc_id}")
 async def get_entities(doc_id: str):
     result = _require_result(doc_id)
@@ -188,3 +198,12 @@ async def list_docs(user: dict | None = Depends(optional_user)):
     """Shared documents, plus the signed-in user's own (admins see all)."""
     docs = [d for d in list_documents() if can_list(d, user)]
     return {"documents": [d.model_dump() for d in docs]}
+
+
+@router.get("/documents/{doc_id}")
+async def get_document(doc_id: str, user: dict | None = Depends(optional_user)):
+    """One document's metadata (name, pages, status) for page titles."""
+    meta = get_meta(doc_id)
+    if meta is None or not can_list(meta, user):
+        raise HTTPException(status_code=404, detail=f"Document {doc_id} not found.")
+    return meta.model_dump(exclude={"pdf_path", "owner_id"})

@@ -73,8 +73,8 @@ export default function RuleVsLLMTable({ clause }: { clause: Clause }) {
         <thead>
           <tr className="border-b border-border">
             <th className="text-left px-4 py-2.5 kicker !text-micro">Dimension</th>
-            <th className="text-left px-4 py-2.5 kicker !text-micro">Rule-based · Phase 1</th>
-            <th className="text-left px-4 py-2.5 kicker !text-micro">Phi-3.5-mini · Phase 2</th>
+            <th className="text-left px-4 py-2.5 kicker !text-micro">Rule-based</th>
+            <th className="text-left px-4 py-2.5 kicker !text-micro">Language model</th>
           </tr>
         </thead>
         <tbody>

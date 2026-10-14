@@ -28,7 +28,7 @@
   .story-scrim-left,
   .story-scrim-right,
   .story-scrim-center {
-    background: linear-gradient(0deg, rgba(12, 13, 14, 0.92) 0%, rgba(12, 13, 14, 0.7) 38%, rgba(12, 13, 14, 0) 62%);
+    background: linear-gradient(0deg, rgba(12, 13, 14, 0.94) 0%, rgba(12, 13, 14, 0.78) 45%, rgba(12, 13, 14, 0) 72%);
   }
 }
 [data-tier="0"] .story-scrim {

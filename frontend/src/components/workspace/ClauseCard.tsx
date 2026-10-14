@@ -185,7 +185,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
                 border: `1px solid ${alpha(tokens.status.info, 0.3)}`,
                 color: tokens.status.info,
               }}
-              title={`Phi-3.5-mini extraction · ${clause.extraction_method}`}
+              title={`Language-model extraction · ${clause.extraction_method}`}
             >
               <Bot style={{ width: 10, height: 10 }} />
               LLM

@@ -56,14 +56,15 @@ function Rail() {
     // narrow screens: step back so wide subjects (pages, boards) fit above the copy
     const aspect = size.width / size.height;
     const narrow = aspect < 0.9;
-    const back = aspect < 0.7 ? 1.6 : narrow ? 1.3 : 1;
+    const back = aspect < 0.7 ? 1.6 : narrow ? 1.5 : 1;
     camera.position.set(tgt.x + (pos.x - tgt.x) * back + par.x, tgt.y + (pos.y - tgt.y) * back + par.y, tgt.z + (pos.z - tgt.z) * back);
     camera.lookAt(tgt);
     state.focusDist = camera.position.distanceTo(tgt);
     camera.fov = narrow ? fov * 1.15 : fov;
     // compose the subject away from the copy: sideways on wide screens, upwards on narrow ones
     const ox = narrow ? 0 : d.shiftX * size.width;
-    const oy = narrow ? size.height * 0.2 : 0;
+    // portrait: the copy owns the lower half, so lift the subject into the upper part
+    const oy = aspect < 0.7 ? size.height * 0.2 : narrow ? size.height * 0.27 : 0;
     camera.setViewOffset(size.width, size.height, ox, oy, size.width, size.height);
     camera.updateProjectionMatrix();
   }, -2);

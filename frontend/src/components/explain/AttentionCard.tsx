@@ -53,7 +53,7 @@ export default function AttentionCard({
       </div>
       <p className="text-micro font-mono text-text-dim mb-4">
         Mean self-attention received per token across all heads/layers — a second lens beside LIME.
-        Explains the MiniLM encoder, not the Phi-3.5 generator.
+        Explains the MiniLM retrieval encoder, not the language model that extracts rules.
       </p>
 
       {!data && !error && (

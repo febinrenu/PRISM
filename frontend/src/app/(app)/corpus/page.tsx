@@ -118,7 +118,7 @@ export default function CorpusPage() {
                 </div>
                 <div>
                   <dd className="font-serif text-[2rem] leading-none text-text-primary">{d.causal.toLocaleString("en-IN")}</dd>
-                  <dt className="mt-1 text-[12px] text-text-muted">condition → consequence</dt>
+                  <dt className="mt-1 text-[12px] text-text-muted">clauses with a condition → consequence</dt>
                 </div>
               </dl>
               <div className="mt-auto flex gap-2 pt-5">

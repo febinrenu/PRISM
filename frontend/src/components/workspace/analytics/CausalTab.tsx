@@ -317,7 +317,7 @@ export default function CausalTab() {
             {patterns.length} causal structures
           </p>
           <p className="text-xs mt-0.5 text-text-secondary">
-            Rule-based detection · Phase 2 adds Phi-3.5-mini LLM reasoning
+            Rule-based detection · the LLM tab adds a language model&apos;s reading
           </p>
         </div>
         {/* Risk counts */}
@@ -440,12 +440,12 @@ function Phase2Banner() {
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <Cpu className="w-3.5 h-3.5" style={{ color: tokens.entity.ACTOR.text }} />
-            <p className="font-semibold text-sm text-text-primary">Phase 2: LLM Causal Extraction</p>
+            <p className="font-semibold text-sm text-text-primary">Language-model extraction</p>
           </div>
           <p className="text-xs leading-relaxed text-text-secondary">
-            Current: rule-based regex detection — fast but limited to known sentence patterns.
-            Phase 2 uses <strong className="text-accent-primary">Phi-3.5-mini</strong> with LIME explainability to understand
-            complex multi-hop causal chains, nested conditionals, and implicit obligations.
+            These patterns come from rule-based detection: fast, but limited to known sentence shapes. The LLM tab runs a
+            language model over the clauses for nested conditions and implicit obligations, and the explanation view shows
+            which words drove each reading.
           </p>
         </div>
       </div>

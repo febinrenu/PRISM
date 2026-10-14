@@ -91,6 +91,16 @@ export const api = {
   getClauses: async (docId: string) =>
     apiFetch<{ doc_id: string; clauses: Clause[] }>(`/api/clauses/${docId}`),
 
+  /** One clause, without downloading the whole document. */
+  getClause: async (docId: string, clauseId: string) =>
+    apiFetch<{ doc_id: string; clause: Clause }>(`/api/clause/${docId}/${encodeURIComponent(clauseId)}`),
+
+  /** One document's name, page count and status. */
+  getDocument: async (docId: string) =>
+    apiFetch<{ doc_id: string; filename: string; pages: number; file_size_kb: number; status: string }>(
+      `/api/documents/${docId}`
+    ),
+
   getEntities: async (docId: string) =>
     apiFetch<{
       doc_id: string;
@@ -288,8 +298,9 @@ export const LLM_STREAM_URL = (docId: string, scope: "auto" | "all" = "auto") =>
   `${API}/api/analyze/${docId}/llm?scope=${scope}`;
 export const EXPLAIN_STREAM_URL = (docId: string, clauseId: string, mode: "proxy" | "llm") =>
   `${API}/api/explain/${docId}/${clauseId}/stream?mode=${mode}`;
-export const DEEP_REASONING_STREAM_URL = (docId: string, clauseId: string, force = false) =>
-  `${API}/api/explain/${docId}/${clauseId}/deep-reasoning/stream${force ? "?force=true" : ""}`;
+// the forced job is started by the GET that precedes the stream; the stream only reports it
+export const DEEP_REASONING_STREAM_URL = (docId: string, clauseId: string) =>
+  `${API}/api/explain/${docId}/${clauseId}/deep-reasoning/stream`;
 export const SIMULATE_STREAM_URL = (docId: string, simulationId: string) =>
   `${API}/api/simulate/${docId}/stream?simulation_id=${simulationId}`;
 export const RAG_STREAM_URL = (q: string, docs: string[], strict: boolean) => {

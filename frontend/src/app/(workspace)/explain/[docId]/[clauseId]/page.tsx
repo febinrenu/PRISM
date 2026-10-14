@@ -34,13 +34,18 @@ export default function ExplainPage({
     let cancelled = false;
     (async () => {
       try {
-        const { clauses } = await api.getClauses(docId);
+        const { clause: found } = await api.getClause(docId, clauseId);
         if (cancelled) return;
-        const found = clauses.find((c) => c.clause_id === clauseId);
-        if (!found) setClauseError("Clause not found in this document.");
-        else setClause(found);
+        setClause(found);
       } catch (error) {
-        if (!cancelled) setClauseError(error instanceof Error ? error.message : "Failed to load clause");
+        if (!cancelled)
+          setClauseError(
+            error instanceof Error && /not found/i.test(error.message)
+              ? "This clause is not in the document."
+              : error instanceof Error
+                ? error.message
+                : "Failed to load clause"
+          );
       }
     })();
     return () => {
@@ -50,7 +55,7 @@ export default function ExplainPage({
 
   const section = clause?.section_hierarchy?.length
     ? `§${clause.section_hierarchy.join(".")}`
-    : clauseId.slice(-6);
+    : `clause ${clauseId.split("_").pop()}`;
 
   return (
     <div>
@@ -130,7 +135,7 @@ export default function ExplainPage({
                 )}
               </div>
 
-              {state.status === "loading" && <HeatmapSkeleton />}
+              {(state.status === "loading" || (state.status === "complete" && !clause && !clauseError)) && <HeatmapSkeleton />}
               {state.status === "running" && (
                 <div className="flex flex-col items-center justify-center py-14 gap-4">
                   <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
@@ -146,7 +151,7 @@ export default function ExplainPage({
                 </div>
               )}
               {state.status === "offline" && (
-                <OfflineState label="Explainability module offline — start the backend with Phase 2 enabled." />
+                <OfflineState label="Explanations are unavailable: the analysis server could not be reached." />
               )}
               {state.status === "error" && <OfflineState label={state.message} />}
               {state.status === "complete" && state.explanation.not_applicable === "table" && (
@@ -172,6 +177,11 @@ export default function ExplainPage({
           {/* Right: LLM extraction breakdown */}
           <section className="space-y-4">
             {clauseError && <OfflineState label={clauseError} />}
+            {!clause && !clauseError && (
+              <div className="glass-card space-y-3 p-6" aria-busy="true" aria-label="Loading the clause">
+                <HeatmapSkeleton />
+              </div>
+            )}
             {clause?.clause_type === "table" ? (
               <div className="glass-card p-6 text-center space-y-3">
                 <Sparkles className="w-6 h-6 text-text-dim mx-auto" />
@@ -187,8 +197,8 @@ export default function ExplainPage({
                 <Sparkles className="w-6 h-6 text-text-dim mx-auto" />
                 <p className="text-sm text-text-secondary">No model extraction for this clause yet.</p>
                 <p className="text-[13px] text-text-muted">
-                  Extraction runs first on clauses with an obligation or penalty. Run it from the workspace&apos;s LLM tab,
-                  with the &ldquo;all&rdquo; scope to include every clause.
+                  Extraction runs first on the highest-impact clauses. To include this one, open the workspace&apos;s LLM tab and
+                  choose &ldquo;Every clause&rdquo;.
                 </p>
               </div>
             ) : null}

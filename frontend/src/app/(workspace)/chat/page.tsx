@@ -157,7 +157,7 @@ export default function ChatPage() {
                 >
                   <div className="font-mono text-micro text-text-primary truncate">{d.doc_name}</div>
                   <div className="mt-1 font-mono text-micro uppercase tracking-wider text-text-muted">
-                    {d.clauses} clauses · {d.causal} causal
+                    {d.clauses} clauses · {d.causal} with cause → effect
                   </div>
                 </button>
               );

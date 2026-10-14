@@ -9,9 +9,10 @@ import asyncio
 import json
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
+from auth.deps import optional_user
 from models.schemas import SimulationConfig
 from simulation.model import PRISMSimulationModel
 from simulation.params import param_table
@@ -77,7 +78,8 @@ async def list_simulation_rules(doc_id: str):
 
 
 @router.post("/simulate/{doc_id}")
-async def create_simulation(doc_id: str, config: Optional[SimulationConfig] = None):
+async def create_simulation(doc_id: str, config: Optional[SimulationConfig] = None,
+                            user: dict | None = Depends(optional_user)):
     result = store.get_result(doc_id)
     if result is None:
         raise HTTPException(status_code=404, detail=f"No analysis results for {doc_id}.")
@@ -118,6 +120,7 @@ async def create_simulation(doc_id: str, config: Optional[SimulationConfig] = No
         "config": config,
         "rules": rules,
         "rules_source": rules_source,
+        "user_id": str(user["id"]) if user else None,
     }
 
     return {
@@ -171,6 +174,20 @@ async def stream_simulation(doc_id: str, simulation_id: str):
             simulation_id, doc_id, rules, rules_source, config, steps, n_agents,
             verdict=model.regressivity_verdict(), eff_low=eff_low, eff_high=eff_high,
         )
+        if pending.get("user_id"):
+            # signed-in runs appear on the user's dashboard
+            try:
+                from auth import users
+                users.record_simulation(pending["user_id"], doc_id, config.model_dump(), {
+                    "simulation_id": simulation_id,
+                    "final_gini": result.final_gini,
+                    "final_compliance_rate": result.final_compliance_rate,
+                    "final_revenue": result.final_revenue,
+                    "verdict": result.policy_verdict,
+                    "doc_name": (store.get_meta(doc_id).filename if store.get_meta(doc_id) else doc_id),
+                })
+            except Exception:
+                pass
         yield _sse({
             "stage": "sim_complete",
             "simulation_id": simulation_id,

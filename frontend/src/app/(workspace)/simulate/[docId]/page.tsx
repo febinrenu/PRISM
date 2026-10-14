@@ -122,7 +122,7 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
         </header>
 
         {rulesError === "offline" && (
-          <OfflinePanel label="Simulation module offline — start the backend with Phase 2 modules enabled." />
+          <OfflinePanel label="The sandbox is unavailable: the analysis server could not be reached." />
         )}
         {rulesError && rulesError !== "offline" && <OfflinePanel label={rulesError} />}
 

@@ -40,6 +40,16 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
       const w = window.innerWidth;
       const h = window.innerHeight;
       const form = state.director.form;
+      // where the copy is on screen: labels never sit on it and the pointer over it picks nothing
+      const copy: DOMRect[] = [];
+      document.querySelectorAll<HTMLElement>(".story-root .beat[data-on]").forEach((b) => {
+        for (const c of Array.from(b.children)) {
+          const r = c.getBoundingClientRect();
+          if (r.width && r.height && r.bottom > 0 && r.top < h) copy.push(r);
+        }
+      });
+      const onCopy = (l: number, t: number, r: number, b: number, pad = 10) =>
+        copy.some((c) => l < c.right + pad && r > c.left - pad && t < c.bottom + pad && b > c.top - pad);
       anchors.forEach((a, i) => {
         const el = refs.current[i];
         if (!el) return;
@@ -53,8 +63,19 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
           return;
         }
         const { sx, sy, front } = project(a.x, a.y, a.z, cam, w, h);
+        // the label's box as drawn last frame, moved to where it is now
+        const box = (el.firstElementChild as HTMLElement | null)?.getBoundingClientRect();
+        const dx = sx - (Number(el.dataset.sx) || sx);
+        const dy = sy - (Number(el.dataset.sy) || sy);
+        const sized = !!box && box.width > 0;
+        const top = sized ? box!.top + dy : sy;
+        const hidden =
+          top < 64 || // under the header
+          (sized ? onCopy(box!.left + dx, top, box!.right + dx, box!.bottom + dy) : onCopy(sx, sy, sx, sy));
+        el.dataset.sx = String(sx);
+        el.dataset.sy = String(sy);
         el.style.visibility = front ? "visible" : "hidden";
-        el.style.opacity = String(p * p);
+        el.style.opacity = hidden ? "0" : String(p * p);
         el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`;
         shown.set(i, 1);
       });
@@ -65,7 +86,7 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
         for (const pk of picks) {
           if (presence(pk.form, form) < 0.75) continue;
           const { sx, sy, front } = project(pk.x, pk.y, pk.z, cam, w, h);
-          if (!front) continue;
+          if (!front || onCopy(state.pointer.px, state.pointer.py, state.pointer.px, state.pointer.py, 4)) continue;
           const d = (sx - state.pointer.px) ** 2 + (sy - state.pointer.py) ** 2;
           if (d < bestD) {
             bestD = d;

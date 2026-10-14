@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bot, CheckCheck, CircleSlash, Cpu, ExternalLink, Play, TriangleAlert } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
 import { useLLMExtraction } from "@/hooks/useLLMExtraction";
+import { api } from "@/lib/api";
 import ExpandableText from "@/components/ui/ExpandableText";
 import { alpha, tokens } from "@/lib/tokens";
 import type { ExtractionMethod } from "@/types";
@@ -17,13 +18,21 @@ const METHOD_STYLE: Record<ExtractionMethod, { label: string; color: string; ico
 };
 
 /**
- * Phase 2 — side-by-side comparison of rule-based causal detection (Phase 1)
- * vs Phi-3.5-mini extraction (Phase 2), per clause.
+ * Side-by-side comparison of rule-based causal detection and the configured
+ * language model's extraction, per clause. Runs on the highest-impact clauses
+ * (fast) or on every clause.
  */
 export default function LLMCompareTab() {
   const { docId, clauses, llmStage, llmProcessed, llmTotal, llmSummary, setSelectedClauseId } =
     useDocumentStore();
   const { start } = useLLMExtraction(docId);
+  const [model, setModel] = useState<string>("the configured language model");
+  useEffect(() => {
+    api
+      .getBackend()
+      .then((b) => setModel(`${b.model}${b.cloud ? " (hosted)" : " via Ollama"}`))
+      .catch(() => undefined);
+  }, []);
 
   const extracted = useMemo(
     () => clauses.filter((c) => c.llm_extraction != null),
@@ -35,18 +44,29 @@ export default function LLMCompareTab() {
       <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
         <Bot className="w-10 h-10 text-text-dim" />
         <div>
-          <p className="font-display text-lg text-text-primary">LLM extraction not run yet</p>
+          <p className="font-display text-lg text-text-primary">Model extraction not run yet</p>
           <p className="text-xs text-text-muted mt-2 max-w-sm leading-relaxed">
-            Phi-3.5-mini reads the highest-impact clauses and extracts structured causal
-            rules — condition, action, consequence, actors, and thresholds — locally via Ollama.
+            {model} reads clauses and extracts structured causal rules: condition, action, consequence, actors and
+            thresholds, each tied to the words it came from.
           </p>
         </div>
-        <button
-          onClick={() => start("auto")}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider bg-accent-primary/10 border border-accent-primary/40 text-accent-primary hover:bg-accent-primary/20 transition-colors"
-        >
-          <Play className="w-3.5 h-3.5" /> Run LLM Extraction
-        </button>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => start("auto")}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider bg-accent-primary/10 border border-accent-primary/40 text-accent-primary hover:bg-accent-primary/20 transition-colors"
+          >
+            <Play className="w-3.5 h-3.5" /> Highest-impact clauses
+          </button>
+          <button
+            type="button"
+            onClick={() => start("all")}
+            title="Every prose clause: much slower on a local model"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider border border-border-light text-text-secondary hover:border-glow hover:text-text-primary transition-colors"
+          >
+            Every clause
+          </button>
+        </div>
       </div>
     );
   }
@@ -57,8 +77,18 @@ export default function LLMCompareTab() {
       <div className="glass-card p-4 flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Bot className="w-4 h-4 text-accent-primary" />
-          <span className="text-xs font-mono text-text-secondary">phi3.5 via Ollama</span>
+          <span className="text-xs font-mono text-text-secondary">{model}</span>
         </div>
+        {llmStage !== "running" && (
+          <button
+            type="button"
+            onClick={() => start("all")}
+            title="Extract from every prose clause, not only the highest-impact ones"
+            className="text-micro font-mono uppercase tracking-wider text-text-muted underline-offset-4 hover:text-text-primary hover:underline"
+          >
+            Run on every clause
+          </button>
+        )}
         {llmStage === "running" && (
           <div className="flex items-center gap-2 flex-1 min-w-[160px]">
             <div className="flex-1 h-1 rounded-full bg-bg-elevated overflow-hidden">
@@ -120,7 +150,7 @@ export default function LLMCompareTab() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="space-y-1.5">
-                  <p className="kicker !text-micro">Rule-based (Phase 1)</p>
+                  <p className="kicker !text-micro">Rule-based</p>
                   {clause.causal_patterns.length > 0 ? (
                     clause.causal_patterns.slice(0, 2).map((p, i) => (
                       <p key={i} className="text-text-secondary leading-relaxed">
@@ -133,7 +163,7 @@ export default function LLMCompareTab() {
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <p className="kicker !text-micro">Phi-3.5-mini (Phase 2)</p>
+                  <p className="kicker !text-micro">Language model</p>
                   {rule.is_causal ? (
                     <>
                       {rule.condition && (

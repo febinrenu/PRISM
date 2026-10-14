@@ -97,7 +97,15 @@ async def dashboard(user: dict = Depends(current_user)):
         "api_key": user["api_key"],
         "rate_limit": API_RATE_LIMIT,
         "usage_total": users.usage_count(user["id"]),
+        "usage_hour": users.usage_last_hour(user["id"]),
         "quota_per_hour": quota,
-        "documents": users.list_documents(user["id"]),
+        "documents": [_live_status(d) for d in users.list_documents(user["id"])],
         "simulations": users.list_simulations(user["id"]),
     }
+
+
+def _live_status(row: dict) -> dict:
+    """The stored row records the status at upload; the document store knows the current one."""
+    from storage import store
+    meta = store.get_meta(row["doc_id"])
+    return {**row, "status": meta.status if meta else row.get("status")}

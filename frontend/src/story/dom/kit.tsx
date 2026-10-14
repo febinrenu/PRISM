@@ -43,7 +43,7 @@ export function ActSection({
             side === "center" && "items-end justify-center pb-[9vh] text-center lg:items-center lg:pb-0"
           )}
         >
-          <div className={cn("beats grid w-full", side === "center" ? "max-w-[64rem]" : "max-w-[34rem] xl:max-w-[38rem]")}>{children}</div>
+          <div className={cn("beats grid w-full min-w-0 grid-cols-[minmax(0,1fr)]", side === "center" ? "max-w-[64rem]" : "max-w-[34rem] xl:max-w-[38rem]")}>{children}</div>
         </div>
       </div>
     </section>
@@ -53,7 +53,7 @@ export function ActSection({
 /** One beat: shown while the act's progress is in [from, to). */
 export function Beat({ from, to, className, children }: { from: number; to: number; className?: string; children: React.ReactNode }) {
   return (
-    <div data-beat="" data-from={from} data-to={to} className={cn("beat [grid-area:1/1]", className)}>
+    <div data-beat="" data-from={from} data-to={to} className={cn("beat min-w-0 [grid-area:1/1]", className)}>
       {children}
     </div>
   );
@@ -61,7 +61,7 @@ export function Beat({ from, to, className, children }: { from: number; to: numb
 
 export function Kicker({ n, children, className }: { n?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div data-rise="" className={cn("mb-5 flex items-center gap-3 font-mono text-micro uppercase tracking-[0.22em] text-text-muted", className)}>
+    <div data-rise="" className={cn("story-anchor mb-5 flex items-center gap-3 font-mono text-micro uppercase tracking-[0.22em] text-text-muted", className)}>
       {n ? <span className="text-text-primary">{n}</span> : null}
       {n ? <span className="h-px w-8 bg-border-light" aria-hidden /> : null}
       <span>{children}</span>

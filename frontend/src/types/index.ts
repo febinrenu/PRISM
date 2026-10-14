@@ -445,6 +445,8 @@ export interface DashboardData {
   api_key: string;
   rate_limit: string;
   usage_total: number;
+  /** Calls in the last hour, the window the rate limit counts. */
+  usage_hour?: number;
   quota_per_hour: number;
   documents: Array<{ doc_id: string; doc_name: string; status: string; created_at: string }>;
   simulations: Array<{ doc_id: string; config: string; results: string; created_at: string }>;

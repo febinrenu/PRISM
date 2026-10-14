@@ -118,5 +118,12 @@ def log_usage(user_id: str, endpoint: str) -> None:
     database.execute("INSERT INTO api_usage (user_id, endpoint) VALUES (?, ?)", (str(user_id), endpoint))
 
 
+def usage_last_hour(user_id: str) -> int:
+    """Calls in the last hour (the window the rate limit counts)."""
+    from datetime import datetime, timedelta, timezone
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+    return database.scalar("SELECT COUNT(*) FROM api_usage WHERE user_id = ? AND ts >= ?", (str(user_id), cutoff)) or 0
+
+
 def usage_count(user_id: str) -> int:
     return database.scalar("SELECT COUNT(*) FROM api_usage WHERE user_id = ?", (str(user_id),)) or 0

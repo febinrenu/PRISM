@@ -53,7 +53,7 @@ async def v1_upload(request: Request, file: UploadFile = File(...), user: dict =
     users.record_document(user["id"], doc_id, meta.filename)
     _meter(user, "documents/upload")
     return {"doc_id": doc_id, "filename": meta.filename, "pages": meta.pages,
-            "status": meta.status, "analyze": f"/api/analyze/{doc_id}"}
+            "status": meta.status, "analyze": f"/v1/analyze/{doc_id}"}
 
 
 @router.post("/v1/analyze/{doc_id}")

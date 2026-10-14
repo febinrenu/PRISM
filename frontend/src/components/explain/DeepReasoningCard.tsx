@@ -60,7 +60,7 @@ export default function DeepReasoningCard({
 
       const attachStream = () => {
         sseRef.current = openSSE(
-          DEEP_REASONING_STREAM_URL(docId, clauseId, force),
+          DEEP_REASONING_STREAM_URL(docId, clauseId),
           (event) => {
             if (cancelled()) return;
             if (event.stage === "deep_progress") {
@@ -168,7 +168,7 @@ export default function DeepReasoningCard({
 
       {state.status === "offline" && (
         <p className="text-xs font-mono text-text-muted py-2">
-          Reasoning module offline — start the backend with Phase 2 enabled.
+          Deep reasoning is unavailable: the analysis server could not be reached.
         </p>
       )}
 
