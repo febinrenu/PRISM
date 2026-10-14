@@ -110,9 +110,56 @@ export interface StoryCore {
     source: Source;
   };
   population: { ay: string; returns_total: number; points: number; source: Source };
+  pipeline: {
+    numbers: Record<string, NumberEntry>;
+    samples: {
+      clause_id: string;
+      page: number;
+      text: string;
+      /** [label, start, end] */
+      entities: [EntityLabel, number, number][];
+      /** [condition start, end, action start, end, risk] */
+      causal: [number, number, number, number, Risk][];
+      source: Source;
+    }[];
+    headings: string[];
+    domain: string;
+    source: Source;
+  };
+  chat: {
+    query: string;
+    qid: string;
+    gold: string;
+    system: string;
+    citations: {
+      rank: number;
+      statute: string;
+      section: string | null;
+      number: string;
+      heading: string;
+      snippet: string;
+      relevant: boolean;
+    }[];
+    source: Source;
+  };
 }
 
+export type EntityLabel = "OBLIGATION" | "PENALTY" | "RIGHT" | "THRESHOLD" | "ACTOR" | "BENEFICIARY";
+export type Risk = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+/** The six entity types in the order the story shows them (beams, chips). */
+export const ENTITY_ORDER: EntityLabel[] = ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"];
+export const RISK_ORDER: Risk[] = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
+
 export const story = core as unknown as StoryCore;
+
+/** A number from the demo document's pipeline run, with its source. */
+export function pn(key: string): NumberEntry {
+  const e = story.pipeline.numbers[key];
+  if (!e) throw new Error(`pipeline number ${key} is not in the snapshot`);
+  return e;
+}
+
+export const pnv = (key: string) => Number(pn(key).value.replace(/,/g, ""));
 
 /** A number exactly as the paper prints it, with its source. */
 export function n(key: string): NumberEntry {
@@ -166,8 +213,19 @@ export interface Constellation {
   thread: number[];
 }
 
+/** A sample of the demo document's provenance graph (pipeline.json). */
+export interface PipelineGraph {
+  types: string[];
+  labels: EntityLabel[];
+  /** [type index, parent index, entity label index?] */
+  nodes: number[][];
+  links: [number, number][];
+  hubs: { i: number; clause_id: string; page: number; preview: string }[];
+  doc: string;
+}
+
 const cache = new Map<string, Promise<unknown>>();
-export function fetchStory<T>(file: "population" | "constellation"): Promise<T> {
+export function fetchStory<T>(file: "population" | "constellation" | "pipeline"): Promise<T> {
   if (!cache.has(file)) {
     cache.set(
       file,

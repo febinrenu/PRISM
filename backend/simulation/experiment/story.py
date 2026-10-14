@@ -15,6 +15,7 @@ Files written:
     frontend/src/content/story.core.json    bundled with the page (text, numbers, small series)
     frontend/public/story/population.json   the simulated taxpayers (fetched by the scene)
     frontend/public/story/constellation.json  statute structure for the provenance scene
+    frontend/public/story/pipeline.json     a sample of the demo document's provenance graph
     backend/data/experiments/story.json     the core file, served at /api/research/story
 """
 import json
@@ -34,6 +35,17 @@ CORE_OUT = FRONTEND / "src" / "content" / "story.core.json"
 POP_OUT = FRONTEND / "public" / "story" / "population.json"
 CONST_OUT = FRONTEND / "public" / "story" / "constellation.json"
 API_OUT = RESULTS_DIR / "story.json"
+PIPE_OUT = FRONTEND / "public" / "story" / "pipeline.json"
+
+# The document the pipeline section describes (tracked in the repository).
+DEMO_DOC = "demo_income_tax_2025"
+DEMO_RESULT = BASE_DIR / "data" / "store" / DEMO_DOC / "result.json"
+GRAPH_CAP = 1600
+ENTITY_CAP = 80
+# The retrieval the story shows: one benchmark question (a section's official
+# heading), shown next to the benchmark-wide recall.
+CHAT_QID = "h:ITA2025/s439"
+CHAT_SYSTEM = "hybrid-minilm+rerank"
 
 # The reform the story follows from text to population: Finance Act 2025's
 # Rs. 12 lakh rebate, read by the system with the largest revenue error.
@@ -289,10 +301,179 @@ def constellation() -> dict:
             "thread": [index[t] for t in thread_ids], "source": {"file": _rel(path)}}
 
 
+def _pnum(value: int, key: str) -> dict:
+    return {"value": f"{value:,}", "source": {"file": _rel(DEMO_RESULT), "key": key}}
+
+
+def _norm_find(text: str, span: str) -> tuple[int, int] | None:
+    """Offsets of a pattern span in the clause text, whitespace-insensitive."""
+    if not span:
+        return None
+    words = span.split()
+    if not words:
+        return None
+    m = re.search(r"\s+".join(re.escape(w) for w in words), text)
+    return (m.start(), m.end()) if m else None
+
+
+def pipeline() -> tuple[dict, dict]:
+    """What the pipeline does to one real Act: the demo document's statistics,
+    three clauses with their tagged entities and cause-effect spans, section
+    headings, and a sample of its provenance graph (written to pipeline.json)."""
+    r = json.loads(DEMO_RESULT.read_text(encoding="utf-8"))
+    s = r["stats"]
+    nums = {"pages": _pnum(s["total_pages"], "stats.total_pages"),
+            "clauses": _pnum(s["total_clauses"], "stats.total_clauses"),
+            "entities": _pnum(s["total_entities"], "stats.total_entities"),
+            "causal": _pnum(s["causal_patterns_found"], "stats.causal_patterns_found"),
+            "nodes": _pnum(s["graph_nodes"], "stats.graph_nodes"),
+            "edges": _pnum(s["graph_edges"], "stats.graph_edges")}
+    for k, v in s["entity_type_counts"].items():
+        nums[f"entity@{k}"] = _pnum(v, f"stats.entity_type_counts.{k}")
+    for k, v in s["causal_risk_counts"].items():
+        nums[f"risk@{k}"] = _pnum(v, f"stats.causal_risk_counts.{k}")
+
+    clauses = r["clauses"]
+    cands = []
+    for c in clauses:
+        labels = {e["label"] for e in c["entities"]}
+        if 150 <= len(c["text"]) <= 700 and len(labels) >= 3 and c["causal_patterns"]:
+            cands.append((-len(labels), c["clause_id"], c))
+    cands.sort(key=lambda x: (x[0], x[1]))
+    samples = []
+    for _, cid, c in cands:
+        if len(samples) == 3:
+            break
+        text = c["text"]
+        ents = [[e["label"], e["start"], e["end"]] for e in c["entities"] if text[e["start"]:e["end"]] == e["text"]]
+        causal = []
+        for p in c["causal_patterns"]:
+            a, b = _norm_find(text, p.get("condition_span", "")), _norm_find(text, p.get("action_span", ""))
+            if a and b:
+                causal.append([a[0], a[1], b[0], b[1], p["risk_tier"]])
+        if not causal:
+            continue
+        samples.append({"clause_id": cid, "page": c["page"], "text": text, "entities": ents, "causal": causal,
+                        "source": {"file": _rel(DEMO_RESULT), "key": f"clauses[{cid}]",
+                                   "inspect": f"/explain/{DEMO_DOC}/{cid}"}})
+
+    const = constellation()
+    headings = [n["h"] for n in const["nodes"] if n["k"] == "section" and len(n["h"].split()) >= 3][:48]
+
+    # Graph sample: every clause with a cause-effect pattern (in document
+    # order, capped), its chapter, its patterns, and the most frequent entities.
+    g = r["graph"]
+    by_id = {n["id"]: n for n in g["nodes"]}
+    parent: dict[str, str] = {}
+    for e in g["edges"]:
+        if e["label"] == "contains" and by_id[e["target"]]["type"] in ("clause", "chapter"):
+            # a chapter beats the document as a clause's parent
+            if e["target"] not in parent or by_id[e["source"]]["type"] == "chapter":
+                parent[e["target"]] = e["source"]
+    triggers = sorted((e["source"], e["target"]) for e in g["edges"] if e["label"] == "triggers")
+    doc_id = next(n["id"] for n in g["nodes"] if n["type"] == "document")
+    order: list[str] = [doc_id]
+    seen = {doc_id}
+
+    def add(nid):
+        if nid not in seen:
+            seen.add(nid)
+            order.append(nid)
+
+    by_clause: dict[str, list[str]] = {}
+    for src, tgt in triggers:
+        by_clause.setdefault(src, []).append(tgt)
+    for cid in sorted(by_clause):
+        if len(order) + 2 + len(by_clause[cid]) > GRAPH_CAP - ENTITY_CAP:
+            break
+        ch = parent.get(cid, doc_id)
+        if ch != doc_id:
+            add(ch)
+        add(cid)
+        for t in by_clause[cid]:
+            add(t)
+    ents = sorted((n for n in g["nodes"] if n["type"] == "entity"),
+                  key=lambda n: (-n["data"].get("frequency", 0), n["id"]))[:ENTITY_CAP]
+    for n in ents:
+        add(n["id"])
+    index = {nid: i for i, nid in enumerate(order)}
+    types = ["document", "chapter", "clause", "causal", "entity"]
+    labels = ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"]
+    nodes_out, links = [], []
+    for nid in order:
+        n = by_id[nid]
+        if n["type"] == "clause":
+            p = parent.get(nid, doc_id)
+        elif n["type"] == "chapter":
+            p = doc_id
+        elif n["type"] == "causal":
+            p = n["data"]["source_clause_id"]
+        else:
+            p = None
+        row = [types.index(n["type"]), index.get(p, -1) if p else -1]
+        if n["type"] == "entity":
+            row.append(labels.index(n["data"]["label"]))
+        nodes_out.append(row)
+    for e in g["edges"]:
+        if by_id[e["target"]]["type"] == "entity" and e["source"] in index and e["target"] in index:
+            links.append([index[e["source"]], index[e["target"]]])
+    links.sort()
+    hubs = []
+    for nid in order:
+        n = by_id[nid]
+        if n["type"] == "clause" and len(hubs) < 200:
+            hubs.append({"i": index[nid], "clause_id": nid, "page": n["data"].get("page"),
+                         "preview": " ".join((n["data"].get("text_preview") or "").split())[:90]})
+    graph_out = {"types": types, "labels": labels, "nodes": nodes_out, "links": links, "hubs": hubs,
+                 "doc": DEMO_DOC, "source": {"file": _rel(DEMO_RESULT), "key": "graph"}}
+    core_part = {"numbers": nums, "samples": samples, "headings": headings, "domain": s.get("domain"),
+                 "source": {"file": _rel(DEMO_RESULT)}}
+    return core_part, graph_out
+
+
+def chat() -> dict | None:
+    """One real retrieval from the benchmark: a section's official heading
+    used as the question, the re-ranked hybrid retriever's top
+    five units with their text. Retrieval only; no generated answer."""
+    from eval.v2 import rag_eval
+    files = sorted(rag_eval.OUT_DIR.glob("per_query_*_v2.jsonl")) if rag_eval.OUT_DIR.exists() else []
+    if not files:
+        return None
+    row = None
+    for line in files[-1].read_text(encoding="utf-8").splitlines():
+        if f'"{CHAT_QID}"' in line:
+            row = json.loads(line)
+            break
+    if not row:
+        return None
+    query = next(q for q in rag_eval.build_queries() if q["qid"] == CHAT_QID)
+    chunks = rag_eval.build_corpus()
+    from pipeline.extraction.units import load_statute
+    heads = {}
+    for key in {chunks[i]["statute"] for i in row["ranked"][CHAT_SYSTEM][:5]}:
+        ast, _ = load_statute(*key.split("/"))
+        heads.update({n["path"]: (n.get("number") or "", (n.get("heading") or "").strip())
+                      for n in ast["nodes"] if n["kind"] == "section"})
+    cites = []
+    for rank, i in enumerate(row["ranked"][CHAT_SYSTEM][:5], 1):
+        c = chunks[i]
+        num, head = heads.get(c["section"], ("", ""))
+        cites.append({"rank": rank, "statute": c["statute"], "section": c["section"], "number": num,
+                      "heading": head, "snippet": c["text"][:240], "relevant": c["section"] == query["section"]})
+    return {"query": query["query"], "qid": CHAT_QID, "gold": query["section"], "system": CHAT_SYSTEM,
+            "citations": cites, "source": {"file": _rel(files[-1]), "key": CHAT_QID}}
+
+
 def build() -> tuple[dict, dict, dict]:
     nums = read_numbers()
     pop = population_points()
+    pipe, graph = pipeline()
+    conv = chat()
+    if conv is None and CORE_OUT.exists():
+        conv = json.loads(CORE_OUT.read_text(encoding="utf-8")).get("chat")
     core = {
+        "pipeline": pipe,
+        "chat": conv,
         "version": 1,
         "numbers": nums,
         "matrix": matrix(),
@@ -305,7 +486,7 @@ def build() -> tuple[dict, dict, dict]:
         "population": {"ay": pop["ay"], "returns_total": pop["returns_total"], "points": len(pop["rows"]),
                        "source": pop["source"]},
     }
-    return core, pop, constellation()
+    return core, pop, constellation(), graph
 
 
 def _corpus_counts() -> dict:
@@ -323,8 +504,9 @@ def _dump(obj) -> str:
 
 def export(check: bool = False) -> list[tuple[Path, bool]]:
     """Write (or, with check, compare) every story file. Returns (path, fresh)."""
-    core, pop, const = build()
-    files = [(CORE_OUT, _dump(core)), (API_OUT, _dump(core)), (POP_OUT, _dump(pop)), (CONST_OUT, _dump(const))]
+    core, pop, const, graph = build()
+    files = [(CORE_OUT, _dump(core)), (API_OUT, _dump(core)), (POP_OUT, _dump(pop)), (CONST_OUT, _dump(const)),
+             (PIPE_OUT, _dump(graph))]
     out = []
     for path, text in files:
         fresh = path.exists() and path.read_text(encoding="utf-8") == text

@@ -4,7 +4,7 @@ import * as React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { n, type Source } from "./data";
+import { n, pn, type Source } from "./data";
 
 const REPO = "https://github.com/febinrenu/PRISM/blob/main/";
 
@@ -61,6 +61,18 @@ export function SourceRef({ source, label }: { source: Source; label?: string })
 /** A number the paper prints, with its source marker. */
 export function Num({ k, suffix, className }: { k: string; suffix?: string; className?: string }) {
   const e = n(k);
+  return (
+    <span className={cn("tabular whitespace-nowrap", className)}>
+      {e.value}
+      {suffix}
+      <SourceRef source={e.source} label={k} />
+    </span>
+  );
+}
+
+/** A number from the demo document's pipeline run, with its source marker. */
+export function PNum({ k, suffix, className }: { k: string; suffix?: string; className?: string }) {
+  const e = pn(k);
   return (
     <span className={cn("tabular whitespace-nowrap", className)}>
       {e.value}
