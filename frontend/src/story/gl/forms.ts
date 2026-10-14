@@ -36,6 +36,10 @@ export interface Anchor {
   sub?: string;
   kind: "label" | "axis" | "title";
   tone?: "signal" | "dim";
+  /** Which side of the label sits on the point: centre-bottom (default), right-middle (row labels), left-bottom. */
+  align?: "center" | "right" | "left";
+  /** Degrees, for column headers that would otherwise collide. */
+  rotate?: number;
 }
 
 export interface Pick {
@@ -246,8 +250,11 @@ const skyline: Gen = (ctx) => {
       const ch = streamText[(k * 131 + i * 17) % streamText.length];
       t.add(px, y + (r() - 0.5) * 0.012, pz, 0.026 + r() * 0.018, PAL.paper, /\s/.test(ch) ? 0 : ctx.inp.glyph(ch), top ? 1.3 : 0.45 + 0.35 * (sheet % 7 === 0 ? 1 : r()), 0, (i / list.length) * 0.6 + r() * 0.2);
     }
-    const name = s.key.split("/")[0];
-    ctx.anchors.push({ form: ctx.form, x, y: base + h + 0.25, z: z + d / 2, label: name, sub: `${inr(s.sections)} sections`, kind: "label" });
+    const [name, version] = s.key.split("/");
+    const twin = list.filter((o) => o.key.split("/")[0] === name).length > 1;
+    const label = twin ? `${name} · ${version.split("_")[0]}` : name;
+    ctx.anchors.push({ form: ctx.form, x: x - w * 0.3, y: base + h + 0.12, z: z + d / 2, label: `${label} · ${inr(s.sections)}`, kind: "label", align: "left", rotate: -38 });
+    ctx.picks.push({ form: ctx.form, x, y: base + h / 2, z: z + d / 2, title: s.title, lines: [`${inr(s.sections)} sections in ${inr(s.chapters)} chapters`, version.replace(/_/g, " ")], href: `/statutes?s=${encodeURIComponent(s.key)}` });
   });
   // dust
   while (t.n < ctx.n) t.add((r() - 0.5) * 18, -2.6 + r() * 9, -4 + r() * 6, 0.02, PAL.paper, 0, 0.12);
@@ -282,7 +289,7 @@ const page: Gen = (ctx) => {
     [-w / 2, 0.2 - h / 2, 2],
   ];
   for (let i = 0; i < 4; i++) segment(t, corners[i], corners[(i + 1) % 4], 160, 0.022, PAL.paper, 0.22, r);
-  ctx.anchors.push({ form: ctx.form, x: -w / 2, y: 0.2 + h / 2 + 0.2, z: 2, label: `page ${PAGE_TEXT.page}`, sub: "Income-tax Bill, 2025", kind: "axis" });
+  ctx.anchors.push({ form: ctx.form, x: -w / 2, y: 0.2 - h / 2 - 0.45, z: 2, label: `page ${PAGE_TEXT.page}`, sub: "Income-tax Bill, 2025", kind: "axis", align: "left" });
   // the ghost stack: the other pages of the Act, receding
   const pages = 90;
   while (t.n < ctx.n) {
@@ -468,7 +475,7 @@ const threads: Gen = (ctx) => {
     const a = centroid(c0, c1);
     const b = centroid(a0, a1);
     segment(t, a, b, 900, 0.05, PAL.paper, RISK_BRIGHT[risk] ?? 1, r, 0.012, 0, 1.6 + k * 0.4);
-    ctx.anchors.push({ form: ctx.form, x: (a[0] + b[0]) / 2, y: Math.max(a[1], b[1]) + 0.35, z: 0.65 + 1.6 + k * 0.4, label: `${risk.toLowerCase()} risk`, sub: "condition → consequence", kind: "label" });
+    ctx.anchors.push({ form: ctx.form, x: 3.25, y: (a[1] + b[1]) / 2 + 0.1, z: 0.6, label: `${risk.toLowerCase()} risk`, sub: "condition → consequence", kind: "label", align: "left" });
   });
   // every pattern in the Act, as a field of arcs behind, by risk tier
   const tiers = ["CRITICAL", "HIGH", "MEDIUM", "LOW"].map((k) => ({ k, n: pnv(`risk@${k}`) }));
@@ -621,8 +628,8 @@ const population: Gen = (ctx) => {
     if (i % 2 === 1 || i === 8) ctx.anchors.push({ form: ctx.form, x, y: base + h + 0.55, z: 1.25, label: `₹${lakh(d.income_upper)}`, kind: "axis" });
   });
   segment(t, [-6.5, base, 1.25], [6.5, base, 1.25], 500, 0.02, PAL.paper, 0.45, r);
-  ctx.anchors.push({ form: ctx.form, x: -6.5, y: base - 0.35, z: 1.25, label: "poorest", kind: "axis", tone: "dim" });
-  ctx.anchors.push({ form: ctx.form, x: 6.5, y: base - 0.35, z: 1.25, label: "richest", kind: "axis", tone: "dim" });
+  ctx.anchors.push({ form: ctx.form, x: -6.5, y: base - 0.35, z: 1.25, label: "poorest", kind: "axis", tone: "dim", align: "left" });
+  ctx.anchors.push({ form: ctx.form, x: 6.5, y: base - 0.35, z: 1.25, label: "richest", kind: "axis", tone: "dim", align: "right" });
   while (t.n < ctx.n) t.add((r() - 0.5) * 16, -2.6 + r() * 7, -6 + r() * 3, 0.02, PAL.paper, 0, 0.1);
   return t;
 };
@@ -648,7 +655,7 @@ function axes(t: Targets, ctx: Ctx, r: () => number) {
   for (const s of [500000, 1000000, 1500000, 2000000, 2500000].filter((x) => x <= SAL_MAX)) {
     const x = -6 + (s / SAL_MAX) * 12;
     segment(t, [x, -2.36, 0], [x, -2.24, 0], 12, 0.02, PAL.paper, 0.6, r);
-    ctx.anchors.push({ form: ctx.form, x, y: -2.6, z: 0, label: `₹${lakh(s)}`, kind: "axis" });
+    ctx.anchors.push({ form: ctx.form, x, y: -2.95, z: 0.6, label: `₹${lakh(s)}`, kind: "axis" });
   }
 }
 
@@ -754,7 +761,7 @@ const torn: Gen = (ctx) => {
   const g = story.curve.largest_gap;
   const gx = -6 + (g.salary / SAL_MAX) * 12;
   const gi = story.curve.salary.indexOf(g.salary);
-  ctx.anchors.push({ form: ctx.form, x: gx, y: (gi >= 0 ? sys[gi][1] : 0) + 0.45, z: 0, label: `₹${inr(g.system)} vs ₹${inr(g.expert)}`, sub: `at ₹${lakh(g.salary)}`, kind: "label", tone: "signal" });
+  ctx.anchors.push({ form: ctx.form, x: gx - 0.6, y: (gi >= 0 ? sys[gi][1] : 0) + 1.25, z: 0, label: `₹${inr(g.system)} vs ₹${inr(g.expert)}`, sub: `at ₹${lakh(g.salary)}`, kind: "label", tone: "signal" });
   while (t.n < ctx.n) t.add((r() - 0.5) * 16, (r() - 0.5) * 8, -6 + r() * 3, 0.02, PAL.paper, 0, 0.1);
   return t;
 };
@@ -805,9 +812,9 @@ const verdict: Gen = (ctx) => {
         href: `/research?set=${ref.id}&inspect=${sys.id}`,
         tone: flipped ? "signal" : undefined,
       });
-      if (i === 0) ctx.anchors.push({ form: ctx.form, x: x0 + tw / 2, y: H / 2 + 0.3, z, label: SYSTEM_LABEL[sys.id], kind: "axis" });
+      if (i === 0) ctx.anchors.push({ form: ctx.form, x: x0 + tw * 0.3, y: H / 2 + 0.12, z, label: SYSTEM_LABEL[sys.id], kind: "axis", align: "left", rotate: -32 });
     });
-    ctx.anchors.push({ form: ctx.form, x: -W / 2 - 0.15, y: H / 2 - i * (th + gy) - th / 2, z: -0.8, label: reformLabel(ref.id), kind: "axis", tone: "dim" });
+    ctx.anchors.push({ form: ctx.form, x: -W / 2 - 0.12, y: H / 2 - i * (th + gy) - th / 2, z: -0.8, label: reformLabel(ref.id), kind: "axis", tone: "dim", align: "right" });
   });
   while (t.n < ctx.n) t.add((r() - 0.5) * 18, (r() - 0.5) * 9, -6 + r() * 3, 0.02, PAL.paper, 0, 0.1);
   return t;

@@ -127,8 +127,12 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
             style={{ visibility: "hidden" }}
           >
             <div
+              style={a.rotate ? { transform: `translateY(-100%) rotate(${a.rotate}deg)`, transformOrigin: "0% 100%" } : undefined}
               className={cn(
-                "-translate-x-1/2 -translate-y-full whitespace-nowrap pb-1 text-center",
+                "story-anchor whitespace-nowrap",
+                (!a.align || a.align === "center") && "-translate-x-1/2 -translate-y-full pb-1 text-center",
+                a.align === "right" && "-translate-x-full -translate-y-1/2 pr-1 text-right",
+                a.align === "left" && !a.rotate && "-translate-y-full pb-1 text-left",
                 a.kind === "title" && "font-serif text-[20px] italic text-text-primary",
                 a.kind === "label" && "font-mono text-[12px] uppercase tracking-[0.14em] text-text-primary",
                 a.kind === "axis" && "font-mono text-[12px] text-text-muted",

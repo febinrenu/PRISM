@@ -6,7 +6,15 @@
   height: calc(var(--vhpx, 1vh) * 100);
 }
 
-/* A soft scrim behind the copy so the scene never fights the words. */
+/* Labels pinned to the scene stay legible over bright particles. */
+.story-anchor {
+  text-shadow: 0 0 6px rgba(12, 13, 14, 0.95), 0 0 14px rgba(12, 13, 14, 0.8);
+}
+
+/* A soft scrim behind the copy so the scene never fights the words (one fixed layer, under the labels). */
+.story-scrim {
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .story-scrim-left {
   background: linear-gradient(90deg, rgba(12, 13, 14, 0.82) 0%, rgba(12, 13, 14, 0.55) 30%, rgba(12, 13, 14, 0) 52%);
 }
@@ -15,9 +23,6 @@
 }
 .story-scrim-center {
   background: radial-gradient(ellipse at 50% 55%, rgba(12, 13, 14, 0.7) 0%, rgba(12, 13, 14, 0) 70%);
-}
-#hero .story-scrim {
-  opacity: 0.6;
 }
 @media (max-width: 1023px) {
   .story-scrim-left,

@@ -98,7 +98,7 @@ function Why() {
           <Stat value={<Count>{inr(story.corpus.sections_total)}</Count>} source={<SourceRef source={story.corpus.source} label="sections" />} label="sections in this corpus" />
           <Stat value={<Count>{String(statutes)}</Count>} label="Acts, from the Income-tax Act to the Finance Acts" />
         </div>
-        <Body>Each stack here is one of them, as tall as its sections. Parliament amends them every year.</Body>
+        <Body>Each stack here is one of them, as tall as its sections; point at one to open it. Parliament amends them every year.</Body>
       </Beat>
       <Beat from={0.36} to={0.63}>
         <Kicker n="I">Why it is needed</Kicker>

@@ -52,7 +52,7 @@ for (const route of ROUTES) {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 200)));
     page.on("pageerror", (e) => errors.push(`pageerror: ${String(e).slice(0, 200)}`));
     page.on("requestfailed", (r) => errors.push(`failed: ${r.url().slice(0, 120)}`));
-    await page.setViewport({ width: w, height: w < 600 ? 844 : 900, deviceScaleFactor: 1 });
+    await page.setViewport({ width: w, height: Number(arg("height", w < 600 ? "844" : "900")), deviceScaleFactor: 1 });
     if (flag("reduced")) await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     try {
       await page.goto(BASE + route + (QUERY ? `?${QUERY}` : ""), { waitUntil: "networkidle2", timeout: 60000 });

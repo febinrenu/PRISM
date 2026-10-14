@@ -20,6 +20,7 @@ import Cursor from "./dom/Cursor";
 import Header, { progressBars } from "./dom/Header";
 import Overlay from "./dom/Overlay";
 import Preloader from "./dom/Preloader";
+import Scrim from "./dom/Scrim";
 import { createSound, type Sound } from "./sound/engine";
 
 const loadCanvas = () => import("./gl/StoryCanvas");
@@ -210,6 +211,7 @@ export default function StoryRoot() {
         <div className="fixed inset-0 z-0" aria-hidden>
           {built && tier && <StoryCanvas data={built.data} atlas={built.atlas} tier={tier} onReady={onReady} />}
         </div>
+        <Scrim />
         {built && <Overlay anchors={built.data.anchors} picks={built.data.picks} />}
         <Header sound={sound} onSound={toggleSound} showSound />
         <main id="main" className="relative z-10">

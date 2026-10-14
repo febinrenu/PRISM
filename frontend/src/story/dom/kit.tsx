@@ -34,7 +34,6 @@ export function ActSection({
       style={{ ["--len" as string]: act.len }}
     >
       <div className="story-stage sticky top-0 w-full overflow-hidden">
-        <div aria-hidden className={cn("story-scrim pointer-events-none absolute inset-0", `story-scrim-${side}`)} />
         {overlay}
         <div
           className={cn(
@@ -79,8 +78,8 @@ export function Headline({ id, as = "h2", className, children }: { id?: string; 
       className={cn(
         "font-serif text-text-primary",
         as === "h1"
-          ? "text-[clamp(3.1rem,8.4vw,8.6rem)] leading-[0.9] tracking-[-0.03em]"
-          : "text-[clamp(2.3rem,4.9vw,4.4rem)] leading-[0.98] tracking-[-0.022em]",
+          ? "text-[clamp(3rem,min(8.4vw,13.5vh),8.6rem)] leading-[0.9] tracking-[-0.03em]"
+          : "text-[clamp(2.2rem,min(4.9vw,8.4vh),4.4rem)] leading-[0.98] tracking-[-0.022em]",
         className
       )}
     >
