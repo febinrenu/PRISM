@@ -97,30 +97,42 @@ ollama pull phi3.5:3.8b
 From the project root (`C:\Users\fkr77\Downloads\prism-p1`), double-click **`start.bat`** (or run
 it in a terminal).
 
+| Command | What runs |
+|---|---|
+| `start.bat` | the full app, production build (fast pages, the landing story at full quality) |
+| `start.bat dev` | the same with hot reload for the backend and the frontend, for editing code |
+| `start.bat stop` | stops the PRISM backend and frontend |
+
 **What it does, in order:**
 
-1. Checks Python and Node are installed.
-2. Frees ports 8000, 3000, 3001, 3002 of any stale PRISM processes.
-3. Opens a **"PRISM Backend"** window → runs `backend\run_backend.bat`, which installs Python deps,
-   ensures the spaCy model, and starts uvicorn on `http://localhost:8000`.
-4. Installs frontend deps (first run only) and opens a **"PRISM Frontend"** window → `npm run dev`
-   on `http://localhost:3000`.
+1. Checks Node is installed and stops any PRISM servers already on ports 8000 and 3000.
+2. Sets up the Python environment in `.venv` (created on the first run), installs
+   `backend\requirements.txt` only when it changed, and fetches the spaCy model if it is missing.
+   Copies `backend\.env.example` to `backend\.env` if there is no `.env` yet.
+3. If `LLM_BACKEND` in `backend\.env` is `ollama`, starts Ollama unless it is already running.
+4. Opens a **"PRISM Backend"** window: uvicorn on `http://localhost:8000`.
+5. Installs frontend packages when `package-lock.json` changed, writes `frontend\.env.local` if it
+   is missing, rebuilds the frontend only when a source file is newer than the last build
+   (`frontend\scripts\needs-build.mjs`), and opens a **"PRISM Frontend"** window on
+   `http://localhost:3000`.
+6. Waits until both servers answer, then opens `http://localhost:3000` in the browser.
 
 **What to expect:**
 
-- Two terminal windows appear. The backend window ends with:
-  `Uvicorn running on http://127.0.0.1:8000` and `PRISM ready — API docs at /docs`.
-- The frontend window ends with `✓ Ready in Xs`.
-- Open **http://localhost:3000** in your browser.
-- First launch is slower (dependency install + model downloads). Subsequent launches are quick.
+- The backend window ends with `PRISM ready — API docs at /docs`. The first start loads the
+  language models and takes longer.
+- The first launch is slow (dependency install, model download, frontend build). Later launches
+  skip every step that is already done.
+- `backend\run_backend.bat` still runs the API alone with reload, once `.venv` exists.
 
 **Useful URLs:**
 
 - App: `http://localhost:3000`
+- Research results: `http://localhost:3000/research`
 - API docs (interactive Swagger): `http://localhost:8000/docs`
 - Health check: `http://localhost:8000/health` → `{"status":"ok",...}`
 
-> If the frontend loads forever showing "missing required error components", delete
+> If the dev server loads forever showing "missing required error components", delete
 > `frontend\.next` and relaunch — that's a corrupted dev cache, not a code problem.
 
 ---
@@ -495,7 +507,7 @@ simulations/                # saved simulation results
 | Analysis is slow on a big PDF | Table detection scans every page | One-time cost; result is cached. Reopen = instant replay. |
 | Simulation says "No causal rules to simulate" | Document imposes no duties/levies/thresholds | Expected — try a statute with obligations, or run LLM extraction first. |
 | UMAP tab: "2D projection unavailable" | UMAP step was skipped/failed (non-fatal) | Other analysis is unaffected; re-run with `?force=true` if needed. |
-| Backend window closed instantly with no error | Dependency install failed | Open `backend\run_backend.bat` manually to read the error; it pauses on failure. |
+| Launcher stops with an ERROR line | A dependency install or the frontend build failed | Read the output above the ERROR line in the launcher window; it pauses on failure. |
 
 ---
 

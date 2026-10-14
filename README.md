@@ -85,7 +85,8 @@ cd backend && uvicorn main:app --port 8000
 cd frontend && npm install && npm run dev      # http://localhost:3000
 ```
 
-or `start.bat` on Windows, or `docker compose up --build`.
+or `start.bat` on Windows (sets everything up and runs the full app; `start.bat dev` for hot
+reload, `start.bat stop` to stop), or `docker compose up --build`.
 
 - **Workspace** (`/analyze/[docId]`): upload a statute; it is segmented by its
   legal structure, annotated, and linked to the PDF.
