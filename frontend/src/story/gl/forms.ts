@@ -766,8 +766,8 @@ const verdict: Gen = (ctx) => {
   const { reforms, systems, cells } = story.matrix;
   const cols = systems.length;
   const rows = reforms.length;
-  const tw = 0.98;
-  const th = 0.38;
+  const tw = 0.86;
+  const th = 0.36;
   const gx = 0.11;
   const gy = 0.1;
   const W = cols * tw + (cols - 1) * gx;
@@ -818,12 +818,12 @@ const faults: Gen = (ctx) => {
   const t = new Targets();
   const r = rng(79);
   const kinds = story.injection.kinds;
-  const span = 12;
+  const span = 11;
   const maxRate = Math.max(...kinds.map((k) => k.max_flip_rate), 0.01);
   const colBudget = ctx.n * 0.6;
   const heights = kinds.map((k) => 0.15 + (k.max_flip_rate / maxRate) * 4.6);
   const sumH = heights.reduce((s, x) => s + x, 0);
-  const X = (i: number) => 1.4 - span / 2 + (i + 0.5) * (span / kinds.length);
+  const X = (i: number) => 2.2 - span / 2 + (i + 0.5) * (span / kinds.length);
   kinds.forEach((k, i) => {
     const x = X(i);
     const h = heights[i];

@@ -41,7 +41,7 @@ const browser = await puppeteer.launch({
   args: flag("nowebgl")
     ? ["--disable-webgl", "--disable-3d-apis"]
     : flag("gpu")
-      ? ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"]
+      ? ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-gpu-rasterization", ...(flag("dgpu") ? ["--force_high_performance_gpu"] : [])]
       : ["--use-angle=default", "--enable-unsafe-swiftshader"],
 });
 

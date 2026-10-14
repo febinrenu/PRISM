@@ -28,7 +28,11 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
     const shown = new Map<number, number>();
     const project = (x: number, y: number, z: number, cam: THREE.Camera, w: number, h: number) => {
       v.set(x, y, z).project(cam);
-      return { sx: (v.x * 0.5 + 0.5) * w, sy: (-v.y * 0.5 + 0.5) * h, front: v.z < 1 };
+      return {
+        sx: (v.x * 0.5 + 0.5) * w,
+        sy: (-v.y * 0.5 + 0.5) * h,
+        front: v.z < 1,
+      };
     };
     loop.overlay = () => {
       const cam = loop.camera;
@@ -108,39 +112,48 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
   }, [anchors, picks, router]);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[5] overflow-hidden">
-      {anchors.map((a, i) => (
-        <div
-          key={i}
-          ref={(el) => {
-            refs.current[i] = el;
-          }}
-          className={cn("absolute left-0 top-0 opacity-0 will-change-transform", a.kind === "axis" && "max-sm:hidden")}
-          style={{ visibility: "hidden" }}
-        >
+    <>
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-[5] overflow-hidden">
+        {anchors.map((a, i) => (
           <div
+            key={i}
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
             className={cn(
-              "-translate-x-1/2 -translate-y-full whitespace-nowrap pb-1 text-center",
-              a.kind === "title" && "font-serif text-[20px] italic text-text-primary",
-              a.kind === "label" && "font-mono text-[12px] uppercase tracking-[0.14em] text-text-primary",
-              a.kind === "axis" && "font-mono text-[12px] text-text-muted",
-              a.tone === "signal" && "text-signal",
-              a.tone === "dim" && "text-text-dim"
+              "absolute left-0 top-0 opacity-0 will-change-transform",
+              a.kind === "axis" && "max-sm:hidden",
             )}
+            style={{ visibility: "hidden" }}
           >
-            {a.label}
-            {a.sub ? <div className="mt-0.5 font-sans text-[12px] normal-case tracking-normal text-text-muted">{a.sub}</div> : null}
+            <div
+              className={cn(
+                "-translate-x-1/2 -translate-y-full whitespace-nowrap pb-1 text-center",
+                a.kind === "title" && "font-serif text-[20px] italic text-text-primary",
+                a.kind === "label" && "font-mono text-[12px] uppercase tracking-[0.14em] text-text-primary",
+                a.kind === "axis" && "font-mono text-[12px] text-text-muted",
+                a.tone === "signal" && "text-signal",
+                a.tone === "dim" && "text-text-dim",
+              )}
+            >
+              {a.label}
+              {a.sub ? (
+                <div className="mt-0.5 font-sans text-[12px] normal-case tracking-normal text-text-muted">{a.sub}</div>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ))}
-      <div
-        ref={card}
-        className="story-card absolute left-0 top-0 w-[280px] rounded-[6px] border border-border-light bg-ink/90 p-3.5 opacity-0 shadow-lift backdrop-blur-md transition-opacity duration-200"
-      >
-        <div data-t="" className="text-[14px] text-text-primary" />
-        <ul data-l="" className="mt-1.5 space-y-0.5 text-[13px] leading-snug text-text-secondary" />
-        <div data-h="" className="mt-2 font-mono text-[12px] text-text-dim" />
+        ))}
       </div>
-    </div>
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-overlay overflow-hidden">
+        <div
+          ref={card}
+          className="story-card absolute left-0 top-0 w-[280px] rounded-[6px] border border-border-light bg-ink/90 p-3.5 opacity-0 shadow-lift backdrop-blur-md transition-opacity duration-200"
+        >
+          <div data-t="" className="text-[14px] text-text-primary" />
+          <ul data-l="" className="mt-1.5 space-y-0.5 text-[13px] leading-snug text-text-secondary" />
+          <div data-h="" className="mt-2 font-mono text-[12px] text-text-dim" />
+        </div>
+      </div>
+    </>
   );
 }
