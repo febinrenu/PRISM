@@ -122,10 +122,23 @@ export default function StoryRoot() {
     else l.stop();
   }, [revealed, built]);
 
+  // Split and arm the beats behind the curtain, so the reveal itself never stalls.
+  const ctlRef = useRef<ReturnType<typeof createController> | null>(null);
+  useEffect(() => {
+    if (!tier || !built || !root.current) return;
+    const ctl = createController(root.current, (k) => soundRef.current?.chime(k));
+    ctlRef.current = ctl;
+    return () => {
+      ctl.destroy();
+      ctlRef.current = null;
+    };
+  }, [tier, built]);
+
   // The single ticker: scroll → director → DOM → frame → overlay → sound.
   useEffect(() => {
     if (!tier || !revealed || !root.current) return;
-    const ctl = createController(root.current, (k) => soundRef.current?.chime(k));
+    const ctl = ctlRef.current;
+    if (!ctl) return;
     let last = performance.now();
     let lastY = -1;
     const tick = (time: number) => {
@@ -165,7 +178,6 @@ export default function StoryRoot() {
     return () => {
       gsap.ticker.remove(tick);
       window.removeEventListener("pointermove", onPointer);
-      ctl.destroy();
     };
   }, [tier, revealed]);
 

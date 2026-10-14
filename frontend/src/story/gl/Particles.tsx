@@ -134,9 +134,9 @@ void main() {
     a *= (px * px) / (1.6 * 1.6);
     px = 1.6;
   }
-  px = min(px, 220.0);
+  px = min(px, 140.0);
   a *= mix((fA & 1) != 0 ? fadeA : 1.0, (fB & 1) != 0 ? fadeB : 1.0, st);
-  a *= smoothstep(0.35, 1.4, dist);
+  a *= smoothstep(0.6, 2.6, dist);
   vAlpha = a;
   gl_PointSize = px;
   gl_Position = projectionMatrix * mv;

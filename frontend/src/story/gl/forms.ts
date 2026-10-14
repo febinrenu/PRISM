@@ -867,8 +867,8 @@ const limits: Gen = (ctx) => {
   while (t.n < ctx.n) {
     const th = r() * Math.PI * 2;
     const ph = Math.acos(2 * r() - 1);
-    const R = 4 + Math.pow(r(), 0.5) * 9;
-    t.add(Math.sin(ph) * Math.cos(th) * R, Math.cos(ph) * R * 0.6, Math.sin(ph) * Math.sin(th) * R - 3, 0.03, PAL.paper, 0, 0.25 + r() * 0.25);
+    const R = 4 + Math.pow(r(), 0.5) * 6;
+    t.add(Math.sin(ph) * Math.cos(th) * R * 1.4, Math.cos(ph) * R * 0.6, Math.sin(ph) * Math.sin(th) * R * 0.7 - 6, 0.035, PAL.paper, 0, 0.25 + r() * 0.25);
   }
   return t;
 };

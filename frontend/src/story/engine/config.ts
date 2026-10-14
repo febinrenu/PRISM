@@ -212,8 +212,8 @@ export const TRACKS: Record<keyof Director, Key[]> = {
   ],
   beam: [
     [0, 1],
-    [at("hero", 1.0), 1],
-    [at("why", 0.1), 0],
+    [at("hero", 0.85), 1],
+    [at("why", 0.12), 0],
     [at("end", 0.35), 0],
     [at("end", 0.55), 1],
   ],

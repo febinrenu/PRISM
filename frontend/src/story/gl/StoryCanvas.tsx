@@ -53,11 +53,14 @@ function Rail() {
     const k = 1 - Math.exp(-Math.min(dt, 0.05) * 4);
     par.x += (state.pointer.x * 0.22 - par.x) * k;
     par.y += (state.pointer.y * 0.14 - par.y) * k;
-    camera.position.set(pos.x + par.x, pos.y + par.y, pos.z);
+    // narrow screens: step back so wide subjects (pages, boards) fit above the copy
+    const aspect = size.width / size.height;
+    const narrow = aspect < 0.9;
+    const back = aspect < 0.7 ? 1.6 : narrow ? 1.3 : 1;
+    camera.position.set(tgt.x + (pos.x - tgt.x) * back + par.x, tgt.y + (pos.y - tgt.y) * back + par.y, tgt.z + (pos.z - tgt.z) * back);
     camera.lookAt(tgt);
     state.focusDist = camera.position.distanceTo(tgt);
-    const narrow = size.width / size.height < 0.9;
-    camera.fov = narrow ? fov * 1.25 : fov;
+    camera.fov = narrow ? fov * 1.15 : fov;
     // compose the subject away from the copy: sideways on wide screens, upwards on narrow ones
     const ox = narrow ? 0 : d.shiftX * size.width;
     const oy = narrow ? size.height * 0.2 : 0;

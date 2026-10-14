@@ -115,7 +115,7 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
           ref={(el) => {
             refs.current[i] = el;
           }}
-          className="absolute left-0 top-0 opacity-0 will-change-transform"
+          className={cn("absolute left-0 top-0 opacity-0 will-change-transform", a.kind === "axis" && "max-sm:hidden")}
           style={{ visibility: "hidden" }}
         >
           <div
