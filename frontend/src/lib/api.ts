@@ -7,9 +7,12 @@ import type {
   CorpusStats, LLMBackendInfo, AuthUser, DashboardData, AdminMetrics, AdminUser,
 } from "@/types";
 
-// 127.0.0.1, not localhost: another local server on port 8000 (Docker, WSL) can
-// answer "localhost" over IPv6 instead of PRISM's backend.
-const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+// Unset → the local backend. 127.0.0.1, not localhost: another local server on
+// port 8000 (Docker, WSL) can answer "localhost" over IPv6 instead of PRISM's.
+// "same-origin" → relative URLs, behind the nginx proxy in docker-compose
+// (Next.js treats an empty NEXT_PUBLIC_ value as unset, so it needs a word).
+const RAW_API = process.env.NEXT_PUBLIC_API_URL;
+const API = RAW_API === "same-origin" ? "" : RAW_API || "http://127.0.0.1:8000";
 
 /** Backend origin, for the pages that fetch research and corpus routes directly. */
 export const API_BASE = API;

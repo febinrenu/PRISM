@@ -3,8 +3,9 @@
  * offsets into the item's frozen text.
  */
 import { tokenStore } from "@/lib/api";
+import { API_BASE } from "@/lib/api";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API = API_BASE;
 
 export type Modality = "obligation" | "prohibition" | "permission" | "power" | "deeming" | "definition";
 export const MODALITIES: Modality[] = ["obligation", "prohibition", "permission", "power", "deeming", "definition"];

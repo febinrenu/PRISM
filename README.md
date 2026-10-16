@@ -86,18 +86,46 @@ cd frontend && npm install && npm run dev      # http://localhost:3000
 ```
 
 or `start.bat` on Windows (sets everything up and runs the full app; `start.bat dev` for hot
-reload, `start.bat stop` to stop), or `docker compose up --build`.
+reload, `start.bat stop` to stop).
+
+### Docker
+
+```bash
+docker compose up --build        # http://localhost  (nginx serves the app and the API on one origin)
+```
+
+The browser talks to nginx only and the app calls the API on the same origin, so no CORS
+setup is needed. If another stack already uses the ports, move them:
+
+```bash
+HTTP_PORT=8088 BACKEND_PORT=8100 FRONTEND_PORT=3100 docker compose -p prism up --build
+```
+
+The first start copies the bundled demo analysis into the `prism-data` volume. Ollama runs
+on the host and is reached through `host.docker.internal`; set `LLM_BACKEND=groq` and
+`GROQ_API_KEY` to use a hosted model instead. Set `JWT_SECRET` before exposing it publicly.
+
+### What is in the app
 
 - **Workspace** (`/analyze/[docId]`): upload a statute; it is segmented by its
-  legal structure, annotated, and linked to the PDF.
-- **Explainability** (`/explain/...`) and **provenance graph** (`/provenance/...`).
-- **Research** (`/research`): expert-vs-extracted results, validation and
-  sensitivity.
+  legal structure, annotated, and linked to the PDF. Re-analyse runs the pipeline
+  again (owner only; the demo is a fixed reference). The semantic map shows every
+  clause's embedding in 2D.
+- **Report** (`/report/[docId]`): summary figures, a compliance checklist, the risk
+  matrix and key obligations, each linked to its clause; prints or downloads as HTML.
+- **Explainability** (`/explain/...`) and **provenance graph** (`/provenance/...`),
+  as a tree or as 3D strata.
+- **Policy sandbox** (`/simulate/[docId]`): an illustrative agent-based simulation;
+  every saved run can be reopened.
+- **Research** (`/research`): expert-vs-extracted results, the effective tax rate by
+  decile for any reform and reader, validation and sensitivity.
 - **Annotate** (`/annotate`): the blind annotation tool.
 - **Chat** (`/chat`): retrieval-augmented questions over the corpus (BM25 and
   dense retrieval fused and re-ranked), answers marked grounded only when they
   cite real sources.
 - **Statutes** (`/statutes`): browse the parsed corpus by chapter and section.
+- **Light or dark**: the app has both (top bar, mobile menu or Ctrl+K); the landing
+  story is always dark.
 
 Documents uploaded while signed in belong to the uploader: the document list
 shows a user their own documents and the shared ones (the demo, anonymous

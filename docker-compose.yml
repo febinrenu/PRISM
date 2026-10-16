@@ -1,22 +1,30 @@
-# PRISM full-stack — local production-parity run (Module F).
+# PRISM full-stack — local production-parity run.
 #
-#   docker compose up --build
+#   docker compose up --build            →  http://localhost   (nginx: app + API on one origin)
 #
-# Frontend → http://localhost:3000   Backend → http://localhost:8000
-# Everything runs locally with sensible defaults; set the commented env vars to
-# move to Groq / Neon / R2. Ollama runs on the host — the backend reaches it via
-# host.docker.internal (works on Docker Desktop for Windows/Mac).
+# The browser talks to nginx only; the frontend calls the API on the same
+# origin (/api, /v1), so no CORS setup is needed. Published ports can be moved
+# when another stack already uses them:
+#
+#   HTTP_PORT=8088 BACKEND_PORT=8100 FRONTEND_PORT=3100 docker compose -p prism up --build
+#
+# Ollama runs on the host; the backend reaches it via host.docker.internal
+# (Docker Desktop on Windows/Mac). Set the commented variables to move to
+# Groq / Postgres / R2.
 services:
   backend:
     build: ./backend
-    ports: ["8000:8000"]
+    ports: ["${BACKEND_PORT:-8000}:8000"]
     volumes:
+      # first start copies the bundled demo analysis from the image into the volume
       - prism-data:/app/data
     environment:
       - OLLAMA_URL=http://host.docker.internal:11434
       - LLM_BACKEND=${LLM_BACKEND:-ollama}
+      # browser origins allowed to call the API directly (the nginx origin needs none)
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
       # - GROQ_API_KEY=${GROQ_API_KEY}
-      # - DATABASE_URL=${DATABASE_URL}          # Neon Postgres; empty → SQLite
+      # - DATABASE_URL=${DATABASE_URL}          # Postgres; empty → SQLite in the volume
       # - JWT_SECRET=${JWT_SECRET}
       # - R2_ENDPOINT=${R2_ENDPOINT}
       # - CLOUDFLARE_R2_KEY=${CLOUDFLARE_R2_KEY}
@@ -28,16 +36,17 @@ services:
     build:
       context: ./frontend
       # Inlined into the client bundle at build time (a runtime env var would
-      # be ignored by Next.js).
+      # be ignored by Next.js). "same-origin" → the API through nginx.
       args:
-        NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8000}
-    ports: ["3000:3000"]
+        NEXT_PUBLIC_API_URL: ${API_URL:-same-origin}
+    ports: ["${FRONTEND_PORT:-3000}:3000"]
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine
-    ports: ["80:80"]
+    ports: ["${HTTP_PORT:-80}:80"]
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:

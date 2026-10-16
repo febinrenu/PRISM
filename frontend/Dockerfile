@@ -11,7 +11,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 # NEXT_PUBLIC_* values are inlined at build time, so the API URL must be a
 # build argument; setting it only at runtime has no effect.
-ARG NEXT_PUBLIC_API_URL=
+# "same-origin" (the default) → the app calls /api on its own origin, as behind nginx.
+ARG NEXT_PUBLIC_API_URL=same-origin
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 

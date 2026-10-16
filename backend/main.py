@@ -39,6 +39,19 @@ async def lifespan(app: FastAPI):
         from rag import corpus_builder
         n = corpus_builder.corpus_stats()["total_clauses"]
         print(f"[ok] RAG corpus ready ({n} clauses indexed)")
+        if n == 0 and store.get_result("demo_income_tax_2025") is not None:
+            # A fresh install (a new Docker volume) has nothing to search: index
+            # the bundled demo in the background so the Ask view works at once.
+            import threading
+
+            def _seed():
+                try:
+                    r = corpus_builder.ingest_document("demo_income_tax_2025")
+                    print(f"[ok] RAG corpus seeded with the demo ({r.get('clauses', '?')} clauses)")
+                except Exception as e:  # never take the server down for this
+                    print(f"[warn] Could not seed the RAG corpus: {e}")
+
+            threading.Thread(target=_seed, daemon=True).start()
     except Exception as e:
         print(f"[warn] RAG corpus unavailable: {e}")
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen, ExternalLink, Copy, Check } from "lucide-react";
+import { API_BASE } from "@/lib/api";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const ENDPOINTS: { method: string; path: string; desc: string }[] = [
   { method: "POST", path: "/v1/documents/upload", desc: "Upload a PDF, returns doc_id" },
@@ -25,6 +25,11 @@ const methodColor: Record<string, string> = {
 
 export default function ApiDocsPage() {
   const [copied, setCopied] = useState(false);
+  // same-origin deployments (empty API base) show this site's own address
+  const [API, setApi] = useState(API_BASE || "");
+  useEffect(() => {
+    if (!API_BASE) setApi(window.location.origin);
+  }, []);
   const curl = `curl -X POST ${API}/v1/rag/query \\
   -H "Authorization: Bearer prism_sk_..." \\
   -H "Content-Type: application/json" \\
