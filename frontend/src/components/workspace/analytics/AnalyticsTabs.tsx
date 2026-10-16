@@ -4,7 +4,6 @@ import Link from "next/link";
 import { BarChart3, Network, Zap, ScatterChart, Search, Download, FlaskConical, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
-import { api } from "@/lib/api";
 import OverviewTab from "./OverviewTab";
 import EntityNetworkTab from "./EntityNetworkTab";
 import CausalTab from "./CausalTab";
@@ -26,15 +25,8 @@ type TabKey = (typeof TABS)[number]["key"];
 
 export default function AnalyticsTabs() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
-  const [exporting, setExporting] = useState(false);
   const { docId, stage } = useDocumentStore();
 
-  const handleExport = () => {
-    if (!docId || exporting) return;
-    setExporting(true);
-    api.downloadReport(docId);
-    setTimeout(() => setExporting(false), 1500);
-  };
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -70,20 +62,19 @@ export default function AnalyticsTabs() {
             <Link
               href={`/simulate/${docId}`}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all bg-status-success/10 border border-status-success/30 text-status-success hover:bg-status-success/20"
-              title="Open the Simulation Theater"
+              title="Open the policy sandbox"
             >
               <FlaskConical style={{ width: 11, height: 11 }} />
               Simulate
             </Link>
-            <button
-              onClick={handleExport}
-              disabled={exporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all disabled:opacity-50 bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20"
-              title="Download HTML analysis report"
+            <Link
+              href={`/report/${docId}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20"
+              title="The analysis report: checklist, risk matrix, key obligations (also downloads as HTML)"
             >
               <Download style={{ width: 11, height: 11 }} />
-              {exporting ? "Opening…" : "Export Report"}
-            </button>
+              Report
+            </Link>
           </div>
         )}
       </div>

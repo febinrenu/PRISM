@@ -107,5 +107,41 @@ export function useSimulation(docId: string) {
 
   const stop = useCallback(() => sseRef.current?.abort(), []);
 
-  return { state, run, stop };
+  /** Show a saved run again, exactly as it finished. */
+  const load = useCallback(
+    async (simulationId: string) => {
+      sseRef.current?.abort();
+      setState({ ...INITIAL, phase: "starting" });
+      try {
+        const r = await api.getSimulationResults(docId, simulationId);
+        setState({
+          ...INITIAL,
+          phase: "complete",
+          created: {
+            simulation_id: r.simulation_id,
+            doc_id: r.doc_id,
+            n_agents: r.n_agents,
+            n_steps: r.n_steps,
+            active_rules: r.active_rules,
+            rules_source: r.rules_source,
+            rules: [],
+            status: "ready",
+          },
+          steps: r.steps,
+          finalVerdict: r.policy_verdict,
+          finalGini: r.final_gini,
+          finalCompliance: r.final_compliance_rate,
+          finalRevenue: r.final_revenue ?? null,
+          effectiveRateLow: r.effective_rate_low ?? null,
+          effectiveRateHigh: r.effective_rate_high ?? null,
+          narrative: r.narrative ?? null,
+        });
+      } catch (error) {
+        setState({ ...INITIAL, phase: "error", error: error instanceof Error ? error.message : String(error) });
+      }
+    },
+    [docId]
+  );
+
+  return { state, run, stop, load };
 }

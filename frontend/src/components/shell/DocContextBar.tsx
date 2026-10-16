@@ -36,7 +36,7 @@ function useFilename(docId: string, given?: string | null) {
   return name;
 }
 
-type View = "analyze" | "provenance" | "simulate" | "explain" | "compare";
+type View = "analyze" | "provenance" | "simulate" | "explain" | "compare" | "report";
 
 /**
  * The second bar on every workspace route: which document you are in, and
@@ -59,6 +59,7 @@ export default function DocContextBar({
   const tabs: { id: View; label: string; href: string }[] = [
     { id: "analyze", label: "Workspace", href: `/analyze/${docId}` },
     { id: "provenance", label: "Provenance", href: `/provenance/${docId}` },
+    { id: "report", label: "Report", href: `/report/${docId}` },
     { id: "simulate", label: "Policy sandbox", href: `/simulate/${docId}` },
     { id: "compare", label: "Compare", href: `/compare?a=${docId}` },
   ];

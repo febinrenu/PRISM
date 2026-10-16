@@ -253,7 +253,12 @@ const skyline: Gen = (ctx) => {
     const [name, version] = s.key.split("/");
     const twin = list.filter((o) => o.key.split("/")[0] === name).length > 1;
     const label = twin ? `${name} · ${version.split("_")[0]}` : name;
-    ctx.anchors.push({ form: ctx.form, x: x - w * 0.3, y: base + h + 0.12, z: z + d / 2, label: `${label} · ${inr(s.sections)}`, kind: "label", align: "left", rotate: -38 });
+    // an angled label rises to the right: if the next stack is taller, lift it clear and draw a leader down
+    const next = list[i + 1];
+    const hNext = next ? 0.6 + (next.sections / maxS) * 5.6 : 0;
+    const labelY = base + Math.max(h, hNext * 0.92) + 0.12;
+    if (labelY > base + h + 0.2) segment(t, [x - w * 0.3, base + h + 0.05, z + d / 2], [x - w * 0.3, labelY - 0.05, z + d / 2], 90, 0.02, PAL.paper, 0.55, r);
+    ctx.anchors.push({ form: ctx.form, x: x - w * 0.3, y: labelY, z: z + d / 2, label: `${label} · ${inr(s.sections)}`, kind: "label", align: "left", rotate: -38 });
     ctx.picks.push({ form: ctx.form, x, y: base + h / 2, z: z + d / 2, title: s.title, lines: [`${inr(s.sections)} sections in ${inr(s.chapters)} chapters`, version.replace(/_/g, " ")], href: `/statutes?s=${encodeURIComponent(s.key)}` });
   });
   // dust

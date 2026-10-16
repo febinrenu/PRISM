@@ -5,7 +5,7 @@ import os
 from auth.deps import can_list, optional_user
 from fastapi import Depends, APIRouter, HTTPException
 from config import DEMO_DIR, DEMO_PDF_NAME
-from storage.store import get_result, get_meta, list_documents, save_meta, save_path
+from storage.store import get_result, get_meta, lime_explained_ids, list_documents, save_meta, save_path
 
 router = APIRouter()
 
@@ -23,7 +23,14 @@ def _require_result(doc_id: str):
 @router.get("/clauses/{doc_id}")
 async def get_clauses(doc_id: str):
     result = _require_result(doc_id)
-    return {"doc_id": doc_id, "clauses": [c.model_dump() for c in result.clauses]}
+    explained = lime_explained_ids(doc_id)
+    return {"doc_id": doc_id, "clauses": [_with_lime(c, explained) for c in result.clauses]}
+
+
+def _with_lime(clause, explained: set[str]) -> dict:
+    d = clause.model_dump()
+    d["lime_available"] = bool(d.get("lime_available")) or clause.clause_id in explained
+    return d
 
 
 @router.get("/clause/{doc_id}/{clause_id}")
@@ -32,7 +39,7 @@ async def get_clause(doc_id: str, clause_id: str):
     result = _require_result(doc_id)
     for c in result.clauses:
         if c.clause_id == clause_id:
-            return {"doc_id": doc_id, "clause": c.model_dump()}
+            return {"doc_id": doc_id, "clause": _with_lime(c, lime_explained_ids(doc_id))}
     raise HTTPException(status_code=404, detail=f"Clause {clause_id} not found in {doc_id}.")
 
 

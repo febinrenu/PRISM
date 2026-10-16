@@ -8,6 +8,7 @@ import { PageContainer, PageHeader } from "@/components/shell/PageHeader";
 import { Callout, ErrorState, PageSkeleton, Panel, Tag } from "@/components/ui/kit";
 import { API_BASE as API } from "@/lib/api";
 import { errorLabel, reformLabel, systemName } from "@/lib/labels";
+import DecileView from "@/components/research/DecileView";
 import { cn } from "@/lib/utils";
 
 interface Run {
@@ -392,6 +393,7 @@ export default function ResearchPage() {
               );
             })}
           </div>
+          <DecileView set={active} readers={systems.filter((sys) => runFor(active, sys)?.complete)} />
           {inspected && (
             <div className="mt-6">
               <InspectPanel set={active} system={inspected} onClose={() => setInspected(null)} />

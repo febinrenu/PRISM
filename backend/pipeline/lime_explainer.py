@@ -225,14 +225,7 @@ def explain_clause(
         "cached": False,
     }
 
+    # The cache file is the record: clauses report lime_available from it when
+    # served (store.lime_explained_ids), so result.json is never rewritten here.
     store.save_lime(doc_id, clause_id, mode, payload)
-
-    # Flag the clause so the UI can show "explanation available".
-    def _mark(analysis):
-        for clause in analysis.clauses:
-            if clause.clause_id == clause_id:
-                clause.lime_available = True
-                break
-
-    store.update_result(doc_id, _mark)
     return payload

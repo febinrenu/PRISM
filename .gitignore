@@ -58,3 +58,5 @@ backend/data/eval/v2/rag/
 
 # sandbox runs saved while using the app
 backend/data/store/*/simulations/
+# caches written while using the app (explanations, sandbox runs)
+backend/data/store/*/lime/

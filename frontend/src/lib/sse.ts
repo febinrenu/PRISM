@@ -5,6 +5,8 @@
  * filtered out before the handler sees anything.
  */
 
+import { authHeaders } from "@/lib/api";
+
 export interface SSEHandle {
   abort: () => void;
   done: Promise<void>;
@@ -26,7 +28,7 @@ export function openSSE(
     try {
       const res = await fetch(url, {
         method: options?.method ?? "GET",
-        headers: options?.body !== undefined ? { "Content-Type": "application/json" } : undefined,
+        headers: { ...(options?.body !== undefined ? { "Content-Type": "application/json" } : {}), ...authHeaders() },
         body: options?.body !== undefined ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
       });

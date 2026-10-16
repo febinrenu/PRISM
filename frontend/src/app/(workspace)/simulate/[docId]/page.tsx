@@ -11,6 +11,7 @@ import LiveMetricCard from "@/components/simulate/LiveMetricCard";
 import VerdictCard from "@/components/simulate/VerdictCard";
 import ProvenancePanel from "@/components/simulate/ProvenancePanel";
 import AssumptionsPanel from "@/components/simulate/AssumptionsPanel";
+import PastRuns from "@/components/simulate/PastRuns";
 import {
   BurdenChart,
   ComplianceChart,
@@ -30,7 +31,7 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
   const searchParams = useSearchParams();
   const prefilterClause = searchParams.get("clause");
 
-  const { state, run } = useSimulation(docId);
+  const { state, run, load } = useSimulation(docId);
   const filename = useDocumentStore((s) => (s.docId === docId ? s.filename : null));
   const [availableRules, setAvailableRules] = useState<SimulationRuleInfo[] | null>(null);
   const [rulesError, setRulesError] = useState<string | null>(null);
@@ -247,6 +248,13 @@ export default function SimulatePage({ params }: { params: { docId: string } }) 
                 <ProvenancePanel docId={docId} simulationId={state.created.simulation_id} />
               </>
             )}
+
+            <PastRuns
+              docId={docId}
+              current={state.created?.simulation_id ?? null}
+              refresh={state.phase === "complete" ? state.created?.simulation_id : null}
+              onOpen={load}
+            />
 
             {/* Transparency — model assumptions behind every number above. */}
             <AssumptionsPanel />

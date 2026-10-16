@@ -38,3 +38,32 @@ def test_private_documents_stay_out_of_the_shared_corpus(monkeypatch):
     assert all(store.get_meta(d).owner_id is None for d in seen)
     if private is not None:
         assert client.post(f"/api/rag/ingest/{private.doc_id}").status_code == 403
+
+
+def test_demo_is_never_reanalysed():
+    r = client.get(f"/api/analyze/{DEMO}?force=true")
+    assert r.status_code == 403
+
+
+def test_saved_runs_are_listed_newest_first(tmp_path, monkeypatch):
+    r = client.get(f"/api/simulate/{DEMO}/runs")
+    assert r.status_code == 200
+    runs = r.json()["runs"]
+    assert runs == sorted(runs, key=lambda x: x["created_at"], reverse=True)
+
+
+def test_explaining_a_clause_does_not_rewrite_the_result(monkeypatch):
+    """The LIME cache file is the record; result.json stays as analysed."""
+    from pipeline import lime_explainer
+    calls = []
+    monkeypatch.setattr(store, "update_result", lambda *a, **k: calls.append(a))
+    import inspect
+    src = inspect.getsource(lime_explainer)
+    assert "update_result" not in src
+    cid = store.get_result(DEMO).clauses[7].clause_id
+    monkeypatch.setattr(store, "lime_explained_ids", lambda d: {cid})
+    from routers import data
+    monkeypatch.setattr(data, "lime_explained_ids", lambda d: {cid})
+    r = client.get(f"/api/clause/{DEMO}/{cid}")
+    assert r.json()["clause"]["lime_available"] is True
+    assert not calls

@@ -2,7 +2,7 @@ import type {
   Clause, GraphNode, GraphEdge, EmbeddingPoint, AnalysisStats,
   SearchResult, ReportSummary, CompareResult, DocumentMeta,
   ExtractionMethod, LIMEExplanation, LLMCausalRule, LLMExtractionSummary,
-  SimulationConfig, SimulationCreated, SimulationResult, SimulationRuleInfo,
+  SimulationConfig, SimulationCreated, SimulationResult, SimulationRuleInfo, SimulationRunSummary,
   SimulationProvenance, SimParam, DeepReasoning,
   CorpusStats, LLMBackendInfo, AuthUser, DashboardData, AdminMetrics, AdminUser,
 } from "@/types";
@@ -27,7 +27,7 @@ export const tokenStore = {
   clear: () => typeof window !== "undefined" && localStorage.removeItem(TOKEN_KEY),
 };
 
-function authHeaders(): Record<string, string> {
+export function authHeaders(): Record<string, string> {
   const t = tokenStore.get();
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
@@ -204,14 +204,19 @@ export const api = {
   createSimulation: async (docId: string, config: Partial<SimulationConfig>) =>
     phase2Fetch<SimulationCreated>(`/api/simulate/${docId}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // signed in: the finished run is saved to the dashboard
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(config),
     }),
 
   getSimulationResults: async (docId: string, simulationId?: string) =>
     phase2Fetch<SimulationResult>(
-      `/api/simulate/${docId}/results${simulationId ? `?simulation_id=${simulationId}` : ""}`
+      `/api/simulate/${docId}/results${simulationId ? `?simulation_id=${encodeURIComponent(simulationId)}` : ""}`
     ),
+
+  /** Saved sandbox runs for a document, newest first. */
+  listSimulationRuns: async (docId: string) =>
+    phase2Fetch<{ doc_id: string; runs: SimulationRunSummary[] }>(`/api/simulate/${docId}/runs`),
 
   getSimulationProvenance: async (docId: string, simulationId?: string) =>
     phase2Fetch<SimulationProvenance>(

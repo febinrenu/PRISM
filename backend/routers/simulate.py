@@ -211,6 +211,33 @@ async def stream_simulation(doc_id: str, simulation_id: str):
     )
 
 
+@router.get("/simulate/{doc_id}/runs")
+async def list_simulation_runs(doc_id: str, limit: int = 20):
+    """Saved runs for a document, newest first, as summaries (no per-step data)."""
+    from datetime import datetime, timezone
+    out = []
+    for sim_id in reversed(store.list_simulations(doc_id)[-max(1, min(limit, 100)):]):
+        r = store.load_simulation(doc_id, sim_id)
+        if r is None:
+            continue
+        path = store._doc_dir(doc_id) / "simulations" / f"{sim_id}.json"
+        out.append({
+            "simulation_id": r.simulation_id,
+            "created_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat(),
+            "n_agents": r.n_agents,
+            "n_steps": r.n_steps,
+            "n_rules": len(r.active_rules),
+            "rules_source": r.rules_source,
+            "policy_verdict": r.policy_verdict,
+            "final_gini": r.final_gini,
+            "final_compliance_rate": r.final_compliance_rate,
+            "final_revenue": r.final_revenue,
+            "adaptive": r.config.adaptive,
+            "calibration_mode": r.config.calibration_mode,
+        })
+    return {"doc_id": doc_id, "runs": out}
+
+
 @router.get("/simulate/{doc_id}/results")
 async def get_simulation_results(doc_id: str, simulation_id: Optional[str] = None):
     if simulation_id is None:
@@ -285,7 +312,7 @@ async def simulation_provenance(doc_id: str, simulation_id: Optional[str] = None
                 "clause_type": clause.clause_type,
             },
             "llm_extraction": clause.llm_extraction.model_dump() if clause.llm_extraction else None,
-            "lime_available": clause.lime_available,
+            "lime_available": clause.lime_available or clause.clause_id in store.lime_explained_ids(doc_id),
             "lime": _lime_summary(doc_id, clause_id),
         })
 

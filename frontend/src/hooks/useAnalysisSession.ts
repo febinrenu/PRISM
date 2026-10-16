@@ -20,7 +20,8 @@ import type { Clause, SSEEvent } from "@/types";
 const FLUSH_INTERVAL = 120; // ms between batched clause flushes
 const MAX_RECONNECTS = 2;
 
-export function useAnalysisSession(docId: string | null) {
+/** `run` > 0 re-analyses from scratch (the backend's ?force=true); 0 hydrates or streams as usual. */
+export function useAnalysisSession(docId: string | null, run = 0) {
   const sseRef = useRef<SSEHandle | null>(null);
   const bufRef = useRef<Clause[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -109,7 +110,7 @@ export function useAnalysisSession(docId: string | null) {
 
     const connect = () => {
       if (disposedRef.current) return;
-      sseRef.current = openSSE(SSE_URL(docId), handleEvent, {
+      sseRef.current = openSSE(SSE_URL(docId, run > 0), handleEvent, {
         onError: async () => {
           if (disposedRef.current) return;
           flushBuffer();
@@ -131,6 +132,12 @@ export function useAnalysisSession(docId: string | null) {
     };
 
     (async () => {
+      if (run > 0) {
+        useDocumentStore.getState().resetClauses();
+        setStage("parsing", "Re-analysing from the PDF…", 0);
+        connect();
+        return;
+      }
       // Hydration probe: skip SSE entirely for already-analyzed documents.
       if (await hydrateFromRest()) return;
       if (disposedRef.current) return;
@@ -144,5 +151,5 @@ export function useAnalysisSession(docId: string | null) {
       if (timerRef.current) clearInterval(timerRef.current);
       bufRef.current = [];
     };
-  }, [docId, setStage, setProcessedCount, setStats]);
+  }, [docId, run, setStage, setProcessedCount, setStats]);
 }

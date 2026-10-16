@@ -259,6 +259,16 @@ def list_lime_clause_ids(doc_id: str) -> list[str]:
     return sorted(ids)
 
 
+def lime_explained_ids(doc_id: str) -> set[str]:
+    """Clause IDs with a cached LIME explanation (proxy or llm mode). The
+    clause's lime_available flag is derived from this when clauses are served,
+    so generating an explanation never rewrites result.json."""
+    lime_dir = _doc_dir(doc_id) / "lime"
+    if not lime_dir.exists():
+        return set()
+    return {p.name.rsplit(".", 2)[0] for p in lime_dir.glob("*.json") if p.name.rsplit(".", 2)[1:2] in (["proxy"], ["llm"])}
+
+
 # --- Phase 3: deep (on-demand) clause reasoning ---
 
 def save_deep_reasoning(doc_id: str, clause_id: str, payload: dict) -> None:

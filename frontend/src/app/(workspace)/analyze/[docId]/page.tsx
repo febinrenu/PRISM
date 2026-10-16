@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Panel as RPanel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { Network } from "lucide-react";
+import { Network, RefreshCw } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
 import { useAnalysisSession } from "@/hooks/useAnalysisSession";
 import { useLLMExtraction } from "@/hooks/useLLMExtraction";
@@ -34,7 +34,11 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
   const { stage, filename, clauses, stats, llmStage, llmProcessed, llmTotal } = useDocumentStore();
   const [mobileTab, setMobileTab] = useState<(typeof MOBILE_TABS)[number][0]>("clauses");
 
-  useAnalysisSession(docId);
+  const [run, setRun] = useState(0);
+  const [confirming, setConfirming] = useState(false);
+  useAnalysisSession(docId, run);
+  // the demo is the shared reference; the backend refuses to re-analyse it
+  const canReanalyse = !docId.startsWith("demo_");
   // Hydrates cached model extractions into clause cards; re-attaches to a
   // live extraction job if one is running server-side.
   useLLMExtraction(docId);
@@ -76,6 +80,41 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
           >
             <Network className="h-3.5 w-3.5" /> Graph
           </Link>
+        )}
+        {(isComplete || stage === "error") && canReanalyse && (
+          <div className="flex items-center gap-1.5">
+            {confirming ? (
+              <>
+                <span className="hidden text-[12px] text-text-muted sm:inline">Replace these results?</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirming(false);
+                    setRun((r) => r + 1);
+                  }}
+                  className="inline-flex h-8 items-center rounded-[4px] bg-signal px-3 text-[13px] font-medium text-ink hover:bg-signal-soft"
+                >
+                  Re-analyse
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  className="inline-flex h-8 items-center rounded-[4px] px-2 text-[13px] text-text-muted hover:text-text-primary"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirming(true)}
+                title="Run the whole pipeline again on this PDF"
+                className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Re-analyse
+              </button>
+            )}
+          </div>
         )}
       </DocContextBar>
 

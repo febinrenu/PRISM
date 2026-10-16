@@ -14,7 +14,8 @@ import logging
 import os
 from typing import Callable
 
-from fastapi import APIRouter, HTTPException
+from auth.deps import can_manage, optional_user
+from fastapi import Depends, APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from config import SEGMENTATION_MODE
@@ -379,12 +380,18 @@ async def _replay_generator(result: AnalysisResult):
 
 
 @router.get("/analyze/{doc_id}")
-async def stream_analysis(doc_id: str, force: bool = False):
+async def stream_analysis(doc_id: str, force: bool = False, user: dict | None = Depends(optional_user)):
     pdf_path = store.get_path(doc_id)
     meta = store.get_meta(doc_id)
 
     if not pdf_path or not meta:
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found.")
+    if force:
+        # The demo is the shared reference the story and the paper's pipeline numbers come from.
+        if doc_id.startswith("demo_"):
+            raise HTTPException(status_code=403, detail="The demo document is a fixed reference and is not re-analysed.")
+        if not can_manage(meta, user):
+            raise HTTPException(status_code=403, detail="Only the document's owner can re-analyse it.")
 
     headers = {
         "Cache-Control": "no-cache",

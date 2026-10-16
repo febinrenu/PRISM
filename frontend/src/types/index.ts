@@ -186,6 +186,16 @@ export interface ReportSummary {
     item: string;
     action: string;
   }>;
+  entity_counts?: Record<string, number>;
+  key_obligations?: Array<{
+    clause_id: string;
+    page: number;
+    section: string;
+    text_preview: string;
+    obligation_phrases: string[];
+    has_penalty: boolean;
+  }>;
+  graph_summary?: { nodes: number; edges: number };
 }
 
 export interface ClauseDiff {
@@ -376,6 +386,22 @@ export interface SimulationResult {
   final_revenue?: number;
   narrative?: string;
   config: SimulationConfig;
+}
+
+/** One saved sandbox run, as listed (no per-step data). */
+export interface SimulationRunSummary {
+  simulation_id: string;
+  created_at: string;
+  n_agents: number;
+  n_steps: number;
+  n_rules: number;
+  rules_source: "llm" | "rule_based";
+  policy_verdict: PolicyVerdict;
+  final_gini: number;
+  final_compliance_rate: number;
+  final_revenue: number;
+  adaptive: boolean;
+  calibration_mode: string;
 }
 
 // ─── Phase 3, Module D: RAG assistant ─────────────────────────────────────
