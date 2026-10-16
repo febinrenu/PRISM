@@ -19,6 +19,7 @@ from. A web workspace exposes the same pipeline for any uploaded statute.
 |---|---|---|
 | Corpus | Downloads official statute PDFs, records URL and SHA-256 | `pipeline/statute/corpus.py`, `data/corpus/sources.json` |
 | Structure | Layout cleaning (running heads, margin line numbers, marginal notes, footnotes), then a statute AST: Part / Chapter / Section / Sub-section / Clause / Proviso / Explanation / Schedule / tables, quoted Finance Act insertions, exact offsets and page boxes, content-addressed node ids | `pipeline/statute/layout.py`, `parser.py` |
+| Rate tables | Rate schedules rebuilt row by row from the PDF geometry (numbered two-column schedules, also across page breaks; boxed tables), each row cited to its span of the frozen canonical text; a derived view, never a change to the text | `pipeline/statute/tables.py`, `data/corpus/*/*/tables.json` |
 | Rule schema | `LegalRule`: modality, subject, conditions, action, consequence, exceptions, cross-references, typed quantities and executable effects, all grounded to statute spans | `models/rules.py` |
 | Extraction | Rule-based baseline and language models behind one JSON interface: local (Ollama Phi-3.5, Gemma-2B), hosted (Groq GPT-OSS-120B / 20B, Qwen3.8-27B; OpenRouter Gemma 4 31B, Nemotron-3-Super) and open-weight batch systems run on a GPU host (Llama-3.1-8B, Mistral-7B). Every quoted span is verified against the statute or rejected; self-consistency sampling gives confidence | `pipeline/extraction/` |
 | Engines | Statute-faithful personal income-tax calculator (slabs by age, s.87A rebate with marginal relief, surcharge with marginal relief and caps, cess, statutory rounding); a generic rule engine for fees and penalties with defeasible exceptions | `simulation/rac/`, `policy/` |
@@ -39,7 +40,8 @@ pip install -r requirements.txt          # exact versions: requirements.lock
 python -m spacy download en_core_web_sm
 
 python -m cli ingest                     # statute PDFs (some sites need a browser; see DATA.md)
-python -m cli parse                      # statute ASTs
+python -m cli parse                      # statute ASTs (and the rebuilt rate tables)
+python -m cli tables                     # rebuild only the rate-table views
 python -m cli cbdt-targets               # Income Tax Return Statistics → population targets
 python -m cli gold-export                # expert income-tax parameters
 
@@ -47,6 +49,8 @@ python -m cli backtest                   # microsimulation validation
 python -m cli sensitivity                # Morris + Sobol indices
 python -m cli experiment                 # expert vs extracted (hosted systems need API keys)
 python -m cli experiment-stats           # robustness of flips, system comparisons
+python -m cli experiment-structured      # rebuilt tables + schema decoding + one repair round
+python -m cli experiment-structured --no-schema   # the same in JSON mode (decoding ablation)
 python -m cli error-injection            # typed errors injected into the expert law
 
 python -m cli eval-run --system rules --split test
@@ -62,6 +66,15 @@ seeds, configuration) to `data/runs/`. Model outputs are cached
 content-addressed in `data/cache/llm/`, so a rerun calls no model twice;
 `cli reproduce` regenerates every table in `paper/tables/` (and the numbers
 cited in the manuscript) with model calls disabled.
+
+**Structured condition.** `cli experiment-structured` reruns the headline
+reforms with each provision's rate tables rebuilt from the PDF, decoding
+constrained to the answer's JSON schema (strict for the GPT-OSS models), and
+one repair round in which a reading that fails an assembler check is sent
+back with the check in general terms (never a value). The first pass and the
+repaired result are both scored by the headline's scoring and kept in
+`data/experiments/structured/`; `cli reproduce` turns them into
+`paper/tables/structured.tex`. The headline runs are left as they are.
 
 **Open-weight systems in batch.** `cli batch-export --system mistral-7b`
 writes every prompt the study needs; `training/kaggle_batch_extract.ipynb`

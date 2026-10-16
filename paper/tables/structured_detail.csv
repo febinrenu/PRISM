@@ -1,0 +1,71 @@
+Reform,System,Condition,Assembled (first),Flip rate (first),Assembled (final),Flip rate (final),Repairs,Review (final)
+FA2020_new_regime,rules,tables,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,rules,tables,yes,0.00,yes,0.00,0,
+FA2023_new_default,rules,tables,no,1.00,no,1.00,0,new.rebate: no rebate effect
+FA2024N2_budget,rules,tables,no,1.00,no,1.00,0,new.standard_deduction: no standard deduction effect
+FA2025_rebate_12L,rules,tables,no,1.00,no,1.00,0,new.rebate: no rebate effect
+FA2023_old_schedule,rules,tables,yes,0.00,yes,0.00,0,
+FA2024N2_old_schedule,rules,tables,yes,0.00,yes,0.00,0,
+FA2025_old_schedule,rules,tables,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,rules,tables,yes,0.00,yes,0.00,0,
+ITA2025_new_act,rules,tables,no,1.00,no,1.00,0,new.rebate: no rebate effect
+FA2020_new_regime,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2023_new_default,gpt-oss-120b,tables+json,no,1.00,yes,0.00,1,
+FA2024N2_budget,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2025_rebate_12L,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2023_old_schedule,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2024N2_old_schedule,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2025_old_schedule,gpt-oss-120b,tables+json,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,gpt-oss-120b,tables+json,no,1.00,yes,0.00,1,
+ITA2025_new_act,gpt-oss-120b,tables+json,no,1.00,yes,0.29,1,
+FA2020_new_regime,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2023_new_default,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2024N2_budget,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2025_rebate_12L,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2023_old_schedule,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2024N2_old_schedule,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2025_old_schedule,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,gpt-oss-120b,tables+schema,yes,0.00,yes,0.00,0,
+ITA2025_new_act,gpt-oss-120b,tables+schema,no,1.00,yes,0.00,1,
+FA2020_new_regime,gpt-oss-20b,tables+json,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,gpt-oss-20b,tables+json,no,1.00,yes,0.00,2,
+FA2023_new_default,gpt-oss-20b,tables+json,no,1.00,yes,0.00,1,
+FA2024N2_budget,gpt-oss-20b,tables+json,yes,0.00,yes,0.00,0,
+FA2025_rebate_12L,gpt-oss-20b,tables+json,no,1.00,no,1.00,1,new.rebate: no rebate effect
+FA2023_old_schedule,gpt-oss-20b,tables+json,no,1.00,yes,0.00,1,
+FA2024N2_old_schedule,gpt-oss-20b,tables+json,no,1.00,no,1.00,2,old.slabs.below_60: no slab rows
+FA2025_old_schedule,gpt-oss-20b,tables+json,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,gpt-oss-20b,tables+json,yes,0.00,yes,0.00,0,
+ITA2025_new_act,gpt-oss-20b,tables+json,no,1.00,no,1.00,1,"new.rebate: conflicting effects: (500000.0, 12500.0, True), (1200000.0, 60000.0, True)"
+FA2020_new_regime,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2023_new_default,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2024N2_budget,gpt-oss-20b,tables+schema,no,1.00,no,1.00,1,new.standard_deduction: no standard deduction effect
+FA2025_rebate_12L,gpt-oss-20b,tables+schema,no,1.00,no,1.00,1,new.rebate: no rebate effect
+FA2023_old_schedule,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2024N2_old_schedule,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2025_old_schedule,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,gpt-oss-20b,tables+schema,yes,0.00,yes,0.00,0,
+ITA2025_new_act,gpt-oss-20b,tables+schema,no,1.00,no,1.00,1,"new.rebate: conflicting effects: (500000.0, 12500.0, True), (1200000.0, 60000.0, True)"
+FA2020_new_regime,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2023_new_default,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2024N2_budget,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2025_rebate_12L,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2023_old_schedule,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2024N2_old_schedule,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2025_old_schedule,qwen3.8-27b,tables+json,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,qwen3.8-27b,tables+json,no,1.00,no,1.00,1,old.slabs.below_60: no slab rows
+ITA2025_new_act,qwen3.8-27b,tables+json,no,1.00,no,1.00,1,"new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False)"
+FA2020_new_regime,qwen3.8-27b,tables+schema,yes,0.00,yes,0.00,0,
+FA2020_old_schedule,qwen3.8-27b,tables+schema,no,1.00,yes,0.00,1,
+FA2023_new_default,qwen3.8-27b,tables+schema,no,1.00,yes,0.00,1,
+FA2024N2_budget,qwen3.8-27b,tables+schema,no,1.00,no,1.00,2,"new.slabs: gap or overlap between bands at 300,000"
+FA2025_rebate_12L,qwen3.8-27b,tables+schema,no,1.00,no,1.00,1,"new.rebate: conflicting effects: (1200000.0, 25000.0, False), (1200000.0, 60000.0, False)"
+FA2023_old_schedule,qwen3.8-27b,tables+schema,no,1.00,yes,0.00,1,
+FA2024N2_old_schedule,qwen3.8-27b,tables+schema,no,1.00,yes,0.00,2,
+FA2025_old_schedule,qwen3.8-27b,tables+schema,yes,0.00,yes,0.00,0,
+FA2026_old_schedule_ITA2025,qwen3.8-27b,tables+schema,no,1.00,no,1.00,2,old.slabs.60_to_80: no open top band
+ITA2025_new_act,qwen3.8-27b,tables+schema,no,1.00,no,1.00,1,"new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False)"

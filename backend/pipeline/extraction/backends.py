@@ -39,17 +39,21 @@ class System:
     num_ctx: int = 8192
     max_tokens: int = 4096
     options: tuple = ()  # extra provider parameters, e.g. (("reasoning_effort", "low"),)
+    # Strict structured outputs (constrained decoding to a JSON schema with
+    # every field required). Other systems given a schema use the provider's
+    # lenient schema mode, or JSON mode if the provider has none.
+    strict_schema: bool = False
 
 
 SYSTEMS: dict[str, System] = {s.name: s for s in [
     System("phi3.5", "ollama", "phi3.5:3.8b"),
     System("gemma2-2b", "ollama", "gemma2:2b"),
     System("prism-legal", "ollama", "prism-legal"),   # Phi-3.5 fine-tuned on silver data (training/)
-    System("gpt-oss-120b", "groq", "openai/gpt-oss-120b"),
+    System("gpt-oss-120b", "groq", "openai/gpt-oss-120b", strict_schema=True),
     # At the default (medium) reasoning effort GPT-OSS-20B can spend the whole
     # 4,096-token output budget reasoning and return no answer; the free
     # tier's 8,000 tokens/minute rules out a larger budget. Low effort fits.
-    System("gpt-oss-20b", "groq", "openai/gpt-oss-20b", options=(("reasoning_effort", "low"),)),
+    System("gpt-oss-20b", "groq", "openai/gpt-oss-20b", options=(("reasoning_effort", "low"),), strict_schema=True),
     # The free tier allows Qwen3.8-27B 1,000 output tokens per minute, so an
     # answer plus hidden reasoning longer than that can never be returned
     # ("Request too large"). With reasoning off its answers fit.
@@ -74,10 +78,15 @@ class GenerationResult:
     cached: bool
     elapsed_ms: int
     cache_key: str
+    decoding: str = "json"         # json | schema | schema_strict | json_fallback (schema refused)
 
 
 class BackendError(RuntimeError):
     pass
+
+
+class SchemaUnsupported(BackendError):
+    """The provider refused the response schema for this model."""
 
 
 class RateLimited(BackendError):
@@ -120,9 +129,11 @@ class OfflineCacheMiss(RuntimeError):
     an extraction failure)."""
 
 
-def _ollama(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
+def _ollama(system: System, prompt: str, temperature: float, seed: int, timeout: float,
+            schema: Optional[dict] = None) -> tuple[str, Optional[str]]:
+    # A schema as "format" is grammar-constrained decoding in Ollama.
     r = httpx.post(f"{OLLAMA_URL}/api/generate", timeout=timeout, json={
-        "model": system.model, "prompt": prompt, "stream": False, "format": "json",
+        "model": system.model, "prompt": prompt, "stream": False, "format": schema or "json",
         "options": {"temperature": temperature, "seed": seed, "num_ctx": system.num_ctx,
                     "num_predict": system.max_tokens},
     })
@@ -176,20 +187,34 @@ class _KeyPool:
 _POOLS = {"groq": _KeyPool(GROQ_API_KEYS), "openrouter": _KeyPool(OPENROUTER_API_KEYS)}
 
 
+def _response_format(system: System, schema: Optional[dict]) -> dict:
+    if schema is None:
+        return {"type": "json_object"}
+    return {"type": "json_schema",
+            "json_schema": {"name": "extraction", "strict": system.strict_schema, "schema": schema}}
+
+
+def _schema_refused(r: httpx.Response) -> bool:
+    return (r.status_code == 400 and "json_validate_failed" not in r.text
+            and bool(re.search(r"json_schema|response_format|structured output", r.text, re.I)))
+
+
 def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: float,
-          api_key: Optional[str] = None) -> tuple[str, Optional[str]]:
+          api_key: Optional[str] = None, schema: Optional[dict] = None) -> tuple[str, Optional[str]]:
     api_key = api_key or GROQ_API_KEY
     if not api_key:
         raise BackendError("GROQ_API_KEY is not set")
     r = httpx.post(GROQ_URL, timeout=timeout, headers={"Authorization": f"Bearer {api_key}"}, json={
         "model": system.model, "temperature": temperature, "seed": seed,
         "max_completion_tokens": system.max_tokens,
-        "response_format": {"type": "json_object"},
+        "response_format": _response_format(system, schema),
         "messages": [{"role": "user", "content": prompt}],
         **dict(system.options),
     })
     if r.status_code == 429:
         raise _rate_limited(r)
+    if schema is not None and _schema_refused(r):
+        raise SchemaUnsupported(f"{system.model}: schema refused: {r.text[:200]}")
     if r.status_code == 400 and "json_validate_failed" in r.text:
         # The model's output was not valid JSON: that is the system's answer
         # (scored as a parse error), not a transport failure to retry.
@@ -201,18 +226,20 @@ def _groq(system: System, prompt: str, temperature: float, seed: int, timeout: f
 
 
 def _openrouter(system: System, prompt: str, temperature: float, seed: int, timeout: float,
-                api_key: Optional[str] = None) -> tuple[str, Optional[str]]:
+                api_key: Optional[str] = None, schema: Optional[dict] = None) -> tuple[str, Optional[str]]:
     if not api_key:
         raise BackendError("OPENROUTER_API_KEYS is not set")
     r = httpx.post(OPENROUTER_URL, timeout=timeout, headers={"Authorization": f"Bearer {api_key}"}, json={
         "model": system.model, "temperature": temperature, "seed": seed,
         "max_tokens": system.max_tokens,
-        "response_format": {"type": "json_object"},
+        "response_format": _response_format(system, schema),
         "messages": [{"role": "user", "content": prompt}],
         **dict(system.options),
     })
     if r.status_code == 429:
         raise _rate_limited(r)
+    if schema is not None and _schema_refused(r):
+        raise SchemaUnsupported(f"{system.model}: schema refused: {r.text[:200]}")
     if r.status_code in (502, 503):
         raise BackendError(f"unavailable ({r.status_code}): {r.text[:200]}")
     r.raise_for_status()
@@ -223,7 +250,8 @@ def _openrouter(system: System, prompt: str, temperature: float, seed: int, time
     return msg.get("content") or "", f"{body.get('model')}@{body.get('provider')}"
 
 
-def _batch(system: System, prompt: str, temperature: float, seed: int, timeout: float) -> tuple[str, Optional[str]]:
+def _batch(system: System, prompt: str, temperature: float, seed: int, timeout: float,
+           schema: Optional[dict] = None) -> tuple[str, Optional[str]]:
     raise BackendError(f"{system.name} runs in batch on a GPU host: export the prompts with "
                        f"`cli batch-export`, run them, then `cli batch-import` (no live calls)")
 
@@ -231,19 +259,35 @@ def _batch(system: System, prompt: str, temperature: float, seed: int, timeout: 
 _PROVIDERS = {"ollama": _ollama, "groq": _groq, "openrouter": _openrouter, "batch": _batch}
 
 
+def request_options(system: System, schema: Optional[dict]) -> Optional[dict]:
+    """What enters the cache key besides the prompt: the provider options,
+    and the schema when one is asked for (so JSON-mode entries keep their
+    keys)."""
+    from pipeline.extraction.schema import fingerprint
+    opts = dict(system.options)
+    if schema is not None:
+        opts["schema"] = fingerprint(schema)
+        opts["strict"] = system.strict_schema
+    return opts or None
+
+
 def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, seed: int = 0,
                   prompt_version: int = 1, timeout: float = 300.0, retries: int = 4,
-                  use_cache: bool = True) -> GenerationResult:
+                  use_cache: bool = True, schema: Optional[dict] = None) -> GenerationResult:
+    """`schema`: constrain the answer to this JSON schema where the provider
+    can (see System.strict_schema); a provider that refuses it is asked again
+    in JSON mode and the result says so (decoding="json_fallback")."""
     system = SYSTEMS[system_name]
     key = cache.key(provider=system.provider, model=system.model, prompt=prompt,
                     temperature=temperature, seed=seed, prompt_version=prompt_version,
-                    options=dict(system.options) or None)
+                    options=request_options(system, schema))
     if use_cache:
         hit = cache.get(key)
         if hit is not None:
             return GenerationResult(text=hit["text"], system=system_name, model=system.model,
                                     model_version=hit.get("model_version"), cached=True,
-                                    elapsed_ms=hit.get("elapsed_ms", 0), cache_key=key)
+                                    elapsed_ms=hit.get("elapsed_ms", 0), cache_key=key,
+                                    decoding=hit.get("decoding", "json"))
     if os.environ.get("PRISM_OFFLINE") == "1":
         raise OfflineCacheMiss(f"{system_name}: no cached output for this prompt (offline mode)")
     last: Optional[Exception] = None
@@ -257,12 +301,20 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
         raise BackendError("OPENROUTER_API_KEYS is not set")
     pool = _POOLS.get(system.provider)
     pooled = pool is not None and bool(pool.keys) and (len(pool.keys) > 1 or system.provider == "openrouter")
+    decoding = "json" if schema is None else ("schema_strict" if system.strict_schema else "schema")
     while attempt < retries:
         started = time.perf_counter()
         api_key = pool.pick(system.model) if pooled else None
         try:
             extra = {"api_key": api_key} if api_key else {}
+            if schema is not None and decoding != "json_fallback":
+                extra["schema"] = schema
             text, version = _PROVIDERS[system.provider](system, prompt, temperature, seed, timeout, **extra)
+        except SchemaUnsupported:
+            if decoding == "json_fallback":
+                raise
+            decoding = "json_fallback"      # not a failed attempt: ask again without the schema
+            continue
         except RateLimited as e:
             last = e
             if pooled:
@@ -290,9 +342,12 @@ def generate_json(system_name: str, prompt: str, *, temperature: float = 0.0, se
         elapsed = int((time.perf_counter() - started) * 1000)
         if system.provider == "ollama":
             version = _ollama_digest(system.model)
-        cache.put(key, {"text": text, "system": system_name, "model": system.model, "options": dict(system.options),
-                        "model_version": version, "elapsed_ms": elapsed,
-                        "temperature": temperature, "seed": seed, "prompt_version": prompt_version})
+        entry = {"text": text, "system": system_name, "model": system.model, "options": dict(system.options),
+                 "model_version": version, "elapsed_ms": elapsed,
+                 "temperature": temperature, "seed": seed, "prompt_version": prompt_version}
+        if schema is not None:
+            entry["decoding"] = decoding
+        cache.put(key, entry)
         return GenerationResult(text=text, system=system_name, model=system.model, model_version=version,
-                                cached=False, elapsed_ms=elapsed, cache_key=key)
+                                cached=False, elapsed_ms=elapsed, cache_key=key, decoding=decoding)
     raise BackendError(f"{system_name}: failed after {retries} attempts: {last}")

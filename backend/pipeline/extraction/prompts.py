@@ -75,3 +75,75 @@ If the provision states no rule at all (a heading, a commencement clause), retur
 def render(text: str, context: str = "") -> str:
     context_block = f"CONTEXT (the enclosing section, for reference only — do not extract from it):\n{context}\n\n" if context else ""
     return EXTRACTION_PROMPT_V1.format(text=text, context_block=context_block)
+
+
+# ── v4: the structured condition ────────────────────────────────────────────
+# The same instructions as v1–v3, plus two things a reader of the printed
+# page has and the linearised text lacks: the provision's rate tables rebuilt
+# row by row (pipeline.statute.tables), and how a rate-table row maps onto a
+# slab_row. Its worked example uses invented numbers, so nothing in it
+# matches a value of any Act or of the expert coding.
+
+STRUCTURED_PROMPT_VERSION = 4
+
+_RATE_TABLE_GUIDE = """RATE TABLES: give one slab_row effect for every row of a rate table, including the last row.
+"lower" is the income the band starts above ("From Rs. 3,50,001" or "exceeds Rs. 3,50,000" gives
+350000; the first band starts at 0). "upper" is the income the band ends at, and null for the last
+band ("Above ...", or "exceeds ..." with no upper limit). "rate" is the band's marginal rate as a
+fraction: in "Rs. 7,000 plus 15 per cent. of the amount by which the total income exceeds
+Rs. 3,50,000" the rate is 0.15; "Nil" is 0.0. (These numbers are an illustration, not from any Act.)
+
+"""
+
+_TABLES_BLOCK = """
+TABLES IN THIS PROVISION, rebuilt row by row from the printed page. The provision text above can show
+a table's lines out of order; read each row's band and rate here. For an effect read from a table
+row, set its "quote" to that row exactly as written below.
+{tables}
+"""
+
+
+def render_structured(text: str, context: str = "", tables: str = "") -> str:
+    """The v4 prompt. Without tables it differs from v1 only by the rate
+    table guide."""
+    context_block = f"CONTEXT (the enclosing section, for reference only — do not extract from it):\n{context}\n\n" if context else ""
+    head, sep, tail = EXTRACTION_PROMPT_V1.partition("If the provision states no rule at all")
+    template = head + _RATE_TABLE_GUIDE + sep + tail
+    prompt = template.format(text=text, context_block=context_block)
+    if tables:
+        prompt += _TABLES_BLOCK.format(tables=tables)
+    return prompt
+
+
+REPAIR_PROMPT_VERSION = 5
+
+_REPAIR = """{prompt}
+YOUR EARLIER ANSWER for this provision was:
+{answer}
+
+When the rules extracted from this provision were assembled into the parameter "{target}", a
+structural check failed: {reason}.
+{explain}
+Read the provision again and return the complete corrected JSON, in the same format. Change only
+what the failed check concerns; keep everything else as it was.
+"""
+
+# What each assembler check means, in general terms (no values).
+CHECKS = {
+    "no slab rows": "No slab_row effects were found. Every row of the provision's rate table is one slab_row.",
+    "no open top band": "A complete rate schedule ends with a band that has no upper limit (upper: null).",
+    "schedule does not start at zero": "A complete rate schedule's first band starts at 0.",
+    "gap or overlap between bands": "Each band must start where the previous band ends.",
+    "is empty": "A band's upper limit must be above its lower limit.",
+    "rates decrease with income": "A band's rate is the marginal rate; check each row's rate.",
+    "outside 0-1": "Rates are fractions between 0 and 1 (0.05 for 5 per cent.).",
+    "no rebate effect": "A rebate of income-tax is a rebate effect with max_income and max_rebate.",
+    "no standard deduction effect": "A standard deduction is a standard_deduction effect with its amount.",
+    "conflicting effects": "Effects of this kind disagree; give each one the regime it is stated for, or keep only the one the provision states.",
+}
+
+
+def render_repair(prompt: str, answer: str, target: str, reason: str) -> str:
+    explain = next((v for k, v in CHECKS.items() if k in reason), "")
+    return _REPAIR.format(prompt=prompt.rstrip(), answer=answer.strip()[:6000], target=target,
+                          reason=reason, explain=explain + "\n" if explain else "")

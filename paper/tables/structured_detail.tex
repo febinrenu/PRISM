@@ -1,0 +1,81 @@
+\begin{table}[t]
+\centering\small
+\caption{Structured condition per reform.}
+\label{tab:structured_detail}
+\begin{tabular}{lllcrcrrl}
+\toprule
+Reform & System & Condition & Assembled (first) & Flip rate (first) & Assembled (final) & Flip rate (final) & Repairs & Review (final) \\
+\midrule
+FA2020\_new\_regime & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_new\_default & rules & tables & no & 1.00 & no & 1.00 & 0 & new.rebate: no rebate effect \\
+FA2024N2\_budget & rules & tables & no & 1.00 & no & 1.00 & 0 & new.standard\_deduction: no standard deduction effect \\
+FA2025\_rebate\_12L & rules & tables & no & 1.00 & no & 1.00 & 0 & new.rebate: no rebate effect \\
+FA2023\_old\_schedule & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_old\_schedule & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_old\_schedule & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & rules & tables & yes & 0.00 & yes & 0.00 & 0 &  \\
+ITA2025\_new\_act & rules & tables & no & 1.00 & no & 1.00 & 0 & new.rebate: no rebate effect \\
+FA2020\_new\_regime & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_new\_default & gpt-oss-120b & tables+json & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2024N2\_budget & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_rebate\_12L & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_old\_schedule & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_old\_schedule & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_old\_schedule & gpt-oss-120b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & gpt-oss-120b & tables+json & no & 1.00 & yes & 0.00 & 1 &  \\
+ITA2025\_new\_act & gpt-oss-120b & tables+json & no & 1.00 & yes & 0.29 & 1 &  \\
+FA2020\_new\_regime & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_new\_default & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_budget & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_rebate\_12L & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_old\_schedule & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_old\_schedule & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_old\_schedule & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & gpt-oss-120b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+ITA2025\_new\_act & gpt-oss-120b & tables+schema & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2020\_new\_regime & gpt-oss-20b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & gpt-oss-20b & tables+json & no & 1.00 & yes & 0.00 & 2 &  \\
+FA2023\_new\_default & gpt-oss-20b & tables+json & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2024N2\_budget & gpt-oss-20b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_rebate\_12L & gpt-oss-20b & tables+json & no & 1.00 & no & 1.00 & 1 & new.rebate: no rebate effect \\
+FA2023\_old\_schedule & gpt-oss-20b & tables+json & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2024N2\_old\_schedule & gpt-oss-20b & tables+json & no & 1.00 & no & 1.00 & 2 & old.slabs.below\_60: no slab rows \\
+FA2025\_old\_schedule & gpt-oss-20b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & gpt-oss-20b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+ITA2025\_new\_act & gpt-oss-20b & tables+json & no & 1.00 & no & 1.00 & 1 & new.rebate: conflicting effects: (500000.0, 12500.0, True), (1200000.0, 60000.0, True) \\
+FA2020\_new\_regime & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_new\_default & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_budget & gpt-oss-20b & tables+schema & no & 1.00 & no & 1.00 & 1 & new.standard\_deduction: no standard deduction effect \\
+FA2025\_rebate\_12L & gpt-oss-20b & tables+schema & no & 1.00 & no & 1.00 & 1 & new.rebate: no rebate effect \\
+FA2023\_old\_schedule & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_old\_schedule & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_old\_schedule & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & gpt-oss-20b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+ITA2025\_new\_act & gpt-oss-20b & tables+schema & no & 1.00 & no & 1.00 & 1 & new.rebate: conflicting effects: (500000.0, 12500.0, True), (1200000.0, 60000.0, True) \\
+FA2020\_new\_regime & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_new\_default & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_budget & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_rebate\_12L & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2023\_old\_schedule & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2024N2\_old\_schedule & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2025\_old\_schedule & qwen3.8-27b & tables+json & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & qwen3.8-27b & tables+json & no & 1.00 & no & 1.00 & 1 & old.slabs.below\_60: no slab rows \\
+ITA2025\_new\_act & qwen3.8-27b & tables+json & no & 1.00 & no & 1.00 & 1 & new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False) \\
+FA2020\_new\_regime & qwen3.8-27b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2020\_old\_schedule & qwen3.8-27b & tables+schema & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2023\_new\_default & qwen3.8-27b & tables+schema & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2024N2\_budget & qwen3.8-27b & tables+schema & no & 1.00 & no & 1.00 & 2 & new.slabs: gap or overlap between bands at 300,000 \\
+FA2025\_rebate\_12L & qwen3.8-27b & tables+schema & no & 1.00 & no & 1.00 & 1 & new.rebate: conflicting effects: (1200000.0, 25000.0, False), (1200000.0, 60000.0, False) \\
+FA2023\_old\_schedule & qwen3.8-27b & tables+schema & no & 1.00 & yes & 0.00 & 1 &  \\
+FA2024N2\_old\_schedule & qwen3.8-27b & tables+schema & no & 1.00 & yes & 0.00 & 2 &  \\
+FA2025\_old\_schedule & qwen3.8-27b & tables+schema & yes & 0.00 & yes & 0.00 & 0 &  \\
+FA2026\_old\_schedule\_ITA2025 & qwen3.8-27b & tables+schema & no & 1.00 & no & 1.00 & 2 & old.slabs.60\_to\_80: no open top band \\
+ITA2025\_new\_act & qwen3.8-27b & tables+schema & no & 1.00 & no & 1.00 & 1 & new.rebate: conflicting effects: (500000.0, 12500.0, False), (1200000.0, 60000.0, False) \\
+\bottomrule
+\end{tabular}
+\end{table}

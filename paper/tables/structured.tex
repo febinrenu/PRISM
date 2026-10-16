@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering\small
+\caption{Rebuilt rate tables, schema-constrained decoding and one repair round, against the headline (same reforms, scoring and expert law). The condition was designed after the headline's failures were inspected on these reforms.}
+\label{tab:structured}
+\begin{tabular}{llrrrrr}
+\toprule
+System & Condition & Assembled & No conclusion flipped & Repairs asked & Assembled by repair & Repaired but flipped \\
+\midrule
+rules & headline (text only, JSON mode) & 4/10 & 4/10 &  &  &  \\
+rules & tables, first pass & 6/10 & 6/10 &  &  &  \\
+gpt-oss-120b & headline (text only, JSON mode) & 6/10 & 6/10 &  &  &  \\
+gpt-oss-120b & tables+json, first pass & 7/10 & 7/10 &  &  &  \\
+gpt-oss-120b & tables+json, after one repair & 10/10 & 9/10 & 3 & 3 & 1 \\
+gpt-oss-120b & tables+schema, first pass & 9/10 & 9/10 &  &  &  \\
+gpt-oss-120b & tables+schema, after one repair & 10/10 & 10/10 & 1 & 1 & 0 \\
+gpt-oss-20b & headline (text only, JSON mode) & 5/10 & 5/10 &  &  &  \\
+gpt-oss-20b & tables+json, first pass & 4/10 & 4/10 &  &  &  \\
+gpt-oss-20b & tables+json, after one repair & 7/10 & 7/10 & 6 & 3 & 0 \\
+gpt-oss-20b & tables+schema, first pass & 7/10 & 7/10 &  &  &  \\
+gpt-oss-20b & tables+schema, after one repair & 7/10 & 7/10 & 3 & 0 & 0 \\
+qwen3.8-27b & headline (text only, JSON mode) & 7/10 & 7/10 &  &  &  \\
+qwen3.8-27b & tables+json, first pass & 8/10 & 8/10 &  &  &  \\
+qwen3.8-27b & tables+json, after one repair & 8/10 & 8/10 & 2 & 0 & 0 \\
+qwen3.8-27b & tables+schema, first pass & 2/10 & 2/10 &  &  &  \\
+qwen3.8-27b & tables+schema, after one repair & 6/10 & 6/10 & 8 & 4 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}

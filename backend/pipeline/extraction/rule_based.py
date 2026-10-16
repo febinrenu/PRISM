@@ -65,6 +65,22 @@ def _slab_from_line(line: str) -> Optional[dict]:
     return None
 
 
+_AY_INTRO = re.compile(r"assessment\s+year\s+beginning\s+on\s+(?:or\s+after\s+)?the\s+1st\s+(?:day\s+of\s+)?April,?\s+(\d{4})", re.I)
+
+
+def _row_years(text: str, rows: list) -> list:
+    """The assessment year each rebuilt row's table is introduced with ("for
+    any previous year relevant to the assessment year beginning on the 1st
+    day of April, 2024, ... the following Table"), when the provision holds
+    tables for more than one year; otherwise None for every row."""
+    years = []
+    for _, start, _ in rows:
+        found = list(_AY_INTRO.finditer(text, 0, start))
+        y = int(found[-1].group(1)) if found else None
+        years.append(f"{y}-{(y + 1) % 100:02d}" if y else None)
+    return years if len({y for y in years if y}) > 1 else [None] * len(rows)
+
+
 def _fee_effects(text: str) -> list[dict]:
     if not re.search(r"\b(?:late\s+fee|penalty|fine|fee)\b", text, re.I):
         return []
@@ -82,7 +98,11 @@ def _fee_effects(text: str) -> list[dict]:
     return [out]
 
 
-def extract_unit(unit: Unit) -> tuple[ExtractionRecord, dict]:
+def extract_unit(unit: Unit, rows: Optional[list] = None) -> tuple[ExtractionRecord, dict]:
+    """`rows`: rebuilt table rows of the unit as (text, start, end) relative
+    to unit.text (pipeline.statute.tables). Slab rows are then read from
+    them, cited to each row's span, and the canonical lines they cover are
+    not read again."""
     prov = Provenance(extractor=SYSTEM, model="regex+deontic", prompt_version=None)
     text = unit.text
     rules: list[LegalRule] = []
@@ -90,9 +110,17 @@ def extract_unit(unit: Unit) -> tuple[ExtractionRecord, dict]:
 
     # Rate-table lines → one rule carrying all slab rows of the unit.
     slabs = []
+    covered = []
+    rows = rows or []
+    for (row_text, rs, re_), ay in zip(rows, _row_years(text, rows)):
+        fields = _slab_from_line(row_text)
+        if fields is not None:
+            slabs.append(SlabRow(source_span=_span(unit, rs, re_), applies_to_ay=ay, **fields))
+            covered.append((rs, re_))
     offset = 0
     for line in text.split("\n"):
-        fields = _slab_from_line(line)
+        inside = any(a <= offset < b or a < offset + len(line) <= b for a, b in covered)
+        fields = None if inside else _slab_from_line(line)
         if fields is not None:
             src = _span(unit, offset, offset + len(line))
             slabs.append(SlabRow(source_span=src, **fields))

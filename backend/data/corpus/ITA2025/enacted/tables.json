@@ -1,0 +1,87 @@
+{
+ "builder_version": 1,
+ "statute": "ITA2025/enacted",
+ "source_sha256": "7acfb16fd7f3db8b4f85fc532b6d6924478ef86fa2e5b7683d282f8825f8017c",
+ "text_sha256": "aed74a5d750bf55aa9b5b055b406ababffd2098d6e38e010913df82450ce514a",
+ "unplaced_pdf_tables": 0,
+ "tables": [
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "1.",
+     "cells": [
+      "Upto ₹400000",
+      "Nil"
+     ],
+     "start": 615823,
+     "end": 615844,
+     "exact": true
+    },
+    {
+     "label": "2.",
+     "cells": [
+      "From ₹400001 to ₹800000",
+      "5%"
+     ],
+     "start": 615845,
+     "end": 615876,
+     "exact": true
+    },
+    {
+     "label": "3.",
+     "cells": [
+      "From ₹800001 to ₹1200000",
+      "10%"
+     ],
+     "start": 615877,
+     "end": 615910,
+     "exact": true
+    },
+    {
+     "label": "4.",
+     "cells": [
+      "From ₹1200001 to ₹1600000",
+      "15%"
+     ],
+     "start": 615911,
+     "end": 615945,
+     "exact": true
+    },
+    {
+     "label": "5.",
+     "cells": [
+      "From ₹1600001 to ₹2000000",
+      "20%"
+     ],
+     "start": 615946,
+     "end": 615980,
+     "exact": true
+    },
+    {
+     "label": "6.",
+     "cells": [
+      "From ₹2000001 to ₹2400000",
+      "25%"
+     ],
+     "start": 615981,
+     "end": 616015,
+     "exact": true
+    },
+    {
+     "label": "7.",
+     "cells": [
+      "Above ₹2400000",
+      "30%"
+     ],
+     "start": 616016,
+     "end": 616039,
+     "exact": true
+    }
+   ]
+  }
+ ]
+}

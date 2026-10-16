@@ -443,7 +443,7 @@ reform's cost and changes no conclusion.
 The answer to RQ1 is therefore conditional. When the strongest systems
 produce a complete law, it supports the same policy conclusions as the
 expert's; the risk lies in the cases where they do not, which are examined
-next.
+next. Most of these failures can be avoided (\cref{sec:structured}).
 
 \subsection{Which provisions are responsible?}
 \input{tables/attribution}
@@ -588,6 +588,59 @@ do not present the spans as explanations in that stronger sense
 \input{tables/faithfulness}
 
 %% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Can assembly failures be avoided?}\label{sec:structured}
+\input{tables/structured}
+
+The runs of the hosted models that have no conclusion failed when their
+readings were assembled: a schedule without its open top band, a provision
+whose two tables were not told apart, a rebate stated twice. Inspecting the inputs showed a second
+cause. In \res{interleavedreforms} of the \res{reforms} reforms the
+canonical text of a rate schedule holds the two printed columns interleaved:
+the rate column's wrapped lines appear out of order, so every system read a
+scrambled table.
+
+Each system was therefore run again under a structured condition with three
+changes that a deployed system can make without knowing the answer
+(\cref{tab:structured}). (i) Each provision's rate tables are rebuilt row by
+row from the PDF geometry and added to the prompt. A rebuilt row holds
+exactly the characters of the canonical span it is cited to, in its printed
+order; this is checked for every row of every Finance Act, the few rows that
+cannot be cited exactly are flagged, and quotes taken from a rebuilt row are
+cited to that span. (ii) Decoding is constrained to
+the answer's JSON schema where the provider supports it. (iii) When assembly
+fails a structural check, the system is shown its answer and the check in
+general terms (for example, that a complete schedule ends with a band
+without an upper limit), never a value, and asked once to correct it. The
+first pass and the repaired result are scored separately, by the headline's
+own scoring.
+
+With rebuilt tables and schema decoding, GPT-OSS-120B kept every conclusion
+on \res{st@gpt-oss-120b@tables+schema@first@noflip} reforms in the first pass
+and on \res{st@gpt-oss-120b@tables+schema@final@noflip} after one repair,
+against \res{st@gpt-oss-120b@headline@noflip} in the headline; GPT-OSS-20B on
+\res{st@gpt-oss-20b@tables+schema@first@noflip}, against
+\res{st@gpt-oss-20b@headline@noflip}. Strict schema decoding removed the
+empty answers both models gave in JSON mode
+(\res{st@gpt-oss-20b@tables+json@emptytargets} of
+\res{st@gpt-oss-20b@tables+json@targets} targets for GPT-OSS-20B). The rule
+baseline, which only reads the rebuilt rows, rose from
+\res{st@rules@headline@noflip} to \res{st@rules@tables@first@noflip} reforms,
+solving both interleaved schedules. Schema decoding did not help every
+model: under its provider's non-strict schema mode Qwen3.8-27B returned no
+rules for \res{st@qwen3.8-27b@tables+schema@emptytargets} of
+\res{st@qwen3.8-27b@tables+schema@targets} targets, and it did best with
+rebuilt tables in JSON mode (\res{st@qwen3.8-27b@tables+json@first@noflip}
+reforms, against \res{st@qwen3.8-27b@headline@noflip}).
+
+The repair round is not free of risk. Of the
+\res{st@gpt-oss-120b@tables+json@repairs} repairs GPT-OSS-120B was asked for
+in JSON mode, \res{st@gpt-oss-120b@tables+json@repairfixed} produced a law
+that assembled, and \res{st@gpt-oss-120b@tables+json@repairwrong} of these
+flipped conclusions: on the Income-tax Act 2025 it resolved the conflicting
+rebates to the right one but dropped its marginal relief. The assembler's checks guarantee a
+complete schedule, not a correct one, so a repaired reading needs the same
+scrutiny as any other.
+
 \section{Threats to validity}\label{sec:threats}
 
 \paragraph{Expert coding.} The parameters were coded by one person with a
@@ -616,6 +669,16 @@ reasoning for Qwen3.8-27B, whose answers otherwise exceeded the per-minute
 output limits. Hosted models change without notice; every output is cached
 with the provider's reported model version, and the tables are regenerated
 from that cache without network access.
+
+\paragraph{Structured condition.} The structured condition was designed
+after the headline's failures had been inspected on the same ten reforms.
+Its components are generic: no rule, prompt or check names a reform or a
+value, and the prompt's worked example uses invented numbers. Its gain is
+nevertheless measured on the reforms that motivated it, and is an upper
+estimate until it is confirmed on held-out provisions. The two small local
+models were not run under it: on the machine used, one call took several
+minutes, and on the one reform tried the 2-billion-parameter model repeated
+a rule until its output budget ran out.
 
 \paragraph{Scope.} Personal income tax of resident individuals at normal
 rates; no behavioural response; ten reforms from six Finance Acts and the

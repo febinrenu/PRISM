@@ -9,6 +9,7 @@ import { Callout, ErrorState, PageSkeleton, Panel, Tag } from "@/components/ui/k
 import { API_BASE as API } from "@/lib/api";
 import { errorLabel, reformLabel, systemName } from "@/lib/labels";
 import DecileView from "@/components/research/DecileView";
+import StructuredView from "@/components/research/StructuredView";
 import { cn } from "@/lib/utils";
 
 interface Run {
@@ -44,6 +45,7 @@ const fmtCr = (v: number | null | undefined) =>
 const SECTIONS = [
   ["matrix", "Reforms × readers"],
   ["reform", "One reform"],
+  ["structured", "Structured reading"],
   ["injection", "Injected errors"],
   ["robustness", "Robustness"],
   ["validation", "Validation"],
@@ -401,6 +403,8 @@ export default function ResearchPage() {
           )}
         </section>
       )}
+
+      <StructuredView headline={runs} sets={sets} />
 
       {inj && inj.length > 0 && (
         <section id="injection" aria-labelledby="inj-h" className="mt-16 scroll-mt-32">

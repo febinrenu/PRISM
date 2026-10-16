@@ -108,6 +108,9 @@ def cmd_parse(args) -> int:
         out["source_sha256"] = corpus.sha256_file(src.pdf_path)
         (src.dir / "text.txt").write_text(ast.text, encoding="utf-8")
         (src.dir / "ast.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        from pipeline.statute import tables as statute_tables
+        statute_tables.write(src.id, src.version)       # the rebuilt rate tables of this text
+        statute_tables.load.cache_clear()
         st = ast.stats
         print(f"{src.key:28s} sections={st['sections']:4d} chapters={st['chapters']:3d} "
               f"nodes={len(ast.nodes):6d} chars={st['chars']:8d}")
@@ -413,6 +416,54 @@ def cmd_experiment(args) -> int:
     return 0
 
 
+def cmd_tables(args) -> int:
+    """Rebuild the rate-table views (tables.json) from the PDFs and texts."""
+    from pipeline.statute import tables as statute_tables
+    from pipeline.statute.corpus import CORPUS_DIR
+
+    for text in sorted(CORPUS_DIR.glob("*/*/text.txt")):
+        st, ver = text.parent.parent.name, text.parent.name
+        if args.statute not in ("all", st):
+            continue
+        out = statute_tables.write(st, ver)
+        data = json.loads(out.read_text(encoding="utf-8"))
+        tabs = data["tables"]
+        inexact = sum(1 for t in tabs for r in t["rows"] if not r.get("exact", True))
+        print(f"{st + '/' + ver:28s} two-column={sum(t['kind'] == 'two_column' for t in tabs):3d} "
+              f"boxed={sum(t['kind'] == 'boxed' for t in tabs):3d} unplaced={data['unplaced_pdf_tables']} "
+              f"inexact rows={inexact}")
+    statute_tables.load.cache_clear()
+    return 0
+
+
+def cmd_experiment_structured(args) -> int:
+    """The headline experiment under the structured condition (rebuilt
+    tables, schema decoding, one repair round); results in
+    data/experiments/structured/. Resumable: model outputs are cached."""
+    from pipeline.extraction.backends import QuotaExhausted
+    from simulation.experiment import structured_run
+    from simulation.experiment.provision_sets import PROVISION_SETS
+
+    sets = args.sets.split(",") if args.sets else list(PROVISION_SETS)
+    for system in args.systems.split(","):
+        for set_name in sets:
+            try:
+                r = structured_run.run_set(set_name, system, use_schema=not args.no_schema,
+                                           repair=not args.no_repair)
+            except QuotaExhausted as e:
+                print(f"{system}: daily quota exhausted; skipping its remaining sets ({str(e)[:120]})", flush=True)
+                break
+            except Exception as e:  # noqa: BLE001 - keep going across systems
+                print(f"{set_name} / {system}: FAILED {str(e)[:200]}", flush=True)
+                continue
+            structured_run.save(r)
+            f, fin = r["first_pass"], (r["repaired"] or r["first_pass"])
+            print(f"{set_name:28s} {system:14s} first pass: complete={f['complete']!s:5s} "
+                  f"flip={f['population']['flip_rate']:.2f} | after repair: complete={fin['complete']!s:5s} "
+                  f"flip={fin['population']['flip_rate']:.2f} repairs={len(r['repair_log'])}", flush=True)
+    return 0
+
+
 def cmd_experiment_stats(args) -> int:
     from simulation.experiment.stats import report
 
@@ -610,6 +661,18 @@ def main(argv=None) -> int:
     p.add_argument("--sets", default="", help="comma-separated provision sets (default: all)")
     p.add_argument("--k", type=int, default=4, help="self-consistency samples per provision")
     p.set_defaults(func=cmd_experiment)
+
+    p = sub.add_parser("tables", help="rebuild the rate-table views (tables.json) from the statute PDFs")
+    p.add_argument("--statute", default="all")
+    p.set_defaults(func=cmd_tables)
+
+    p = sub.add_parser("experiment-structured",
+                       help="headline experiment with rebuilt tables, schema decoding and one repair round")
+    p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b,phi3.5,gemma2-2b")
+    p.add_argument("--sets", default="", help="comma-separated provision sets (default: all)")
+    p.add_argument("--no-schema", action="store_true", help="JSON mode instead of schema-constrained decoding")
+    p.add_argument("--no-repair", action="store_true", help="first pass only")
+    p.set_defaults(func=cmd_experiment_structured)
 
     p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
     p.add_argument("--draws", type=int, default=64)

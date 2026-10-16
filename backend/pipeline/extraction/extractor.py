@@ -18,7 +18,7 @@ from models.rules import (
 )
 from pipeline.extraction import prompts
 from pipeline.extraction.backends import SYSTEMS, BackendError, generate_json
-from pipeline.extraction.grounding import ground
+from pipeline.extraction.grounding import ground, ground_structured
 from pipeline.extraction.units import Unit
 from pipeline.llm_extractor import parse_llm_json
 from pipeline.quantities import extract_quantities
@@ -34,9 +34,13 @@ _RATE_FIELDS = ("rate", "max_rate", "rate_per_month")
 
 
 class _Counter:
-    def __init__(self):
+    def __init__(self, rows: Optional[list] = None):
         self.total = 0
         self.rejected = 0
+        self.via_table = 0
+        # rebuilt table rows as (text, start, end) relative to the unit text;
+        # None keeps the original grounding exactly
+        self.rows = rows
 
 
 def _span(unit: Unit, quote: Optional[str], counter: _Counter) -> Optional[Span]:
@@ -45,10 +49,12 @@ def _span(unit: Unit, quote: Optional[str], counter: _Counter) -> Optional[Span]
     if not isinstance(quote, str):
         quote = str(quote)
     counter.total += 1
-    g = ground(quote, unit.text)
+    g = ground(quote, unit.text) if counter.rows is None else ground_structured(quote, unit.text, counter.rows)
     if g is None:
         counter.rejected += 1
         return None
+    if g.method.startswith("table_"):
+        counter.via_table += 1
     return Span(node_id=unit.unit_id, start=unit.start + g.start, end=unit.start + g.end, text=g.text)
 
 
@@ -80,7 +86,10 @@ def _rule_id(unit: Unit, system: str, i: int, sample: int) -> str:
 
 
 def to_record(unit: Unit, system: str, raw_text: str, *, model: str, model_version: Optional[str],
-              cache_key: str, sample: int = 0) -> tuple[ExtractionRecord, dict]:
+              cache_key: str, sample: int = 0, rows: Optional[list] = None,
+              prompt_version: int = prompts.EXTRACTION_PROMPT_VERSION) -> tuple[ExtractionRecord, dict]:
+    """`rows`: rebuilt table rows of the unit (text, start, end relative to
+    unit.text); quotes may then also be grounded in them."""
     stats = {"effects_total": 0, "effects_invalid": 0, "numbers_checked": 0, "numbers_supported": 0,
              "rules_dropped_modality": 0}
     parsed = parse_llm_json(raw_text)
@@ -92,10 +101,10 @@ def to_record(unit: Unit, system: str, raw_text: str, *, model: str, model_versi
         return ExtractionRecord(provision=unit.unit_id, statute=unit.statute, status="schema_invalid",
                                 raw_ref=cache_key, error="missing 'rules' list"), stats
 
-    counter = _Counter()
+    counter = _Counter(rows)
     rules: list[LegalRule] = []
     prov = Provenance(extractor=system, model=model, model_digest=model_version,
-                      prompt_version=prompts.EXTRACTION_PROMPT_VERSION, samples=1)
+                      prompt_version=prompt_version, samples=1)
     for i, r in enumerate(raw_rules):
         if not isinstance(r, dict):
             continue
@@ -145,6 +154,8 @@ def to_record(unit: Unit, system: str, raw_text: str, *, model: str, model_versi
     rec = ExtractionRecord(provision=unit.unit_id, statute=unit.statute, status=status, rules=rules,
                            hallucinated_fields=counter.rejected, total_span_fields=counter.total,
                            raw_ref=cache_key)
+    if rows is not None:
+        stats["grounded_via_table"] = counter.via_table
     return rec, stats
 
 

@@ -121,11 +121,8 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
 
 def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> dict:
     spec = PROVISION_SETS[set_name]
-    ay = spec["ay"]
     statute, version = spec["statute"]
     units = build_units(statute, version)
-    G = gold.build_gold()
-    expert = G[ay]
 
     rules_by_target: dict[str, list] = {}
     extraction_log = []
@@ -152,6 +149,17 @@ def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> d
             "effect_confidence": [c for rec in records for row in rec.effect_confidence for c in row],
         })
 
+    return evaluate(set_name, system, rules_by_target, extraction_log, k=k)
+
+
+def evaluate(set_name: str, system: str, rules_by_target: dict, extraction_log: list, k: int = 0) -> dict:
+    """Assemble one system's rules for a provision set and score them against
+    the expert law: taxpayer-level tax differences, population outcomes,
+    pre-registered conclusions and attribution. Every condition is scored
+    by this one function."""
+    spec = PROVISION_SETS[set_name]
+    ay = spec["ay"]
+    expert = gold.build_gold()[ay]
     result = assemble(rules_by_target, spec["targets"], expert, ay)
     grid = taxpayer_grid()
     regimes = sorted({t.split(".")[0] for t in spec["targets"] if t.split(".")[0] in ("old", "new")})

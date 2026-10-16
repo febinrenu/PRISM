@@ -111,3 +111,24 @@ def quantity_consistent(value: float, kind: str, span_text: str) -> bool:
 
 
 _WS = re.compile(r"\s+")
+
+
+def ground_structured(quote: Optional[str], source: str, rows: list) -> Optional[Grounded]:
+    """Ground a quote in a provision whose rate tables were rebuilt
+    (pipeline.statute.tables). `rows` are (row text, start, end) with offsets
+    into `source`. Order: an exact or normalised match in the provision text;
+    else a match in a rebuilt row, cited as that row's span of the provision
+    text (its words, in the order the canonical text holds them); else a
+    fuzzy match in the provision text. `ground` itself is unchanged."""
+    g = ground(quote, source)
+    if g is not None and g.method != "fuzzy":
+        return g
+    best = None
+    for text, start, end in rows:
+        gr = ground(quote, text)
+        if gr is not None and (best is None or gr.score > best[0].score):
+            best = (gr, start, end)
+    if best is not None:
+        gr, start, end = best
+        return Grounded(start, end, source[start:end], f"table_{gr.method}", gr.score)
+    return g

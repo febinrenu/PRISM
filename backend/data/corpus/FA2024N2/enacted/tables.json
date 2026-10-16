@@ -1,0 +1,451 @@
+{
+ "builder_version": 1,
+ "statute": "FA2024N2/enacted",
+ "source_sha256": "16bf85c2bd66af15ba709816a8fd00501a9092e21ae3c9576537a435825ac73a",
+ "text_sha256": "88a92d21cbeb182a0024eda5a0de2d96f840b0c36703308d908c44101865f607",
+ "unplaced_pdf_tables": 0,
+ "tables": [
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "1.",
+     "cells": [
+      "Upto Rs. 3,00,000",
+      "Nil"
+     ],
+     "start": 86302,
+     "end": 86328,
+     "exact": true
+    },
+    {
+     "label": "2.",
+     "cells": [
+      "From Rs. 3,00,001 to Rs. 6,00,000",
+      "5 per cent."
+     ],
+     "start": 86329,
+     "end": 86379,
+     "exact": true
+    },
+    {
+     "label": "3.",
+     "cells": [
+      "From Rs. 6,00,001 to Rs. 9,00,000",
+      "10 per cent."
+     ],
+     "start": 86380,
+     "end": 86431,
+     "exact": true
+    },
+    {
+     "label": "4.",
+     "cells": [
+      "From Rs. 9,00,001 to Rs. 12,00,000",
+      "15 per cent."
+     ],
+     "start": 86432,
+     "end": 86484,
+     "exact": true
+    },
+    {
+     "label": "5.",
+     "cells": [
+      "From Rs. 12,00,001 to Rs. 15,00,000",
+      "20 per cent."
+     ],
+     "start": 86485,
+     "end": 86538,
+     "exact": true
+    },
+    {
+     "label": "6.",
+     "cells": [
+      "Above Rs. 15,00,000",
+      "30 per cent.;"
+     ],
+     "start": 86539,
+     "end": 86577,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "1.",
+     "cells": [
+      "Upto Rs. 3,00,000",
+      "Nil"
+     ],
+     "start": 86822,
+     "end": 86848,
+     "exact": true
+    },
+    {
+     "label": "2.",
+     "cells": [
+      "From Rs. 3,00,001 to Rs. 7,00,000",
+      "5 per cent."
+     ],
+     "start": 86849,
+     "end": 86899,
+     "exact": true
+    },
+    {
+     "label": "3.",
+     "cells": [
+      "From Rs. 7,00,001 to Rs. 10,00,000",
+      "10 per cent."
+     ],
+     "start": 86900,
+     "end": 86952,
+     "exact": true
+    },
+    {
+     "label": "4.",
+     "cells": [
+      "From Rs. 10,00,001 to Rs. 12,00,000",
+      "15 per cent."
+     ],
+     "start": 86953,
+     "end": 87006,
+     "exact": true
+    },
+    {
+     "label": "5.",
+     "cells": [
+      "From Rs. 12,00,001 to Rs. 15,00,000",
+      "20 per cent."
+     ],
+     "start": 87007,
+     "end": 87060,
+     "exact": true
+    },
+    {
+     "label": "6.",
+     "cells": [
+      "Above Rs. 15,00,000",
+      "30 per cent.”."
+     ],
+     "start": 87061,
+     "end": 87100,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 72,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs. 2,50,000",
+      "Nil;"
+     ],
+     "start": 222024,
+     "end": 222086,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs. 2,50,000 but does not exceed Rs. 5,00,000",
+      "5 per cent. of the amount by which the total income exceeds Rs. 2,50,000;"
+     ],
+     "start": 222087,
+     "end": 222243,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 5,00,000 but does not exceed Rs. 10,00,000",
+      "Rs.12,500 plus 20 per cent. of the amount by which the total income exceeds Rs. 5,00,000;"
+     ],
+     "start": 222244,
+     "end": 222417,
+     "exact": true
+    },
+    {
+     "label": "(4)",
+     "cells": [
+      "where the total income exceeds Rs. 10,00,000",
+      "Rs. 1,12,500 plus 30 per cent. of the amount by which the total income exceeds Rs.10,00,000."
+     ],
+     "start": 222418,
+     "end": 222561,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 72,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs. 3,00,000",
+      "Nil;"
+     ],
+     "start": 222754,
+     "end": 222816,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs. 3,00,000 but does not exceed Rs. 5,00,000",
+      "5 per cent. of the amount by which the total income exceeds Rs. 3,00,000;"
+     ],
+     "start": 222817,
+     "end": 222973,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 5,00,000 but does not exceed Rs. 10,00,000",
+      "Rs.10,000 plus 20 per cent. of the amount by which the total income exceeds Rs. 5,00,000;"
+     ],
+     "start": 222974,
+     "end": 223147,
+     "exact": true
+    },
+    {
+     "label": "(4)",
+     "cells": [
+      "where the total income exceeds Rs. 10,00,000",
+      "Rs. 1,10,000 plus 30 per cent. of the amount by which the total income exceeds Rs.10,00,000."
+     ],
+     "start": 223148,
+     "end": 223291,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 72,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs. 5,00,000",
+      "Nil;"
+     ],
+     "start": 223459,
+     "end": 223521,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs. 5,00,000 but does not exceed Rs. 10,00,000",
+      "20 per cent. of the amount by which the total income exceeds Rs. 5,00,000;"
+     ],
+     "start": 223522,
+     "end": 223680,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 10,00,000",
+      "Rs. 1,00,000 plus 30 per cent. of the amount by which the total income exceeds Rs. 10,00,000."
+     ],
+     "start": 223681,
+     "end": 223825,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 74,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs.10,000",
+      "10 per cent. of the total income;"
+     ],
+     "start": 227596,
+     "end": 227684,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs.10,000 but does not exceed Rs. 20,000",
+      "Rs. 1,000 plus 20 per cent. of the amount by which the total income exceeds Rs.10,000;"
+     ],
+     "start": 227685,
+     "end": 227849,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 20,000",
+      "Rs. 3,000 plus 30 per cent. of the amount by which the total income exceeds Rs. 20,000."
+     ],
+     "start": 227850,
+     "end": 227985,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 85,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs. 2,50,000",
+      "Nil;"
+     ],
+     "start": 253819,
+     "end": 253879,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs. 2,50,000 but does not exceed Rs. 5,00,000",
+      "5 per cent. of the amount by which the total income exceeds Rs. 2,50,000;"
+     ],
+     "start": 253880,
+     "end": 254036,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 5,00,000 but does not exceed Rs. 10,00,000",
+      "Rs.12,500 plus 20 per cent. of the amount by which the total income exceeds Rs. 5,00,000;"
+     ],
+     "start": 254037,
+     "end": 254210,
+     "exact": true
+    },
+    {
+     "label": "(4)",
+     "cells": [
+      "where the total income exceeds Rs. 10,00,000",
+      "Rs. 1,12,500 plus 30 per cent. of the amount by which the total income exceeds Rs.10,00,000."
+     ],
+     "start": 254211,
+     "end": 254354,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 86,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs. 3,00,000",
+      "Nil;"
+     ],
+     "start": 254547,
+     "end": 254609,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs. 3,00,000 but does not exceed Rs. 5,00,000",
+      "5 per cent. of the amount by which the total income exceeds Rs. 3,00,000;"
+     ],
+     "start": 254610,
+     "end": 254766,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 5,00,000 but does not exceed Rs. 10,00,000",
+      "Rs.10,000 plus 20 per cent. of the amount by which the total income exceeds Rs. 5,00,000;"
+     ],
+     "start": 254767,
+     "end": 254940,
+     "exact": true
+    },
+    {
+     "label": "(4)",
+     "cells": [
+      "where the total income exceeds Rs. 10,00,000",
+      "Rs. 1,10,000 plus 30 per cent. of the amount by which the total income exceeds Rs.10,00,000."
+     ],
+     "start": 254941,
+     "end": 255084,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "two_column",
+   "origin": "pdf",
+   "page": 87,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "(1)",
+     "cells": [
+      "where the total income does not exceed Rs.10,000",
+      "10 per cent. of the total income;"
+     ],
+     "start": 259397,
+     "end": 259483,
+     "exact": true
+    },
+    {
+     "label": "(2)",
+     "cells": [
+      "where the total income exceeds Rs.10,000 but does not exceed Rs. 20,000",
+      "Rs. 1,000 plus 20 per cent. of the amount by which the total income exceeds Rs.10,000;"
+     ],
+     "start": 259484,
+     "end": 259648,
+     "exact": true
+    },
+    {
+     "label": "(3)",
+     "cells": [
+      "where the total income exceeds Rs. 20,000",
+      "Rs. 3,000 plus 30 per cent. of the amount by which the total income exceeds Rs. 20,000."
+     ],
+     "start": 259649,
+     "end": 259784,
+     "exact": true
+    }
+   ]
+  }
+ ]
+}

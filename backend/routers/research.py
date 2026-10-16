@@ -10,6 +10,8 @@ Read-only access to the research results for the web app.
                                            their quoted spans, review reason (cache only)
     GET /api/research/error-injection      typed errors injected into the expert law
     GET /api/research/provision-sets       the experimental design
+    GET /api/research/structured           the structured condition (rebuilt tables, schema
+                                           decoding, one repair) against the headline
     GET /api/research/story                the landing story's data snapshot
     GET /api/research/population/{ay}      effective tax rate by decile: previous vs expert law
     GET /api/research/population/{set}/{system}  the same, plus a system's reading of the reform
@@ -65,6 +67,18 @@ def experiment_set(set_name: str):
         raise HTTPException(status_code=404, detail="Unknown provision set")
     return {"set": set_name, "design": provision_sets()[set_name],
             "runs": [json.loads(p.read_text(encoding="utf-8")) for p in sorted(RESULTS_DIR.glob(f"{set_name}__*.json"))]}
+
+
+@router.get("/research/structured")
+def structured():
+    from simulation.experiment import structured_run
+    from simulation.experiment.stats import load_runs
+    runs = structured_run.load_runs()
+    if not runs:
+        raise HTTPException(status_code=404, detail="The structured condition has not been run yet.")
+    return {"systems": structured_run.summary(load_runs(), runs),
+            "note": "Designed after the headline's failures were inspected on these reforms; "
+                    "a held-out confirmation is still to be run."}
 
 
 @router.get("/research/backtest")
