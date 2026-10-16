@@ -310,9 +310,9 @@ export default function CausalTab() {
   return (
     <div className="p-4 space-y-4">
       {/* ── Summary row ── */}
-      <div className="flex items-center gap-4 p-4 rounded-2xl bg-accent-primary/5 border border-accent-primary/20">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 rounded-2xl bg-accent-primary/5 border border-accent-primary/20">
         <Zap className="w-5 h-5 flex-shrink-0 text-accent-primary" />
-        <div className="flex-1 min-w-0">
+        <div className="min-w-[14rem] flex-1">
           <p className="font-display text-lg text-text-primary">
             {patterns.length} causal structures
           </p>
@@ -323,8 +323,11 @@ export default function CausalTab() {
         {/* Risk counts */}
         <div className="flex gap-2 flex-wrap justify-end">
           {RISK_ORDER.map((tier) => riskCounts[tier] > 0 && (
-            <div
+            <button
+              type="button"
               key={tier}
+              aria-pressed={riskFilter === tier}
+              title={`Show only ${tier.toLowerCase()} risk`}
               className="flex items-center gap-1 text-micro font-mono px-2 py-1 rounded-lg cursor-pointer transition-opacity"
               style={{
                 background: RISK_CONFIG[tier].bg,
@@ -334,9 +337,9 @@ export default function CausalTab() {
               }}
               onClick={() => setRiskFilter(riskFilter === tier ? "ALL" : tier)}
             >
-              {tier === "CRITICAL" && <AlertTriangle className="w-2.5 h-2.5" />}
+              {tier === "CRITICAL" && <AlertTriangle className="w-3 h-3" aria-hidden />}
               {riskCounts[tier]}× {tier}
-            </div>
+            </button>
           ))}
         </div>
       </div>

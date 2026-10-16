@@ -70,7 +70,7 @@ function Verdict({ run }: { run?: Run }) {
     <span
       className={cn(
         "flex h-9 items-center justify-center gap-1.5 rounded-[3px] font-mono text-[12px]",
-        f > 0 ? "bg-status-critical/85 text-ink" : "bg-paper/90 text-ink",
+        f > 0 ? "bg-status-critical/85 text-ink" : "bg-contrast/90 text-on-contrast",
         f === 0 && err > 1 && "ring-1 ring-inset ring-signal"
       )}
       title={err > 1 ? `revenue error ${fmtCr(err)}` : "identical to the expert reading"}
@@ -174,7 +174,7 @@ function Bar({ value, max, tone = "paper" }: { value: number; max: number; tone?
   return (
     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-700">
       <span
-        className={cn("block h-full", tone === "signal" ? "bg-signal" : "bg-paper")}
+        className={cn("block h-full", tone === "signal" ? "bg-signal" : "bg-contrast")}
         style={{ width: `${Math.max(0, Math.min(1, value / Math.max(max, 1e-9))) * 100}%` }}
       />
     </span>
@@ -282,8 +282,8 @@ export default function ResearchPage() {
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <h2 id="matrix-h" className="font-serif text-title">Reforms × readers</h2>
           <p className="flex items-center gap-4 text-[12px] text-text-muted">
-            <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] bg-paper/90" />assembled</span>
-            <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] ring-1 ring-inset ring-signal bg-paper/90" />revenue differs</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] bg-contrast/90" />assembled</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] ring-1 ring-inset ring-signal bg-contrast/90" />revenue differs</span>
             <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] bg-ink-700" />no conclusion</span>
           </p>
         </div>

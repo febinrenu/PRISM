@@ -190,7 +190,7 @@ function Edges({
   return (
     <>
       <lineSegments geometry={all}>
-        <lineBasicMaterial color={tokens.paper[100]} transparent opacity={0.09} depthWrite={false} />
+        <lineBasicMaterial color={tokens.text.primary} transparent opacity={0.09} depthWrite={false} />
       </lineSegments>
       <lineSegments geometry={focus}>
         <lineBasicMaterial color={tokens.signal[500]} transparent opacity={0.9} depthWrite={false} />

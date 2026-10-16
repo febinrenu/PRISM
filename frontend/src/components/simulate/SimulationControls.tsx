@@ -142,9 +142,10 @@ export default function SimulationControls({ running, availableRules, prefilterC
           type="button"
           role="switch"
           aria-checked={adaptive}
+          aria-label="Adaptive agents (Q-learning)"
           onClick={() => setAdaptive((v) => !v)}
           disabled={running}
-          className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-50"
+          className="relative w-11 h-6 rounded-full ring-1 ring-inset ring-border transition-colors flex-shrink-0 disabled:opacity-50"
           style={{ background: adaptive ? tokens.status.success : tokens.bg.elevated }}
         >
           <span

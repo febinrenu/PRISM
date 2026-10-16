@@ -90,7 +90,7 @@ export default function UploadZone() {
             {MAX_MB} MB.
           </span>
         </span>
-        <span className="relative inline-flex h-10 items-center rounded-[4px] bg-paper px-4 text-[14px] font-medium text-ink">
+        <span className="relative inline-flex h-10 items-center rounded-[4px] bg-contrast px-4 text-[14px] font-medium text-on-contrast">
           Choose file
         </span>
         <input

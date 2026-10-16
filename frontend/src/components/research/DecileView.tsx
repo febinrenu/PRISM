@@ -87,12 +87,12 @@ export default function DecileView({ set, readers }: { set: string; readers: str
       {data && (
         <>
           <div className="flex h-52 items-end gap-2 border-b border-border sm:gap-3" role="img" aria-label="Effective tax rate by decile">
-            {data.deciles.map((d) => (
+            {data.deciles.map((d, i) => (
               <div key={d.decile} className="group relative flex h-full flex-1 items-end justify-center gap-[2px]">
                 {(
                   [
                     ["before", d.before, "bg-ink-500"],
-                    ["expert", d.expert, "bg-paper"],
+                    ["expert", d.expert, "bg-contrast"],
                     ["system", d.system, d.system !== undefined && Math.abs(d.system - d.expert) > 0.0005 ? "bg-signal" : "bg-entity-right"],
                   ] as const
                 ).map(([k, v, cls]) =>
@@ -104,9 +104,19 @@ export default function DecileView({ set, readers }: { set: string; readers: str
                     />
                   )
                 )}
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-44 -translate-x-1/2 rounded-[4px] border border-border-light bg-bg-overlay p-2.5 text-[12px] opacity-0 shadow-lift transition-opacity group-hover:opacity-100">
+                <div
+                  className={cn(
+                    "pointer-events-none absolute bottom-full z-10 mb-2 w-44 rounded-[4px]",
+                    // edge columns open inwards, so the card never leaves the page
+                    i < 2 ? "left-0" : i >= data.deciles.length - 2 ? "right-0" : "left-1/2 -translate-x-1/2",
+                    "border border-border-light bg-bg-overlay p-2.5 text-[12px] opacity-0 shadow-lift transition-opacity group-hover:opacity-100"
+                  )}
+                >
                   <div className="mb-1 text-text-primary">
-                    Decile {d.decile} · up to {lakh(d.income_upper)}
+                    Decile {d.decile} ·{" "}
+                    {i === data.deciles.length - 1 && i > 0
+                      ? `above ${lakh(data.deciles[i - 1].income_upper)}`
+                      : `up to ${lakh(d.income_upper)}`}
                   </div>
                   <div className="flex justify-between text-text-muted">
                     <span>last year</span>
@@ -138,7 +148,7 @@ export default function DecileView({ set, readers }: { set: string; readers: str
               <span className="h-2.5 w-2.5 rounded-[2px] bg-ink-500" aria-hidden /> last year&apos;s law
             </span>
             <span className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-[2px] bg-paper" aria-hidden /> the law (expert coding)
+              <span className="h-2.5 w-2.5 rounded-[2px] bg-contrast" aria-hidden /> the law (expert coding)
             </span>
             <span className="flex items-center gap-2">
               <span className={cn("h-2.5 w-2.5 rounded-[2px]", differs ? "bg-signal" : "bg-entity-right")} aria-hidden /> {systemName(reader)}

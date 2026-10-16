@@ -99,12 +99,17 @@ export default function TopBar({ className }: { className?: string }) {
           <button
             type="button"
             onClick={palette.open}
-            className="hidden h-9 items-center gap-2 rounded-[4px] border border-border bg-bg-surface px-3 text-[13px] text-text-muted transition-colors hover:border-border-light hover:text-text-secondary md:inline-flex"
+            aria-label="Go to a page or action"
+            title={`Go to… (${mac ? "⌘" : "Ctrl"} K)`}
+            className="hidden h-9 items-center gap-2 rounded-[4px] border border-border bg-bg-surface px-2.5 text-[13px] text-text-muted transition-colors hover:border-border-light hover:text-text-secondary md:inline-flex xl:px-3"
           >
             <Search className="h-3.5 w-3.5" aria-hidden />
-            <span className="pr-6">Go to…</span>
-            <Kbd>{mac ? "⌘" : "Ctrl"}</Kbd>
-            <Kbd>K</Kbd>
+            {/* the full label only where the main nav leaves room for it */}
+            <span className="hidden items-center gap-2 xl:inline-flex" aria-hidden>
+              <span className="pr-6">Go to…</span>
+              <Kbd>{mac ? "⌘" : "Ctrl"}</Kbd>
+              <Kbd>K</Kbd>
+            </span>
           </button>
           <Link
             href="/start"

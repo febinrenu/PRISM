@@ -57,13 +57,13 @@ export function PageHeader({
   return (
     <header className={cn("relative pb-8 pt-10 sm:pt-14", className)}>
       {crumbs ? <Breadcrumbs items={crumbs} className="mb-5" /> : null}
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0 max-w-3xl">
           {kicker ? <div className="kicker mb-3">{kicker}</div> : null}
           <h1 className="font-serif text-headline text-text-primary">{title}</h1>
           {lede ? <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-secondary">{lede}</p> : null}
         </div>
-        {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 lg:max-w-[50%] lg:shrink-0">{actions}</div> : null}
       </div>
       {children}
     </header>

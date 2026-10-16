@@ -99,7 +99,7 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
                 type="button"
                 aria-pressed={view === v}
                 onClick={() => setView(v)}
-                className={cn("px-3 py-1.5 text-[13px] transition-colors", view === v ? "bg-paper text-ink" : "text-text-muted hover:text-text-primary")}
+                className={cn("px-3 py-1.5 text-[13px] transition-colors", view === v ? "bg-contrast text-on-contrast" : "text-text-muted hover:text-text-primary")}
               >
                 {v === "tree" ? "Tree" : "Strata 3D"}
               </button>

@@ -69,7 +69,7 @@ export default function ExplainPage({
               onClick={() => setMode(m)}
               className={cn(
                 "px-3 py-1.5 text-[13px] transition-colors",
-                mode === m ? "bg-paper text-ink" : "text-text-muted hover:text-text-primary"
+                mode === m ? "bg-contrast text-on-contrast" : "text-text-muted hover:text-text-primary"
               )}
               title={
                 m === "proxy"

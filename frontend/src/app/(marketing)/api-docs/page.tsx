@@ -96,12 +96,12 @@ export default function ApiDocsPage() {
           <h3 className="font-display text-sm mb-4">Endpoints</h3>
           <ul className="flex flex-col divide-y divide-border">
             {ENDPOINTS.map((e) => (
-              <li key={e.path} className="flex items-center gap-4 py-3">
+              <li key={e.path} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
                 <span className={`font-mono text-micro font-bold w-12 shrink-0 ${methodColor[e.method]}`}>
                   {e.method}
                 </span>
-                <code className="font-mono text-micro text-text-primary shrink-0">{e.path}</code>
-                <span className="text-[12px] text-text-muted ml-auto text-right">{e.desc}</span>
+                <code className="min-w-0 break-all font-mono text-micro text-text-primary">{e.path}</code>
+                <span className="basis-full pl-16 text-[12px] text-text-muted sm:ml-auto sm:basis-auto sm:pl-0 sm:text-right">{e.desc}</span>
               </li>
             ))}
           </ul>

@@ -10,7 +10,7 @@ const buttonVariants = cva(
         /** Ink text on vermilion: the one primary action on a view. */
         primary: "bg-signal text-ink hover:bg-signal-soft border border-transparent",
         /** Paper fill: strong but not the signal. */
-        secondary: "bg-paper text-ink hover:bg-paper-200 border border-transparent",
+        secondary: "bg-contrast text-on-contrast hover:bg-contrast/85 border border-transparent",
         outline: "border border-light text-text-primary hover:border-glow hover:bg-bg-elevated",
         ghost: "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
         quiet: "text-text-muted hover:text-text-primary border border-transparent",

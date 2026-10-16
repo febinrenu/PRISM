@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, FileText } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -20,6 +20,16 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
   const [numPages, setNumPages] = useState<number>(0);
   const [scale, setScale] = useState(1.0);
   const [isLoaded, setIsLoaded] = useState(false);
+  // the page fits the panel width at 100%; zoom scales from there
+  const viewport = useRef<HTMLDivElement>(null);
+  const [fitWidth, setFitWidth] = useState(0);
+  useEffect(() => {
+    const el = viewport.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setFitWidth(Math.max(200, Math.floor(e.contentRect.width - 32))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const onDocumentLoadSuccess = useCallback(
     ({ numPages }: { numPages: number }) => {
@@ -42,7 +52,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-text-muted" />
           <span className="text-xs font-display text-text-primary">
-            Document Viewer
+            Document
           </span>
           {isLoaded && (
             <span className="text-micro text-text-muted font-mono bg-bg-elevated px-1.5 py-0.5 rounded border border-border">
@@ -53,25 +63,31 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
         {/* Zoom */}
         <div className="flex items-center gap-1">
           <button
+            type="button"
+            aria-label="Zoom out"
+            title="Zoom out"
             onClick={() => setScale((s) => Math.max(0.5, s - 0.1))}
             className="p-1 rounded hover:bg-bg-elevated border border-transparent hover:border-border transition-colors"
           >
-            <ZoomOut className="w-3.5 h-3.5 text-text-muted" />
+            <ZoomOut className="w-3.5 h-3.5 text-text-muted" aria-hidden />
           </button>
           <span className="text-micro font-mono text-text-muted w-10 text-center">
             {Math.round(scale * 100)}%
           </span>
           <button
+            type="button"
+            aria-label="Zoom in"
+            title="Zoom in"
             onClick={() => setScale((s) => Math.min(2.5, s + 0.1))}
             className="p-1 rounded hover:bg-bg-elevated border border-transparent hover:border-border transition-colors"
           >
-            <ZoomIn className="w-3.5 h-3.5 text-text-muted" />
+            <ZoomIn className="w-3.5 h-3.5 text-text-muted" aria-hidden />
           </button>
         </div>
       </div>
 
       {/* PDF Viewer */}
-      <div className="flex-1 overflow-auto bg-bg-base/50 relative">
+      <div ref={viewport} className="scroll-thin flex-1 overflow-auto bg-bg-base/50 relative">
         {!isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-text-muted text-sm">
@@ -92,22 +108,19 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
             <div className="flex flex-col items-center justify-center h-full p-8 text-center text-text-muted text-sm gap-3">
               <FileText className="w-10 h-10 opacity-30" />
               <div>
-                <p className="font-medium text-text-secondary">PDF Preview Unavailable</p>
+                <p className="font-medium text-text-secondary">The PDF could not be shown</p>
                 <p className="text-xs mt-1 text-text-muted">
-                  The clause intelligence panel on the right contains all extracted data.
-                </p>
-                <p className="text-xs mt-2 text-text-dim font-mono">
-                  (PDF serving requires /api/pdf/&#123;docId&#125; endpoint)
+                  Every clause read from it is still in the panel on the right.
                 </p>
               </div>
             </div>
           }
-          className="flex flex-col items-center py-4 gap-2"
+          className="flex w-max min-w-full flex-col items-center gap-2 px-4 py-4"
         >
           <div className="relative">
             <Page
               pageNumber={currentPdfPage}
-              scale={scale}
+              {...(fitWidth ? { width: Math.round(fitWidth * scale) } : { scale })}
               renderTextLayer={true}
               renderAnnotationLayer={false}
             />

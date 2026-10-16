@@ -1,9 +1,7 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import { BarChart3, Network, Zap, ScatterChart, Search, Download, FlaskConical, Bot } from "lucide-react";
+import { BarChart3, Network, Zap, ScatterChart, Search, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDocumentStore } from "@/hooks/useDocumentStore";
 import OverviewTab from "./OverviewTab";
 import EntityNetworkTab from "./EntityNetworkTab";
 import CausalTab from "./CausalTab";
@@ -25,25 +23,32 @@ type TabKey = (typeof TABS)[number]["key"];
 
 export default function AnalyticsTabs() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
-  const { docId, stage } = useDocumentStore();
 
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Tab bar */}
-      <div className="flex-shrink-0 flex items-center gap-0 px-2 pt-2 pb-0 border-b border-border">
+      {/* Tab bar: scrolls sideways when the panel is narrow. The sandbox and the
+          report are tabs of the document bar above, so they are not repeated here. */}
+      <div
+        role="tablist"
+        aria-label="Analysis views"
+        className="scroll-thin flex flex-shrink-0 items-center gap-0 overflow-x-auto overflow-y-hidden whitespace-nowrap border-b border-border px-2 pt-2"
+      >
         {TABS.map((tab) => {
           const active = activeTab === tab.key;
           const Icon = tab.Icon;
           return (
             <button
               key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition-all duration-150 rounded-t ${
-                active ? "text-text-primary bg-accent-primary/5" : "text-text-muted bg-transparent"
+              className={`relative flex shrink-0 items-center gap-1.5 rounded-t px-3.5 py-2.5 text-xs font-semibold transition-colors duration-150 ${
+                active ? "bg-accent-primary/5 text-text-primary" : "bg-transparent text-text-muted hover:text-text-secondary"
               }`}
             >
-              <Icon style={{ width: 12, height: 12 }} />
+              <Icon style={{ width: 12, height: 12 }} aria-hidden />
               {tab.label}
               {active && (
                 <motion.div
@@ -55,28 +60,6 @@ export default function AnalyticsTabs() {
             </button>
           );
         })}
-
-        {/* Actions — only shown after analysis is complete */}
-        {stage === "complete" && docId && (
-          <div className="ml-auto mr-2 flex items-center gap-2">
-            <Link
-              href={`/simulate/${docId}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all bg-status-success/10 border border-status-success/30 text-status-success hover:bg-status-success/20"
-              title="Open the policy sandbox"
-            >
-              <FlaskConical style={{ width: 11, height: 11 }} />
-              Simulate
-            </Link>
-            <Link
-              href={`/report/${docId}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-mono font-semibold transition-all bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20"
-              title="The analysis report: checklist, risk matrix, key obligations (also downloads as HTML)"
-            >
-              <Download style={{ width: 11, height: 11 }} />
-              Report
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Tab content */}

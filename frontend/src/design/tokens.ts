@@ -207,6 +207,10 @@ const colourVars: Record<string, string> = {
   "signal-deep": signal[600],
   "signal-ink": signal.ink,
   "paper": paper[100],
+  // the inverted fill (selected pills, primary-contrast buttons, marks that
+  // read as "the law"): paper on ink, ink on paper
+  "contrast": paper[100],
+  "on-contrast": ink[900],
   "paper-50": paper[50],
   "paper-200": paper[200],
   "paper-300": paper[300],
@@ -285,6 +289,8 @@ const lightColourVars: Record<string, string> = {
   "risk-high-text": hue.ochre.paper,
   "risk-medium-text": hue.blue.paper,
   "risk-low-text": hue.teal.paper,
+  "contrast": "#121314",
+  "on-contrast": paper[100],
   "node-document": "#121314",
   "node-chapter": "#34353A",
   "node-section": "#55555A",

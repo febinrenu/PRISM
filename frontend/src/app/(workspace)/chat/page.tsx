@@ -215,7 +215,7 @@ export default function ChatPage() {
                     className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
                   >
                     {m.role === "user" ? (
-                      <div className="max-w-[85%] rounded-[8px] rounded-tr-[2px] bg-paper px-4 py-2.5 text-[15px] leading-relaxed text-ink">
+                      <div className="max-w-[85%] rounded-[8px] rounded-tr-[2px] bg-contrast px-4 py-2.5 text-[15px] leading-relaxed text-on-contrast">
                         {m.content}
                       </div>
                     ) : (

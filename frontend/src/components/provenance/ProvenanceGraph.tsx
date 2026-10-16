@@ -84,7 +84,7 @@ type FlowNode = Node<Data, "prov">;
 
 const ProvNode = memo(function ProvNode({ data }: NodeProps<FlowNode>) {
   const { node, childCount, expanded, match, selected, more } = data;
-  const color = NODE_TYPE_COLORS[node.type] ?? tokens.paper[100];
+  const color = NODE_TYPE_COLORS[node.type] ?? tokens.text.dim;
   if (more !== undefined)
     return (
       <div className="flex h-9 w-[240px] items-center justify-center rounded-[4px] border border-dashed border-border-light text-[12.5px] text-text-muted hover:border-glow hover:text-text-primary">

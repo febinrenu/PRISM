@@ -51,7 +51,7 @@ function DocColumn({
               disabled={isDisabled}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left border transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               style={{
-                background: isSelected ? alpha(accent, 0.12) : alpha(tokens.paper[100], 0.02),
+                background: isSelected ? alpha(accent, 0.12) : alpha(tokens.text.primary, 0.03),
                 borderColor: isSelected ? alpha(accent, 0.55) : tokens.border.DEFAULT,
               }}
             >

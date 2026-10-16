@@ -76,6 +76,8 @@ const config: Config = {
           deep: rgb("signal-deep"),
           ink: rgb("signal-ink"),
         },
+        contrast: rgb("contrast"),
+        "on-contrast": rgb("on-contrast"),
         paper: {
           DEFAULT: rgb("paper"),
           50: rgb("paper-50"),

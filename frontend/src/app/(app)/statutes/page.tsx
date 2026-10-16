@@ -90,7 +90,7 @@ export default function StatutesPage() {
         title="The parsed corpus"
         lede="Every Act in the corpus as the parser reads it: chapters, sections, sub-sections and provisos, with the exact text each one covers. Every provision has its own link."
         actions={
-          <label className="flex flex-col gap-1.5 text-[13px] text-text-muted">
+          <label className="flex max-w-full flex-col gap-1.5 text-[13px] text-text-muted">
             Statute
             {statutes ? (
               <select
@@ -99,7 +99,7 @@ export default function StatutesPage() {
                   setFilter("");
                   select(e.target.value, null);
                 }}
-                className={cn(inputClass, "w-[min(40rem,90vw)] truncate pr-8")}
+                className={cn(inputClass, "w-[40rem] max-w-full truncate pr-8")}
               >
                 {statutes.map((s) => (
                   <option key={s.key} value={s.key}>
@@ -108,7 +108,7 @@ export default function StatutesPage() {
                 ))}
               </select>
             ) : (
-              <select disabled className={cn(inputClass, "w-[min(40rem,90vw)]")} aria-label="Statute">
+              <select disabled className={cn(inputClass, "w-[40rem] max-w-full")} aria-label="Statute">
                 <option>Loading statutes…</option>
               </select>
             )}

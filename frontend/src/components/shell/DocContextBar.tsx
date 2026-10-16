@@ -72,7 +72,7 @@ export default function DocContextBar({
         </span>
         {status}
       </div>
-      <nav aria-label="Document views" className="-mb-2 flex items-end gap-0.5 overflow-x-auto">
+      <nav aria-label="Document views" className="scroll-thin -mb-2 flex min-w-0 max-w-full items-end gap-0.5 overflow-x-auto overflow-y-hidden">
         {tabs.map((t) => {
           const active = t.id === view || (view === "explain" && t.id === "analyze");
           return (
@@ -91,7 +91,7 @@ export default function DocContextBar({
           );
         })}
       </nav>
-      {children ? <div className="ml-auto flex items-center gap-2">{children}</div> : null}
+      {children ? <div className="ml-auto flex flex-wrap items-center gap-2">{children}</div> : null}
     </div>
   );
 }
