@@ -299,8 +299,8 @@ function Graph({ graphNodes, graphEdges, onNodeSelect, hiddenTypes, causalOnly =
       <MiniMap<FlowNode>
         pannable
         zoomable
-        nodeColor={(n) => (n.data.more !== undefined ? tokens.ink[600] : NODE_TYPE_COLORS[n.data.node.type] ?? tokens.paper[100])}
-        maskColor={alpha(tokens.ink[950], 0.8)}
+        nodeColor={(n) => (n.data.more !== undefined ? "var(--ink-600)" : NODE_TYPE_COLORS[n.data.node.type] ?? tokens.text.primary)}
+        maskColor={alpha(tokens.bg.deep, 0.8)}
         className="!hidden md:!block"
       />
     </ReactFlow>

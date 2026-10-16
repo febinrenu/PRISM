@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BookOpen, ExternalLink, Copy, Check } from "lucide-react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const ENDPOINTS: { method: string; path: string; desc: string }[] = [
   { method: "POST", path: "/v1/documents/upload", desc: "Upload a PDF, returns doc_id" },

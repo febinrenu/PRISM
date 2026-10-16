@@ -113,7 +113,7 @@ if defined OLLAMA (
 :: ---------------------------------------------------------------- backend
 set "RELOAD="
 if /I "%MODE%"=="dev" set "RELOAD=--reload"
-echo [start] Backend on http://localhost:8000
+echo [start] Backend on http://127.0.0.1:8000
 start "PRISM Backend" /D "%BACKEND%" cmd /k ""%PY%" -m uvicorn main:app --host 127.0.0.1 --port 8000 %RELOAD%"
 
 :: ---------------------------------------------------------------- frontend
@@ -132,7 +132,14 @@ copy /y "package-lock.json" "node_modules\.prism-lock" >nul
 
 if not exist ".env.local" (
     echo [setup] Writing frontend\.env.local
-    > ".env.local" echo NEXT_PUBLIC_API_URL=http://localhost:8000
+    > ".env.local" echo NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+)
+:: 127.0.0.1, not localhost: another server on port 8000 (Docker, WSL) can answer
+:: "localhost" over IPv6. Move an untouched old default over.
+findstr /X /C:"NEXT_PUBLIC_API_URL=http://localhost:8000" ".env.local" >nul 2>&1
+if not errorlevel 1 (
+    echo [setup] Pointing the frontend at 127.0.0.1:8000
+    > ".env.local" echo NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 )
 
 if /I "%MODE%"=="dev" (
@@ -199,7 +206,7 @@ echo ============================================
 echo  PRISM is running
 echo  App:       http://localhost:3000
 echo  Research:  http://localhost:3000/research
-echo  API docs:  http://localhost:8000/docs
+echo  API docs:  http://127.0.0.1:8000/docs
 echo  Stop:      start.bat stop, or close the server windows
 echo ============================================
 echo.
@@ -221,6 +228,15 @@ exit /b 0
 
 :FreePort
 for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":%~1 .*LISTENING"') do (
-    if not "%%P"=="0" taskkill /F /T /PID %%P >nul 2>&1
+    if not "%%P"=="0" call :StopIfPrism %%P
+)
+exit /b 0
+
+:StopIfPrism
+:: Only PRISM's own servers (python for the backend, node for the frontend);
+:: never another program that happens to use the port, such as Docker.
+for /f "tokens=1" %%I in ('tasklist /FI "PID eq %~1" /NH 2^>nul') do (
+    if /I "%%I"=="python.exe" taskkill /F /T /PID %~1 >nul 2>&1
+    if /I "%%I"=="node.exe" taskkill /F /T /PID %~1 >nul 2>&1
 )
 exit /b 0

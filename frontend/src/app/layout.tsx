@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import Providers from "@/components/shell/Providers";
+import { THEME_SCRIPT } from "@/design/themeScript";
 
 const serif = Instrument_Serif({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`}>
+    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="grain app-shell min-h-dvh bg-bg-base font-sans text-text-primary antialiased">
         <a href="#main" className="skip-link">
           Skip to content

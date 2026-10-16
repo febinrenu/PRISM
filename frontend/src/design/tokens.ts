@@ -217,6 +217,92 @@ const colourVars: Record<string, string> = {
   "ink-700": ink[700],
   "ink-600": ink[600],
   "ink-500": ink[500],
+  // text tints and graph node colours that change with the theme
+  ...Object.fromEntries(Object.entries(tokens.entity).map(([k, v]) => [`entity-${k.toLowerCase()}-text`, v.text])),
+  ...Object.fromEntries(Object.entries(tokens.risk).map(([k, v]) => [`risk-${k.toLowerCase()}-text`, v.text])),
+  "node-document": tokens.node.document,
+  "node-chapter": tokens.node.chapter,
+  "node-section": tokens.node.section,
+};
+
+/**
+ * The light theme: the same roles on paper. Each value was checked for WCAG AA
+ * (4.5:1) against every light surface. Vermilion stays the button fill (ink on
+ * it is 5.7:1); vermilion text uses signal-ink, which passes on paper.
+ */
+export const light = {
+  bg: { deep: "#E8E3D7", base: "#F3EFE7", surface: "#FAF8F3", elevated: "#FFFFFF", overlay: "#FFFFFF" },
+  text: { primary: "#121314", secondary: "#34353A", muted: "#55555A", dim: "#66645F", inverse: paper[100] },
+  border: { DEFAULT: "rgba(18, 19, 20, 0.12)", light: "rgba(18, 19, 20, 0.2)", glow: "rgba(18, 19, 20, 0.36)" },
+  accent: { primary: "#C2410C", secondary: "#A8360B", bright: "#B23A0B" },
+  status: { success: "#1A6E47", error: "#B0213A", warning: "#7D550A", info: "#2A5BBF", critical: "#B81C3F" },
+} as const;
+
+export type ThemeName = "dark" | "light";
+
+/** Theme-dependent token groups for code that draws with hex (SVG, canvas, charts). */
+export function themedTokens(theme: ThemeName) {
+  if (theme === "dark") return tokens;
+  return {
+    ...tokens,
+    bg: light.bg,
+    text: light.text,
+    border: light.border,
+    accent: light.accent,
+    status: light.status,
+    node: { ...tokens.node, document: light.text.primary, chapter: light.text.secondary, section: light.text.muted },
+  } as unknown as typeof tokens;
+}
+
+const lightColourVars: Record<string, string> = {
+  "bg-deep": light.bg.deep,
+  "bg-base": light.bg.base,
+  "bg-surface": light.bg.surface,
+  "bg-elevated": light.bg.elevated,
+  "bg-overlay": light.bg.overlay,
+  "text-primary": light.text.primary,
+  "text-secondary": light.text.secondary,
+  "text-muted": light.text.muted,
+  "text-dim": light.text.dim,
+  "text-inverse": light.text.inverse,
+  "accent-primary": light.accent.primary,
+  "accent-secondary": light.accent.secondary,
+  "accent-bright": light.accent.bright,
+  "status-success": light.status.success,
+  "status-error": light.status.error,
+  "status-warning": light.status.warning,
+  "status-info": light.status.info,
+  "status-critical": light.status.critical,
+  // vermilion as text on paper; the fill (bg-signal) keeps --signal
+  "signal-soft": signal.ink,
+  "entity-obligation-text": hue.blue.paper,
+  "entity-penalty-text": hue.magenta.paper,
+  "entity-right-text": hue.teal.paper,
+  "entity-threshold-text": hue.ochre.paper,
+  "entity-actor-text": hue.violet.paper,
+  "entity-beneficiary-text": hue.cyan.paper,
+  "risk-critical-text": "#B81C3F",
+  "risk-high-text": hue.ochre.paper,
+  "risk-medium-text": hue.blue.paper,
+  "risk-low-text": hue.teal.paper,
+  "node-document": "#121314",
+  "node-chapter": "#34353A",
+  "node-section": "#55555A",
+  // mid inks serve as neutral tracks, tiles and hatching: lighten them on paper
+  // (ink-900, used for text on paper and on vermilion, stays ink)
+  "ink-800": "#E6E1D5",
+  "ink-700": "#D8D2C5",
+  "ink-600": "#BEB7A8",
+  "ink-500": "#8F8A80",
+};
+
+/** CSS custom properties for the light theme (applied to the app's body, never the story). */
+export const lightCssVariables: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(lightColourVars).map(([k, v]) => [`--${k}`, v])),
+  ...Object.fromEntries(Object.entries(lightColourVars).map(([k, v]) => [`--${k}-rgb`, rgbTriple(v)])),
+  "--border": light.border.DEFAULT,
+  "--border-light": light.border.light,
+  "--border-glow": light.border.glow,
 };
 
 /** CSS custom properties injected into :root by the Tailwind plugin. */

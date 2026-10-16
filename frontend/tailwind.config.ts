@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
-import { cssVariables } from "./src/design/tokens";
+import { cssVariables, lightCssVariables } from "./src/design/tokens";
 
 const rgb = (name: string) => `rgb(var(--${name}-rgb) / <alpha-value>)`;
 
@@ -141,6 +141,9 @@ const config: Config = {
     // Canonical token values (src/design/tokens.ts) as CSS custom properties.
     plugin(({ addBase }) => {
       addBase({ ":root": cssVariables });
+      // The app can be light; the landing story is always ink.
+      addBase({ 'html[data-theme="light"] body': lightCssVariables });
+      addBase({ 'html[data-theme="light"] .story-root': cssVariables });
     }),
   ],
 };

@@ -7,7 +7,9 @@ import type {
   CorpusStats, LLMBackendInfo, AuthUser, DashboardData, AdminMetrics, AdminUser,
 } from "@/types";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// 127.0.0.1, not localhost: another local server on port 8000 (Docker, WSL) can
+// answer "localhost" over IPv6 instead of PRISM's backend.
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 /** Backend origin, for the pages that fetch research and corpus routes directly. */
 export const API_BASE = API;

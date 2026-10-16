@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 import { usePathname } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Menu from "@radix-ui/react-dropdown-menu";
@@ -94,6 +95,7 @@ export default function TopBar({ className }: { className?: string }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle className="hidden sm:inline-flex" />
           <button
             type="button"
             onClick={palette.open}
@@ -184,7 +186,8 @@ export default function TopBar({ className }: { className?: string }) {
                     );
                   })}
                 </nav>
-                <div className="mt-auto border-t border-border pt-4">
+                <div className="mt-auto flex flex-col items-start gap-4 border-t border-border pt-4">
+                  <ThemeToggle withLabel />
                   {user ? (
                     <button type="button" onClick={logout} className="flex items-center gap-2 text-[14px] text-text-secondary">
                       <LogOut className="h-4 w-4" /> Sign out ({user.email})

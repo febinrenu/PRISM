@@ -5,11 +5,12 @@
  */
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { tokens } from "@/lib/tokens";
+import { cssHex } from "@/lib/tokens";
+import { tokens as base } from "@/design/tokens";
 
 export async function exportSimulationReport(node: HTMLElement, docId: string): Promise<void> {
   const canvas = await html2canvas(node, {
-    backgroundColor: tokens.bg.base,
+    backgroundColor: cssHex("bg-base") || base.bg.base,
     scale: 2,
     logging: false,
     ignoreElements: (el) =>
@@ -33,7 +34,9 @@ export async function exportSimulationReport(node: HTMLElement, docId: string): 
   let pageIndex = 0;
   while (rendered < imgHeight) {
     if (pageIndex > 0) pdf.addPage();
-    pdf.setFillColor(6, 17, 13); // tokens.bg.base
+    // the page behind the snapshot: the current theme's background
+    const bgHex = (cssHex("bg-base") || base.bg.base).replace("#", "");
+    pdf.setFillColor(parseInt(bgHex.slice(0, 2), 16), parseInt(bgHex.slice(2, 4), 16), parseInt(bgHex.slice(4, 6), 16));
     pdf.rect(0, 0, pageWidth, pageHeight, "F");
     pdf.addImage(
       canvas.toDataURL("image/jpeg", 0.92),

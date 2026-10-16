@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
-import { CornerDownLeft, FileText, Network, ScrollText, Search } from "lucide-react";
+import { Contrast, CornerDownLeft, FileText, Network, ScrollText, Search } from "lucide-react";
+import { setTheme } from "@/design/theme";
 import { api, getJSON } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import type { DocumentMeta } from "@/types";
@@ -83,6 +84,18 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
               </div>
               <Command.List className="scroll-thin overflow-y-auto p-2">
                 <Command.Empty className="px-3 py-8 text-center text-[13px] text-text-muted">Nothing matches.</Command.Empty>
+                <Group heading="Appearance">
+                  <Item
+                    value="theme light dark appearance"
+                    onSelect={() => {
+                      setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+                      setOpen(false);
+                    }}
+                    icon={<Contrast className="h-4 w-4" />}
+                  >
+                    Switch theme (light / dark)
+                  </Item>
+                </Group>
                 <Group heading="Pages">
                   <Item value="story home landing" onSelect={() => go("/")} icon={<span className="font-serif">P</span>}>
                     The story

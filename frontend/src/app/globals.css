@@ -121,7 +121,7 @@ p {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 6px;
-    box-shadow: 0 1px 0 rgba(241, 237, 228, 0.035) inset;
+    box-shadow: 0 1px 0 rgb(var(--text-primary-rgb) / 0.035) inset;
   }
 
   .glass-card-hover {
@@ -132,7 +132,7 @@ p {
   .glass-card-hover:hover {
     border-color: var(--border-glow);
     background-color: var(--bg-elevated);
-    box-shadow: 0 1px 0 rgba(241, 237, 228, 0.06) inset, 0 24px 60px -28px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 1px 0 rgb(var(--text-primary-rgb) / 0.06) inset, 0 24px 60px -28px rgb(0 0 0 / var(--shadow-strength, 0.85));
   }
 
   /* Paper reading surface (statute text, PDF margins, story plates). */
@@ -163,7 +163,7 @@ p {
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: linear-gradient(to bottom, rgba(241, 237, 228, 0.045) 1px, transparent 1px);
+    background-image: linear-gradient(to bottom, rgb(var(--text-primary-rgb) / 0.045) 1px, transparent 1px);
     background-size: 100% 28px;
     -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
     mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
@@ -295,7 +295,7 @@ p {
 .react-flow {
   --xy-background-color: transparent;
   --xy-node-border-radius: 4px;
-  --xy-edge-stroke: rgba(241, 237, 228, 0.16);
+  --xy-edge-stroke: rgb(var(--text-primary-rgb) / 0.16);
   --xy-minimap-background-color: var(--bg-surface);
   --xy-controls-button-background-color: var(--bg-elevated);
   --xy-controls-button-background-color-hover: var(--bg-overlay);
@@ -315,7 +315,7 @@ p {
 
 /* Recharts theme. */
 .recharts-cartesian-grid line {
-  stroke: rgba(241, 237, 228, 0.06);
+  stroke: rgb(var(--text-primary-rgb) / 0.06);
 }
 .recharts-cartesian-axis-tick text {
   fill: var(--text-muted);
@@ -323,7 +323,7 @@ p {
   font-size: 12px;
 }
 .recharts-tooltip-cursor {
-  fill: rgba(241, 237, 228, 0.04);
+  fill: rgb(var(--text-primary-rgb) / 0.04);
 }
 .recharts-default-tooltip {
   background: var(--bg-elevated) !important;
@@ -350,4 +350,20 @@ p {
   .grain::after {
     animation: none;
   }
+}
+
+/* Light theme: paper surfaces. Vermilion text uses signal-ink (AA on paper);
+   shadows soften; the landing story keeps its ink (see tailwind.config.ts). */
+html[data-theme="light"] body {
+  --shadow-strength: 0.18;
+  color-scheme: light;
+}
+html[data-theme="light"] body .text-signal:not(.story-root *),
+html[data-theme="light"] body .text-signal-soft:not(.story-root *) {
+  --tw-text-opacity: 1;
+  color: rgb(var(--signal-ink-rgb) / var(--tw-text-opacity));
+}
+html[data-theme="light"] body .grain::after,
+html[data-theme="light"].grain::after {
+  opacity: 0.03;
 }

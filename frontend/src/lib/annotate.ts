@@ -4,7 +4,7 @@
  */
 import { tokenStore } from "@/lib/api";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export type Modality = "obligation" | "prohibition" | "permission" | "power" | "deeming" | "definition";
 export const MODALITIES: Modality[] = ["obligation", "prohibition", "permission", "power", "deeming", "definition"];

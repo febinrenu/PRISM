@@ -14,7 +14,8 @@ type PrismMarkProps = {
  * single vermilion signal (the reading that can be checked).
  */
 export default function PrismMark({ size = 32, className, onPaper = false, title = "PRISM" }: PrismMarkProps) {
-  const line = onPaper ? tokens.ink[900] : tokens.paper[100];
+  // the theme's primary text colour: paper on ink, ink on the light theme's paper
+  const line = onPaper ? tokens.ink[900] : tokens.text.primary;
   const out = onPaper ? tokens.signal.ink : tokens.signal[500];
   return (
     <svg

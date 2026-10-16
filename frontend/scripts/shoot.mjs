@@ -54,6 +54,8 @@ for (const route of ROUTES) {
     page.on("requestfailed", (r) => errors.push(`failed: ${r.url().slice(0, 120)}`));
     await page.setViewport({ width: w, height: Number(arg("height", w < 600 ? "844" : "900")), deviceScaleFactor: 1 });
     if (flag("reduced")) await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    // --light: the app's paper theme (the landing story stays ink)
+    if (flag("light")) await page.evaluateOnNewDocument(() => localStorage.setItem("prism-theme", "light"));
     try {
       await page.goto(BASE + route + (QUERY ? `?${QUERY}` : ""), { waitUntil: "networkidle2", timeout: 60000 });
     } catch (e) {
@@ -87,7 +89,7 @@ for (const route of ROUTES) {
         await page.evaluate((frac) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * frac), f);
         await new Promise((r) => setTimeout(r, 1400));
       }
-      const name = `${route.replace(/[^a-z0-9]+/gi, "_") || "root"}_${w}${flag("reduced") ? "_rm" : ""}${flag("nowebgl") ? "_t0" : ""}${f ? `_s${f}` : ""}.png`;
+      const name = `${route.replace(/[^a-z0-9]+/gi, "_") || "root"}_${w}${flag("reduced") ? "_rm" : ""}${flag("nowebgl") ? "_t0" : ""}${flag("light") ? "_light" : ""}${f ? `_s${f}` : ""}.png`;
       await page.screenshot({ path: join(OUT, name) });
       console.log(`${name}${errors.length ? `  ERR ${errors.length}: ${errors.slice(0, 3).join(" | ")}` : ""}`);
     }

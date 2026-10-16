@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { Download, Search, X, Zap } from "lucide-react";
 import { toPng } from "html-to-image";
 import { api } from "@/lib/api";
@@ -10,8 +11,14 @@ import NodeDetailPanel from "@/components/provenance/NodeDetailPanel";
 import DocContextBar from "@/components/shell/DocContextBar";
 import { ErrorState, Skeleton, inputClass } from "@/components/ui/kit";
 import { NODE_TYPE_COLORS } from "@/lib/colors";
-import { tokens } from "@/lib/tokens";
+import { cssHex, tokens } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
+
+// the 3D view loads only when asked for (three.js stays out of the page's bundle)
+const ProvenanceStrata = dynamic(() => import("@/components/three/ProvenanceStrata"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 animate-pulse bg-bg-surface/40" aria-label="Loading the 3D view" />,
+});
 
 const TYPE_ORDER = ["document", "chapter", "section", "clause", "entity", "causal"] as const;
 const TYPE_LABEL: Record<string, string> = {
@@ -35,6 +42,15 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
   const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
   const [causalOnly, setCausalOnly] = useState(false);
   const [nodeSearch, setNodeSearch] = useState("");
+  const [view, setView] = useState<"tree" | "strata">("tree");
+  const [webgl, setWebgl] = useState(false);
+  useEffect(() => {
+    try {
+      setWebgl(!!document.createElement("canvas").getContext("webgl2"));
+    } catch {
+      setWebgl(false);
+    }
+  }, []);
 
   useEffect(() => {
     api
@@ -65,7 +81,7 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
   const exportPng = async () => {
     const el = document.getElementById("provenance-canvas");
     if (!el) return;
-    const dataUrl = await toPng(el, { backgroundColor: tokens.bg.base });
+    const dataUrl = await toPng(el, { backgroundColor: cssHex("bg-base") || tokens.ink[900] });
     const a = document.createElement("a");
     a.download = `prism-provenance-${docId.slice(0, 12)}.png`;
     a.href = dataUrl;
@@ -75,10 +91,25 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
       <DocContextBar docId={docId} filename={filename} view="provenance">
+        {webgl && (
+          <div role="group" aria-label="Graph view" className="flex overflow-hidden rounded-[4px] border border-border-light">
+            {(["tree", "strata"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={cn("px-3 py-1.5 text-[13px] transition-colors", view === v ? "bg-paper text-ink" : "text-text-muted hover:text-text-primary")}
+              >
+                {v === "tree" ? "Tree" : "Strata 3D"}
+              </button>
+            ))}
+          </div>
+        )}
         <button
           type="button"
           onClick={exportPng}
-          disabled={loading || !!error}
+          disabled={loading || !!error || view === "strata"}
           className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary disabled:opacity-40"
         >
           <Download className="h-3.5 w-3.5" /> PNG
@@ -156,7 +187,16 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
             <ErrorState title="The graph could not load" message={error} onRetry={() => window.location.reload()} />
           </div>
         )}
-        {!loading && !error && graphNodes.length > 0 && (
+        {!loading && !error && graphNodes.length > 0 && view === "strata" && (
+          <ProvenanceStrata
+            graphNodes={graphNodes}
+            graphEdges={graphEdges}
+            hiddenTypes={hiddenTypes}
+            selectedId={selectedNode?.id ?? null}
+            onNodeSelect={setSelectedNode}
+          />
+        )}
+        {!loading && !error && graphNodes.length > 0 && view === "tree" && (
           <ProvenanceGraph
             graphNodes={graphNodes}
             graphEdges={graphEdges}
@@ -170,7 +210,7 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
 
         <NodeDetailPanel node={selectedNode} onClose={() => setSelectedNode(null)} docId={docId} />
 
-        {showIntro && !loading && !error && graphNodes.length > 0 && (
+        {showIntro && view === "tree" && !loading && !error && graphNodes.length > 0 && (
           <div className="absolute left-4 top-4 z-raised max-w-sm rounded-[6px] border border-border-light bg-bg-surface/95 p-4 shadow-lift backdrop-blur-md">
             <button
               type="button"

@@ -3,11 +3,12 @@
  * its backgroundColor option, so the token hex is passed explicitly.
  */
 import { toPng } from "html-to-image";
-import { tokens } from "@/lib/tokens";
+import { cssHex } from "@/lib/tokens";
+import { tokens as base } from "@/design/tokens";
 
 export async function exportNodeAsPng(node: HTMLElement, filename: string): Promise<void> {
   const dataUrl = await toPng(node, {
-    backgroundColor: tokens.bg.base,
+    backgroundColor: cssHex("bg-base") || base.bg.base,
     pixelRatio: 2,
     filter: (el) => {
       // Skip decorative layers that html-to-image renders poorly.
