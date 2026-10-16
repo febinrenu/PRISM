@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FileText, Loader2, Swords } from "lucide-react";
@@ -129,15 +130,18 @@ export default function DocPicker({
           <p className="text-xs font-mono text-status-error leading-relaxed">
             Couldn’t load your documents — {loadError}.
             <br />
-            Is the backend running? Retry after it’s up.
+            Is the analysis server running? Start it with start.bat and retry.
           </p>
         </div>
       ) : docs.length < 2 ? (
         <div className="glass-card p-10 text-center">
           <p className="text-xs font-mono text-text-muted leading-relaxed">
-            Analyze at least two documents to enter the arena.
+            Comparing needs two analysed documents.
             <br />
-            Upload and analyze PDFs from the home page first.
+            <Link href="/start" className="text-text-primary underline underline-offset-4 hover:text-accent-primary">
+              Upload and analyse a PDF
+            </Link>{" "}
+            first.
           </p>
         </div>
       ) : (
@@ -145,7 +149,7 @@ export default function DocPicker({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-card p-6 flex items-start gap-6"
+          className="glass-card flex flex-col items-stretch gap-4 p-4 sm:flex-row sm:items-start sm:gap-6 sm:p-6"
         >
           <DocColumn
             slot="A"
@@ -155,7 +159,7 @@ export default function DocPicker({
             disabledId={b}
             onSelect={setA}
           />
-          <div className="flex-shrink-0 self-center flex flex-col items-center gap-2 px-1">
+          <div className="flex flex-shrink-0 items-center gap-2 self-center px-1 sm:flex-col">
             <Swords className="w-5 h-5 text-accent-primary" />
             <span className="text-micro font-mono uppercase tracking-widest text-text-dim">vs</span>
           </div>

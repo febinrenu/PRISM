@@ -203,7 +203,7 @@ export function ErrorState({
       }
     >
       {offline
-        ? "Start the backend (uvicorn on port 8000) and try again. Nothing on this page is cached."
+        ? "The analysis server is not answering. Start it with start.bat (it runs on port 8000) and try again."
         : message}
     </EmptyState>
   );

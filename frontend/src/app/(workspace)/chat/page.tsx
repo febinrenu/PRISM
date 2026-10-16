@@ -120,7 +120,7 @@ export default function ChatPage() {
 
           {offline && (
             <div className="rounded-md border border-border p-3 text-[12px] text-text-muted">
-              Backend unreachable. Start the API and refresh.
+              The analysis server is not answering. Start it with start.bat and refresh.
             </div>
           )}
 

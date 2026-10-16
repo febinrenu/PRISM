@@ -8,6 +8,26 @@ import { loop } from "../engine/loop";
 import { state } from "../engine/store";
 import type { Anchor, Pick } from "../gl/forms";
 
+/** Screen box [left, top, right, bottom] of a label drawn at (sx, sy) with the overlay's alignment rules. */
+function labelBox(sx: number, sy: number, w: number, h: number, align?: string, rotate?: number): [number, number, number, number] {
+  if (rotate) {
+    // rotated about its bottom-left corner
+    const r = (rotate * Math.PI) / 180;
+    const pts = [
+      [0, 0],
+      [w, 0],
+      [0, -h],
+      [w, -h],
+    ].map(([x, y]) => [sx + x * Math.cos(r) - y * Math.sin(r), sy + x * Math.sin(r) + y * Math.cos(r)]);
+    const xs = pts.map((q) => q[0]);
+    const ys = pts.map((q) => q[1]);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+  }
+  if (align === "right") return [sx - w, sy - h / 2, sx, sy + h / 2];
+  if (align === "left") return [sx, sy - h, sx + w, sy];
+  return [sx - w / 2, sy - h, sx + w / 2, sy];
+}
+
 /** How present form `f` is at director form value `x`: 1 while held, 0 one form away. */
 const presence = (f: number, x: number) => Math.max(0, 1 - Math.abs(x - f) * 2.4);
 
@@ -26,6 +46,7 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
   useEffect(() => {
     const v = new THREE.Vector3();
     const shown = new Map<number, number>();
+    const sizes = new Map<number, { w: number; h: number }>();
     const project = (x: number, y: number, z: number, cam: THREE.Camera, w: number, h: number) => {
       v.set(x, y, z).project(cam);
       return {
@@ -50,35 +71,40 @@ export default function Overlay({ anchors, picks }: { anchors: Anchor[]; picks: 
       });
       const onCopy = (l: number, t: number, r: number, b: number, pad = 10) =>
         copy.some((c) => l < c.right + pad && r > c.left - pad && t < c.bottom + pad && b > c.top - pad);
+      // reads first (label sizes, measured once), then writes: no layout thrash
+      const live: { i: number; p: number }[] = [];
       anchors.forEach((a, i) => {
+        const p = presence(a.form, form);
         const el = refs.current[i];
         if (!el) return;
-        const p = presence(a.form, form);
-        if (p <= 0.001) {
-          if (shown.get(i)) {
-            el.style.opacity = "0";
-            el.style.visibility = "hidden";
-            shown.set(i, 0);
+        if (p > 0.001) {
+          live.push({ i, p });
+          if (!sizes.has(i)) {
+            const c = el.firstElementChild as HTMLElement | null;
+            if (c && c.offsetWidth) sizes.set(i, { w: c.offsetWidth, h: c.offsetHeight });
           }
-          return;
+        } else if (shown.get(i)) {
+          el.style.opacity = "0";
+          el.style.visibility = "hidden";
+          shown.set(i, 0);
         }
+      });
+      for (const { i, p } of live) {
+        const a = anchors[i];
+        const el = refs.current[i]!;
         const { sx, sy, front } = project(a.x, a.y, a.z, cam, w, h);
-        // the label's box as drawn last frame, moved to where it is now
-        const box = (el.firstElementChild as HTMLElement | null)?.getBoundingClientRect();
-        const dx = sx - (Number(el.dataset.sx) || sx);
-        const dy = sy - (Number(el.dataset.sy) || sy);
-        const sized = !!box && box.width > 0;
-        const top = sized ? box!.top + dy : sy;
-        const hidden =
-          top < 64 || // under the header
-          (sized ? onCopy(box!.left + dx, top, box!.right + dx, box!.bottom + dy) : onCopy(sx, sy, sx, sy));
-        el.dataset.sx = String(sx);
-        el.dataset.sy = String(sy);
+        const size = sizes.get(i);
+        let hidden: boolean;
+        if (!size) hidden = sy < 64 || onCopy(sx, sy, sx, sy);
+        else {
+          const [l, t, r, bt] = labelBox(sx, sy, size.w, size.h, a.align, a.rotate);
+          hidden = t < 64 || onCopy(l, t, r, bt); // under the header, or on the copy
+        }
         el.style.visibility = front ? "visible" : "hidden";
         el.style.opacity = hidden ? "0" : String(p * p);
         el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`;
         shown.set(i, 1);
-      });
+      }
       // hover: the nearest pick of the form on screen, within reach of the pointer
       let best: Pick | null = null;
       let bestD = 40 * 40;

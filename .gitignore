@@ -55,3 +55,6 @@ training/Modelfile
 backend/data/eval/v2/faithfulness/
 backend/data/batch/
 backend/data/eval/v2/rag/
+
+# sandbox runs saved while using the app
+backend/data/store/*/simulations/

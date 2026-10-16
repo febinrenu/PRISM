@@ -174,7 +174,7 @@ export default function ProcessingOverlay() {
                 <AlertCircle className="w-12 h-12 mx-auto mb-4 text-status-error" />
                 <p className="font-semibold text-lg mb-2 text-status-error">Analysis Failed</p>
                 <p className="text-sm leading-relaxed text-text-secondary">
-                  {stageMessage || "An unexpected error occurred. Check that the backend is running."}
+                  {stageMessage || "The analysis stopped unexpectedly. Check that the analysis server is running (start.bat) and try again."}
                 </p>
               </motion.div>
             )}

@@ -92,6 +92,12 @@ export interface Director {
   bloom: number;
   vignette: number;
   shiftX: number;
+  /** Portrait screens: sideways shift and upward lift (fractions of the viewport). */
+  shiftN: number;
+  liftN: number;
+  /** Phones (narrower than 0.7): upward lift, and how far the camera steps back. */
+  liftP: number;
+  backP: number;
   wipe: number;
 }
 
@@ -261,6 +267,50 @@ export const TRACKS: Record<keyof Director, Key[]> = {
     [at("faults", 1.0), -0.12],
     [at("limits", 0.14), 0],
     [at("end", 1.4), 0],
+  ],
+  shiftN: [
+    [0, 0],
+    [at("case", 1.0), 0],
+    [at("verdict", 0.05), -0.09],
+    [at("verdict", 1.0), -0.09],
+    [at("faults", 0.1), 0],
+  ],
+  liftN: [
+    [0, 0.27],
+    [at("read", 0.36), 0.27],
+    [at("read", 0.42), 0.22],
+    [at("read", 0.58), 0.22],
+    [at("read", 0.64), 0.27],
+    [at("limits", 0.9), 0.27],
+    [at("end", 0.3), 0.36],
+  ],
+  liftP: [
+    [0, 0.2],
+    [at("why", 0.95), 0.2],
+    [at("read", 0.03), 0.31],
+    [at("read", 0.16), 0.31],
+    [at("read", 0.24), 0.24],
+    [at("read", 0.36), 0.24],
+    [at("read", 0.42), 0.28],
+    [at("read", 0.78), 0.28],
+    [at("read", 0.84), 0.2],
+    [at("case", 0), 0.2],
+    [at("case", 0.05), 0.33],
+    [at("case", 0.45), 0.33],
+    [at("case", 0.6), 0.2],
+    [at("limits", 0.9), 0.2],
+    [at("end", 0.3), 0.29],
+  ],
+  backP: [
+    [0, 1.6],
+    [at("why", 0.95), 1.6],
+    [at("read", 0.03), 1.75],
+    [at("read", 0.16), 1.75],
+    [at("read", 0.24), 1.6],
+    [at("case", 0), 1.6],
+    [at("case", 0.05), 2.05],
+    [at("case", 0.45), 2.05],
+    [at("case", 0.6), 1.6],
   ],
   wipe: [[0, 0]],
 };
