@@ -204,7 +204,15 @@ async def extract_clause(clause_text: str, client: httpx.AsyncClient) -> LLMCaus
         )
     rule = _coerce_rule(parsed, elapsed_ms)
     rule.input_truncated = truncated
+    rule.unsupported_numbers = check_numbers(rule, clause_text)
     return rule
+
+
+def check_numbers(rule: LLMCausalRule, clause_text: str) -> list[str]:
+    """Amounts and rates in the reading that the clause does not state."""
+    from pipeline.extraction.numbers import unsupported_numbers
+    return unsupported_numbers([rule.condition or "", rule.action or "", rule.consequence or "", *rule.thresholds],
+                               clause_text)
 
 
 def select_candidates(
@@ -417,6 +425,8 @@ def merge_extractions(analysis, entries: dict[str, dict]) -> dict[str, int]:
             model = entry.get("extraction", {}).get("model") or None
             if entry.get("key") == _cache_key(clause.text, model):
                 clause.llm_extraction = LLMCausalRule(**entry["extraction"])
+                # checked against the clause as it reads now (older caches lack it)
+                clause.llm_extraction.unsupported_numbers = check_numbers(clause.llm_extraction, clause.text)
                 clause.extraction_method = entry["extraction_method"]
                 counts["attached"] += 1
                 continue

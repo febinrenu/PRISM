@@ -45,6 +45,9 @@ class LLMCausalRule(BaseModel):
     # True when the clause was longer than the extractor's input budget, so
     # the model never saw its tail (provisos/penalties often sit there).
     input_truncated: bool = False
+    # Rupee amounts and rates the reading states (condition, action,
+    # consequence, thresholds) that the clause text does not contain.
+    unsupported_numbers: list[str] = []
 
 
 class LIMEToken(BaseModel):

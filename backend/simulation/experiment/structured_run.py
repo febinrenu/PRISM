@@ -201,3 +201,74 @@ def interleaved_sets() -> list[str]:
         if hit:
             out.append(name)
     return out
+
+
+def number_grounding(systems: Optional[list[str]] = None) -> list[dict]:
+    """For each system and condition whose extractions are all cached: how
+    many numeric fields of its effects are stated in the quote they cite, only
+    elsewhere in the provision, or nowhere (pipeline.extraction.numbers).
+    Never calls a model."""
+    import os
+    from collections import Counter
+
+    from pipeline.extraction import structured
+    from pipeline.extraction.backends import OfflineCacheMiss
+    from pipeline.extraction.extractor import cached_record
+    from pipeline.extraction.numbers import check_record
+    from pipeline.extraction.rule_based import extract_unit as rule_unit
+
+    systems = systems or ["rules", "gpt-oss-120b", "gpt-oss-20b", "qwen3.8-27b", "phi3.5", "gemma2-2b"]
+    units = []
+    for spec in PROVISION_SETS.values():
+        built = build_units(*spec["statute"])
+        for path in spec["targets"].values():
+            units += units_for(path, built)
+
+    def readers(system: str):
+        if system == "rules":
+            yield "headline", lambda u: rule_unit(u)[0]
+            yield "tables", lambda u: structured.extract_unit(u, "rules")[0]
+            return
+        yield "headline", lambda u: cached_record(u, system)
+        for schema in (False, True):
+            yield ("tables+schema" if schema else "tables+json"), \
+                lambda u, s=schema: structured.extract_unit(u, system, use_schema=s)[0]
+
+    rows = []
+    prev = os.environ.get("PRISM_OFFLINE")
+    os.environ["PRISM_OFFLINE"] = "1"
+    try:
+        for system in systems:
+            for condition, read in readers(system):
+                c: Counter = Counter()
+                examples = []
+                complete = True
+                for u in units:
+                    try:
+                        rec = read(u)
+                    except OfflineCacheMiss:
+                        rec = None
+                    if rec is None or rec.status == "error":
+                        complete = False
+                        break
+                    effects = [e for r in rec.rules for e in r.effects]
+                    for e, chk in zip(effects, check_record(rec, u.text)):
+                        c["effects"] += 1
+                        c[f"effects_{chk.status}"] += 1
+                        for f in chk.fields:
+                            c[f.found] += 1
+                            if f.found == "missing" and len(examples) < 6:
+                                examples.append({"provision": u.path, "kind": e.kind, "field": f.field, "value": f.value})
+                if not complete:
+                    continue
+                n = c["quote"] + c["provision"] + c["missing"]
+                rows.append({"system": system, "condition": condition, "fields": n,
+                             "in_quote": c["quote"], "in_provision": c["provision"], "missing": c["missing"],
+                             "effects": c["effects"], "effects_unsupported": c["effects_unsupported"],
+                             "missing_examples": examples})
+    finally:
+        if prev is None:
+            os.environ.pop("PRISM_OFFLINE", None)
+        else:
+            os.environ["PRISM_OFFLINE"] = prev
+    return rows

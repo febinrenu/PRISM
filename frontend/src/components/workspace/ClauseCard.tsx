@@ -6,6 +6,7 @@ import { Zap, FileText, AlertTriangle, Bot, Sparkles, FlaskConical } from "lucid
 import type { Clause, Entity, RiskTier } from "@/types";
 import { ENTITY_COLORS } from "@/lib/colors";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
+import UnsupportedNumbers from "@/components/ui/UnsupportedNumbers";
 import { tokens, alpha, riskStyle } from "@/lib/tokens";
 
 const ENTITY_LABEL_ORDER = ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"] as const;
@@ -234,6 +235,8 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
           </div>
         </div>
       )}
+
+      <UnsupportedNumbers numbers={clause.llm_extraction?.unsupported_numbers} className="mt-2" />
 
       {/* Phase 2 actions — revealed on hover/selection for causal clauses */}
       {(hasCausal || clause.llm_extraction?.is_causal) && (

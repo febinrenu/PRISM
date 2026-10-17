@@ -214,3 +214,39 @@ async def get_document(doc_id: str, user: dict | None = Depends(optional_user)):
     if meta is None or not can_list(meta, user):
         raise HTTPException(status_code=404, detail=f"Document {doc_id} not found.")
     return meta.model_dump(exclude={"pdf_path", "owner_id"})
+
+
+SCHEDULES_VERSION = 1      # bump when pipeline.schedules reads tables differently
+
+
+def _schedules_cache(doc_id: str):
+    from storage.store import _doc_dir
+    return _doc_dir(doc_id) / "schedules.json"
+
+
+@router.get("/schedules/{doc_id}")
+async def get_schedules(doc_id: str):
+    """The document's rate schedules, each read row by row into bands and
+    checked: starts at zero, no gaps or overlaps, an open top band, rates
+    that do not fall (pipeline.schedules). Cached per PDF."""
+    import asyncio
+    import json
+
+    from storage.store import get_path
+
+    pdf = get_path(doc_id)
+    if pdf is None or not os.path.exists(pdf):
+        raise HTTPException(status_code=404, detail=f"No PDF stored for {doc_id}.")
+    cache = _schedules_cache(doc_id)
+    stamp = f"{os.path.getsize(pdf)}:{int(os.path.getmtime(pdf))}:{SCHEDULES_VERSION}"
+    if cache.exists():
+        data = json.loads(cache.read_text(encoding="utf-8"))
+        if data.get("stamp") == stamp:
+            return data
+    from pipeline.schedules import find_schedules
+    schedules = await asyncio.get_running_loop().run_in_executor(None, find_schedules, str(pdf))
+    data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
+            "review": sum(1 for s in schedules if not s["check"]["ok"])}
+    cache.write_text(json.dumps(data), encoding="utf-8")
+    return data
+

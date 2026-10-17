@@ -7,8 +7,13 @@ import { API_BASE } from "@/lib/api";
 
 const API = API_BASE;
 
+interface NumberCheck {
+  status: "verified" | "provision" | "unsupported" | "unchecked";
+  fields: { field: string; value: number; found: "quote" | "provision" | "missing" }[];
+}
 interface Effect {
   kind: string; modality: string; quote: string | null; span: [number, number] | null;
+  numbers?: NumberCheck;
   [field: string]: unknown;
 }
 interface UnitView { path: string; text: string; status: string; rules: number; hallucinated_fields: number; effects: Effect[] }
@@ -51,6 +56,20 @@ function effectFields(e: Effect): string {
         : ["rate", "max_rate"].includes(k) ? pct(v) : String(v);
       return `${k.replace(/_/g, " ")} ${shown}`;
     }).join(", ");
+}
+
+const RATE_FIELDS = ["rate", "max_rate", "rate_per_month"];
+
+/** One line on whether an effect's numbers are in the words it cites. */
+export function numbersNote(n?: NumberCheck): { tone: "ok" | "warn" | "bad"; text: string } | null {
+  if (!n || n.status === "unchecked") return null;
+  const show = (f: NumberCheck["fields"][number]) =>
+    `${f.field.replace(/_/g, " ")} ${RATE_FIELDS.includes(f.field) ? pct(f.value) : lakh(f.value)}`;
+  if (n.status === "verified") return { tone: "ok", text: "every number is in its quote" };
+  const missing = n.fields.filter((f) => f.found === "missing");
+  if (missing.length) return { tone: "bad", text: `not in the statute: ${missing.map(show).join(", ")}` };
+  const elsewhere = n.fields.filter((f) => f.found === "provision");
+  return { tone: "warn", text: `in the provision but not in its quote: ${elsewhere.map(show).join(", ")}` };
 }
 
 /** The provision text with every quoted span highlighted. */
@@ -131,9 +150,22 @@ export default function InspectPanel({ set, system, onClose }: { set: string; sy
               {u.effects.length > 0 && (
                 <ul className="text-xs space-y-0.5">
                   {u.effects.map((e, i) => (
-                    <li key={i} className="flex gap-2">
+                    <li key={i} className="flex flex-wrap gap-x-2 gap-y-0.5">
                       <span className="font-mono text-text-muted w-28 shrink-0">{e.kind}</span>
                       <span className="text-text-secondary">{effectFields(e) || "—"}</span>
+                      {(() => {
+                        const note = numbersNote(e.numbers);
+                        if (!note) return null;
+                        return (
+                          <span
+                            className={
+                              note.tone === "ok" ? "text-status-success" : note.tone === "warn" ? "text-status-warning" : "text-status-critical"
+                            }
+                          >
+                            · {note.text}
+                          </span>
+                        );
+                      })()}
                     </li>
                   ))}
                 </ul>

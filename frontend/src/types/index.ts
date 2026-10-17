@@ -44,6 +44,8 @@ export interface LLMCausalRule {
   extraction_time_ms: number;
   model: string;
   parse_error?: string | null;
+  /** amounts and rates the reading states that the clause text does not */
+  unsupported_numbers?: string[];
 }
 
 export interface Clause {

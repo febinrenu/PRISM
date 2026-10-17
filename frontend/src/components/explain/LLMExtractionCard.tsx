@@ -1,5 +1,6 @@
 "use client";
 import { Bot, Quote } from "lucide-react";
+import UnsupportedNumbers from "@/components/ui/UnsupportedNumbers";
 import { Badge } from "@/components/ui/badge";
 import ConfidenceGauge from "./ConfidenceGauge";
 import { tokens, alpha } from "@/lib/tokens";
@@ -26,6 +27,7 @@ export default function LLMExtractionCard({ rule }: { rule: LLMCausalRule }) {
 
   return (
     <div className="glass-card p-6 space-y-5">
+      <UnsupportedNumbers numbers={rule.unsupported_numbers} />
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <Bot className="w-4 h-4 text-accent-primary" />

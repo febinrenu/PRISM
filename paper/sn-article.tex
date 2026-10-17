@@ -646,6 +646,25 @@ rebates to the right one but dropped its marginal relief. The assembler's checks
 complete schedule, not a correct one, so a repaired reading needs the same
 scrutiny as any other.
 
+\paragraph{Are the numbers in the law they cite?}
+\Cref{tab:number_grounding} checks every numeric field of every extracted
+effect (a band's bounds and rate, a rebate's limit and amount) against the
+quantities in the effect's quote and in its provision, with amounts read in
+figures or words and a band's lower bound allowed its one-rupee convention.
+Values stated nowhere in the provision are rare: \res{num@gpt-oss-120b@headline@missing}\%
+for GPT-OSS-120B, all of them a very large number used for an open top band
+instead of null, against \res{num@phi3.5@headline@missing}\% for Phi-3.5.
+More common is a number that the provision states but the quote does not:
+\res{num@gpt-oss-120b@headline@provision}\% for GPT-OSS-120B and
+\res{num@qwen3.8-27b@headline@provision}\% for Qwen3.8-27B, almost all of
+them rates and band limits of the two schedules whose columns are
+interleaved, quoted from a line that does not hold them. With the
+rebuilt tables the share of numbers found in their own quote rises to
+\res{num@gpt-oss-120b@tables+schema@quote}\% (GPT-OSS-120B) and
+\res{num@qwen3.8-27b@tables+json@quote}\% (Qwen3.8-27B), so a reader of the
+extraction can check each value against the words it cites.
+\input{tables/number_grounding}
+
 \section{Threats to validity}\label{sec:threats}
 
 \paragraph{Expert coding.} The parameters were coded by one person with a

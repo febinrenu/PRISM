@@ -176,9 +176,20 @@ def get_result(doc_id: str) -> Optional[AnalysisResult]:
     path = _doc_dir(doc_id) / "result.json"
     if path.exists():
         result = AnalysisResult.model_validate_json(path.read_text(encoding="utf-8"))
+        _check_reading_numbers(result)
         _result_store[doc_id] = result
         return result
     return None
+
+
+def _check_reading_numbers(result: AnalysisResult) -> None:
+    """Mark the amounts and rates in each model reading that its clause does
+    not state. In memory only: results saved before the check existed get it
+    on load, and the file on disk is not rewritten by reading it."""
+    from pipeline.llm_extractor import check_numbers
+    for c in result.clauses:
+        if c.llm_extraction is not None:
+            c.llm_extraction.unsupported_numbers = check_numbers(c.llm_extraction, c.text)
 
 
 def update_result(doc_id: str, mutate) -> Optional[AnalysisResult]:

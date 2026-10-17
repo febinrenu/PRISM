@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BarChart3, Network, Zap, ScatterChart, Search, Bot } from "lucide-react";
+import { BarChart3, Network, Zap, ScatterChart, Search, Bot, Table2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OverviewTab from "./OverviewTab";
 import EntityNetworkTab from "./EntityNetworkTab";
@@ -8,12 +8,14 @@ import CausalTab from "./CausalTab";
 import EmbeddingTab from "./EmbeddingTab";
 import SearchTab from "./SearchTab";
 import LLMCompareTab from "./LLMCompareTab";
+import RatesTab from "./RatesTab";
 import { tokens } from "@/lib/tokens";
 
 const TABS = [
   { key: "overview",  label: "Overview",  Icon: BarChart3    },
   { key: "causal",    label: "Causal",    Icon: Zap          },
   { key: "llm",       label: "LLM",       Icon: Bot          },
+  { key: "rates",     label: "Rates",     Icon: Table2       },
   { key: "search",    label: "Search",    Icon: Search       },
   { key: "network",   label: "Entities",  Icon: Network      },
   { key: "embedding", label: "UMAP",      Icon: ScatterChart },
@@ -76,6 +78,7 @@ export default function AnalyticsTabs() {
             {activeTab === "overview"  && <div className="h-full overflow-y-auto"><OverviewTab /></div>}
             {activeTab === "causal"    && <div className="h-full overflow-y-auto"><CausalTab /></div>}
             {activeTab === "llm"       && <div className="h-full overflow-y-auto"><LLMCompareTab /></div>}
+            {activeTab === "rates"     && <div className="h-full overflow-y-auto"><RatesTab /></div>}
             {activeTab === "search"    && <div className="h-full overflow-y-auto"><SearchTab /></div>}
             {activeTab === "network"   && <div className="h-full overflow-y-auto"><EntityNetworkTab /></div>}
             {activeTab === "embedding" && <div className="h-full overflow-y-auto"><EmbeddingTab /></div>}

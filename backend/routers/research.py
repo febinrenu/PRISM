@@ -123,6 +123,7 @@ def inspect(set_name: str, system: str):
     from the cache only: this view never calls a model."""
     from pipeline.extraction.backends import SYSTEMS
     from pipeline.extraction.extractor import cached_record
+    from pipeline.extraction.numbers import check_effect
     from pipeline.extraction.units import build_units
     from simulation.experiment.provision_sets import units_for
     from simulation.rac import gold
@@ -149,8 +150,10 @@ def inspect(set_name: str, system: str):
                 for e in r.effects:
                     d = e.model_dump(exclude={"source_span", "operation", "taxpayer"}, exclude_none=True)
                     sp = e.source_span
+                    # is each number the effect states in the words it cites?
+                    numbers = check_effect(d, sp.text if sp else None, u.text).as_dict()
                     effects.append({**d, "span": [sp.start - u.start, sp.end - u.start] if sp else None,
-                                    "quote": sp.text if sp else None, "modality": r.modality})
+                                    "quote": sp.text if sp else None, "modality": r.modality, "numbers": numbers})
             provs.append({"path": u.path, "text": u.text, "status": rec.status if rec else "not cached",
                           "rules": len(rec.rules) if rec else 0,
                           "hallucinated_fields": rec.hallucinated_fields if rec else 0, "effects": effects})

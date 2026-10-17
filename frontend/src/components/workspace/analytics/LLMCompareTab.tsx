@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import UnsupportedNumbers from "@/components/ui/UnsupportedNumbers";
 import { useEffect, useMemo, useState } from "react";
 import { Bot, CheckCheck, CircleSlash, Cpu, ExternalLink, Play, TriangleAlert } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
@@ -164,6 +165,7 @@ export default function LLMCompareTab() {
                 </div>
                 <div className="space-y-1.5">
                   <p className="kicker !text-micro">Language model</p>
+                  <UnsupportedNumbers numbers={rule.unsupported_numbers} />
                   {rule.is_causal ? (
                     <>
                       {rule.condition && (

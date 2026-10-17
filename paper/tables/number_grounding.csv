@@ -1,0 +1,14 @@
+System,Condition,Numbers,In its quote (%),Elsewhere in the provision (%),Nowhere (%),Unsupported effects
+rules,headline,186,100.0,0.0,0.0,0/72
+rules,tables,240,100.0,0.0,0.0,0/94
+gpt-oss-120b,headline,253,84.6,13.8,1.6,4/100
+gpt-oss-120b,tables+json,239,97.1,2.9,0.0,0/97
+gpt-oss-120b,tables+schema,249,98.8,1.2,0.0,0/99
+gpt-oss-20b,headline,237,88.2,11.4,0.4,1/94
+gpt-oss-20b,tables+json,206,99.0,1.0,0.0,0/82
+gpt-oss-20b,tables+schema,246,98.0,2.0,0.0,0/97
+qwen3.8-27b,headline,251,90.4,9.6,0.0,0/101
+qwen3.8-27b,tables+json,249,99.2,0.8,0.0,0/99
+qwen3.8-27b,tables+schema,204,97.1,2.9,0.0,0/80
+phi3.5,headline,46,32.6,60.9,6.5,3/19
+gemma2-2b,headline,0,,,,0/1
