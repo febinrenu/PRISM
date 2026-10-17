@@ -56,6 +56,7 @@ python -m cli experiment                 # expert vs extracted (hosted systems n
 python -m cli experiment-stats           # robustness of flips, system comparisons
 python -m cli experiment-structured      # rebuilt tables + schema decoding + one repair round
 python -m cli experiment-structured --no-schema   # the same in JSON mode (decoding ablation)
+python -m cli experiment-heldout         # the pre-registered held-out check
 python -m cli error-injection            # typed errors injected into the expert law
 
 python -m cli eval-run --system rules --split test
@@ -80,6 +81,16 @@ back with the check in general terms (never a value). The first pass and the
 repaired result are both scored by the headline's scoring and kept in
 `data/experiments/structured/`; `cli reproduce` turns them into
 `paper/tables/structured.tex`. The headline runs are left as they are.
+
+**Held-out check.** `cli experiment-heldout` runs five reforms that were not
+opened while the structured condition was built (Part III schedules of four
+Finance Acts and the 1961 Act schedules of FA 2026; fixed and committed
+before any run, with their exclusions and hypothesis, in
+`simulation/experiment/provision_sets.py`). Every system kept every
+conclusion on at least as many of them as in the headline condition, and
+the language models found more of their numbers in their own quotes; the
+headline is near its ceiling there, so this shows that the condition does
+no harm more than the size of its benefit (`paper/tables/heldout.tex`).
 
 **Open-weight systems in batch.** `cli batch-export --system mistral-7b`
 writes every prompt the study needs; `training/kaggle_batch_extract.ipynb`

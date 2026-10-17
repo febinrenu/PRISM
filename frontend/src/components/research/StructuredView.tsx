@@ -16,6 +16,15 @@ interface Variant {
   repairs_asked?: number; assembled_by_repair?: number; repaired_but_flipped?: number;
 }
 export interface SystemRow { system: string; headline: Counts | null; variants: Variant[] }
+export interface HeldoutRow {
+  system: string;
+  condition: string;
+  reforms: number;
+  first_pass: { assembled: number; no_flip: number };
+  final: { assembled: number; no_flip: number };
+  repairs: number;
+  numbers: { fields: number; in_quote: number; in_provision: number; missing: number } | null;
+}
 export interface HeadlineRun { set: string; system: string; complete: boolean; flip_rate: number | null }
 
 const VARIANT: Record<string, string> = {
@@ -61,6 +70,7 @@ const state = (complete: boolean, flip: number | null): State => (!complete ? "n
 export default function StructuredView({ headline, sets }: { headline: HeadlineRun[]; sets: string[] }) {
   const [rows, setRows] = useState<SystemRow[] | null>(null);
   const [note, setNote] = useState("");
+  const [heldout, setHeldout] = useState<HeldoutRow[] | null>(null);
 
   useEffect(() => {
     fetch(`${API}/api/research/structured`)
@@ -68,12 +78,13 @@ export default function StructuredView({ headline, sets }: { headline: HeadlineR
       .then((d) => {
         setRows(d?.systems ?? []);
         setNote(d?.note ?? "");
+        setHeldout(d?.heldout ?? null);
       })
       .catch(() => setRows([]));
   }, []);
 
   if (!rows || rows.length === 0) return null;
-  return <StructuredSection rows={rows} note={note} headline={headline} sets={sets} />;
+  return <StructuredSection rows={rows} note={note} headline={headline} sets={sets} heldout={heldout} />;
 }
 
 export function StructuredSection({
@@ -81,11 +92,13 @@ export function StructuredSection({
   note,
   headline,
   sets,
+  heldout = null,
 }: {
   rows: SystemRow[];
   note: string;
   headline: HeadlineRun[];
   sets: string[];
+  heldout?: HeldoutRow[] | null;
 }) {
   return (
     <section id="structured" aria-labelledby="structured-h" className="mt-16 scroll-mt-32">
@@ -159,9 +172,40 @@ export function StructuredSection({
         })}
       </div>
       {note && (
-        <Callout tone="warn" className="mt-6" title="Read with care">
-          {note} <Tag className="ml-1">same reforms</Tag>
+        <Callout tone={heldout ? "info" : "warn"} className="mt-6" title="Read with care">
+          {note} {!heldout && <Tag className="ml-1">same reforms</Tag>}
         </Callout>
+      )}
+      {heldout && heldout.length > 0 && (
+        <Panel kicker="Held-out check, fixed before any run" title="Five reforms not opened while this was built" className="mt-4" flush>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-[13px]">
+              <caption className="sr-only">Held-out reforms: conclusions kept and numbers found in their quotes</caption>
+              <thead>
+                <tr className="text-left text-[12px] text-text-muted">
+                  <th className="px-4 py-2 font-normal">Reader</th>
+                  <th className="px-2 py-2 font-normal">Condition</th>
+                  <th className="px-2 py-2 text-right font-normal">No flip, first pass</th>
+                  <th className="px-2 py-2 text-right font-normal">After one repair</th>
+                  <th className="px-4 py-2 text-right font-normal">Numbers in their quote</th>
+                </tr>
+              </thead>
+              <tbody>
+                {heldout.map((h) => (
+                  <tr key={`${h.system}-${h.condition}`} className="border-t border-border">
+                    <td className="px-4 py-1.5 text-text-primary">{systemName(h.system)}</td>
+                    <td className="px-2 py-1.5 text-text-muted">{h.condition === "headline" ? "canonical text" : VARIANT[h.condition] ?? h.condition}</td>
+                    <td className="px-2 py-1.5 text-right font-mono tabular-nums">{h.first_pass.no_flip}/{h.reforms}</td>
+                    <td className="px-2 py-1.5 text-right font-mono tabular-nums">{h.final.no_flip}/{h.reforms}</td>
+                    <td className="px-4 py-1.5 text-right font-mono tabular-nums">
+                      {h.numbers && h.numbers.fields ? `${((100 * h.numbers.in_quote) / h.numbers.fields).toFixed(1)}%` : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
       )}
     </section>
   );

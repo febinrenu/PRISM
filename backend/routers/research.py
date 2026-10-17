@@ -76,9 +76,14 @@ def structured():
     runs = structured_run.load_runs()
     if not runs:
         raise HTTPException(status_code=404, detail="The structured condition has not been run yet.")
+    from simulation.experiment import heldout
+    ho = heldout.load()
     return {"systems": structured_run.summary(load_runs(), runs),
-            "note": "Designed after the headline's failures were inspected on these reforms; "
-                    "a held-out confirmation is still to be run."}
+            "heldout": heldout.summary(ho) if ho else None,
+            "note": "Designed after the headline's failures were inspected on these reforms; the held-out "
+                    "check below was fixed before any run, on five reforms whose provisions were not opened."
+                    if ho else "Designed after the headline's failures were inspected on these reforms; "
+                               "a held-out confirmation is still to be run."}
 
 
 @router.get("/research/backtest")

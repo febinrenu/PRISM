@@ -186,6 +186,20 @@ def number_grounding_table(rows: list[dict]) -> Path:
                        "llrrrrr")
 
 
+def heldout_table(rows: list[dict]) -> Path:
+    out = []
+    for r in rows:
+        g = r["numbers"]
+        n = r["reforms"]
+        out.append([r["system"], r["condition"], f"{r['first_pass']['no_flip']}/{n}", f"{r['final']['no_flip']}/{n}",
+                    r["repairs"], f"{100 * g['in_quote'] / g['fields']:.1f}" if g else "",
+                    f"{100 * g['missing'] / g['fields']:.1f}" if g else ""])
+    return write_table("heldout", ["System", "Condition", "No flip (first pass)", "No flip (after repair)", "Repairs",
+                                   "Numbers in their quote (%)", "Numbers nowhere (%)"], out,
+                       "Held-out check, pre-registered before any run: five reforms whose provisions were not opened "
+                       "while the structured condition was built.", "llrrrrr")
+
+
 def stats_tables(res_dir: Path) -> list[Path]:
     s = json.loads((res_dir / "stats.json").read_text(encoding="utf-8"))
     rows = [[r["set"], r["system"], _f(r["flip_rate_calibrated"], 2), _f(r["flip_rate_mean"], 2),
@@ -326,6 +340,18 @@ def numbers_file(res_dir: Path, runs: list[dict]) -> Path:
                                                       and x["first_complete"] and x["first_flip_rate"] == 0))
             if e["headline"]:
                 vals[f"st@{e['system']}@headline@noflip"] = str(e["headline"]["no_flip"])
+        from simulation.experiment import heldout
+        from simulation.experiment.provision_sets import HELD_OUT_SETS
+        ho = heldout.load()
+        if ho:
+            vals["horeforms"] = str(len(HELD_OUT_SETS))
+            for r in heldout.summary(ho):
+                tag = f"ho@{r['system']}@{r['condition']}"
+                vals[f"{tag}@first"] = str(r["first_pass"]["no_flip"])
+                vals[f"{tag}@final"] = str(r["final"]["no_flip"])
+                vals[f"{tag}@repairs"] = str(r["repairs"])
+                if r["numbers"]:
+                    vals[f"{tag}@quote"] = f"{100 * r['numbers']['in_quote'] / r['numbers']['fields']:.1f}"
         for g in structured_run.number_grounding():
             if g["fields"]:
                 tag = f"num@{g['system']}@{g['condition']}"
@@ -453,6 +479,12 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
         written += structured_tables(runs, srun)
     progress("number grounding of every cached extraction")
     written.append(number_grounding_table(structured_run.number_grounding()))
+    progress("held-out check from cached extractions")
+    from simulation.experiment import heldout
+    for old in heldout.load():
+        heldout.save(heldout.run(old["set"], old["system"], old["condition"]))
+    if heldout.load():
+        written.append(heldout_table(heldout.summary(heldout.load())))
     progress("error injection")
     import cli as _cli
     _cli.cmd_error_injection(type("A", (), {"draws": draws // 2 or 1})())

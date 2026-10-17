@@ -1,0 +1,12 @@
+System,Condition,No flip (first pass),No flip (after repair),Repairs,Numbers in their quote (%),Numbers nowhere (%)
+rules,headline,2/5,2/5,0,100.0,0.0
+rules,tables,3/5,3/5,0,100.0,0.0
+gpt-oss-120b,headline,5/5,5/5,0,87.5,0.0
+gpt-oss-120b,tables+json,4/5,5/5,1,95.8,0.0
+gpt-oss-120b,tables+schema,4/5,5/5,1,100.0,0.0
+gpt-oss-20b,headline,4/5,4/5,0,82.2,0.8
+gpt-oss-20b,tables+json,4/5,4/5,1,100.0,0.0
+gpt-oss-20b,tables+schema,5/5,5/5,0,96.1,0.0
+qwen3.8-27b,headline,5/5,5/5,0,93.8,0.0
+qwen3.8-27b,tables+json,5/5,5/5,0,95.3,0.0
+qwen3.8-27b,tables+schema,0/5,5/5,5,100.0,0.0

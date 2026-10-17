@@ -39,3 +39,17 @@ describe("structured reading", () => {
     expect(html).toContain("held-out check is pending");
   });
 });
+
+describe("held-out check", () => {
+  it("shows each reader's held-out result and drops the same-reforms tag", () => {
+    const heldout = [
+      { system: "gpt-oss-20b", condition: "headline", reforms: 5, first_pass: { assembled: 4, no_flip: 4 }, final: { assembled: 4, no_flip: 4 }, repairs: 0, numbers: { fields: 129, in_quote: 106, in_provision: 22, missing: 1 } },
+      { system: "gpt-oss-20b", condition: "tables+schema", reforms: 5, first_pass: { assembled: 5, no_flip: 5 }, final: { assembled: 5, no_flip: 5 }, repairs: 0, numbers: { fields: 128, in_quote: 123, in_provision: 5, missing: 0 } },
+    ];
+    const html = renderToStaticMarkup(createElement(StructuredSection, { rows, note: "fixed before any run", headline, sets, heldout }));
+    expect(html).toContain("Five reforms not opened while this was built");
+    expect(html).toContain("canonical text");
+    expect(html).toContain("96.1%");
+    expect(html).not.toContain("same reforms");
+  });
+});

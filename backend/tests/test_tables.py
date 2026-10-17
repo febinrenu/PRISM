@@ -342,3 +342,13 @@ def test_structured_route(tmp_path, monkeypatch):
     monkeypatch.setattr(structured_run, "summary", lambda head, runs: [{"system": "s", "variants": []}])
     d = c.get("/api/research/structured").json()
     assert d["systems"] == [{"system": "s", "variants": []}] and "held-out" in d["note"]
+
+
+def test_heldout_sets_are_disjoint_from_the_headline():
+    """The held-out provisions are not provisions of the headline study."""
+    from simulation.experiment.provision_sets import HELD_OUT_SETS, PROVISION_SETS, spec
+    used = {p for s in PROVISION_SETS.values() for p in s["targets"].values()}
+    held = {p for s in HELD_OUT_SETS.values() for p in s["targets"].values()}
+    assert not used & held
+    assert not any(h.startswith(u + "/") or u.startswith(h + "/") for h in held for u in used)
+    assert spec("HO_FA2020_partIII")["ay"] == "2021-22" and spec("FA2025_old_schedule")["ay"] == "2025-26"

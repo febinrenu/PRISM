@@ -646,6 +646,37 @@ rebates to the right one but dropped its marginal relief. The assembler's checks
 complete schedule, not a correct one, so a repaired reading needs the same
 scrutiny as any other.
 
+\paragraph{Held-out check.} Because the structured condition was built
+while looking at these reforms, it was checked on \res{horeforms} further
+reforms whose provisions had not been opened (\cref{tab:heldout}): the
+Part~III old-regime schedules of four Finance Acts, each against the next
+year's expert schedule, and the 1961 Act schedules of the Finance Act 2026.
+The sets, the exclusions and the hypothesis were committed before any
+system was run on them. The headline condition is close to its ceiling
+here, since only three of the fourteen provisions have interleaved columns:
+GPT-OSS-120B and Qwen3.8-27B kept every conclusion on
+\res{ho@gpt-oss-120b@headline@final} and \res{ho@qwen3.8-27b@headline@final}
+reforms with the canonical text alone. With rebuilt tables, schema decoding
+and one repair, every system kept every conclusion on at least as many
+reforms as in the headline (GPT-OSS-20B \res{ho@gpt-oss-20b@tables+schema@final}
+against \res{ho@gpt-oss-20b@headline@final}; the rule baseline
+\res{ho@rules@tables@final} against \res{ho@rules@headline@final}), and each
+language model found its numbers in its own quotes more often (GPT-OSS-120B
+\res{ho@gpt-oss-120b@tables+schema@quote}\% against
+\res{ho@gpt-oss-120b@headline@quote}\%; GPT-OSS-20B
+\res{ho@gpt-oss-20b@tables+schema@quote}\% against
+\res{ho@gpt-oss-20b@headline@quote}\%). The first pass alone was not
+better: GPT-OSS-120B kept every conclusion on
+\res{ho@gpt-oss-120b@tables+schema@first} reforms before its one repair, and
+Qwen3.8-27B under its provider's non-strict schema mode on
+\res{ho@qwen3.8-27b@tables+schema@first} before \res{ho@qwen3.8-27b@tables+schema@repairs}
+repairs, again returning empty answers. No held-out repair produced a law
+that flipped a conclusion. The held-out evidence is therefore that the
+condition does no harm and that its repair round recovers what its first
+pass loses; its large gains in \cref{tab:structured} come mostly from the
+interleaved schedules, which the held-out reforms seldom contain.
+\input{tables/heldout}
+
 \paragraph{Are the numbers in the law they cite?}
 \Cref{tab:number_grounding} checks every numeric field of every extracted
 effect (a band's bounds and rate, a rebate's limit and amount) against the
@@ -697,9 +728,11 @@ from that cache without network access.
 \paragraph{Structured condition.} The structured condition was designed
 after the headline's failures had been inspected on the same ten reforms.
 Its components are generic: no rule, prompt or check names a reform or a
-value, and the prompt's worked example uses invented numbers. Its gain is
-nevertheless measured on the reforms that motivated it, and is an upper
-estimate until it is confirmed on held-out provisions. The two small local
+value, and the prompt's worked example uses invented numbers. Its gains in
+\cref{tab:structured} are measured on the reforms that motivated it; the
+held-out check (\cref{tab:heldout}) is small and its headline condition is
+near its ceiling, so it shows that the condition does no harm rather than
+the size of its benefit. The two small local
 models were not run under it: on the machine used, one call took several
 minutes, and on the one reform tried the 2-billion-parameter model repeated
 a rule until its output budget ran out.
