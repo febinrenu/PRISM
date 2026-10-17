@@ -22,6 +22,7 @@ import numpy as np
 from config import BASE_DIR
 from pipeline.extraction.units import build_units
 from simulation.experiment.provision_sets import PROVISION_SETS, units_for
+from simulation.experiment.provision_sets import spec as provision_spec
 from simulation.rac import gold
 from simulation.rac.pit import liability
 from simulation.translate.assemble import assemble
@@ -120,7 +121,7 @@ def population_outcomes(params, expert, ay: str, complete: bool) -> dict:
 
 
 def run_set(set_name: str, system: str, use_cache: bool = True, k: int = 0) -> dict:
-    spec = PROVISION_SETS[set_name]
+    spec = provision_spec(set_name)
     statute, version = spec["statute"]
     units = build_units(statute, version)
 
@@ -157,7 +158,7 @@ def evaluate(set_name: str, system: str, rules_by_target: dict, extraction_log: 
     the expert law: taxpayer-level tax differences, population outcomes,
     pre-registered conclusions and attribution. Every condition is scored
     by this one function."""
-    spec = PROVISION_SETS[set_name]
+    spec = provision_spec(set_name)
     ay = spec["ay"]
     expert = gold.build_gold()[ay]
     result = assemble(rules_by_target, spec["targets"], expert, ay)

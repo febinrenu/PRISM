@@ -495,6 +495,33 @@ def cmd_experiment_structured(args) -> int:
     return 0
 
 
+def cmd_experiment_heldout(args) -> int:
+    """The pre-registered held-out check (provision_sets.HELD_OUT_SETS)."""
+    from pipeline.extraction.backends import QuotaExhausted
+    from simulation.experiment import heldout
+    from simulation.experiment.provision_sets import HELD_OUT_SETS
+
+    for system in args.systems.split(","):
+        for condition in heldout.conditions(system):
+            if args.conditions and condition not in args.conditions.split(","):
+                continue
+            for set_name in HELD_OUT_SETS:
+                try:
+                    r = heldout.run(set_name, system, condition)
+                except QuotaExhausted as e:
+                    print(f"{system}: daily quota exhausted ({str(e)[:100]})", flush=True)
+                    return 1
+                except Exception as e:  # noqa: BLE001 - keep going
+                    print(f"{set_name} / {system} / {condition}: FAILED {str(e)[:200]}", flush=True)
+                    continue
+                heldout.save(r)
+                f, fin = r["first_pass"], (r["repaired"] or r["first_pass"])
+                print(f"{set_name:22s} {system:14s} {condition:14s} first: complete={f['complete']!s:5s} "
+                      f"flip={f['population']['flip_rate']:.2f} | final: complete={fin['complete']!s:5s} "
+                      f"flip={fin['population']['flip_rate']:.2f}", flush=True)
+    return 0
+
+
 def cmd_experiment_stats(args) -> int:
     from simulation.experiment.stats import report
 
@@ -712,6 +739,11 @@ def main(argv=None) -> int:
     p.add_argument("--no-schema", action="store_true", help="JSON mode instead of schema-constrained decoding")
     p.add_argument("--no-repair", action="store_true", help="first pass only")
     p.set_defaults(func=cmd_experiment_structured)
+
+    p = sub.add_parser("experiment-heldout", help="the pre-registered held-out check of the structured condition")
+    p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b")
+    p.add_argument("--conditions", default="", help="comma-separated: headline,tables,tables+json,tables+schema")
+    p.set_defaults(func=cmd_experiment_heldout)
 
     p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
     p.add_argument("--draws", type=int, default=64)

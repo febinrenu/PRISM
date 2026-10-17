@@ -85,3 +85,70 @@ PROVISION_SETS: dict[str, dict] = {
 def units_for(path: str, units: list) -> list:
     """Units at `path` or below it."""
     return [u for u in units if u.path == path or u.path.startswith(path + "/")]
+
+
+# ── held-out sets (pre-registered) ──────────────────────────────────────────
+# Provisions that were not opened while the structured condition (rebuilt
+# tables, schema decoding, repair) and the number checks were built on the
+# reforms above. They are fixed here, and committed, before any system is
+# run on them; no rule, prompt or check may be changed after their results
+# are seen.
+#
+# Each Finance Act's Part III restates the old-regime rate schedules that
+# apply to the following year's tax deducted at source and advance tax, so
+# its expert value is the next assessment year's old-regime schedule. FA 2026
+# Part I-A states the 1961 Act schedules for AY 2026-27 (Part I-B was used
+# above). Left out, for reasons fixed before any run:
+#   - FA 2025 Part III and FA 2026 Part III: the parser merges item (III)
+#     with its neighbour, so no provision path holds one table;
+#   - FA 2026 Part I-A item (III): its node also holds the next paragraph's table;
+#   - surcharge provisions: they set separate rates for dividend and capital
+#     gains income, which the expert coding (normal rates only) leaves out,
+#     so a faithful reading would be scored as wrong.
+#
+# Hypothesis: with rebuilt tables, schema decoding and one repair, each
+# system keeps every conclusion on at least as many held-out reforms as with
+# the canonical text alone (the headline condition, greedy), and its numbers
+# are found in their own quotes at least as often.
+HELD_OUT_SETS: dict[str, dict] = {
+    "HO_FA2019N2_partIII": {
+        "ay": "2020-21", "statute": ("FA2019N2", "enacted"),
+        "description": "Finance (No. 2) Act 2019, First Schedule Part III Para A: old-regime rates for FY 2019-20.",
+        "targets": {"old.slabs.below_60": "FA2019N2/schFIRST/ptIII/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2019N2/schFIRST/ptIII/paraA/(II)",
+                    "old.slabs.80_plus": "FA2019N2/schFIRST/ptIII/paraA/(III)"},
+    },
+    "HO_FA2020_partIII": {
+        "ay": "2021-22", "statute": ("FA2020", "enacted"),
+        "description": "Finance Act 2020, First Schedule Part III Para A: old-regime rates for FY 2020-21.",
+        "targets": {"old.slabs.below_60": "FA2020/schFIRST/ptIII/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2020/schFIRST/ptIII/paraA/(II)",
+                    "old.slabs.80_plus": "FA2020/schFIRST/ptIII/paraA/(III)"},
+    },
+    "HO_FA2023_partIII": {
+        "ay": "2024-25", "statute": ("FA2023", "enacted"),
+        "description": "Finance Act 2023, First Schedule Part III Para A: old-regime rates for FY 2023-24.",
+        "targets": {"old.slabs.below_60": "FA2023/schFIRST/ptIII/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2023/schFIRST/ptIII/paraA/(II)",
+                    "old.slabs.80_plus": "FA2023/schFIRST/ptIII/paraA/(III)"},
+    },
+    "HO_FA2024N2_partIII": {
+        "ay": "2025-26", "statute": ("FA2024N2", "enacted"),
+        "description": "Finance (No. 2) Act 2024, First Schedule Part III Para A: old-regime rates for FY 2024-25.",
+        "targets": {"old.slabs.below_60": "FA2024N2/schFIRST/ptIII/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2024N2/schFIRST/ptIII/paraA/(II)",
+                    "old.slabs.80_plus": "FA2024N2/schFIRST/ptIII/paraA/(III)"},
+    },
+    "HO_FA2026_partIA": {
+        "ay": "2026-27", "statute": ("FA2026", "enacted"),
+        "description": "Finance Act 2026, First Schedule Part I-A Para A (the 1961 Act): old-regime rates for "
+                       "AY 2026-27, items (I) and (II).",
+        "targets": {"old.slabs.below_60": "FA2026/schFIRST/ptI/subA/paraA/(I)",
+                    "old.slabs.60_to_80": "FA2026/schFIRST/ptI/subA/paraA/(II)"},
+    },
+}
+
+
+def spec(set_name: str) -> dict:
+    """A provision set's design, headline or held-out."""
+    return PROVISION_SETS.get(set_name) or HELD_OUT_SETS[set_name]

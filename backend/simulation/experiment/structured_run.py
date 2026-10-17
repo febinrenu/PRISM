@@ -22,6 +22,7 @@ from pipeline.extraction import structured
 from pipeline.extraction.units import build_units
 from simulation.experiment.harness import RESULTS_DIR, evaluate
 from simulation.experiment.provision_sets import PROVISION_SETS, units_for
+from simulation.experiment.provision_sets import spec as provision_spec
 
 STRUCTURED_DIR = RESULTS_DIR / "structured"
 
@@ -43,7 +44,7 @@ def _log(target: str, path: str, units: list, records: list, stats: list) -> dic
 
 def run_set(set_name: str, system: str, *, use_schema: bool = True, repair: bool = True,
             use_cache: bool = True) -> dict:
-    spec = PROVISION_SETS[set_name]
+    spec = provision_spec(set_name)
     statute, version = spec["statute"]
     units = build_units(statute, version)
 
@@ -203,7 +204,7 @@ def interleaved_sets() -> list[str]:
     return out
 
 
-def number_grounding(systems: Optional[list[str]] = None) -> list[dict]:
+def number_grounding(systems: Optional[list[str]] = None, sets: Optional[dict] = None) -> list[dict]:
     """For each system and condition whose extractions are all cached: how
     many numeric fields of its effects are stated in the quote they cite, only
     elsewhere in the provision, or nowhere (pipeline.extraction.numbers).
@@ -219,7 +220,7 @@ def number_grounding(systems: Optional[list[str]] = None) -> list[dict]:
 
     systems = systems or ["rules", "gpt-oss-120b", "gpt-oss-20b", "qwen3.8-27b", "phi3.5", "gemma2-2b"]
     units = []
-    for spec in PROVISION_SETS.values():
+    for spec in (sets or PROVISION_SETS).values():
         built = build_units(*spec["statute"])
         for path in spec["targets"].values():
             units += units_for(path, built)
