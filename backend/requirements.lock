@@ -78,6 +78,7 @@ numba==0.65.0
 numpy==2.4.4
 oauthlib==3.3.1
 onnxruntime==1.27.0
+opencv-python==5.0.0.93
 opentelemetry-api==1.44.0
 opentelemetry-exporter-otlp-proto-common==1.44.0
 opentelemetry-exporter-otlp-proto-grpc==1.44.0
@@ -98,6 +99,7 @@ psycopg==3.3.4
 psycopg-binary==3.3.4
 pyarrow==24.0.0
 pybase64==1.4.3
+pyclipper==1.4.0
 pydantic==2.13.0
 pydantic-settings==2.14.2
 pydantic_core==2.46.0
@@ -113,6 +115,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-multipart==0.0.26
 PyYAML==6.0.3
+rapidocr-onnxruntime==1.4.4
 referencing==0.37.0
 regex==2026.4.4
 requests==2.33.1
@@ -128,6 +131,7 @@ seaborn==0.13.2
 sentence-transformers==5.4.0
 seqeval==1.2.2
 setuptools==81.0.0
+shapely==2.2.0
 shellingham==1.5.4
 six==1.17.0
 slowapi==0.1.10

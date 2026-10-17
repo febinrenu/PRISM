@@ -177,8 +177,13 @@ the provisions that caused it.
 Act 2025 as enacted and as amended by the Finance Act 2026, the Finance Acts
 2019 (No.~2), 2020, 2023, 2024 (No.~2), 2025 and 2026, the Central Goods and
 Services Tax Act 2017, the Code on Wages 2019 and the Digital Personal Data
-Protection Act 2023. Every PDF is downloaded from an official source and
-recorded with its SHA-256 hash.
+Protection Act 2023, and the Income-tax Act 1961 as amended by the Finance
+Act 2026. Every PDF is downloaded from an official source and recorded with
+its SHA-256 hash. The India Code copy of the 1961 Act sets its text in fonts
+without a Unicode map, so a text extractor returns control characters; its
+text is decoded exactly from the fonts' glyph names, which carry each
+character's code, and bold type is read from the glyphs' ink. The 1961 Act is
+used for retrieval and reading, not in the experiments.
 
 \input{tables/corpus}
 

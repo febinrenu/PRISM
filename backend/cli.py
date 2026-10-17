@@ -95,6 +95,7 @@ def cmd_parse(args) -> int:
 
     sources = [s for s in corpus.load_sources()
                if args.statute in ("all", s.id) and (args.version is None or s.version == args.version)]
+    changed = False
     for src in sources:
         if not src.usable:
             print(f"skip {src.key}: marked unusable in sources.json")
@@ -103,6 +104,17 @@ def cmd_parse(args) -> int:
             print(f"skip {src.key}: PDF missing or hash mismatch (run `python -m cli ingest`)")
             continue
         ast = parse_statute(str(src.pdf_path), src.id, src.version, src.kind, src.title)
+        if args.check:
+            # The frozen evaluation sets point into text.txt by offset and
+            # into ast.json by node id: a parser change must leave both alone.
+            old_text = (src.dir / "text.txt").read_text(encoding="utf-8") if (src.dir / "text.txt").exists() else None
+            old_ast = json.loads((src.dir / "ast.json").read_text(encoding="utf-8")) if (src.dir / "ast.json").exists() else None
+            same_text = old_text == ast.text
+            nodes = [(n["node_id"], n["start"], n["end"]) for n in ast.to_dict()["nodes"]]
+            same_nodes = old_ast is not None and nodes == [(n["node_id"], n["start"], n["end"]) for n in old_ast["nodes"]]
+            print(f"{src.key:28s} text {'unchanged' if same_text else 'CHANGED'}, nodes {'unchanged' if same_nodes else 'CHANGED'}")
+            changed = changed or not (same_text and same_nodes)
+            continue
         out = ast.to_dict()
         out["parser_version"] = PARSER_VERSION
         out["source_sha256"] = corpus.sha256_file(src.pdf_path)
@@ -114,7 +126,7 @@ def cmd_parse(args) -> int:
         st = ast.stats
         print(f"{src.key:28s} sections={st['sections']:4d} chapters={st['chapters']:3d} "
               f"nodes={len(ast.nodes):6d} chars={st['chars']:8d}")
-    return 0
+    return 1 if changed else 0
 
 
 def cmd_gold_export(args) -> int:
@@ -436,6 +448,25 @@ def cmd_tables(args) -> int:
     return 0
 
 
+def cmd_ocr_vocab(args) -> int:
+    """Word frequencies of the statute corpus, for re-spacing OCR output."""
+    from pipeline.pdftext import respace
+    from pipeline.statute.corpus import CORPUS_DIR
+    texts = [p.read_text(encoding="utf-8") for p in sorted(CORPUS_DIR.glob("*/*/text.txt"))]
+    counts = respace.build_vocabulary(texts)
+    print(f"{len(counts)} words from {len(texts)} statutes -> {respace.write_vocabulary(counts)}")
+    return 0
+
+
+def cmd_ocr_eval(args) -> int:
+    from pipeline.pdftext import evaluate
+    out = evaluate.run(pages=args.pages)
+    for k in ("ocr", "decoded_vs_ocr"):
+        print(k, out[k]["pooled"])
+    print(f"wrote {evaluate.OUT}")
+    return 0
+
+
 def cmd_experiment_structured(args) -> int:
     """The headline experiment under the structured condition (rebuilt
     tables, schema decoding, one repair round); results in
@@ -592,6 +623,8 @@ def main(argv=None) -> int:
     p = sub.add_parser("parse", help="parse downloaded statutes into ast.json + text.txt")
     p.add_argument("--statute", default="all")
     p.add_argument("--version", default=None)
+    p.add_argument("--check", action="store_true",
+                   help="reparse and compare with the stored text and nodes; write nothing")
     p.set_defaults(func=cmd_parse)
 
     sub.add_parser("gold-export", help="write expert PIT parameters to simulation/rac/gold/*.json") \
@@ -665,6 +698,12 @@ def main(argv=None) -> int:
     p = sub.add_parser("tables", help="rebuild the rate-table views (tables.json) from the statute PDFs")
     p.add_argument("--statute", default="all")
     p.set_defaults(func=cmd_tables)
+
+    sub.add_parser("ocr-vocab", help="corpus word frequencies used to re-space OCR output") \
+        .set_defaults(func=cmd_ocr_vocab)
+    p = sub.add_parser("ocr-eval", help="OCR word recall/precision on born-digital pages; decoded fonts vs OCR")
+    p.add_argument("--pages", type=int, default=10)
+    p.set_defaults(func=cmd_ocr_eval)
 
     p = sub.add_parser("experiment-structured",
                        help="headline experiment with rebuilt tables, schema decoding and one repair round")

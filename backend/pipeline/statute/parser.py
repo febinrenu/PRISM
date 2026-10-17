@@ -71,6 +71,12 @@ _INLINE_HEADING_RE = re.compile(r"^([A-Z][^.—–]{2,150}?)\.\s*[—–-]{1,2}\
 _ROMAN_RE = re.compile(r"^[ivxlcdm]+$")
 _UROMAN_RE = re.compile(r"^[IVXLCDM]+$")
 _TERMINAL_RE = re.compile(r"(?:[.;:,]|[—–-]{1,2}|\bor|\band)\s*[’”'\"]?\s*$")
+# In a consolidated Act (decoded through its fonts' glyph names: the India
+# Code Income-tax Act, 1961) a finished sentence before a bold heading may
+# also close an amendment bracket ("… as may be prescribed.]") or be an
+# omitted clause ("(v) [***]"). Used only for decoded lines, so every other
+# statute parses exactly as before.
+_ENDS_BEFORE_HEADING_RE = re.compile(r"(?:(?:[.;:,]|[—–-]{1,2}|\bor|\band)\s*[’”'\"\])]*|\[\*+\]\.?)\s*$")
 _QUOTE_CLOSE_RE = re.compile(r"[’”'\"]\s*\.?\s*[;,.]?\s*$")
 # "(III) of this Paragraph …": a line that refers to item (III) rather than opening it.
 _XREF_CONTINUATION_RE = re.compile(
@@ -226,8 +232,8 @@ def build_paragraphs(lines: list[Line], col_left: float, col_right: float) -> li
                 new = True
             elif ln.bold and not prev.bold and _SECTION_RE.match(ln.text.lstrip(_QUOTE_OPEN)):
                 new = True
-            elif (ln.bold and not prev.bold and _TERMINAL_RE.search(prev.text) and not structural
-                    and len(ln.text) < 160):
+            elif (ln.bold and not prev.bold and not structural and len(ln.text) < 160
+                    and (_ENDS_BEFORE_HEADING_RE if ln.decoded else _TERMINAL_RE).search(prev.text)):
                 # A bold line after a finished sentence: the heading printed
                 # above the next section (Income-tax Act 2025).
                 new = heading_split = True
@@ -942,7 +948,7 @@ def _merge_notes(notes: list[Line]) -> list[Line]:
                 and -1 <= ln.y0 - last.y1 < 1.4 * ln.size
                 and not _MARGIN_CITATION_RE.match(ln.text) and not last.text.rstrip().endswith(".")):
             merged[-1] = Line(page=last.page, x0=min(last.x0, ln.x0), y0=last.y0, x1=max(last.x1, ln.x1),
-                              y1=ln.y1, size=last.size, bold=last.bold,
+                              y1=ln.y1, size=last.size, bold=last.bold, decoded=last.decoded,
                               text=re.sub(r"-$", "", last.text) + ("" if last.text.endswith("-") else " ") + ln.text,
                               kind="marginal_note")
         else:

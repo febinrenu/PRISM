@@ -22,7 +22,7 @@ from config import SEGMENTATION_MODE
 from services import job_manager
 from storage import store
 from models.schemas import Clause, AnalysisResult
-from pipeline.pdf_parser import extract_pages
+from pipeline.pdf_parser import extract_pages, reading_summary
 from pipeline.clause_segmenter import segment_clauses
 from pipeline.legal_ner import extract_entities_batch
 from pipeline.causal_detector import detect_causal_patterns
@@ -58,18 +58,30 @@ def _pipeline_worker(
     try:
         # ── Stage 1: PDF Parsing ──────────────────────────────────────────────
         emit({"stage": "parsing", "message": "Opening PDF…", "progress": 0})
+        def _read_progress(done: int, total: int) -> None:
+            if done % 5 == 0 or done == total:
+                emit({"stage": "parsing", "message": f"Reading page {done} of {total}",
+                      "progress": int(100 * done / max(total, 1))})
+
         try:
-            pages = extract_pages(pdf_path)
+            pages = extract_pages(pdf_path, progress=_read_progress)
         except Exception as e:
             store.set_status(doc_id, "error")
             emit({"stage": "error", "message": f"PDF parsing failed: {e}"})
             return
 
         total_pages = len(pages)
+        reading = reading_summary(pages)
+        read_note = ""
+        if reading["ocr"] or reading["decoded"] or reading["unreadable"]:
+            read_note = " (" + ", ".join(f"{reading[k]} {label}" for k, label in
+                                         (("decoded", "decoded from font names"), ("ocr", "by OCR"),
+                                          ("unreadable", "unreadable")) if reading[k]) + ")"
         emit({
             "stage": "parsing",
-            "message": f"Extracted {total_pages} pages",
+            "message": f"Extracted {total_pages} pages{read_note}",
             "pages": total_pages,
+            "reading": reading,
             "progress": 100,
         })
 
@@ -77,7 +89,9 @@ def _pipeline_worker(
         emit({"stage": "segmentation", "message": "Segmenting clauses…", "progress": 0})
         try:
             raw_clauses = None
-            if SEGMENTATION_MODE == "statute":
+            # The statute parser reads the text layer only: a document with
+            # pages that needed OCR is segmented from the pages read here.
+            if SEGMENTATION_MODE == "statute" and not reading["ocr"]:
                 from pipeline.statute.segment_adapter import segment as statute_segment
                 try:
                     raw_clauses = statute_segment(pdf_path, doc_id)
@@ -282,6 +296,8 @@ def _pipeline_worker(
             "most_complex_clause_id": most_complex.clause_id,
             "domain": domain,
             "warnings": warnings,
+            # how each page's text was read (text layer, decoded fonts, OCR)
+            "reading": reading,
         }
 
         store.save_result(AnalysisResult(

@@ -5,9 +5,10 @@ ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-# curl for the healthcheck; build-essential for wheels without prebuilt binaries.
+# curl for the healthcheck; build-essential for wheels without prebuilt binaries;
+# libgl1 / libglib2.0-0 for OpenCV, which the OCR of scanned pages uses.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl && rm -rf /var/lib/apt/lists/*
+    build-essential curl libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
 
 # CPU-only torch first: the default wheel bundles several GB of CUDA libraries
 # the API server never uses.

@@ -15,6 +15,12 @@ Act 2017, Code on Wages 2019, DPDP Act 2023) is downloaded by
 (egazette.gov.in). The exact URL and SHA-256 of each file are recorded in
 `backend/data/corpus/{statute}/{version}/source.json`.
 
+The India Code PDF of the Income-tax Act, 1961 draws its text in Type3
+bitmap fonts without a Unicode map. Its text is decoded from the fonts'
+glyph names (`backend/pipeline/pdftext/glyphs.py`); OCR is not involved.
+Scanned documents uploaded to the app are read with RapidOCR (PP-OCR models
+under Apache-2.0), installed from `requirements.txt`.
+
 ## Survey microdata (not redistributed)
 
 PLFS and HCES unit-level records are distributed by the Ministry of Statistics

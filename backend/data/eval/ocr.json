@@ -1,0 +1,115 @@
+{
+ "engine": "rapidocr_onnxruntime (PP-OCRv4)",
+ "dpi": 200,
+ "ocr": {
+  "pooled": {
+   "pages": 10,
+   "words": 4093,
+   "recall": 0.9712,
+   "precision": 0.9859
+  },
+  "pages": [
+   {
+    "statute": "FA2025/enacted",
+    "page": 11,
+    "words": 573,
+    "recall": 0.9895287958115183,
+    "precision": 0.9912587412587412
+   },
+   {
+    "statute": "FA2025/enacted",
+    "page": 31,
+    "words": 504,
+    "recall": 0.998015873015873,
+    "precision": 0.998015873015873
+   },
+   {
+    "statute": "FA2025/enacted",
+    "page": 52,
+    "words": 421,
+    "recall": 0.9691211401425178,
+    "precision": 0.9784172661870504
+   },
+   {
+    "statute": "FA2025/enacted",
+    "page": 71,
+    "words": 315,
+    "recall": 0.9809523809523809,
+    "precision": 0.9840764331210191
+   },
+   {
+    "statute": "ITA2025/amended_fa2026",
+    "page": 41,
+    "words": 373,
+    "recall": 1.0,
+    "precision": 0.9973262032085561
+   },
+   {
+    "statute": "ITA2025/amended_fa2026",
+    "page": 201,
+    "words": 562,
+    "recall": 1.0,
+    "precision": 1.0
+   },
+   {
+    "statute": "ITA2025/amended_fa2026",
+    "page": 421,
+    "words": 497,
+    "recall": 0.8269617706237424,
+    "precision": 0.9340909090909091
+   },
+   {
+    "statute": "ITA2025/amended_fa2026",
+    "page": 601,
+    "words": 172,
+    "recall": 0.9883720930232558,
+    "precision": 0.9941520467836257
+   },
+   {
+    "statute": "CGST2017/consolidated",
+    "page": 21,
+    "words": 254,
+    "recall": 1.0,
+    "precision": 0.996078431372549
+   },
+   {
+    "statute": "CGST2017/consolidated",
+    "page": 121,
+    "words": 422,
+    "recall": 0.990521327014218,
+    "precision": 0.9952380952380953
+   }
+  ]
+ },
+ "decoded_vs_ocr": {
+  "pooled": {
+   "pages": 3,
+   "words": 1268,
+   "recall": 0.9937,
+   "precision": 0.9922
+  },
+  "pages": [
+   {
+    "statute": "ITA1961/consolidated",
+    "page": 6,
+    "words": 359,
+    "recall": 0.9944289693593314,
+    "precision": 0.9916666666666667
+   },
+   {
+    "statute": "ITA1961/consolidated",
+    "page": 151,
+    "words": 458,
+    "recall": 0.9912663755458515,
+    "precision": 0.9848156182212582
+   },
+   {
+    "statute": "ITA1961/consolidated",
+    "page": 401,
+    "words": 451,
+    "recall": 0.9955654101995566,
+    "precision": 1.0
+   }
+  ]
+ }
+}

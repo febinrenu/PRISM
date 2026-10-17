@@ -1,0 +1,301 @@
+{
+ "builder_version": 1,
+ "statute": "ITA1961/consolidated",
+ "source_sha256": "ecdd7ea6ef58415848a0bca8f88854c23f52dcb830e9ce7eb42b4520f30db2fc",
+ "text_sha256": "6cb087940145c8151c2c0fd2c6db7e175ff6fd07b82cef1b6771190a046c6f2d",
+ "unplaced_pdf_tables": 0,
+ "tables": [
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "1.",
+     "cells": [
+      "Upto Rs. 2,50,000",
+      "Nil"
+     ],
+     "start": 1492974,
+     "end": 1493000,
+     "exact": true
+    },
+    {
+     "label": "2.",
+     "cells": [
+      "From Rs. 2,50,001 to Rs. 5,00,000",
+      "5 per cent"
+     ],
+     "start": 1493001,
+     "end": 1493050,
+     "exact": true
+    },
+    {
+     "label": "3.",
+     "cells": [
+      "From Rs. 5,00,001 to Rs. 7,50,000",
+      "10 per cent"
+     ],
+     "start": 1493051,
+     "end": 1493101,
+     "exact": true
+    },
+    {
+     "label": "4.",
+     "cells": [
+      "From Rs. 7,50,001 to Rs. 10,00,000",
+      "15 per cent"
+     ],
+     "start": 1493102,
+     "end": 1493153,
+     "exact": true
+    },
+    {
+     "label": "5.",
+     "cells": [
+      "From Rs. 10,00,001 to Rs. 12,50,000",
+      "20 per cent"
+     ],
+     "start": 1493154,
+     "end": 1493206,
+     "exact": true
+    },
+    {
+     "label": "6.",
+     "cells": [
+      "From Rs. 12,50,001 to Rs. 15,00,000",
+      "25 per cent"
+     ],
+     "start": 1493207,
+     "end": 1493259,
+     "exact": true
+    },
+    {
+     "label": "7.",
+     "cells": [
+      "Above Rs. 15,00,000",
+      "30 per cent:"
+     ],
+     "start": 1493260,
+     "end": 1493297,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "",
+     "cells": [
+      "Upto Rs. 3,00,000",
+      "Nil"
+     ],
+     "start": 1494679,
+     "end": 1494702,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 3,00,001 to Rs. 6,00,000",
+      "5 per cent"
+     ],
+     "start": 1494703,
+     "end": 1494749,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 6,00,001 to Rs. 9,00,000",
+      "10 per cent"
+     ],
+     "start": 1494750,
+     "end": 1494797,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 9,00,001 to Rs. 12,00,000",
+      "15 per cent"
+     ],
+     "start": 1494798,
+     "end": 1494846,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 12,00,001 to Rs. 15,00,000",
+      "20 per cent"
+     ],
+     "start": 1494847,
+     "end": 1494896,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "Above Rs. 15,00,000",
+      "30 per cent;"
+     ],
+     "start": 1494897,
+     "end": 1494931,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "",
+     "cells": [
+      "Upto Rs. 3,00,000",
+      "Nil"
+     ],
+     "start": 1495167,
+     "end": 1495190,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 3,00,001 to Rs. 7,00,000",
+      "5 per cent"
+     ],
+     "start": 1495191,
+     "end": 1495237,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 7,00,001 to Rs. 10,00,000",
+      "10 per cent"
+     ],
+     "start": 1495238,
+     "end": 1495286,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 10,00,001 to Rs. 12,00,000",
+      "15 per cent"
+     ],
+     "start": 1495287,
+     "end": 1495336,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 12,00,001 to Rs. 15,00,000",
+      "20 per cent"
+     ],
+     "start": 1495337,
+     "end": 1495386,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "Above Rs. 15,00,000",
+      "30 per cent."
+     ],
+     "start": 1495387,
+     "end": 1495421,
+     "exact": true
+    }
+   ]
+  },
+  {
+   "kind": "boxed",
+   "origin": "text",
+   "page": null,
+   "match": 1.0,
+   "rows": [
+    {
+     "label": "",
+     "cells": [
+      "Upto Rs. 4,00,000",
+      "Nil"
+     ],
+     "start": 1495654,
+     "end": 1495677,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 4,00,001 to Rs. 8,00,000",
+      "5 per cent"
+     ],
+     "start": 1495678,
+     "end": 1495724,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 8,00,001 to Rs. 12,00,000",
+      "10 per cent"
+     ],
+     "start": 1495725,
+     "end": 1495773,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 12,00,001 to Rs. 16,00,000",
+      "15 per cent"
+     ],
+     "start": 1495774,
+     "end": 1495823,
+     "exact": true
+    },
+    {
+     "label": "",
+     "cells": [
+      "From Rs. 16,00,001 to Rs. 20,00,000",
+      "20 per cent"
+     ],
+     "start": 1495824,
+     "end": 1495873,
+     "exact": true
+    },
+    {
+     "label": "6.",
+     "cells": [
+      "From Rs. 20,00,001 to Rs. 24,00,000",
+      "25 per cent"
+     ],
+     "start": 1495926,
+     "end": 1495978,
+     "exact": true
+    },
+    {
+     "label": "7.",
+     "cells": [
+      "Above Rs. 24,00,000",
+      "30 per cent."
+     ],
+     "start": 1495979,
+     "end": 1496016,
+     "exact": true
+    }
+   ]
+  }
+ ]
+}

@@ -19,6 +19,7 @@ from. A web workspace exposes the same pipeline for any uploaded statute.
 |---|---|---|
 | Corpus | Downloads official statute PDFs, records URL and SHA-256 | `pipeline/statute/corpus.py`, `data/corpus/sources.json` |
 | Structure | Layout cleaning (running heads, margin line numbers, marginal notes, footnotes), then a statute AST: Part / Chapter / Section / Sub-section / Clause / Proviso / Explanation / Schedule / tables, quoted Finance Act insertions, exact offsets and page boxes, content-addressed node ids | `pipeline/statute/layout.py`, `parser.py` |
+| Reading PDFs | Each page's text is checked before use (empty, garbled, ok). Fonts without a Unicode map are decoded exactly from their glyph names, with bold read from glyph ink (how the India Code Income-tax Act 1961 is read); scanned or undecodable pages go to RapidOCR (PP-OCR, CPU), with glued words re-spaced from the corpus vocabulary. Every page records how it was read, and the app shows OCR pages | `pipeline/pdftext/` |
 | Rate tables | Rate schedules rebuilt row by row from the PDF geometry (numbered two-column schedules, also across page breaks; boxed tables), each row cited to its span of the frozen canonical text; a derived view, never a change to the text | `pipeline/statute/tables.py`, `data/corpus/*/*/tables.json` |
 | Rule schema | `LegalRule`: modality, subject, conditions, action, consequence, exceptions, cross-references, typed quantities and executable effects, all grounded to statute spans | `models/rules.py` |
 | Extraction | Rule-based baseline and language models behind one JSON interface: local (Ollama Phi-3.5, Gemma-2B), hosted (Groq GPT-OSS-120B / 20B, Qwen3.8-27B; OpenRouter Gemma 4 31B, Nemotron-3-Super) and open-weight batch systems run on a GPU host (Llama-3.1-8B, Mistral-7B). Every quoted span is verified against the statute or rejected; self-consistency sampling gives confidence | `pipeline/extraction/` |
@@ -41,7 +42,10 @@ python -m spacy download en_core_web_sm
 
 python -m cli ingest                     # statute PDFs (some sites need a browser; see DATA.md)
 python -m cli parse                      # statute ASTs (and the rebuilt rate tables)
+python -m cli parse --check              # reparse and confirm the frozen texts and node ids are unchanged
 python -m cli tables                     # rebuild only the rate-table views
+python -m cli ocr-vocab                  # corpus word frequencies for re-spacing OCR output
+python -m cli ocr-eval                   # OCR word recall/precision; decoded fonts against OCR
 python -m cli cbdt-targets               # Income Tax Return Statistics → population targets
 python -m cli gold-export                # expert income-tax parameters
 

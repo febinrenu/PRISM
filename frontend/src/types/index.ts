@@ -128,6 +128,24 @@ export interface AnalysisStats {
   graph_edges: number;
   most_complex_clause_id?: string;
   domain?: string;
+  /** How each page's text was read (absent on results from before it was recorded). */
+  reading?: ReadingSummary;
+}
+
+export interface ReadingSummary {
+  pages: number;
+  /** pages read from the PDF's text layer */
+  text: number;
+  /** pages whose fonts had no text map, decoded from the fonts' glyph names (exact) */
+  decoded: number;
+  /** pages read by OCR (scans, or text that could not be decoded) */
+  ocr: number;
+  /** pages with no usable text and no OCR available */
+  unreadable: number;
+  ocr_pages: number[];
+  unreadable_pages: number[];
+  ocr_confidence: number | null;
+  ocr_available: boolean | null;
 }
 
 export interface EmbeddingPoint {

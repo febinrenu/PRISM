@@ -42,3 +42,4 @@ truststore>=0.10  # OS certificate store for government sites (corpus download)
 hypothesis>=6.100  # property tests for the tax calculator
 rapidfuzz>=3.9  # fuzzy grounding of extracted spans
 SALib>=1.5  # global sensitivity analysis (Morris, Sobol)
+rapidocr_onnxruntime>=1.4,<1.5  # OCR for scanned pages (pipeline/pdftext); optional at runtime

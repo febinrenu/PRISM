@@ -22,6 +22,8 @@ from statistics import median
 
 import fitz  # PyMuPDF
 
+from pipeline.pdftext.text import text_dict
+
 # A segment that is only a structural label: "(43)", "(a)", "(iv)", "2.", "1A."
 LABEL_ONLY_RE = re.compile(r"^\s*[‘“'\"]?(?:\(\s*[0-9A-Za-z]{1,6}\s*\)|\d+[A-Z]{0,5}\.)\s*$")
 _DIGITS_RE = re.compile(r"\d+")
@@ -61,6 +63,7 @@ class Line:
     is_table_row: bool = False
     cells: list[str] = field(default_factory=list)
     kind: str = "body"
+    decoded: bool = False  # read through a font's glyph names (pipeline.pdftext)
 
     @property
     def yc(self) -> float:
@@ -75,7 +78,10 @@ class PageInfo:
 
 def _raw_segments(page: "fitz.Page", pno: int) -> list[Line]:
     segs: list[Line] = []
-    d = page.get_text("dict")
+    # fonts without a Unicode map are decoded through their glyph names;
+    # on every other page this is page.get_text("dict")
+    d = text_dict(page)
+    decoded = bool(d.get("decoded_fonts"))
     for block in d.get("blocks", []):
         if block.get("type") != 0:
             continue
@@ -99,7 +105,7 @@ def _raw_segments(page: "fitz.Page", pno: int) -> list[Line]:
             bold = "Bold" in first.get("font", "") or bool(first.get("flags", 0) & 16)
             x0, y0, x1, y1 = ln["bbox"]
             segs.append(Line(page=pno, x0=x0, y0=y0, x1=x1, y1=y1, size=round(size, 1),
-                             bold=bold, text=text))
+                             bold=bold, text=text, decoded=decoded))
     return segs
 
 
@@ -145,7 +151,7 @@ def _merge_rows(segs: list[Line]) -> list[Line]:
             page=first.page, x0=first.x0, y0=min(s.y0 for s in row), x1=max(s.x1 for s in row),
             y1=max(s.y1 for s in row), size=first.size, bold=first.bold,
             text=normalise("".join(parts)), is_table_row=is_table,
-            cells=cells if is_table else [],
+            cells=cells if is_table else [], decoded=first.decoded,
         ))
     return merged
 
@@ -216,7 +222,7 @@ def _two_column_rows(segs: list[Line], page_width: float) -> list[Line]:
             page=a.page, x0=a.x0, y0=min(s.y0 for s in l_in + r_in), x1=max(s.x1 for s in l_in + r_in),
             y1=max(s.y1 for s in l_in + r_in), size=a.size, bold=a.bold,
             text=normalise(f"{left_text} | {right_text}"), is_table_row=True, cells=[left_text, right_text],
-            kind="two_col_row",
+            kind="two_col_row", decoded=a.decoded,
         ))
     if not rows_out:
         return segs

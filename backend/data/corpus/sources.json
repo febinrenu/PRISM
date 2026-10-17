@@ -11,8 +11,7 @@
       "urls": [
         "https://www.indiacode.nic.in/bitstream/123456789/2435/1/a1961-43.pdf"
       ],
-      "note": "The registered copy (consolidated to the Finance Act 2026) uses a font encoding without Unicode mapping: 83% of its text extracts as control characters, so it is not parsed. The official India Code PDF at the URL above is the intended source.",
-      "usable": false
+      "note": "The registered copy (consolidated to the Finance Act 2026) draws its text in Type3 bitmap fonts without a Unicode map, so a plain extractor returns control characters. The parser decodes them exactly through the fonts' glyph names and reads bold from the glyphs' ink (pipeline/pdftext)."
     },
     {
       "id": "ITA2025",

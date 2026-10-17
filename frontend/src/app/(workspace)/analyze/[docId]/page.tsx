@@ -14,6 +14,7 @@ import PDFViewerPanel from "@/components/workspace/PDFViewerPanel";
 import DocContextBar from "@/components/shell/DocContextBar";
 import { StatusTag } from "@/components/ui/kit";
 import { cn } from "@/lib/utils";
+import ReadingNotice from "@/components/workspace/ReadingNotice";
 
 function Handle() {
   return (
@@ -117,6 +118,8 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
           </div>
         )}
       </DocContextBar>
+
+      {isComplete && <ReadingNotice reading={stats?.reading} />}
 
       {llmStage === "running" && (
         <div role="status" className="flex shrink-0 items-center gap-3 border-b border-border bg-status-info/[0.06] px-4 py-2 sm:px-6">

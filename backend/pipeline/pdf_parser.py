@@ -8,11 +8,23 @@ sees clean prose. Tables are detected and linearized into a single block
 flagged `is_table` — they are kept as one clause and excluded from prose
 analysis (causal detection / LIME) instead of being shredded into garbage
 fragments.
+
+Every page says how its text was read (`source`): from the text layer;
+"decoded" through the glyph names of fonts that have no Unicode map;
+"ocr" when the text layer is empty (a scan) or garbled and OCR is
+installed; "unreadable" when it is neither readable nor recognisable — such
+a page contributes no text rather than garbage.
 """
 import re
 from dataclasses import dataclass, field
+from typing import Callable, Optional
 
 import fitz  # PyMuPDF
+
+from pipeline.pdftext import ocr
+from pipeline.pdftext.glyphs import font_maps
+from pipeline.pdftext.quality import assess
+from pipeline.pdftext.text import text_dict
 
 
 @dataclass
@@ -34,6 +46,9 @@ class PageData:
     # Local char ranges (within `text`) that are tabular data — the segmenter
     # emits each as exactly one `table` clause and never splits it as prose.
     table_spans: list[tuple[int, int]] = field(default_factory=list)
+    source: str = "text"                     # text | decoded | ocr | unreadable
+    ocr_confidence: Optional[float] = None   # mean recogniser confidence of an OCR page
+    quality: dict = field(default_factory=dict)
 
 
 # ─── Text normalization ────────────────────────────────────────────────────────
@@ -107,11 +122,12 @@ def _extract_one_page(doc: "fitz.Document", page_idx: int) -> dict:
     width = page.rect.width or 1.0
     height = page.rect.height or 1.0
 
-    raw_blocks = page.get_text("blocks")  # [(x0,y0,x1,y1,text,no,type)]
+    raw_blocks, source, confidence, quality = _read_blocks(page)  # [(x0,y0,x1,y1,text,no,type)]
 
-    # Detect tables on this page (best-effort; never fatal).
+    # Detect tables on this page (best-effort; never fatal). An OCR page has
+    # no vector rules to find tables by.
     try:
-        tables = list(page.find_tables().tables)
+        tables = list(page.find_tables().tables) if source in ("text", "decoded") else []
     except Exception:
         tables = []
     table_rects = [fitz.Rect(t.bbox) for t in tables]
@@ -180,10 +196,56 @@ def _extract_one_page(doc: "fitz.Document", page_idx: int) -> dict:
         "text": "\n".join(page_text_parts),
         "blocks": text_blocks,
         "table_spans": table_spans,
+        "source": source,
+        "ocr_confidence": confidence,
+        "quality": quality,
     }
 
 
-def extract_pages(pdf_path: str) -> list[PageData]:
+def _decoded_blocks(page) -> list[tuple]:
+    """get_text("blocks")-shaped tuples from a page whose fonts were decoded."""
+    out = []
+    for no, b in enumerate(text_dict(page).get("blocks", [])):
+        if b.get("type", 0) != 0:
+            continue
+        text = "\n".join("".join(s["text"] for s in ln["spans"]) for ln in b.get("lines", []))
+        x0, y0, x1, y1 = b["bbox"]
+        out.append((x0, y0, x1, y1, text, no, 0))
+    return out
+
+
+def _read_blocks(page) -> tuple[list[tuple], str, Optional[float], dict]:
+    """(blocks, source, OCR confidence, quality) for one page."""
+    if font_maps(page):
+        blocks, source = _decoded_blocks(page), "decoded"
+    else:
+        blocks, source = page.get_text("blocks"), "text"
+    text = "\n".join(b[4] for b in blocks if b[6] == 0)
+    q = assess(text, page)
+    if q.verdict == "ok":
+        return blocks, source, None, q.as_dict()
+    lines = ocr.ocr_page(page)
+    if lines:
+        grouped = ocr.blocks(lines)
+        conf = sum(ln.confidence for ln in lines) / len(lines)
+        return ([(x0, y0, x1, y1, t, i, 0) for i, (x0, y0, x1, y1, t, _c) in enumerate(grouped)],
+                "ocr", round(conf, 4), q.as_dict())
+    if lines is not None:          # OCR ran and found nothing: a blank scan
+        return [], "ocr", None, q.as_dict()
+    return [], "unreadable", None, q.as_dict()
+
+
+def reading_summary(pages: list["PageData"]) -> dict:
+    """How the document's pages were read, for the analysis result."""
+    by = {k: [p.page_num for p in pages if p.source == k] for k in ("text", "decoded", "ocr", "unreadable")}
+    confs = [p.ocr_confidence for p in pages if p.ocr_confidence is not None]
+    return {"pages": len(pages), **{k: len(v) for k, v in by.items()},
+            "ocr_pages": by["ocr"], "unreadable_pages": by["unreadable"],
+            "ocr_confidence": round(sum(confs) / len(confs), 4) if confs else None,
+            "ocr_available": ocr.available() if (by["ocr"] or by["unreadable"]) else None}
+
+
+def extract_pages(pdf_path: str, progress: Optional[Callable[[int, int], None]] = None) -> list[PageData]:
     """
     Extract all pages from a PDF, returning structured page data.
     Each PageData contains the full (normalized) text, list of text blocks
@@ -201,7 +263,11 @@ def extract_pages(pdf_path: str) -> list[PageData]:
     codebase hasn't measured as worthwhile yet.
     """
     with fitz.open(pdf_path) as doc:
-        page_results = [_extract_one_page(doc, i) for i in range(len(doc))]
+        page_results = []
+        for i in range(len(doc)):
+            page_results.append(_extract_one_page(doc, i))
+            if progress is not None:
+                progress(i + 1, len(doc))
 
     pages: list[PageData] = []
     global_offset = 0
@@ -214,6 +280,9 @@ def extract_pages(pdf_path: str) -> list[PageData]:
             blocks=r["blocks"],
             char_offset=global_offset,
             table_spans=r["table_spans"],
+            source=r["source"],
+            ocr_confidence=r["ocr_confidence"],
+            quality=r["quality"],
         ))
         global_offset += len(r["text"]) + 1  # +1 for page separator
 

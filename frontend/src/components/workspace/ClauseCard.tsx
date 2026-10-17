@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Zap, FileText, AlertTriangle, Bot, Sparkles, FlaskConical } from "lucide-react";
 import type { Clause, Entity, RiskTier } from "@/types";
 import { ENTITY_COLORS } from "@/lib/colors";
+import { useDocumentStore } from "@/hooks/useDocumentStore";
 import { tokens, alpha, riskStyle } from "@/lib/tokens";
 
 const ENTITY_LABEL_ORDER = ["OBLIGATION", "PENALTY", "RIGHT", "THRESHOLD", "ACTOR", "BENEFICIARY"] as const;
@@ -114,6 +115,7 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
   { clause, isSelected, onSelect },
   ref
 ) {
+  const ocrPage = useDocumentStore((s) => s.stats?.reading?.ocr_pages?.includes(clause.page) ?? false);
   const entityCounts: Record<string, number> = {};
   for (const e of clause.entities) {
     entityCounts[e.label] = (entityCounts[e.label] || 0) + 1;
@@ -154,6 +156,14 @@ const ClauseCard = forwardRef<HTMLDivElement, ClauseCardProps>(function ClauseCa
           </span>
           <span className="text-text-dim">·</span>
           <span className="text-micro font-mono text-text-muted">p.{clause.page}</span>
+          {ocrPage && (
+            <span
+              className="rounded-[3px] border border-status-warning/40 px-1 text-micro font-mono text-status-warning"
+              title="This page was read by OCR: check the wording against the page"
+            >
+              OCR
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5">
           {/* Risk tier badge */}
