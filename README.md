@@ -57,6 +57,7 @@ python -m cli experiment-stats           # robustness of flips, system compariso
 python -m cli experiment-structured      # rebuilt tables + schema decoding + one repair round
 python -m cli experiment-structured --no-schema   # the same in JSON mode (decoding ablation)
 python -m cli experiment-heldout         # the pre-registered held-out check
+python -m cli rules-v2                   # the rule baseline with its held-out defects fixed (post-hoc)
 python -m cli error-injection            # typed errors injected into the expert law
 
 python -m cli eval-run --system rules --split test
@@ -91,6 +92,16 @@ conclusion on at least as many of them as in the headline condition, and
 the language models found more of their numbers in their own quotes; the
 headline is near its ceiling there, so this shows that the condition does
 no harm more than the size of its benefit (`paper/tables/heldout.tex`).
+
+**Post-hoc rule baseline.** The held-out check exposed two defects of the
+rule baseline (a figure printed "Rs. 10 ,00,000" read as Rs. 10; a schedule
+printed without row labels not rebuilt). The baseline as reported is left
+unchanged; `cli rules-v2` runs the fixed version ("rules-v2", with table
+view 2 built in memory, never written to `tables.json`) on the headline and
+held-out reforms into `data/experiments/rules_v2/`, and `cli reproduce`
+reports it apart (`paper/tables/rules_v2.tex`). It changes nothing on the
+headline reforms; on the held-out reforms it is a check that the fixes work,
+not a held-out test.
 
 **Open-weight systems in batch.** `cli batch-export --system mistral-7b`
 writes every prompt the study needs; `training/kaggle_batch_extract.ipynb`

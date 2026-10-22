@@ -25,6 +25,19 @@ from pipeline.extraction.units import Unit
 from pipeline.quantities import extract_quantities
 
 SYSTEM = "rules"
+# The rule baseline as reported is version 1 and stays as it is. Version 2
+# ("rules-v2") fixes two defects the held-out check exposed, and is reported
+# separately as a post-hoc baseline:
+#   - a figure printed with a space before its comma ("Rs. 10 ,00,000") was
+#     read as Rs. 10; v2 joins the figure before reading the row
+#   - schedules printed without row labels were not rebuilt; v2 reads its
+#     rows from table view 2 (pipeline.statute.tables.load_v2)
+RULE_VERSIONS = {"rules": 1, "rules-v2": 2}
+_SPLIT_FIGURE = re.compile(r"(\d)\s+,(?=\d)")
+
+
+def _row_text(line: str, version: int) -> str:
+    return _SPLIT_FIGURE.sub(r"\1,", line) if version >= 2 else line
 _MODAL = re.compile(r"\b(?:shall|must|may|is\s+required\s+to|are\s+required\s+to|liable\s+to)\b", re.I)
 _SENT_END = re.compile(r"(?<=[.;:])\s|$")
 
@@ -98,12 +111,13 @@ def _fee_effects(text: str) -> list[dict]:
     return [out]
 
 
-def extract_unit(unit: Unit, rows: Optional[list] = None) -> tuple[ExtractionRecord, dict]:
+def extract_unit(unit: Unit, rows: Optional[list] = None, version: int = 1) -> tuple[ExtractionRecord, dict]:
     """`rows`: rebuilt table rows of the unit as (text, start, end) relative
     to unit.text (pipeline.statute.tables). Slab rows are then read from
     them, cited to each row's span, and the canonical lines they cover are
     not read again."""
-    prov = Provenance(extractor=SYSTEM, model="regex+deontic", prompt_version=None)
+    prov = Provenance(extractor=SYSTEM if version == 1 else f"{SYSTEM}-v{version}", model="regex+deontic",
+                      prompt_version=None)
     text = unit.text
     rules: list[LegalRule] = []
     stats = {"effects_total": 0, "effects_invalid": 0, "numbers_checked": 0, "numbers_supported": 0}
@@ -113,14 +127,14 @@ def extract_unit(unit: Unit, rows: Optional[list] = None) -> tuple[ExtractionRec
     covered = []
     rows = rows or []
     for (row_text, rs, re_), ay in zip(rows, _row_years(text, rows)):
-        fields = _slab_from_line(row_text)
+        fields = _slab_from_line(_row_text(row_text, version))
         if fields is not None:
             slabs.append(SlabRow(source_span=_span(unit, rs, re_), applies_to_ay=ay, **fields))
             covered.append((rs, re_))
     offset = 0
     for line in text.split("\n"):
         inside = any(a <= offset < b or a < offset + len(line) <= b for a, b in covered)
-        fields = None if inside else _slab_from_line(line)
+        fields = None if inside else _slab_from_line(_row_text(line, version))
         if fields is not None:
             src = _span(unit, offset, offset + len(line))
             slabs.append(SlabRow(source_span=src, **fields))

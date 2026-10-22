@@ -522,6 +522,19 @@ def cmd_experiment_heldout(args) -> int:
     return 0
 
 
+def cmd_rules_v2(args) -> int:
+    """The rule baseline with its held-out defects fixed, reported separately (post-hoc)."""
+    from simulation.experiment import rules_v2
+    rules_v2.run_all()
+    s = rules_v2.summary()
+    for r in s["rows"]:
+        print(f"{r['scope']:8s} {r['condition']:9s} no flip: v1 {r['v1_no_flip']}/{r['reforms']} -> v2 {r['v2_no_flip']}/{r['reforms']}")
+    for c in s["changes"]:
+        print("changed:", c)
+    print(s["note"])
+    return 0
+
+
 def cmd_experiment_stats(args) -> int:
     from simulation.experiment.stats import report
 
@@ -744,6 +757,9 @@ def main(argv=None) -> int:
     p.add_argument("--systems", default="rules,gpt-oss-120b,gpt-oss-20b,qwen3.8-27b")
     p.add_argument("--conditions", default="", help="comma-separated: headline,tables,tables+json,tables+schema")
     p.set_defaults(func=cmd_experiment_heldout)
+
+    sub.add_parser("rules-v2", help="the rule baseline with its held-out defects fixed (post-hoc, reported apart)") \
+        .set_defaults(func=cmd_rules_v2)
 
     p = sub.add_parser("experiment-stats", help="population robustness of flips and McNemar tests between systems")
     p.add_argument("--draws", type=int, default=64)

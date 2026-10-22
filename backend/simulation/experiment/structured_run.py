@@ -68,7 +68,7 @@ def run_set(set_name: str, system: str, *, use_schema: bool = True, repair: bool
     repaired: Optional[dict] = None
     repair_log: list[dict] = []
     todo = [r for r in first["review"] if structured.repairable(r["reason"])]
-    if repair and system != "rules" and todo:
+    if repair and not system.startswith("rules") and todo:
         new_rules = dict(rules_by_target)
         new_log = [dict(entry) for entry in log]
         for item in todo:
@@ -100,8 +100,8 @@ def run_set(set_name: str, system: str, *, use_schema: bool = True, repair: bool
     final = repaired or first
     return {
         "set": set_name, "system": system, "condition": "structured",
-        "variant": variant_name(system, use_schema), "use_schema": use_schema and system != "rules",
-        "repair": repair and system != "rules",
+        "variant": variant_name(system, use_schema), "use_schema": use_schema and not system.startswith("rules"),
+        "repair": repair and not system.startswith("rules"),
         "complete_first_pass": first["complete"], "complete": final["complete"],
         "first_pass": first, "repaired": repaired, "repair_log": repair_log,
     }
@@ -111,7 +111,7 @@ def variant_name(system: str, use_schema: bool) -> str:
     """tables+schema (constrained decoding) or tables+json (JSON mode), both
     with the repair round, whose first pass is kept; "tables" for the rule
     baseline, which neither decodes nor repairs."""
-    if system == "rules":
+    if system.startswith("rules"):
         return "tables"
     return "tables+schema" if use_schema else "tables+json"
 
@@ -226,9 +226,10 @@ def number_grounding(systems: Optional[list[str]] = None, sets: Optional[dict] =
             units += units_for(path, built)
 
     def readers(system: str):
-        if system == "rules":
-            yield "headline", lambda u: rule_unit(u)[0]
-            yield "tables", lambda u: structured.extract_unit(u, "rules")[0]
+        if system.startswith("rules"):
+            from pipeline.extraction.rule_based import RULE_VERSIONS
+            yield "headline", lambda u: rule_unit(u, version=RULE_VERSIONS[system])[0]
+            yield "tables", lambda u: structured.extract_unit(u, system)[0]
             return
         yield "headline", lambda u: cached_record(u, system)
         for schema in (False, True):

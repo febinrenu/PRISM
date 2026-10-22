@@ -696,6 +696,21 @@ rebuilt tables the share of numbers found in their own quote rises to
 extraction can check each value against the words it cites.
 \input{tables/number_grounding}
 
+\paragraph{Post-hoc: the rule baseline's held-out defects.} The held-out
+check exposed two defects of the rule baseline: a figure printed with a
+space before its comma (``Rs.~10~,00,000'' in the Finance Act 2020) was read
+as Rs.~10, and a schedule printed without row labels (the Finance (No.~2)
+Act 2024, Part~III item (III)) was not rebuilt. Fixing them changes reported
+results, so the baseline as reported is left unchanged and the fixed version
+is reported apart (\cref{tab:rules_v2}). It changes no result on the ten
+headline reforms (\res{rv2@headline@tables@v2} of \res{reforms} with rebuilt
+tables, as before) and, with rebuilt tables, keeps every conclusion on
+\res{rv2@heldout@tables@v2} of the \res{horeforms} held-out reforms instead of
+\res{rv2@heldout@tables@v1}. Because the fixes were written after the
+held-out results were seen, that row is a check that the fixes work, not a
+held-out test.
+\input{tables/rules_v2}
+
 \section{Threats to validity}\label{sec:threats}
 
 \paragraph{Expert coding.} The parameters were coded by one person with a

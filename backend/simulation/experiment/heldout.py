@@ -21,7 +21,7 @@ SYSTEMS = ["rules", "gpt-oss-120b", "gpt-oss-20b", "qwen3.8-27b"]
 
 
 def conditions(system: str) -> list[str]:
-    return ["headline", "tables"] if system == "rules" else ["headline", "tables+json", "tables+schema"]
+    return ["headline", "tables"] if system.startswith("rules") else ["headline", "tables+json", "tables+schema"]
 
 
 def run(set_name: str, system: str, condition: str) -> dict:

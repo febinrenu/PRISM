@@ -200,6 +200,16 @@ def heldout_table(rows: list[dict]) -> Path:
                        "while the structured condition was built.", "llrrrrr")
 
 
+def rules_v2_table(summary: dict) -> Path:
+    label = {"headline": "the ten headline reforms", "heldout": "the five held-out reforms"}
+    rows = [[label[r["scope"]], "rebuilt tables" if r["condition"] == "tables" else "canonical text",
+             f"{r['v1_no_flip']}/{r['reforms']}", f"{r['v2_no_flip']}/{r['reforms']}"] for r in summary["rows"]]
+    return write_table("rules_v2", ["Reforms", "Condition", "Rule baseline (reported)", "Version 2 (post-hoc)"], rows,
+                       "Post-hoc: the rule baseline with the two defects the held-out check exposed fixed. "
+                       "Reforms on which every conclusion is kept. Version 2 was written after the held-out "
+                       "results were seen, so its held-out row is not a held-out test.", "llrr")
+
+
 def stats_tables(res_dir: Path) -> list[Path]:
     s = json.loads((res_dir / "stats.json").read_text(encoding="utf-8"))
     rows = [[r["set"], r["system"], _f(r["flip_rate_calibrated"], 2), _f(r["flip_rate_mean"], 2),
@@ -352,6 +362,12 @@ def numbers_file(res_dir: Path, runs: list[dict]) -> Path:
                 vals[f"{tag}@repairs"] = str(r["repairs"])
                 if r["numbers"]:
                     vals[f"{tag}@quote"] = f"{100 * r['numbers']['in_quote'] / r['numbers']['fields']:.1f}"
+        from simulation.experiment import rules_v2
+        if rules_v2.load():
+            for r in rules_v2.summary()["rows"]:
+                tag = f"rv2@{r['scope']}@{r['condition']}"
+                vals[f"{tag}@v1"] = str(r["v1_no_flip"])
+                vals[f"{tag}@v2"] = str(r["v2_no_flip"])
         for g in structured_run.number_grounding():
             if g["fields"]:
                 tag = f"num@{g['system']}@{g['condition']}"
@@ -485,6 +501,10 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
         heldout.save(heldout.run(old["set"], old["system"], old["condition"]))
     if heldout.load():
         written.append(heldout_table(heldout.summary(heldout.load())))
+    progress("post-hoc rule baseline (rules-v2)")
+    from simulation.experiment import rules_v2
+    rules_v2.run_all(progress=lambda _m: None)
+    written.append(rules_v2_table(rules_v2.summary()))
     progress("error injection")
     import cli as _cli
     _cli.cmd_error_injection(type("A", (), {"draws": draws // 2 or 1})())

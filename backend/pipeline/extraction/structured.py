@@ -42,10 +42,11 @@ class Attempt:
     cache_key: str
 
 
-def unit_rows(unit: Unit) -> tuple[str, list[tuple[str, int, int]]]:
+def unit_rows(unit: Unit, view: int = 1) -> tuple[str, list[tuple[str, int, int]]]:
     """(rendered tables for the prompt, rebuilt rows as (text, start, end)
-    relative to unit.text)."""
-    tabs = statute_tables.tables_in(unit.statute, unit.start, unit.end)
+    relative to unit.text). View 1 is the frozen tables.json; view 2 is used
+    by the post-hoc rule baseline only."""
+    tabs = statute_tables.tables_in(unit.statute, unit.start, unit.end, view=view)
     rows = [(r.text, r.start - unit.start, r.end - unit.start) for t in tabs for r in t.rows]
     return statute_tables.render(tabs), rows
 
@@ -72,9 +73,13 @@ def _call(unit: Unit, system: str, prompt: str, version: int, rows, *, use_schem
 def extract_unit(unit: Unit, system: str, *, use_schema: bool = True,
                  use_cache: bool = True) -> tuple[ExtractionRecord, dict, Optional[Attempt]]:
     rendered, rows = unit_rows(unit)
-    if system == "rules":
+    if system in ("rules", "rules-v2"):
+        from pipeline.extraction.rule_based import RULE_VERSIONS
         from pipeline.extraction.rule_based import extract_unit as rb
-        rec, stats = rb(unit, rows=rows)
+        version = RULE_VERSIONS[system]
+        if version >= 2:
+            rendered, rows = unit_rows(unit, view=2)
+        rec, stats = rb(unit, rows=rows, version=version)
         stats["tables"] = len(rows)
         return rec, stats, None
     prompt = prompts.render_structured(unit.text, unit.context, rendered)

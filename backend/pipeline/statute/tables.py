@@ -134,36 +134,10 @@ def _page_fragments(segs: list, width: float, pno: int) -> list[_Fragment]:
             runs.append([a])
     out = []
     for ri, run in enumerate(runs):
-        top = run[0].y0 - tol
-        probe = [s for s in segs if top <= s.y0 <= run[-1].y1 + tol]
-        gx = _gutter(probe, 0.3 * width, 0.75 * width)
-        if gx is None:
+        built = _run_rows(run, segs, width, size, [_ANCHOR_RE.match(a.text).group(0).strip() for a in run])
+        if built is None:
             continue
-        # The run goes down to the last line before a line that crosses the
-        # gutter (the next paragraph) or a vertical break.
-        below = sorted((s for s in segs if s.y0 > run[-1].y0 - tol), key=lambda s: s.y0)
-        bottom = run[-1].y1
-        for s in below:
-            if s.y0 > bottom + 1.2 * size or s.x0 < gx < s.x1:
-                break
-            bottom = max(bottom, s.y1)
-        region = [s for s in segs if top <= s.y0 and s.y1 <= bottom + 0.5 and not (s.x0 < gx < s.x1)]
-        rows = []
-        for i, a in enumerate(run):
-            lo = a.y0 - tol
-            hi = run[i + 1].y0 - tol if i + 1 < len(run) else bottom + 1
-            band = [s for s in region if lo <= s.y0 < hi]
-            left = [s for s in band if s.x1 <= gx]
-            right = [s for s in band if s.x0 >= gx]
-            if not left or not right:
-                break
-            label = _ANCHOR_RE.match(a.text).group(0).strip()
-            cond = _join(left)
-            if cond.startswith(label):
-                cond = cond[len(label):].strip()
-            rows.append(Row(label=label, cells=[cond, _join(right)]))
-        if len(rows) != len(run):
-            continue
+        rows, gx, top, bottom = built
         # Lines between the last line crossing the gutter above the run (the
         # running head) and the run: the end of a row begun on the previous page.
         above = [s for s in segs if s.y1 <= top + 0.5]
@@ -178,18 +152,87 @@ def _page_fragments(segs: list, width: float, pno: int) -> list[_Fragment]:
     return out
 
 
+def _run_rows(run: list, segs: list, width: float, size: float, labels: list[str]):
+    """The rows of one run of row anchors: (rows, gutter, top, bottom), or
+    None if the run is not a two-column table."""
+    tol = 0.6 * size
+    top = run[0].y0 - tol
+    probe = [s for s in segs if top <= s.y0 <= run[-1].y1 + tol]
+    gx = _gutter(probe, 0.3 * width, 0.75 * width)
+    if gx is None:
+        return None
+    # The run goes down to the last line before a line that crosses the
+    # gutter (the next paragraph) or a vertical break.
+    below = sorted((s for s in segs if s.y0 > run[-1].y0 - tol), key=lambda s: s.y0)
+    bottom = run[-1].y1
+    for s in below:
+        if s.y0 > bottom + 1.2 * size or s.x0 < gx < s.x1:
+            break
+        bottom = max(bottom, s.y1)
+    region = [s for s in segs if top <= s.y0 and s.y1 <= bottom + 0.5 and not (s.x0 < gx < s.x1)]
+    rows = []
+    for i, (a, label) in enumerate(zip(run, labels)):
+        lo = a.y0 - tol
+        hi = run[i + 1].y0 - tol if i + 1 < len(run) else bottom + 1
+        band = [s for s in region if lo <= s.y0 < hi]
+        left = [s for s in band if s.x1 <= gx]
+        right = [s for s in band if s.x0 >= gx]
+        if not left or not right:
+            return None
+        cond = _join(left)
+        if label and cond.startswith(label):
+            cond = cond[len(label):].strip()
+        rows.append(Row(label=label, cells=[cond, _join(right)]))
+    return rows, gx, top, bottom
+
+
+# v2 only: a schedule printed without row labels, each row opening with the
+# words of its condition ("where the total income exceeds …"; FA 2024 (No. 2)
+# Part III item (III)). Not used for the frozen view (tables.json).
+_UNLABELLED_RE = re.compile(r"^\s*where\s+the\s+total\s+income\b", re.I)
+
+
+def _unlabelled_tables(segs: list, width: float, pno: int) -> list[Table]:
+    if not segs:
+        return []
+    size = sorted(s.size for s in segs)[len(segs) // 2]
+    labelled_y = [s.y0 for s in segs if _ANCHOR_RE.match(s.text)]
+    anchors = sorted((s for s in segs if _UNLABELLED_RE.match(s.text) and s.x0 < 0.45 * width
+                      and not any(abs(s.y0 - y) < 0.5 * size for y in labelled_y)), key=lambda s: s.y0)
+    runs: list[list] = []
+    for a in anchors:
+        if runs and a.y0 - runs[-1][-1].y0 < 8 * size:
+            runs[-1].append(a)
+        else:
+            runs.append([a])
+    out = []
+    for run in runs:
+        if len(run) < 2:
+            continue
+        built = _run_rows(run, segs, width, size, [""] * len(run))
+        if built is not None and _is_rate_table(built[0]):
+            out.append(Table(kind="two_column", origin="pdf", page=pno, rows=built[0]))
+    return out
+
+
 def _is_rate_table(rows: list[Row]) -> bool:
     return len(rows) >= 2 and sum(bool(_RATE_RE.search(r.cells[1])) for r in rows) >= 0.6 * len(rows)
 
 
-def pdf_tables(pdf_path: str) -> list[Table]:
+def pdf_tables(pdf_path: str, unlabelled: bool = False) -> list[Table]:
+    """Two-column rate tables of a PDF. `unlabelled` (view v2) also reads
+    schedules printed without "(1) (2) …" row labels."""
     import fitz
 
     from pipeline.statute.layout import _raw_segments
     frags: list[_Fragment] = []
+    extra: list[Table] = []
     with fitz.open(pdf_path) as doc:
         for pno, page in enumerate(doc):
-            frags += _page_fragments(_raw_segments(page, pno), page.rect.width, pno)
+            segs = _raw_segments(page, pno)
+            frags += _page_fragments(segs, page.rect.width, pno)
+            if unlabelled:
+                extra += _unlabelled_tables(segs, page.rect.width, pno)
     out = []
     i = 0
     while i < len(frags):
@@ -215,7 +258,7 @@ def pdf_tables(pdf_path: str) -> list[Table]:
         if _is_rate_table(rows):
             out.append(Table(kind="two_column", origin="pdf", page=f.page, rows=rows))
         i = j + 1
-    return out
+    return sorted(out + extra, key=lambda t: t.page) if extra else out
 
 
 def _numbers(s: str) -> list[str]:
@@ -226,12 +269,16 @@ def _place(table: Table, text: str, cursor: int) -> Optional[int]:
     """Give each row the canonical offsets of its row: from its label to the
     next row's label. Returns where the table ends, or None if the rows'
     numbers are not found there (another table, or a different reading)."""
-    for start in [m.start() for m in re.finditer(re.escape(table.rows[0].label + " "), text[cursor:])]:
+    def key(r: Row) -> str:
+        # a row is found by its label, or (unlabelled rows) its opening words
+        return r.label + " " if r.label else " ".join(r.cells[0].split()[:4])
+
+    for start in [m.start() for m in re.finditer(re.escape(key(table.rows[0])), text[cursor:])]:
         pos = cursor + start
         starts = [pos]
         ok = True
         for prev, r in zip(table.rows, table.rows[1:]):
-            j = text.find(r.label + " ", starts[-1] + 1)
+            j = text.find(key(r), starts[-1] + 1)
             # a row's text in the canonical file is about as long as the row
             if j < 0 or j - starts[-1] > 2 * len(prev.text) + 80:
                 ok = False
@@ -362,7 +409,7 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build(statute: str, version: str) -> dict:
+def build(statute: str, version: str, unlabelled: bool = False) -> dict:
     base = CORPUS_DIR / statute / version
     text = (base / "text.txt").read_text(encoding="utf-8")
     pdf = base / "source.pdf"
@@ -370,7 +417,7 @@ def build(statute: str, version: str) -> dict:
     unplaced = 0
     if pdf.exists():
         cursor = 0
-        for t in pdf_tables(str(pdf)):
+        for t in pdf_tables(str(pdf), unlabelled=unlabelled):
             end = _place(t, text, cursor)
             if end is None:
                 end = _place(t, text, 0)       # out of reading order (rare)
@@ -414,9 +461,24 @@ def load(statute_key: str) -> list[Table]:
                   rows=[Row(**r) for r in t["rows"]]) for t in data["tables"]]
 
 
-def tables_in(statute_key: str, start: int, end: int) -> list[Table]:
+@lru_cache(maxsize=32)
+def load_v2(statute_key: str) -> list[Table]:
+    """View v2, built in memory and never written: also reads schedules
+    printed without row labels. Used by the post-hoc rule baseline
+    (rules-v2) only, so every run on the frozen view (tables.json) keeps its
+    inputs."""
+    statute, version = statute_key.split("/")
+    if not (CORPUS_DIR / statute / version / "text.txt").exists():
+        return []
+    data = build(statute, version, unlabelled=True)
+    return [Table(kind=t["kind"], origin=t["origin"], page=t["page"], match=t.get("match", 1.0),
+                  rows=[Row(**r) for r in t["rows"]]) for t in data["tables"]]
+
+
+def tables_in(statute_key: str, start: int, end: int, view: int = 1) -> list[Table]:
     """Tables lying wholly inside [start, end) of the canonical text."""
-    return [t for t in load(statute_key) if start <= t.start and t.end <= end]
+    tabs = load(statute_key) if view == 1 else load_v2(statute_key)
+    return [t for t in tabs if start <= t.start and t.end <= end]
 
 
 def render(tables: list[Table]) -> str:

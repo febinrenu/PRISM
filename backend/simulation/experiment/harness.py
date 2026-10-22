@@ -55,9 +55,10 @@ def taxpayer_grid(n_random: int = 6000, seed: int = 7) -> np.ndarray:
 
 
 def _extract(system: str, units: list, use_cache: bool = True, k: int = 0):
-    if system == "rules":
+    if system in ("rules", "rules-v2"):
+        from pipeline.extraction.rule_based import RULE_VERSIONS
         from pipeline.extraction.rule_based import extract_unit as rb
-        return [rb(u)[0] for u in units]
+        return [rb(u, version=RULE_VERSIONS[system])[0] for u in units]
     if k > 0:
         from pipeline.extraction.consistency import extract_with_consistency
         return [extract_with_consistency(u, system, k=k, use_cache=use_cache)[0] for u in units]
