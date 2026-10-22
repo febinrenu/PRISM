@@ -126,7 +126,7 @@ function InjectionMap({ rows }: { rows: InjRow[] }) {
   const cell = (e: string, s: string) =>
     rows.filter((r) => r.error === e && r.set === s).sort((a, b) => b.flip_rate - a.flip_rate)[0];
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[760px] border-separate border-spacing-[3px] text-[12.5px]">
         <caption className="sr-only">Share of conclusions flipped by each injected error, per reform</caption>
         <thead>
@@ -289,7 +289,9 @@ export default function ResearchPage() {
             <span className="inline-flex items-center gap-1.5"><span className="h-3 w-5 rounded-[2px] bg-ink-700" />no conclusion</span>
           </p>
         </div>
-        <div className="overflow-x-auto rounded-[6px] border border-border">
+        {/* relative: the tiles' screen-reader labels are absolutely positioned and must be
+            clipped by this scroller, not placed against the page (they widened it on phones) */}
+        <div className="relative overflow-x-auto rounded-[6px] border border-border">
           <table className="w-full min-w-[820px] text-[13px]">
             <caption className="sr-only">Share of pre-registered conclusions flipped, per reform and reader</caption>
             <thead className="bg-bg-surface">

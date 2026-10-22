@@ -178,7 +178,7 @@ export function StructuredSection({
       )}
       {heldout && heldout.length > 0 && (
         <Panel kicker="Held-out check, fixed before any run" title="Five reforms not opened while this was built" className="mt-4" flush>
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[560px] text-[13px]">
               <caption className="sr-only">Held-out reforms: conclusions kept and numbers found in their quotes</caption>
               <thead>

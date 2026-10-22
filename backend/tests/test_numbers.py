@@ -132,3 +132,16 @@ def test_rules_numbers_are_grounded_by_construction():
     rows = {r["condition"]: r for r in number_grounding(["rules"])}
     for r in rows.values():
         assert r["fields"] > 100 and r["in_quote"] == r["fields"] and r["missing"] == 0
+
+
+@pytest.mark.skipif(not DEMO.exists(), reason="demo document not present")
+def test_cached_readings_endpoint_carries_the_check():
+    """The workspace hydrates readings from /api/clauses/{doc}/llm: the check
+    must be there too, or the browser replaces checked readings with unchecked ones."""
+    from fastapi.testclient import TestClient
+
+    from main import app
+    d = TestClient(app).get("/api/clauses/demo_income_tax_2025/llm").json()
+    by = {e["clause_id"]: e["extraction"] for e in d["extractions"]}
+    assert by["demo_income_tax_2025_c1800"]["unsupported_numbers"] == ["fifty crore rupees"]
+    assert all("unsupported_numbers" in e for e in by.values())

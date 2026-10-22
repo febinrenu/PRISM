@@ -185,7 +185,7 @@ export function DecileFigure({ className }: { className?: string }) {
 export function VerdictTable({ className }: { className?: string }) {
   const { reforms, systems, cells } = story.matrix;
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <div className={cn("relative overflow-x-auto", className)}>
       <table className="w-full min-w-[560px] border-collapse text-[13px]">
         <caption className="sr-only">
           For each reform and reader: whether the reading assembled into a complete law, and how many conclusions flipped

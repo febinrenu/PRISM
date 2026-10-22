@@ -77,8 +77,12 @@ async def run_llm_extraction(
 
 @router.get("/clauses/{doc_id}/llm")
 async def get_llm_extractions(doc_id: str):
-    if store.get_result(doc_id) is None:
+    result = store.get_result(doc_id)
+    if result is None:
         raise HTTPException(status_code=404, detail=f"No analysis results for {doc_id}.")
+    from models.schemas import LLMCausalRule
+    from pipeline.llm_extractor import check_numbers
+    text_of = {c.clause_id: c.text for c in result.clauses}
 
     job = job_manager.get_job(f"llm:{doc_id}")
     status = "idle"
@@ -94,9 +98,13 @@ async def get_llm_extractions(doc_id: str):
     extractions = []
     if payload:
         for clause_id, entry in payload.get("entries", {}).items():
+            extraction = dict(entry["extraction"])
+            if clause_id in text_of:
+                # amounts and rates the reading states that its clause lacks
+                extraction["unsupported_numbers"] = check_numbers(LLMCausalRule(**extraction), text_of[clause_id])
             extractions.append({
                 "clause_id": clause_id,
-                "extraction": entry["extraction"],
+                "extraction": extraction,
                 "extraction_method": entry["extraction_method"],
             })
         if status == "idle" and extractions:

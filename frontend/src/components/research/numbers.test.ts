@@ -13,6 +13,8 @@ describe("number checks", () => {
       .toEqual({ tone: "warn", text: "in the provision but not in its quote: rate 20%" });
     expect(numbersNote({ status: "unsupported", fields: [{ field: "upper", value: 999999999, found: "missing" }, { field: "rate", value: 0.3, found: "quote" }] })?.tone)
       .toBe("bad");
+    expect(numbersNote({ status: "unsupported", fields: [{ field: "upper", value: 999999999, found: "missing" }] })?.text)
+      .toBe("not in the statute: upper ₹99,99,99,999");
   });
 
   it("asks for review when a model reading states a number the clause lacks", () => {

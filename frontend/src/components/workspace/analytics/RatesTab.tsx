@@ -64,7 +64,7 @@ export function ScheduleCard({ s, onPage }: { s: Schedule; onPage?: (page: numbe
           </span>
         )}
       </header>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full text-[13px]">
           <caption className="sr-only">Bands of the rate table on page {s.page}</caption>
           <thead>

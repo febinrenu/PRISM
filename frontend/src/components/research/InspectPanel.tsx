@@ -63,8 +63,9 @@ const RATE_FIELDS = ["rate", "max_rate", "rate_per_month"];
 /** One line on whether an effect's numbers are in the words it cites. */
 export function numbersNote(n?: NumberCheck): { tone: "ok" | "warn" | "bad"; text: string } | null {
   if (!n || n.status === "unchecked") return null;
+  // exact figures: a value said not to be in the statute must not be rounded
   const show = (f: NumberCheck["fields"][number]) =>
-    `${f.field.replace(/_/g, " ")} ${RATE_FIELDS.includes(f.field) ? pct(f.value) : lakh(f.value)}`;
+    `${f.field.replace(/_/g, " ")} ${RATE_FIELDS.includes(f.field) ? pct(f.value) : `₹${f.value.toLocaleString("en-IN")}`}`;
   if (n.status === "verified") return { tone: "ok", text: "every number is in its quote" };
   const missing = n.fields.filter((f) => f.found === "missing");
   if (missing.length) return { tone: "bad", text: `not in the statute: ${missing.map(show).join(", ")}` };
