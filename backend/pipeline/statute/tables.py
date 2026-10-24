@@ -233,6 +233,14 @@ def pdf_tables(pdf_path: str, unlabelled: bool = False) -> list[Table]:
             frags += _page_fragments(segs, page.rect.width, pno)
             if unlabelled:
                 extra += _unlabelled_tables(segs, page.rect.width, pno)
+    out = _stitch(frags)
+    return sorted(out + extra, key=lambda t: t.page) if extra else out
+
+
+def _stitch(frags: list[_Fragment]) -> list[Table]:
+    """Whole tables from per-page fragments: a run that ends at the foot of a
+    page continues with the next page's opening run when the numbering
+    carries on."""
     out = []
     i = 0
     while i < len(frags):
@@ -242,8 +250,6 @@ def pdf_tables(pdf_path: str, unlabelled: bool = False) -> list[Table]:
             continue
         rows = list(f.rows)
         j = i
-        # Stitch the next page's opening run onto a run that ends at the foot
-        # of its page, when the numbering carries on.
         while (frags[j].last_on_page and frags[j].at_foot and j + 1 < len(frags)
                and frags[j + 1].page == frags[j].page + 1 and frags[j + 1].first_on_page
                and frags[j + 1].first == int(rows[-1].label.strip("()")) + 1):
@@ -258,7 +264,79 @@ def pdf_tables(pdf_path: str, unlabelled: bool = False) -> list[Table]:
         if _is_rate_table(rows):
             out.append(Table(kind="two_column", origin="pdf", page=f.page, rows=rows))
         i = j + 1
-    return sorted(out + extra, key=lambda t: t.page) if extra else out
+    return out
+
+
+# OCR reads a row label's "1" as a letter ("(l)", "(I)") and drops the space
+# after a label; and it joins the two columns of a row when they share a
+# baseline, leaving a double space at the join.
+_OCR_ONE = re.compile(r"^\(\s*[lI|!]\s*\)\s*")
+_LABEL_GLUED = re.compile(r"^(\(\d{1,2}\))(?=\S)")
+_COLUMN_JOIN = re.compile(r"\s{2,}")
+_CELL_END = re.compile(r"(?:Rs\.?|₹)\s*[\d,]+$")
+
+
+def _ocr_label(text: str) -> str:
+    text = _OCR_ONE.sub("(1) ", text)
+    return _LABEL_GLUED.sub(r"\1 ", text)
+
+
+def _ocr_parts(x0: float, x1: float, text: str, column_x: Optional[float] = None) -> list[tuple[float, float, str]]:
+    """Split a recognised line at a double space. Each part is placed by its
+    share of the line's characters; when the page's right column is known
+    (`column_x`, where its lines start), a two-part line is split there, since
+    characters are not all of one width."""
+    parts = [m for m in re.finditer(r"\S+(?:\s\S+)*", text)]
+    if len(parts) < 2 or not _COLUMN_JOIN.search(text):
+        if column_x is not None and x0 < column_x - 20 and x1 > column_x + 20:
+            # joined with a single space: split near where the column's edge
+            # falls in the line, and only after an amount, as a condition cell
+            # ends ("... does not exceed Rs. 5,00,000"); a line of prose that
+            # spans the page is left whole
+            at = (column_x - x0) / max(1e-6, x1 - x0) * len(text)
+            spaces = [i for i, ch in enumerate(text) if ch == " " and abs(i - at) <= 8
+                      and _CELL_END.search(text[:i])]
+            if spaces:
+                k = min(spaces, key=lambda i: abs(i - at))
+                left, right = text[:k].strip(), text[k + 1:].strip()
+                if left and right:
+                    return [(x0, column_x - 5.0, left), (column_x, x1, right)]
+        return [(x0, x1, text.strip())]
+    width = (x1 - x0) / max(1, len(text))
+    out = [(x0 + m.start() * width, x0 + m.end() * width, m.group(0)) for m in parts]
+    if column_x is not None and len(out) == 2 and x0 < column_x < x1:
+        out = [(x0, column_x - 5.0, out[0][2]), (column_x, x1, out[1][2])]   # leave the gutter open
+    return out
+
+
+def _right_column_x(lines: list, width: float) -> Optional[float]:
+    """Where a page's right column starts: the smallest left edge that at
+    least two lines starting right of the page's centre share (a rate's first line is
+    often indented; its wrapped lines start at the column's edge)."""
+    from collections import Counter
+    starts = Counter(round(x0) for x0, _y0, _x1, _y1, text, _c in lines
+                     # right of the page's centre: a centred title starts left of it
+                     if 0.5 * width < x0 < 0.75 * width and not _COLUMN_JOIN.search(text.strip()))
+    shared = [x for x, n in starts.items() if n >= 2]
+    return float(min(shared)) if shared else None
+
+
+def tables_from_lines(pages: dict) -> list[Table]:
+    """Two-column rate tables of OCR'd pages: {page number (1-based):
+    {"width", "lines": [[x0, y0, x1, y1, text, conf]]}}. Each recognised line
+    stands in for a text segment (no font information: not bold, its size
+    taken from its height)."""
+    from pipeline.statute.layout import Line
+    frags: list[_Fragment] = []
+    for pno in sorted(pages):
+        p = pages[pno]
+        col = _right_column_x(p["lines"], p["width"])
+        segs = [Line(page=pno - 1, x0=a, y0=y0, x1=b, y1=y1, size=round(0.8 * max(1.0, y1 - y0), 1),
+                     bold=False, text=part)
+                for x0, y0, x1, y1, text, _conf in p["lines"]
+                for a, b, part in _ocr_parts(x0, x1, _ocr_label(text), col)]
+        frags += _page_fragments(segs, p["width"], pno - 1)
+    return [Table(kind=t.kind, origin="ocr", page=t.page, rows=t.rows) for t in _stitch(frags)]
 
 
 def _numbers(s: str) -> list[str]:

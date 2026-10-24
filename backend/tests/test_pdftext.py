@@ -166,3 +166,30 @@ def test_analysis_reads_decoded_pages(tmp_path):
     pages = extract_pages(str(tmp_path / "ita.pdf"))
     assert pages[0].source == "decoded" and "royalty is payable" in pages[0].text
     assert reading_summary(pages)["decoded"] == 1
+
+
+@needs_ocr
+@pytest.mark.skipif(not (CORPUS_DIR / "FA2025" / "enacted" / "source.pdf").exists(), reason="FA 2025 PDF not downloaded")
+def test_rate_schedules_are_read_from_a_scanned_page(tmp_path):
+    """FA 2025 p.52 as an image only: the three old-regime schedules are read
+    from the OCR lines (labels misread as "(l)", columns OCR joined on one
+    line) with the same bands as from the text layer."""
+    from pipeline.pdf_parser import extract_pages
+    from pipeline.schedules import find_schedules
+    src = fitz.open(CORPUS_DIR / "FA2025" / "enacted" / "source.pdf")
+    one = fitz.open()
+    one.insert_pdf(src, from_page=51, to_page=51)
+    one.save(tmp_path / "p52.pdf")
+    scan = tmp_path / "scan.pdf"
+    _scanned_pdf(tmp_path / "p52.pdf", scan)
+    pages = extract_pages(str(scan))
+    ocr_pages = {p.page_num: {"width": p.width, "height": p.height, "lines": p.ocr_lines} for p in pages if p.ocr_lines}
+    sch = find_schedules(str(scan), ocr_pages)
+    bands = [[(r["lower"], r["upper"], r["rate"]) for r in s["rows"]] for s in sch]
+    assert bands == [
+        [(0.0, 250000.0, 0.0), (250000.0, 500000.0, 0.05), (500000.0, 1000000.0, 0.2), (1000000.0, None, 0.3)],
+        [(0.0, 300000.0, 0.0), (300000.0, 500000.0, 0.05), (500000.0, 1000000.0, 0.2), (1000000.0, None, 0.3)],
+        [(0.0, 500000.0, 0.0), (500000.0, 1000000.0, 0.2), (1000000.0, None, 0.3)],
+    ]
+    assert all(s["check"]["ok"] for s in sch)
+    assert find_schedules(str(scan)) == []          # without the OCR lines a scan has no tables to read

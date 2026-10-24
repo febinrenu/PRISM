@@ -304,6 +304,9 @@ def _text_column(segs: list[Line], pages: list[PageInfo]) -> tuple[float, float]
     """Left and right edge of the main text column, from body-size segments
     that start in the left part of the page (so side-margin notes, which
     start beyond the column, do not widen it)."""
+    if not segs:
+        # no text layer at all (a scanned document): the whole page width
+        return 0.0, max((p.width for p in pages), default=0.0)
     body = _body_size(segs)
     cand = [s for s in segs if abs(s.size - body) <= 1.0
             and s.x0 < 0.45 * pages[s.page].width and s.x1 - s.x0 > 0.35 * pages[s.page].width]

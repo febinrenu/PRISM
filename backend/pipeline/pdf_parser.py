@@ -49,6 +49,9 @@ class PageData:
     source: str = "text"                     # text | decoded | ocr | unreadable
     ocr_confidence: Optional[float] = None   # mean recogniser confidence of an OCR page
     quality: dict = field(default_factory=dict)
+    # an OCR page's recognised lines, [x0, y0, x1, y1, text, confidence] in PDF
+    # points, kept so the rate-table reader can work on a scanned page
+    ocr_lines: list = field(default_factory=list)
 
 
 # ─── Text normalization ────────────────────────────────────────────────────────
@@ -122,7 +125,7 @@ def _extract_one_page(doc: "fitz.Document", page_idx: int) -> dict:
     width = page.rect.width or 1.0
     height = page.rect.height or 1.0
 
-    raw_blocks, source, confidence, quality = _read_blocks(page)  # [(x0,y0,x1,y1,text,no,type)]
+    raw_blocks, source, confidence, quality, ocr_lines = _read_blocks(page)  # [(x0,y0,x1,y1,text,no,type)]
 
     # Detect tables on this page (best-effort; never fatal). An OCR page has
     # no vector rules to find tables by.
@@ -199,6 +202,7 @@ def _extract_one_page(doc: "fitz.Document", page_idx: int) -> dict:
         "source": source,
         "ocr_confidence": confidence,
         "quality": quality,
+        "ocr_lines": ocr_lines,
     }
 
 
@@ -214,8 +218,8 @@ def _decoded_blocks(page) -> list[tuple]:
     return out
 
 
-def _read_blocks(page) -> tuple[list[tuple], str, Optional[float], dict]:
-    """(blocks, source, OCR confidence, quality) for one page."""
+def _read_blocks(page) -> tuple[list[tuple], str, Optional[float], dict, list]:
+    """(blocks, source, OCR confidence, quality, OCR lines) for one page."""
     if font_maps(page):
         blocks, source = _decoded_blocks(page), "decoded"
     else:
@@ -223,16 +227,17 @@ def _read_blocks(page) -> tuple[list[tuple], str, Optional[float], dict]:
     text = "\n".join(b[4] for b in blocks if b[6] == 0)
     q = assess(text, page)
     if q.verdict == "ok":
-        return blocks, source, None, q.as_dict()
+        return blocks, source, None, q.as_dict(), []
     lines = ocr.ocr_page(page)
     if lines:
         grouped = ocr.blocks(lines)
         conf = sum(ln.confidence for ln in lines) / len(lines)
+        kept = [[round(v, 2) for v in ln.bbox] + [ln.text, round(ln.confidence, 4)] for ln in lines]
         return ([(x0, y0, x1, y1, t, i, 0) for i, (x0, y0, x1, y1, t, _c) in enumerate(grouped)],
-                "ocr", round(conf, 4), q.as_dict())
+                "ocr", round(conf, 4), q.as_dict(), kept)
     if lines is not None:          # OCR ran and found nothing: a blank scan
-        return [], "ocr", None, q.as_dict()
-    return [], "unreadable", None, q.as_dict()
+        return [], "ocr", None, q.as_dict(), []
+    return [], "unreadable", None, q.as_dict(), []
 
 
 def reading_summary(pages: list["PageData"]) -> dict:
@@ -283,6 +288,7 @@ def extract_pages(pdf_path: str, progress: Optional[Callable[[int, int], None]] 
             source=r["source"],
             ocr_confidence=r["ocr_confidence"],
             quality=r["quality"],
+            ocr_lines=r["ocr_lines"],
         ))
         global_offset += len(r["text"]) + 1  # +1 for page separator
 

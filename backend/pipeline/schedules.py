@@ -69,11 +69,20 @@ def _context(lines: list[tuple[int, str]], idx: int) -> tuple[str, Optional[str]
     return heading, ay
 
 
-def find_schedules(pdf_path: str) -> list[dict]:
+def find_schedules(pdf_path: str, ocr_pages: Optional[dict] = None) -> list[dict]:
+    """`ocr_pages`: the recognised lines of a document's scanned pages, as the
+    analysis stored them ({page: {"width", "height", "lines"}}): their
+    two-column schedules are read from those lines."""
     from pipeline.statute.layout import read_lines
+    from pipeline.statute.tables import _ocr_label, tables_from_lines
 
     lines_raw, _pages, _ = read_lines(pdf_path)
     body = [(ln.page + 1, ln.text) for ln in lines_raw if ln.kind == "body"]
+    if ocr_pages:
+        # a scanned page has no text layer: its recognised lines, top to bottom
+        for pno, p in ocr_pages.items():
+            body += [(pno, _ocr_label(ln[4])) for ln in sorted(p["lines"], key=lambda ln: (round(ln[1] / 4), ln[0]))]
+        body.sort(key=lambda x: x[0])          # stable: each page keeps its order
     text = "\n".join(t for _, t in body)
     starts, pos = [], 0
     for _, t in body:
@@ -95,7 +104,7 @@ def find_schedules(pdf_path: str) -> list[dict]:
         i = line_at(t.rows[0].start)
         found.append((body[i][0], t, i))
     used: set[int] = set()
-    for t in pdf_tables(pdf_path):
+    for t in pdf_tables(pdf_path) + (tables_from_lines(ocr_pages) if ocr_pages else []):
         # place a rebuilt schedule by its first row's label and opening words;
         # several schedules on a page share them, so each takes the next
         # occurrence not yet taken

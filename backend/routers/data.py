@@ -216,7 +216,7 @@ async def get_document(doc_id: str, user: dict | None = Depends(optional_user)):
     return meta.model_dump(exclude={"pdf_path", "owner_id"})
 
 
-SCHEDULES_VERSION = 1      # bump when pipeline.schedules reads tables differently
+SCHEDULES_VERSION = 2      # bump when pipeline.schedules reads tables differently
 
 
 def _schedules_cache(doc_id: str):
@@ -232,7 +232,7 @@ async def get_schedules(doc_id: str):
     import asyncio
     import json
 
-    from storage.store import get_path
+    from storage.store import get_path, load_ocr_lines
 
     pdf = get_path(doc_id)
     if pdf is None or not os.path.exists(pdf):
@@ -244,7 +244,8 @@ async def get_schedules(doc_id: str):
         if data.get("stamp") == stamp:
             return data
     from pipeline.schedules import find_schedules
-    schedules = await asyncio.get_running_loop().run_in_executor(None, find_schedules, str(pdf))
+    ocr_pages = load_ocr_lines(doc_id)          # the scanned pages' recognised lines, if any
+    schedules = await asyncio.get_running_loop().run_in_executor(None, find_schedules, str(pdf), ocr_pages)
     data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
             "review": sum(1 for s in schedules if not s["check"]["ok"])}
     cache.write_text(json.dumps(data), encoding="utf-8")

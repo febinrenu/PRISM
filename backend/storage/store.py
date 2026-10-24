@@ -225,6 +225,19 @@ def load_embeddings(doc_id: str) -> Optional[np.ndarray]:
 
 # --- Phase 2: LLM extraction cache ---
 
+def save_ocr_lines(doc_id: str, pages: dict) -> None:
+    """{page number: {"width", "height", "lines": [[x0, y0, x1, y1, text, conf]]}}
+    of a document's OCR'd pages."""
+    _atomic_write_text(_doc_dir(doc_id) / "ocr_lines.json", json.dumps(pages))
+
+
+def load_ocr_lines(doc_id: str) -> Optional[dict]:
+    p = _doc_dir(doc_id) / "ocr_lines.json"
+    if not p.exists():
+        return None
+    return {int(k): v for k, v in json.loads(p.read_text(encoding="utf-8")).items()}
+
+
 def save_llm_extractions(doc_id: str, payload: dict) -> None:
     _atomic_write_text(
         _doc_dir(doc_id) / "llm" / "extractions.json",

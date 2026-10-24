@@ -72,6 +72,9 @@ def _pipeline_worker(
 
         total_pages = len(pages)
         reading = reading_summary(pages)
+        if reading["ocr"]:
+            store.save_ocr_lines(doc_id, {p.page_num: {"width": p.width, "height": p.height, "lines": p.ocr_lines}
+                                          for p in pages if p.ocr_lines})
         read_note = ""
         if reading["ocr"] or reading["decoded"] or reading["unreadable"]:
             read_note = " (" + ", ".join(f"{reading[k]} {label}" for k, label in
