@@ -462,6 +462,7 @@ def extraction_table() -> Optional[Path]:
 
 def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[str], None] = print) -> list[Path]:
     os.environ["PRISM_OFFLINE"] = "1"
+    from pipeline.extraction.backends import OfflineCacheMiss
     from simulation.experiment.harness import RESULTS_DIR, run_set, save
     from simulation.experiment.stats import load_runs, report
 
@@ -521,7 +522,15 @@ def reproduce(sensitivity: bool = False, draws: int = 64, progress: Callable[[st
         if system == "rules":
             from pipeline.extraction.rule_based import extract_unit as rb
             extract = lambda u: rb(u)[0]  # noqa: E731
-        faithfulness.evaluate(system, split, extract=extract, progress=lambda _m: None)
+        try:
+            faithfulness.evaluate(system, split, extract=extract, progress=lambda _m: None)
+        except OfflineCacheMiss as e:
+            # Some items' unit context changed in a later parser fix (the
+            # context is taken from the current parse; runs written before
+            # contexts were recorded cannot restore it), so their perturbed
+            # prompts are not in the cache. The stored result is kept and
+            # still produces the table; it is not re-derived here.
+            progress(f"faithfulness {system} {split}: stored result kept, not re-derivable offline ({str(e)[:80]})")
     written.append(numbers_file(RESULTS_DIR, load_runs()))
     import paper_figures
     written += paper_figures.all_figures(RESULTS_DIR, load_runs())

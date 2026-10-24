@@ -114,6 +114,7 @@ def evaluate(system: str, split: str, limit: Optional[int] = None,
         from pipeline.extraction.extractor import extract_unit
         extract = lambda u: extract_unit(u, system)[0]  # noqa: E731
     originals = runs.load_run(system, split)
+    contexts = runs.load_contexts(system, split)
     items = [it for it in runs.split_items(split) if it["item_id"] in originals]
     rows = []
     for it in items:
@@ -121,6 +122,8 @@ def evaluate(system: str, split: str, limit: Optional[int] = None,
         if rec.status != "ok" or not rec.rules:
             continue
         unit = runs.item_unit(it)
+        if it["item_id"] in contexts:
+            unit = replace(unit, context=contexts[it["item_id"]])     # as the reading was made
         spans = rationale(rec, unit.start, len(unit.text))
         if not spans:
             continue

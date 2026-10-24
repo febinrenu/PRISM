@@ -71,10 +71,26 @@ def run(system: str, split: str, limit: Optional[int] = None, progress=print) ->
                 continue
             unit = item_unit(it)
             rec, stats = rb_extract(unit) if system == "rules" else extract_unit(unit, system)
-            fh.write(json.dumps({"item_id": it["item_id"], "record": rec.model_dump(), "stats": stats}) + "\n")
+            # the context goes with the record: the unit's context comes from the
+            # current parse, and a later parser fix must not change what a stored
+            # reading is compared against (faithfulness re-reads the same unit)
+            fh.write(json.dumps({"item_id": it["item_id"], "record": rec.model_dump(), "stats": stats,
+                                "context": unit.context}) + "\n")
             fh.flush()
             if n % 10 == 0:
                 progress(f"{system} {split}: {n}/{len(items)}")
+    return out
+
+
+def load_contexts(system: str, split: str) -> dict[str, str]:
+    """The unit context each stored reading was made with (runs written
+    before contexts were recorded have none)."""
+    path = RUNS_DIR / system / f"{split}.jsonl"
+    out = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        if "context" in row:
+            out[row["item_id"]] = row["context"]
     return out
 
 
