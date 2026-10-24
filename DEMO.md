@@ -128,7 +128,9 @@ of its gain.
 
 Any statute PDF. Analysis streams stage by stage. A scanned page is read by
 OCR, and the workspace then names the OCR'd pages and their confidence; a
-clause from such a page carries an "OCR" tag.
+clause from such a page carries an "OCR" tag, and the Rates tab reads the
+rate schedules of scanned pages too (from the recognised lines). Analysis of
+a scanned page takes about 15-45 seconds per page on a laptop CPU.
 
 ## 11. Accounts and the public API (1 min) - `/login`, `/dashboard`, `/api-docs`
 
