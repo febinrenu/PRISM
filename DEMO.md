@@ -27,9 +27,10 @@ Pre-flight (5 minutes before):
 Optional, to show the checks are green:
 
 ```bash
-cd backend && python -m pytest -q          # 287 tests
+cd backend && python -m pytest -q          # 296 tests
 cd frontend && npx vitest run              # 26 tests
 cd frontend && node scripts/e2e.mjs        # 10-step walk through the running app
+cd frontend && node scripts/delete-check.mjs <a small PDF>   # upload and delete, workspace and dashboard
 ```
 
 ## 1. The landing story (2 min) - `/`
@@ -132,9 +133,14 @@ clause from such a page carries an "OCR" tag, and the Rates tab reads the
 rate schedules of scanned pages too (from the recognised lines). Analysis of
 a scanned page takes about 15-45 seconds per page on a laptop CPU.
 
+"Delete" next to "Re-analyse" removes the document after a confirmation:
+its analysis, model readings, explanations, saved sandbox runs and the
+uploaded PDF. Only the owner (or an admin) can delete a signed-in upload;
+the shared demo cannot be deleted.
+
 ## 11. Accounts and the public API (1 min) - `/login`, `/dashboard`, `/api-docs`
 
-Register, see your documents and an API key; the API docs show the `/v1`
+Register, see your documents (each row has a delete button) and an API key; the API docs show the `/v1`
 endpoints.
 
 ## If something goes wrong

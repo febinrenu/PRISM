@@ -63,6 +63,7 @@ python -m cli error-injection            # typed errors injected into the expert
 python -m cli eval-run --system rules --split test
 python -m cli eval-agree --split pilot   # annotator agreement
 python -m cli eval-score --system gpt-oss-120b --split test
+python -m cli eval-refresh --system gpt-oss-120b --split dev --dry-run   # items whose context a parser fix changed
 python -m cli eval-faithfulness --system gpt-oss-120b --split dev
 
 python -m cli reproduce                  # every paper table from the cache, no model calls

@@ -82,6 +82,58 @@ def run(system: str, split: str, limit: Optional[int] = None, progress=print) ->
     return out
 
 
+def stale_items(system: str, split: str) -> list[str]:
+    """Items whose stored reading was made from a prompt the item no longer
+    gives (its unit context changed in a later parser fix): the record's
+    cache key is not the key of the item's current prompt."""
+    from pipeline.extraction import cache, prompts
+    from pipeline.extraction.backends import SYSTEMS, request_options
+    s = SYSTEMS[system]
+    originals = load_run(system, split)
+    contexts = load_contexts(system, split)
+    out = []
+    for it in split_items(split):
+        rec = originals.get(it["item_id"])
+        if rec is None or not rec.raw_ref or it["item_id"] in contexts:
+            continue
+        unit = item_unit(it)
+        key = cache.key(provider=s.provider, model=s.model, prompt=prompts.render(unit.text, unit.context),
+                        temperature=0.0, seed=0, prompt_version=prompts.EXTRACTION_PROMPT_VERSION,
+                        options=request_options(s, None))
+        if key != rec.raw_ref:
+            out.append(it["item_id"])
+    return out
+
+
+def refresh(system: str, split: str, progress=print) -> list[str]:
+    """Re-read the stale items with their current context and append the new
+    records (with the context) to the run; the last record of an item is the
+    one used. Writes a log of what was refreshed, when and why."""
+    import datetime
+    from pipeline.extraction.extractor import extract_unit
+    stale = stale_items(system, split)
+    items = {it["item_id"]: it for it in split_items(split)}
+    out = RUNS_DIR / system / f"{split}.jsonl"
+    with open(out, "a", encoding="utf-8") as fh:
+        for n, item_id in enumerate(stale, 1):
+            unit = item_unit(items[item_id])
+            rec, stats = extract_unit(unit, system)
+            if rec.status == "error":
+                raise RuntimeError(f"{system} {item_id}: model call failed: {rec.error}")
+            fh.write(json.dumps({"item_id": item_id, "record": rec.model_dump(), "stats": stats,
+                                 "context": unit.context}) + "\n")
+            fh.flush()
+            progress(f"{system} {split}: refreshed {n}/{len(stale)} ({item_id})")
+    log = RUNS_DIR / system / f"{split}.refresh.json"
+    entries = json.loads(log.read_text(encoding="utf-8")) if log.exists() else []
+    if stale:
+        entries.append({"date": datetime.date.today().isoformat(), "items": stale,
+                        "reason": "unit context changed in a parser fix after the first run; the reading "
+                                  "was re-made with the current context"})
+        log.write_text(json.dumps(entries, indent=1), encoding="utf-8")
+    return stale
+
+
 def load_contexts(system: str, split: str) -> dict[str, str]:
     """The unit context each stored reading was made with (runs written
     before contexts were recorded have none)."""

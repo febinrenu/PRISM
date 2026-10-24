@@ -318,6 +318,17 @@ def cmd_eval_score(args) -> int:
     return 0
 
 
+def cmd_eval_refresh(args) -> int:
+    """Re-read the items whose stored reading came from a prompt they no
+    longer give (context changed in a parser fix); logged in the run folder."""
+    from eval.v2 import runs
+    stale = runs.stale_items(args.system, args.split)
+    print(f"{args.system} {args.split}: {len(stale)} stale item(s) {stale}")
+    if stale and not args.dry_run:
+        runs.refresh(args.system, args.split)
+    return 0
+
+
 def cmd_eval_faithfulness(args) -> int:
     from eval.v2 import faithfulness
 
@@ -708,6 +719,12 @@ def main(argv=None) -> int:
     p.add_argument("--split", default="dev", choices=["pilot", "dev", "test"])
     p.add_argument("--gold", default="adjudicated", help="'adjudicated' or an annotator id")
     p.set_defaults(func=cmd_eval_score)
+
+    p = sub.add_parser("eval-refresh", help="re-read evaluation items whose context changed in a parser fix")
+    p.add_argument("--system", required=True)
+    p.add_argument("--split", required=True)
+    p.add_argument("--dry-run", action="store_true")
+    p.set_defaults(func=cmd_eval_refresh)
 
     p = sub.add_parser("eval-faithfulness", help="ERASER comprehensiveness / sufficiency of grounded spans")
     p.add_argument("--system", required=True)

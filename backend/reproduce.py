@@ -292,12 +292,19 @@ def numbers_file(res_dir: Path, runs: list[dict]) -> Path:
             vals[f"injflipmax@{e}"] = f"{100 * max(r['flip_rate'] for r in rows):.0f}"
             vals[f"injrevmax@{e}"] = f"{max(abs(r['revenue_error_crore']) for r in rows):,.0f}"
     from eval.v2.faithfulness import OUT_DIR as FAITH_DIR
+    from eval.v2.runs import RUNS_DIR as EVAL_RUNS_DIR
     for p in sorted(FAITH_DIR.glob("*.json")) if FAITH_DIR.exists() else []:
         fs = json.loads(p.read_text(encoding="utf-8"))["summary"]
         tag = f"{fs['system']}@{fs['split']}"
         vals[f"faithitems@{tag}"] = str(fs["items"])
         for k in ("comprehensiveness", "random_comprehensiveness", "sufficiency", "rationale_share"):
             vals[f"faith{k.replace('_', '')}@{tag}"] = f"{fs[k]['mean']:.2f}"
+        vals[f"faithbeatsrandom@{tag}"] = f"{100 * fs['beats_random_share']:.0f}"
+        # items re-read after a parser fix changed their context (eval-refresh)
+        log = EVAL_RUNS_DIR / fs["system"] / f"{fs['split']}.refresh.json"
+        if log.exists():
+            entries = json.loads(log.read_text(encoding="utf-8"))
+            vals[f"faithrefreshed@{tag}"] = str(len({i for e in entries for i in e["items"]}))
     from eval.v2.rag_eval import OUT_DIR as RAG_DIR
     if (RAG_DIR / "retrieval.json").exists():
         rag = json.loads((RAG_DIR / "retrieval.json").read_text(encoding="utf-8"))

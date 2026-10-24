@@ -574,11 +574,15 @@ them, and with random spans of the same lengths deleted
 changes the output more than deleting random text (comprehensiveness
 \res{faithcomprehensiveness@rules@test} against
 \res{faithrandomcomprehensiveness@rules@test}), as it must for a system
-that reads only those spans. For the language models it does not:
+that reads only those spans. For the language models it changes the
+output no more than random deletion does:
 GPT-OSS-120B scores \res{faithcomprehensiveness@gpt-oss-120b@dev} against
 \res{faithrandomcomprehensiveness@gpt-oss-120b@dev} for random deletion,
 and GPT-OSS-20B \res{faithcomprehensiveness@gpt-oss-20b@dev} against
-\res{faithrandomcomprehensiveness@gpt-oss-20b@dev}; keeping only the cited
+\res{faithrandomcomprehensiveness@gpt-oss-20b@dev}, and the cited deletion
+changes more than the random one for only
+\res{faithbeatsrandom@gpt-oss-120b@dev}\% and
+\res{faithbeatsrandom@gpt-oss-20b@dev}\% of the provisions; keeping only the cited
 spans preserves about half of the extraction (sufficiency
 \res{faithsufficiency@gpt-oss-120b@dev} and
 \res{faithsufficiency@gpt-oss-20b@dev}). On average the cited spans cover a
@@ -589,6 +593,14 @@ span is statute text, which is what the provenance chain needs; it does not
 show that the model relied on those spans more than on their context, and we
 do not present the spans as explanations in that stronger sense
 \citep{jacovi2020faithful}.
+
+\res{faithrefreshed@gpt-oss-120b@dev} of the development provisions were
+read again by both models on 24 October 2026: a parser fix made after the
+first run changed the context they are read with, and the perturbed
+readings must be made with the context of the reading they perturb. Every
+run record now stores its context. The conclusion did not change with the
+re-reading; one provision that GPT-OSS-20B now reads as having no rule
+leaves it \res{faithitems@gpt-oss-20b@dev} scored provisions.
 
 \input{tables/faithfulness}
 
