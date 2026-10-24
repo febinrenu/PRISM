@@ -95,6 +95,16 @@ def list_documents(user_id: str) -> list[dict]:
 
 # --- simulations ---
 
+def forget_document(doc_id: str) -> list[str]:
+    """Remove a document's rows (its owner's listing, its saved sandbox runs).
+    Returns the object-storage keys it had, for the caller to delete."""
+    rows = database.fetchall("SELECT r2_key FROM user_documents WHERE doc_id = ?", (doc_id,))
+    keys = [r["r2_key"] for r in rows if r.get("r2_key")]
+    database.execute("DELETE FROM user_documents WHERE doc_id = ?", (doc_id,))
+    database.execute("DELETE FROM simulations WHERE doc_id = ?", (doc_id,))
+    return keys
+
+
 def record_simulation(user_id: str, doc_id: str, config: dict, results: dict) -> None:
     import uuid
     database.execute(

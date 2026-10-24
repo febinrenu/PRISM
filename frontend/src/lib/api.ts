@@ -143,6 +143,13 @@ export const api = {
   listDocuments: async () =>
     apiFetch<{ documents: DocumentMeta[] }>("/api/documents", { headers: authHeaders() }),
 
+  /** Delete a document and everything derived from it (owner, admin, or anyone for an anonymous upload). */
+  deleteDocument: async (docId: string) =>
+    apiFetch<{ deleted: string; removed: Record<string, unknown> }>(`/api/documents/${docId}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    }),
+
   health: async () => apiFetch<{ status: string }>("/health"),
 
   // ── Intelligence ────────────────────────────────────────────────────────

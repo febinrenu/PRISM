@@ -11,6 +11,7 @@ import { PageContainer, PageHeader } from "@/components/shell/PageHeader";
 import { EmptyState, ErrorState, Panel, PageSkeleton, SandboxTag, StatusTag } from "@/components/ui/kit";
 import { buttonVariants } from "@/components/ui/button";
 import DocumentCorpus from "@/components/landing/DocumentCorpus";
+import DeleteDocumentButton from "@/components/workspace/DeleteDocumentButton";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -134,11 +135,21 @@ export default function DashboardPage() {
             ) : (
               <ul className="divide-y divide-border">
                 {data.documents.map((d) => (
-                  <li key={d.doc_id}>
-                    <Link href={`/analyze/${d.doc_id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-bg-elevated">
+                  <li key={d.doc_id} className="flex items-center gap-2 pr-3 hover:bg-bg-elevated">
+                    <Link href={`/analyze/${d.doc_id}`} className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-5">
                       <span className="min-w-0 flex-1 truncate text-[14px]">{d.doc_name}</span>
                       <StatusTag status={d.status} />
                     </Link>
+                    <DeleteDocumentButton
+                      compact
+                      docId={d.doc_id}
+                      name={d.doc_name}
+                      onDeleted={() =>
+                        mutate(data ? { ...data, documents: data.documents.filter((x) => x.doc_id !== d.doc_id) } : data, {
+                          revalidate: true,
+                        })
+                      }
+                    />
                   </li>
                 ))}
               </ul>

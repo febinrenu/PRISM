@@ -225,6 +225,34 @@ def load_embeddings(doc_id: str) -> Optional[np.ndarray]:
 
 # --- Phase 2: LLM extraction cache ---
 
+def delete_document(doc_id: str) -> dict:
+    """Remove everything stored for a document: its folder (metadata,
+    analysis, embeddings, model readings, explanations, sandbox runs, OCR
+    lines, cached schedules), its uploaded PDF, and the in-memory copies.
+    Returns what was removed. The caller checks permissions."""
+    import shutil
+    if not is_valid_doc_id(doc_id):
+        raise ValueError(f"invalid document id: {doc_id}")
+    removed = {"folder": False, "pdf": False}
+    pdf = get_path(doc_id)
+    from config import UPLOAD_DIR
+    uploads = UPLOAD_DIR.resolve()
+    if pdf:
+        p = Path(pdf).resolve()
+        # only an uploaded file, never a corpus or demo PDF the document points at
+        if p.exists() and uploads in p.parents:
+            p.unlink()
+            removed["pdf"] = True
+    d = _doc_dir(doc_id)
+    if d.exists():
+        shutil.rmtree(d)
+        removed["folder"] = True
+    _meta_store.pop(doc_id, None)
+    _result_store.pop(doc_id, None)
+    _embeddings_cache.pop(doc_id, None)
+    return removed
+
+
 def save_ocr_lines(doc_id: str, pages: dict) -> None:
     """{page number: {"width", "height", "lines": [[x0, y0, x1, y1, text, conf]]}}
     of a document's OCR'd pages."""

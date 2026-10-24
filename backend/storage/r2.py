@@ -56,6 +56,18 @@ def get_object(key: str) -> Optional[bytes]:
     return p.read_bytes() if p.exists() else None
 
 
+def delete_object(key: str) -> bool:
+    """Remove an object; False when R2 is not configured or the call fails."""
+    client = _get_client()
+    if client is None or not key:
+        return False
+    try:
+        client.delete_object(Bucket=R2_BUCKET, Key=key)
+        return True
+    except Exception:  # noqa: BLE001 - a missing object is not an error here
+        return False
+
+
 def presigned_url(key: str, expires: int = 3600) -> Optional[str]:
     if R2_ENABLED:
         return _get_client().generate_presigned_url(

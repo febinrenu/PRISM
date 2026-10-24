@@ -216,6 +216,42 @@ async def get_document(doc_id: str, user: dict | None = Depends(optional_user)):
     return meta.model_dump(exclude={"pdf_path", "owner_id"})
 
 
+@router.delete("/documents/{doc_id}")
+async def delete_document(doc_id: str, user: dict | None = Depends(optional_user)):
+    """Delete a document and everything derived from it: stored analysis and
+    caches, the uploaded PDF (and its object-storage copy), its rows in the
+    database and its passages in the Ask index. The owner or an admin may
+    delete it (anyone, for an anonymous upload, as for re-analysis); the
+    demo cannot be deleted, nor a document while it is being analysed."""
+    from auth import users
+    from auth.deps import can_manage
+    from services import job_manager
+    from storage import r2
+    from storage.store import delete_document as remove_files
+
+    meta = get_meta(doc_id)
+    if meta is None or not can_list(meta, user):
+        raise HTTPException(status_code=404, detail=f"Document {doc_id} not found.")
+    if doc_id.startswith("demo_"):
+        raise HTTPException(status_code=403, detail="The demo document is a fixed reference and cannot be deleted.")
+    if not can_manage(meta, user):
+        raise HTTPException(status_code=403, detail="Only the document's owner can delete it.")
+    running = [k for k in (f"analyze:{doc_id}", f"llm:{doc_id}")
+               if (j := job_manager.get_job(k)) is not None and j.status == "running"]
+    if meta.status == "processing" or running:
+        raise HTTPException(status_code=409, detail="The document is being analysed; delete it when that finishes.")
+    removed = remove_files(doc_id)
+    keys = users.forget_document(doc_id)
+    removed["object_storage"] = sum(r2.delete_object(k) for k in keys)
+    try:
+        from rag import corpus_builder
+        corpus_builder.remove_document(doc_id)
+        removed["ask_index"] = True
+    except Exception:  # noqa: BLE001 - the index may not be built on this install
+        removed["ask_index"] = False
+    return {"deleted": doc_id, "removed": removed}
+
+
 SCHEDULES_VERSION = 2      # bump when pipeline.schedules reads tables differently
 
 

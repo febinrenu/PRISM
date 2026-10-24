@@ -15,6 +15,8 @@ import DocContextBar from "@/components/shell/DocContextBar";
 import { StatusTag } from "@/components/ui/kit";
 import { cn } from "@/lib/utils";
 import ReadingNotice from "@/components/workspace/ReadingNotice";
+import DeleteDocumentButton from "@/components/workspace/DeleteDocumentButton";
+import { useRouter } from "next/navigation";
 
 function Handle() {
   return (
@@ -35,6 +37,7 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
   const { stage, filename, clauses, stats, llmStage, llmProcessed, llmTotal } = useDocumentStore();
   const [mobileTab, setMobileTab] = useState<(typeof MOBILE_TABS)[number][0]>("clauses");
 
+  const router = useRouter();
   const [run, setRun] = useState(0);
   const [confirming, setConfirming] = useState(false);
   useAnalysisSession(docId, run);
@@ -114,6 +117,9 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
               >
                 <RefreshCw className="h-3.5 w-3.5" /> Re-analyse
               </button>
+            )}
+            {!confirming && (
+              <DeleteDocumentButton docId={docId} name={filename ?? undefined} onDeleted={() => router.push("/start")} />
             )}
           </div>
         )}
