@@ -62,6 +62,7 @@ class PRISMSimulationModel(Model):
     ):
         super().__init__(seed=seed)
         self.active_rules = policy_rules
+        self.months = 0                     # simulated months so far: payments accrue monthly, incomes are annual
         self.adaptive = adaptive
         self.q_alpha = self.Q_ALPHA
         self.q_gamma = self.Q_GAMMA
@@ -157,13 +158,17 @@ class PRISMSimulationModel(Model):
 
     @staticmethod
     def _effective_rate_by_type(model: "PRISMSimulationModel") -> dict[str, float]:
-        """Effective rate = cumulative burden / GROSS income, per type. This is
-        the statutory-incidence measure the verdict is derived from."""
+        """Effective annual rate = burden per year / GROSS income, per type. This is
+        the statutory-incidence measure the verdict is derived from. The burden
+        accrues monthly over the run while income is a year's, so the burden is
+        annualised (a 50-month run once reported 4.2 years of tax against one year
+        of income, and a rate over 100%)."""
+        years = max(model.months, 1) / 12.0
         out: dict[str, float] = {}
         for agent_type in AgentType:
             members = [a for a in model.agents if a.agent_type == agent_type]
             out[agent_type.value] = (
-                sum(a.cumulative_burden / max(a.income, 1.0) for a in members) / len(members)
+                sum(a.cumulative_burden / years / max(a.income, 1.0) for a in members) / len(members)
                 if members else 0.0
             )
         return out
@@ -229,5 +234,6 @@ class PRISMSimulationModel(Model):
     # ── stepping ─────────────────────────────────────────────────────────────
 
     def step(self) -> None:
+        self.months += 1
         self.agents.shuffle_do("step")
         self.datacollector.collect(self)

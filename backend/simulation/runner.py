@@ -15,6 +15,10 @@ from simulation.params import GINI_PROGRESSIVE_DELTA, GINI_REGRESSIVE_DELTA
 from simulation.rules import SimulationRule
 from storage import store
 
+# A household paying more than this share of its income across the selected rules is a
+# sign that rules overlap, not a finding.
+IMPLAUSIBLE_RATE = 0.5
+
 _TYPE_LABELS = {
     "low_income": "low-income households",
     "middle_income": "middle-income households",
@@ -166,8 +170,16 @@ def build_narrative(
         revenue_clause += "."
 
     incidence_clause = (
-        f"Effective tax rates by band: {eff_summary}. {verdict_clause}"
+        f"Effective annual tax rates by band (payments over the run, per year, as a share of income): "
+        f"{eff_summary}. {verdict_clause}"
     )
+    household_rates = [last.effective_rate_by_type.get(t, 0.0) for t in ("low_income", "middle_income", "high_income")]
+    if any(r > IMPLAUSIBLE_RATE for r in household_rates):
+        incidence_clause += (
+            f" **Implausibly high:** a household is paying more than {IMPLAUSIBLE_RATE * 100:.0f}% of its income. "
+            f"Every selected clause is applied as a separate levy and they add up, so overlapping rules (several "
+            f"clauses describing the same tax) inflate the total. Select fewer, non-overlapping rules, or use "
+            f"the Statute mode, which prices the law's own rate table without double counting.")
 
     compliance_clause = (
         f"Compliance settles at {corp_comp}% for large corporates and {low_comp}% for "
@@ -175,9 +187,10 @@ def build_narrative(
     )
 
     limits_clause = (
-        "Figures are illustrative: incomes are drawn from calibrated log-normal "
-        "distributions and behavioural/compliance parameters are documented in the "
-        "model-assumptions panel, not fitted to microdata."
+        "Figures are illustrative: incomes are drawn from log-normal distributions with medians set near "
+        "published figures (not fitted to microdata), behavioural parameters are documented in the "
+        "model-assumptions panel, and each selected clause is treated as an independent levy on every agent "
+        "that meets its threshold. This models how agents respond to a set of rules, not the income tax."
     )
 
     return " ".join([revenue_clause, incidence_clause, compliance_clause, limits_clause])

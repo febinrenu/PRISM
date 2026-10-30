@@ -19,11 +19,16 @@ export interface ControlValues {
   ruleClauseIds: string[] | null;
   adaptive: boolean;
   calibrationMode: CalibrationMode;
+  seed: number;
 }
 
 const CALIBRATION_OPTIONS: Array<{ value: CalibrationMode; label: string; hint: string }> = [
-  { value: "nsso", label: "Calibrated (NSSO/PLFS)", hint: "Income & consumption distributions from national survey data" },
-  { value: "legacy", label: "Illustrative ranges", hint: "Hand-set demo ranges — faster to reason about, not survey-grounded" },
+  {
+    value: "nsso",
+    label: "Near published medians",
+    hint: "Log-normal incomes whose medians are set near published survey figures; not fitted to microdata",
+  },
+  { value: "legacy", label: "Illustrative ranges", hint: "Hand-set demo ranges, not tied to any survey" },
 ];
 
 interface Props {
@@ -40,6 +45,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
   const [nSteps, setNSteps] = useState(50);
   const [adaptive, setAdaptive] = useState(true);
   const [calibrationMode, setCalibrationMode] = useState<CalibrationMode>("nsso");
+  const [seed, setSeed] = useState(42);
   const [selectedRules, setSelectedRules] = useState<Set<string> | null>(
     prefilterClauseId ? new Set([prefilterClauseId]) : null
   );
@@ -129,6 +135,26 @@ export default function SimulationControls({ running, availableRules, prefilterC
         </div>
       </div>
 
+      {/* Seed: a run is one draw; change it to see how much the result depends on chance */}
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
+        <div>
+          <p className="text-micro font-mono text-text-secondary">Random seed</p>
+          <p className="text-micro font-mono text-text-dim mt-0.5">
+            The same seed gives the same run. Try a few: a result that changes sign with the seed is noise, not a finding.
+          </p>
+        </div>
+        <input
+          type="number"
+          min={0}
+          max={999999}
+          value={seed}
+          onChange={(e) => setSeed(Math.max(0, Math.min(999999, Math.floor(Number(e.target.value) || 0))))}
+          disabled={running}
+          aria-label="Random seed"
+          className="h-9 w-24 rounded-[4px] border border-border-light bg-bg-surface px-2 text-right font-mono text-[13px] text-text-primary disabled:opacity-50"
+        />
+      </div>
+
       {/* Adaptive agents toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
         <div>
@@ -199,6 +225,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
               ruleClauseIds: selectedRules ? Array.from(selectedRules) : null,
               adaptive,
               calibrationMode,
+              seed,
             })
           }
           disabled={running || totalAgents === 0}
@@ -219,7 +246,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
           )}
         </button>
         <p className="text-micro font-mono text-text-dim">
-          {totalAgents.toLocaleString()} agents · {nSteps} steps · Mesa ABM · seeded
+          {totalAgents.toLocaleString()} agents · {nSteps} steps · Mesa ABM · seed {seed}
         </p>
       </div>
     </div>

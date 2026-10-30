@@ -9,6 +9,8 @@ These lock in the rigour changes:
   - firms are not charged a household subsistence floor
 """
 import sys
+
+import pytest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -126,3 +128,47 @@ def test_narrative_is_populated_and_grounded():
     assert len(narrative) > 80
     assert "revenue" in narrative.lower()
     assert verdict in narrative.lower()
+
+
+# ── the effective rate is annual ─────────────────────────────────────────────
+
+def _flat_levy(rate_percent: float, n: int = 1) -> list[SimulationRule]:
+    return [SimulationRule(clause_id=f"levy{i}", description="flat levy on income", rate_percent=rate_percent,
+                           full_base=True, penalty_probability=0.0) for i in range(n)]
+
+
+def test_the_effective_rate_does_not_depend_on_how_many_months_are_run():
+    """Payments accrue monthly and incomes are annual. A 2% levy on everyone is a 2% effective
+    annual rate whether 12 or 48 months are simulated (it once reported 8% after 48: four years of
+    tax against one year of income)."""
+    rates = {}
+    for months in (12, 48):
+        model, _ = _final_model(_flat_levy(2.0), HOUSEHOLDS, n_steps=months)
+        rates[months] = model._effective_rate_by_type(model)["middle_income"]
+    assert rates[12] <= 0.021 and rates[48] <= 0.021          # never above the levy itself
+    assert rates[48] == pytest.approx(rates[12], rel=0.2)
+
+
+def test_a_household_cannot_pay_more_than_its_levies_add_up_to():
+    model, _ = _final_model(_flat_levy(10.0, n=3), HOUSEHOLDS, n_steps=50)
+    for t in ("low_income", "middle_income", "high_income"):
+        assert 0.0 <= model._effective_rate_by_type(model)[t] <= 0.30 + 1e-9
+
+
+def test_stacked_rules_that_push_households_past_half_their_income_are_flagged():
+    rules = _flat_levy(2.0)
+    model, steps = _final_model(rules, HOUSEHOLDS, n_steps=24)
+    low, high = model.effective_rate_gap()
+    ok = build_narrative(rules, "llm", steps, model.regressivity_verdict(), low, high)
+    assert "Implausibly high" not in ok
+    steps[-1].effective_rate_by_type["low_income"] = 0.9           # as if many overlapping rules were selected
+    text = build_narrative(rules, "llm", steps, model.regressivity_verdict(), 0.9, high)
+    assert "Implausibly high" in text and "overlapping rules" in text and "Statute mode" in text
+
+
+def test_the_narrative_says_what_the_rate_is_and_what_the_model_is_not():
+    rules = _flat_levy(2.0)
+    model, steps = _final_model(rules, HOUSEHOLDS, n_steps=12)
+    low, high = model.effective_rate_gap()
+    text = build_narrative(rules, "llm", steps, model.regressivity_verdict(), low, high)
+    assert "Effective annual tax rates" in text and "not the income tax" in text
