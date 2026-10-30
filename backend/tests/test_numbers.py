@@ -113,8 +113,8 @@ def test_schedules_route(tmp_path, monkeypatch):
     from fastapi.testclient import TestClient
 
     from main import app
-    from routers import data
-    monkeypatch.setattr(data, "_schedules_cache", lambda doc_id: tmp_path / "schedules.json")  # not in the repo
+    from pipeline import schedules
+    monkeypatch.setattr(schedules, "schedules_cache", lambda doc_id: tmp_path / "schedules.json")  # not in the repo
     c = TestClient(app)
     d = c.get("/api/schedules/demo_income_tax_2025").json()
     assert d["review"] == 0 and len(d["schedules"]) >= 1

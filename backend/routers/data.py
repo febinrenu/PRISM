@@ -252,33 +252,19 @@ async def delete_document(doc_id: str, user: dict | None = Depends(optional_user
     return {"deleted": doc_id, "removed": removed}
 
 
-SCHEDULES_VERSION = 2      # bump when pipeline.schedules reads tables differently
-
-
-def _schedules_cache(doc_id: str):
-    from storage.store import _doc_dir
-    return _doc_dir(doc_id) / "schedules.json"
-
-
 @router.get("/schedules/{doc_id}")
 async def get_schedules(doc_id: str):
     """The document's rate schedules, each read row by row into bands and
     checked: starts at zero, no gaps or overlaps, an open top band, rates
     that do not fall (pipeline.schedules). Cached per PDF."""
     import asyncio
-    import json
 
-    from storage.store import get_path, load_ocr_lines
+    from pipeline.schedules import schedules_for_doc
 
-    pdf = get_path(doc_id)
-    if pdf is None or not os.path.exists(pdf):
+    try:
+        return await asyncio.get_running_loop().run_in_executor(None, schedules_for_doc, doc_id)
+    except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"No PDF stored for {doc_id}.")
-    cache = _schedules_cache(doc_id)
-    stamp = f"{os.path.getsize(pdf)}:{int(os.path.getmtime(pdf))}:{SCHEDULES_VERSION}"
-    if cache.exists():
-        data = json.loads(cache.read_text(encoding="utf-8"))
-        if data.get("stamp") == stamp:
-            return data
     from pipeline.schedules import find_schedules
     ocr_pages = load_ocr_lines(doc_id)          # the scanned pages' recognised lines, if any
     schedules = await asyncio.get_running_loop().run_in_executor(None, find_schedules, str(pdf), ocr_pages)

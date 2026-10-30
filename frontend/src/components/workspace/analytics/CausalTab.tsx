@@ -61,13 +61,14 @@ const RISK_ORDER: RiskTier[] = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
 
 // ─── Text cleaning helpers ────────────────────────────────────────────────────
 
+// Whitespace and stray punctuation only: the words are the statute's, so none are
+// dropped. A leading list marker "(1)" or "3." goes, but not an amount like "100 crore".
 function cleanSpan(text: string): string {
   return text
     .replace(/\s+/g, " ")
     .replace(/^[\s,;.\-–—]+/, "")
     .replace(/[\s,;]+$/, "")
-    .replace(/^\d+[\s.)\-]+/, "")
-    .replace(/\b(provided that|subject to|notwithstanding)\b/gi, "")
+    .replace(/^\(?\d{1,2}[.)]\s+/, "")
     .trim();
 }
 
@@ -176,10 +177,11 @@ function SpanBlock({
 }
 
 function FadeSlideIn({ children, index }: { children: React.ReactNode; index: number }) {
+  // A short stagger for the first few cards only; a long list must not wait on it.
   return (
     <div
       style={{
-        animation: `fadeSlideIn 0.25s ease-out ${index * 0.04}s both`,
+        animation: `fadeSlideIn 0.25s ease-out ${Math.min(index, 6) * 0.03}s both`,
       }}
     >
       {children}
@@ -255,9 +257,13 @@ function CausalCard({ p, index }: { p: any; index: number }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 30;
+
 export default function CausalTab() {
   const { clauses } = useDocumentStore();
   const [riskFilter, setRiskFilter] = useState<RiskTier | "ALL">("ALL");
+  const [shown, setShown] = useState(PAGE_SIZE);
+  const chooseRisk = (tier: RiskTier | "ALL") => { setRiskFilter(tier); setShown(PAGE_SIZE); };
 
   const patterns = useMemo(() => {
     return clauses
@@ -278,6 +284,8 @@ export default function CausalTab() {
     if (riskFilter === "ALL") return patterns;
     return patterns.filter((p) => p.risk_tier === riskFilter);
   }, [patterns, riskFilter]);
+
+  const visible = useMemo(() => filtered.slice(0, shown), [filtered, shown]);
 
   // Group by risk tier for summary counts
   const riskCounts = useMemo(() => {
@@ -335,7 +343,7 @@ export default function CausalTab() {
                 color: RISK_CONFIG[tier].text,
                 opacity: riskFilter !== "ALL" && riskFilter !== tier ? 0.4 : 1,
               }}
-              onClick={() => setRiskFilter(riskFilter === tier ? "ALL" : tier)}
+              onClick={() => chooseRisk(riskFilter === tier ? "ALL" : tier)}
             >
               {tier === "CRITICAL" && <AlertTriangle className="w-3 h-3" aria-hidden />}
               {riskCounts[tier]}× {tier}
@@ -352,7 +360,7 @@ export default function CausalTab() {
         </span>
         <div className="flex gap-1.5 flex-wrap">
           <button
-            onClick={() => setRiskFilter("ALL")}
+            onClick={() => chooseRisk("ALL")}
             className="text-micro font-mono px-2 py-0.5 rounded-full transition-all"
             style={{
               background: riskFilter === "ALL" ? alpha(tokens.accent.primary, 0.15) : "transparent",
@@ -366,7 +374,7 @@ export default function CausalTab() {
           {RISK_ORDER.map((tier) => riskCounts[tier] > 0 && (
             <button
               key={tier}
-              onClick={() => setRiskFilter(riskFilter === tier ? "ALL" : tier)}
+              onClick={() => chooseRisk(riskFilter === tier ? "ALL" : tier)}
               className="text-micro font-mono px-2 py-0.5 rounded-full transition-all"
               style={{
                 background: riskFilter === tier ? RISK_CONFIG[tier].bg : "transparent",
@@ -415,9 +423,19 @@ export default function CausalTab() {
             </p>
           </div>
         ) : (
-          filtered.map((p, i) => (
-            <CausalCard key={i} p={p} index={i} />
+          visible.map((p, i) => (
+            <CausalCard key={`${p.source_clause_id}-${i}`} p={p} index={i % PAGE_SIZE} />
           ))
+        )}
+        {filtered.length > visible.length && (
+          <button
+            type="button"
+            onClick={() => setShown((n) => n + PAGE_SIZE)}
+            className="w-full py-2.5 rounded-xl border border-border bg-bg-surface/60 text-xs font-mono text-text-secondary hover:text-text-primary hover:border-accent-primary/40 transition-colors"
+          >
+            Show {Math.min(PAGE_SIZE, filtered.length - visible.length)} more
+            <span className="text-text-muted"> · {visible.length} of {filtered.length}</span>
+          </button>
         )}
       </div>
 

@@ -13,8 +13,8 @@ type ExplainState =
 
 /**
  * LIME explanation for one clause. Cached explanations return instantly;
- * otherwise the job's SSE stream reports per-sample progress (llm mode
- * makes ~50 Ollama calls ≈ 1–3 minutes).
+ * otherwise the job's SSE stream reports per-sample progress (llm mode makes one
+ * model call per sample, 60 by default). `rerun` recomputes instead of reading the cache.
  */
 export function useExplanation(docId: string, clauseId: string, mode: "proxy" | "llm") {
   const [state, setState] = useState<ExplainState>({ status: "loading" });
@@ -53,7 +53,7 @@ export function useExplanation(docId: string, clauseId: string, mode: "proxy" | 
 
     (async () => {
       try {
-        const result = await api.getExplanation(docId, clauseId, mode);
+        const result = await api.getExplanation(docId, clauseId, mode, nonce > 0);
         if (cancelled) return;
         if (result.status === "complete") {
           setState({ status: "complete", explanation: result });

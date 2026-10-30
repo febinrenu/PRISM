@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Table2 } from "lucide-react";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
-import { API_BASE } from "@/lib/api";
+import { API_BASE, authHeaders } from "@/lib/api";
+import ExpandableText from "@/components/ui/ExpandableText";
 import { cn } from "@/lib/utils";
 
 export interface ScheduleRow {
@@ -52,7 +53,7 @@ export function ScheduleCard({ s, onPage }: { s: Schedule; onPage?: (page: numbe
             p.{s.page}
             {s.assessment_year && ` · AY ${s.assessment_year}`}
           </button>
-          <p className="mt-0.5 text-[13px] leading-snug text-text-secondary">{s.heading || "Rate table"}</p>
+          <p className="mt-0.5 text-[13px] leading-snug text-text-secondary"><ExpandableText text={s.heading || "Rate table"} max={170} /></p>
         </div>
         {s.check.ok ? (
           <span className="inline-flex items-center gap-1 text-[12px] text-status-success">
@@ -102,7 +103,7 @@ export default function RatesTab() {
     if (!docId) return;
     setData(null);
     setError(null);
-    fetch(`${API_BASE}/api/schedules/${docId}`)
+    fetch(`${API_BASE}/api/schedules/${docId}`, { headers: authHeaders() })
       .then(async (r) => {
         if (!r.ok) throw new Error((await r.json().catch(() => null))?.detail ?? `HTTP ${r.status}`);
         return r.json();

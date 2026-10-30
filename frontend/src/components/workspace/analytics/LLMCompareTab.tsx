@@ -18,6 +18,8 @@ const METHOD_STYLE: Record<ExtractionMethod, { label: string; color: string; ico
   failed: { label: "Parse failed", color: tokens.status.error, icon: CircleSlash },
 };
 
+const CARD_PAGE = 25;
+
 /**
  * Side-by-side comparison of rule-based causal detection and the configured
  * language model's extraction, per clause. Runs on the highest-impact clauses
@@ -28,10 +30,15 @@ export default function LLMCompareTab() {
     useDocumentStore();
   const { start } = useLLMExtraction(docId);
   const [model, setModel] = useState<string>("the configured language model");
+  const [hosted, setHosted] = useState(false);
+  const [shown, setShown] = useState(CARD_PAGE);
   useEffect(() => {
     api
       .getBackend()
-      .then((b) => setModel(`${b.model}${b.cloud ? " (hosted)" : " via Ollama"}`))
+      .then((b) => {
+        setModel(`${b.model}${b.cloud ? " (hosted)" : " via Ollama"}`);
+        setHosted(!!b.cloud);
+      })
       .catch(() => undefined);
   }, []);
 
@@ -105,7 +112,7 @@ export default function LLMCompareTab() {
         )}
         {llmStage === "error" && (
           <span className="flex items-center gap-1.5 text-micro font-mono text-status-error">
-            <CircleSlash className="w-3.5 h-3.5" /> Extraction failed — is Ollama running?
+            <CircleSlash className="w-3.5 h-3.5" /> {hosted ? "Extraction failed: the hosted model did not answer (key, quota or rate limit)" : "Extraction failed: is Ollama running?"}
           </span>
         )}
         {llmSummary && (
@@ -120,7 +127,7 @@ export default function LLMCompareTab() {
 
       {/* Per-clause comparison */}
       <div className="space-y-3">
-        {extracted.map((clause) => {
+        {extracted.slice(0, shown).map((clause) => {
           const method = (clause.extraction_method ?? "rule_based") as ExtractionMethod;
           const style = METHOD_STYLE[method];
           const Icon = style.icon;
@@ -203,6 +210,16 @@ export default function LLMCompareTab() {
             </div>
           );
         })}
+        {extracted.length > shown && (
+          <button
+            type="button"
+            onClick={() => setShown((n) => n + CARD_PAGE)}
+            className="w-full py-2.5 rounded-xl border border-border bg-bg-surface/60 text-xs font-mono text-text-secondary hover:text-text-primary transition-colors"
+          >
+            Show {Math.min(CARD_PAGE, extracted.length - shown)} more
+            <span className="text-text-muted"> · {shown} of {extracted.length}</span>
+          </button>
+        )}
       </div>
     </div>
   );

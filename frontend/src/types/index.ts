@@ -432,6 +432,8 @@ export interface LLMBackendInfo {
   model: string;
   cloud: boolean;
   configured: boolean;
+  /** The backend tried when the configured one fails, if there is one. */
+  fallback?: { kind: "ollama" | "groq"; model: string } | null;
 }
 
 export interface RAGCitation {
@@ -440,11 +442,21 @@ export interface RAGCitation {
   doc_name: string;
   clause_id: string;
   section: string;
+  heading?: string;
   page: number;
-  similarity: number;
+  similarity: number | null;
+  rerank_score?: number | null;
   text: string;
   text_preview: string;
   entity_types: string[];
+  /** "statute": a passage of a parsed Act; "clause": a clause of an analysed document. */
+  kind?: "clause" | "statute";
+  /** "section": fetched by the section number the question named; "search": retrieved. */
+  match?: "search" | "section";
+  statute_key?: string | null;
+  node_path?: string | null;
+  /** The passage was shortened to fit the model's window. */
+  cut?: boolean;
 }
 
 export interface CorpusDoc {
@@ -452,18 +464,74 @@ export interface CorpusDoc {
   doc_name: string;
   clauses: number;
   causal: number;
+  kind?: "statute" | "document";
 }
 
 export interface CorpusStats {
   total_clauses: number;
   documents: CorpusDoc[];
   collection: string;
+  /** Statutes still being indexed in the background. */
+  indexing?: number;
+}
+
+/** How an answer fared: every claim checked and supported, some flagged, or not in the corpus. */
+export type AnswerState = "answered" | "partial" | "not_found";
+
+export interface AnswerClaim {
+  text: string;
+  sources: number[];
+  status: "supported" | "unsupported" | "uncited";
+  issues: string[];
+}
+
+export interface BackendUsed {
+  backend: string;
+  model: string;
+  fell_back: boolean;
+  reason: string | null;
+}
+
+export interface RAGPlan {
+  question: string;
+  /** The follow-up as a standalone question, when it needed one. */
+  standalone: string | null;
+  intent: "ask" | "lookup" | "compare";
+  sections: string[];
+  acts: string[];
+}
+
+export interface RAGVerdict {
+  state: AnswerState;
+  grounded: boolean;
+  abstained: boolean;
+  cited_sources: number[];
+  invalid_citations: number[];
+  unsupported_numbers: string[];
+  claims: AnswerClaim[];
+  n_supported: number;
+  n_claims: number;
+  /** Statements that carry no citation (counted, not necessarily wrong). */
+  n_uncited?: number;
+  /** Statements with a figure or quotation that conflicts with the cited text. */
+  n_conflicts?: number;
 }
 
 export type RAGStreamEvent =
-  | { stage: "retrieval"; citations: RAGCitation[]; retrieval_confidence: number; n_sources: number; backend: LLMBackendInfo }
+  | ({ stage: "plan" } & RAGPlan)
+  | {
+      stage: "retrieval"; citations: RAGCitation[]; retrieval_confidence: number; n_sources: number;
+      backend: LLMBackendInfo; exact_match?: boolean; gated?: boolean;
+    }
   | { stage: "token"; token: string }
-  | { stage: "done"; answer: string; grounded: boolean; n_sources: number; retrieval_confidence: number }
+  | { stage: "revising"; reason: string }
+  | { stage: "replace"; answer: string }
+  | { stage: "warning"; message: string }
+  | ({
+      stage: "done"; answer: string; n_sources: number; retrieval_confidence: number; exact_match?: boolean;
+      backend_used?: BackendUsed | null; latency_ms?: { search?: number; first_token?: number; total?: number };
+      revised?: boolean; standalone?: string | null;
+    } & RAGVerdict)
   | { stage: "error"; message: string };
 
 export interface ChatMessage {
@@ -471,9 +539,248 @@ export interface ChatMessage {
   content: string;
   citations?: RAGCitation[];
   retrievalConfidence?: number;
-  grounded?: boolean;
+  exactMatch?: boolean;
+  /** Retrieval was too weak to answer: the citations are only the closest passages. */
+  gated?: boolean;
+  plan?: RAGPlan;
+  verdict?: RAGVerdict;
+  backendUsed?: BackendUsed | null;
+  latencyMs?: { search?: number; first_token?: number; total?: number };
+  revised?: boolean;
+  revising?: string;
   streaming?: boolean;
   error?: string;
+  warning?: string;
+}
+
+// ─── Policy sandbox, statute mode: scenarios on the document's own rate table ──
+
+export interface PolicySlab {
+  lower: number;
+  upper: number | null;
+  rate: number;
+}
+
+export interface PolicyRebate {
+  max_income: number;
+  max_rebate: number;
+  marginal_relief: boolean;
+}
+
+export interface PolicyLawParams {
+  slabs: PolicySlab[];
+  rebate: PolicyRebate | null;
+  standard_deduction: number;
+  cess_rate: number;
+}
+
+export interface PolicyProvenanceRow {
+  parameter: string;
+  value: string;
+  source: string;
+  check: string;
+  from_document: boolean;
+}
+
+export interface PolicyTable {
+  index: number;
+  page: number;
+  heading: string;
+  assessment_year: string | null;
+  bands: number;
+}
+
+export interface PolicyLaw {
+  available: true;
+  ay: string;
+  law: string;
+  source: "document" | "expert";
+  title: string;
+  matched_year: string | null;
+  review: string[];
+  provenance: PolicyProvenanceRow[];
+  schedule: { page: number; heading: string; assessment_year: string | null } | null;
+  law_params: PolicyLawParams;
+  regimes: string[];
+  default_regime: string;
+  surcharge: { threshold: number; rate: number }[];
+  tables: PolicyTable[];
+  selected_table: number | null;
+  bounds: Record<string, [number, number]>;
+  behaviour_limits: Record<string, [number, number]>;
+}
+
+export interface PolicyLawUnavailable {
+  available: false;
+  reason: string;
+  tables: PolicyTable[];
+  bounds: Record<string, [number, number]>;
+}
+
+export interface PolicyYear {
+  ay: string;
+  law: string;
+  default_regime: string;
+  bands: number;
+  top_rate: number;
+}
+
+export interface PolicyChanges {
+  slabs?: PolicySlab[];
+  rebate?: PolicyRebate | null;
+  standard_deduction?: number;
+  cess_rate?: number;
+}
+
+export interface PolicyAssumptions {
+  optimal_share: number;
+  via_scale: number;
+  top_alpha: number | null;
+  senior_share: number;
+  growth: number;
+}
+
+export interface PolicyBehaviourInput {
+  audit_rate?: number | null;
+  penalty_rate?: number | null;
+  morale?: number | null;
+}
+
+export interface PolicyScenarioRequest {
+  doc_id?: string | null;
+  ay?: string | null;
+  schedule?: number | null;
+  changes: PolicyChanges;
+  assumptions: PolicyAssumptions;
+  behaviour?: PolicyBehaviourInput | null;
+  uncertainty: number;
+}
+
+export interface PolicyOutcome {
+  revenue_crore: number;
+  taxpayers_with_tax: number;
+  returns: number;
+  gini_pre: number;
+  gini_post: number;
+  kakwani: number;
+  reynolds_smolensky: number;
+  suits: number;
+  new_regime_share: number;
+  deciles: { decile: number; tax_crore: number; income_crore: number; effective_rate: number; income_upper: number | null }[];
+}
+
+export interface PolicyImpactGroup {
+  label: string;
+  lower: number | null;
+  upper: number | null;
+  returns: number;
+  share_pay_less: number;
+  share_pay_more: number;
+  mean_change_inr: number;
+  base_tax_crore: number;
+  reform_tax_crore: number;
+  base_rate: number;
+  reform_rate: number;
+}
+
+export interface PolicyLever {
+  id: string;
+  label: string;
+  revenue_crore: number;
+}
+
+export interface PolicyRange {
+  p5: number;
+  median: number;
+  p95: number;
+  min: number;
+  max: number;
+}
+
+export interface PolicyUncertainty {
+  n: number;
+  ranges: Record<string, [number, number]>;
+  revenue_delta_crore: PolicyRange;
+  kakwani_delta: PolicyRange;
+  sign_stable: boolean;
+  tornado: { input: string; low_value: number; high_value: number; at_low_crore: number; at_high_crore: number; swing_crore: number }[];
+}
+
+export interface PolicyBehaviour {
+  params: { audit_rate: number; penalty_rate: number; morale: number };
+  agents: number;
+  seeds: number;
+  baseline: { revenue_crore: number; tax_gap: number; evaders: number };
+  reform: { revenue_crore: number; tax_gap: number; evaders: number };
+  delta_revenue_crore: { mean: number; min: number; max: number };
+  delta_tax_gap: number;
+  note: string;
+}
+
+export interface PolicyScenarioResult {
+  ay: string;
+  /** Which Act the assessment year falls under ("ITA1961" or "ITA2025"). */
+  law_code: string;
+  assumptions: PolicyAssumptions;
+  changes_applied: string[];
+  population: { ay: string; returns: number; points: number; base_year: string };
+  baseline: PolicyOutcome;
+  scenario: PolicyOutcome;
+  delta: {
+    revenue_crore: number;
+    revenue_pct: number;
+    taxpayers_with_tax: number;
+    gini_post: number;
+    kakwani: number;
+    reynolds_smolensky: number;
+    suits: number;
+  };
+  impact: {
+    overall: { share_pay_less: number; share_pay_more: number; share_unchanged: number };
+    deciles: PolicyImpactGroup[];
+    bands: PolicyImpactGroup[];
+  };
+  attribution: { exact: boolean; total_crore: number; matches_total: boolean; levers: PolicyLever[] } | null;
+  law: { baseline: PolicyLawParams; scenario: PolicyLawParams };
+  uncertainty: PolicyUncertainty | null;
+  behaviour: PolicyBehaviour | null;
+  warnings: string[];
+  scope: string;
+}
+
+export interface PolicyValidation {
+  in_sample: {
+    ay: string;
+    simulated_crore: number;
+    reported_crore: number;
+    ratio: number;
+    band_share_l1: number;
+    simulated_taxpayers: number;
+    reported_taxpayers: number;
+  }[];
+  forecast: {
+    method: string;
+    tests: {
+      base_ay: string;
+      target_ay: string;
+      predicted_crore: number;
+      observed_crore: number;
+      naive_crore: number;
+      ape_model: number;
+      ape_naive: number;
+      skill: number | null;
+    }[];
+  };
+  reform_cost: {
+    reform: string;
+    simulated_cost_crore: number;
+    announced_cost_crore: number;
+    ratio: number;
+    source: string;
+    note: string;
+  }[];
+  reading: string[];
+  limits: string[];
 }
 
 // ─── Phase 3, Module F: auth + dashboard + admin ──────────────────────────

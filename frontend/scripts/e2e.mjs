@@ -105,8 +105,22 @@ await step("research: results and inspect", async () => {
   return "inspect opened";
 });
 
-await step("sandbox: run a simulation to completion", async () => {
+await step("sandbox, statute mode: change the law, see who pays and the range", async () => {
   await page.goto(`${BASE}/simulate/demo_income_tax_2025`, { waitUntil: "networkidle2" });
+  await waitText(/Baseline:.*page 247/, 60000);
+  await clickText("button", /Make income up to/);
+  await waitText(/pay less/, 30000);
+  await waitText(/Across the assumptions the data cannot fix/, 60000);
+  const t = await text();
+  if (!/What drove the revenue change/.test(t) || !/Which assumption matters/.test(t)) throw new Error("attribution or tornado missing");
+  if (!/Matches the expert coding of AY/.test(t)) throw new Error("provenance missing");
+  await clickText("button", /How far to trust it|The model against published/);
+  await waitText(/Simulated ÷ reported/, 60000);
+  return "priced, attributed, range shown, validation opened";
+});
+
+await step("sandbox, clause dynamics: run a simulation to completion", async () => {
+  await page.goto(`${BASE}/simulate/demo_income_tax_2025?mode=dynamics`, { waitUntil: "networkidle2" });
   await clickText("button", /run simulation/);
   await waitText(/regressive|progressive|neutral|simulation complete|final/i, 180000);
   return "completed";
@@ -135,6 +149,22 @@ await step("ask: a cited answer streams", async () => {
   await page.keyboard.press("Enter");
   await waitText(/section 439|s\.\s?439|§\s?439|\b439\b/, 240000);
   return "answer cites s.439";
+});
+
+await step("ask: an exact section, a follow-up, and a decline", async () => {
+  await page.goto(`${BASE}/chat`, { waitUntil: "networkidle2" });
+  await waitText(/passages/, 30000);
+  const ask = async (q, done) => {
+    await page.click('textarea[aria-label="Your question"]');
+    await page.keyboard.type(q);
+    await page.keyboard.press("Enter");
+    await waitText(done, 240000);
+    await page.waitForFunction(() => !document.querySelector('button[aria-label="Stop"]'), { timeout: 240000 });
+  };
+  await ask("What is the rebate under section 156 of the Income-tax Act, 2025?", /exact section match/);
+  await ask("And for senior citizens?", /Understood as/);
+  await ask("How do I register a trademark in India?", /does not discuss|Not in the corpus/);
+  return "exact match, follow-up rewritten, out-of-corpus declined";
 });
 
 await step("account: register, see dashboard and API key", async () => {

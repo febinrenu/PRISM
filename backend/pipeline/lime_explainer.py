@@ -24,6 +24,7 @@ from lime.lime_text import LimeTextExplainer
 from config import (
     EXTRACTION_TEMPERATURE,
     LIME_NUM_FEATURES,
+    LIME_LLM_NUM_SAMPLES,
     LIME_NUM_SAMPLES,
     LLM_MAX_CLAUSE_CHARS,
     LLM_NUM_CTX,
@@ -40,6 +41,12 @@ _CLASSIFY_PROMPT = """You are a legal AI. Does the following legal text describe
 Return ONLY a JSON object: {{"is_causal": true/false, "confidence": 0.0-1.0}}
 
 Legal text: {text}"""
+
+
+def default_samples(mode: str) -> int:
+    """Perturbation count when the caller names none: the model mode makes one
+    model call per sample, so it uses far fewer."""
+    return LIME_LLM_NUM_SAMPLES if mode == "llm" else LIME_NUM_SAMPLES
 
 
 def _cache_fingerprint(text: str, mode: str, num_samples: int) -> str:
@@ -154,15 +161,17 @@ def explain_clause(
     mode: str = "proxy",
     num_samples: Optional[int] = None,
     progress: Callable[[int, int], None] = lambda done, total: None,
+    force: bool = False,
 ) -> dict:
     """
     Run LIME on one clause (synchronous / CPU+network bound — call from a
-    worker thread). Returns the cacheable payload dict.
+    worker thread). Returns the cacheable payload dict. `force` recomputes even
+    when a matching explanation is cached.
     """
-    num_samples = num_samples or LIME_NUM_SAMPLES
+    num_samples = num_samples or default_samples(mode)
     fingerprint = _cache_fingerprint(clause_text, mode, num_samples)
 
-    cached = store.load_lime(doc_id, clause_id, mode)
+    cached = None if force else store.load_lime(doc_id, clause_id, mode)
     if cached is not None and cached.get("fingerprint") == fingerprint:
         return {**cached, "cached": True}
 

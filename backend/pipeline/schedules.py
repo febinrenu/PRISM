@@ -35,6 +35,10 @@ _GENERIC = re.compile(r"^\s*(?:table|rates?\s+of\s+(?:income-)?tax|sl\.?\s*no\.?
 _OPENS = re.compile(r"^(?:\((?:I{1,3}|IV|V|VI|i{1,3}|iv|v|vi|[a-z])\)\s|In the case of\b|Paragraph [A-Z]\b|\d+[A-Z]*\.\s)")
 
 
+_SENTENCE_MAX = 700
+_LIST_ITEM = re.compile(r"^\([a-z]\)\s")
+
+
 def _read(rows: list[Row]) -> list[dict]:
     out = []
     for r in rows:
@@ -57,11 +61,25 @@ def _context(lines: list[tuple[int, str]], idx: int) -> tuple[str, Optional[str]
     """The clause that introduces a table ("(I) In the case of every
     individual …", "(ii) for any previous year relevant to …") and the
     assessment year named before it."""
-    before = [t.strip() for _, t in lines[max(0, idx - 12):idx] if "|" not in t and not _GENERIC.match(t)]
+    before = [t.strip() for _, t in lines[max(0, idx - 24):idx] if "|" not in t and not _GENERIC.match(t)]
     start = next((k for k in range(len(before) - 1, -1, -1) if _OPENS.match(before[k])), None)
     heading = " ".join(before[start:]) if start is not None else (before[-1] if before else "")
-    if len(heading) > 170:
-        heading = heading[:167].rsplit(" ", 1)[0] + " …"
+    # An introduction often runs over several lines and lists ("(a) an individual; or
+    # (b) a Hindu undivided family; …"), and the last list item is not what names who
+    # the table is for. Follow the sentence back to where it began: the line after
+    # one that ends in a full stop. Used when it reads as one short passage.
+    # Only when the opener found is itself a list item "(e) an artificial juridical
+    # person …": a clause that opens a case, "(I) In the case of …", is the right start.
+    if start is not None and _LIST_ITEM.match(before[start]):
+        k = len(before)
+        while k > 0 and not before[k - 1].endswith("."):
+            k -= 1
+        if k < len(before):
+            sentence = " ".join(before[k:])
+            if len(sentence) <= _SENTENCE_MAX:
+                heading = sentence
+    if len(heading) > _SENTENCE_MAX:
+        heading = heading[:_SENTENCE_MAX - 2].rsplit(" ", 1)[0] + " …"
     ay = None
     for m in _AY.finditer(" ".join(before[-8:])):
         y = int(m.group(1) or m.group(2))
@@ -126,3 +144,37 @@ def find_schedules(pdf_path: str, ocr_pages: Optional[dict] = None) -> list[dict
         out.append({"page": page, "kind": t.kind, "heading": heading, "assessment_year": ay,
                     "rows": read, "check": _check(read)})
     return out
+
+
+SCHEDULES_VERSION = 3      # bump when this module reads tables differently
+
+
+def schedules_cache(doc_id: str):
+    """Where a document's schedules are cached (its folder in the store)."""
+    from storage.store import _doc_dir
+    return _doc_dir(doc_id) / "schedules.json"
+
+
+def schedules_for_doc(doc_id: str) -> dict:
+    """A stored document's rate schedules, from its cache when the PDF is unchanged
+    (the Rates tab and the policy sandbox both read them). Raises FileNotFoundError
+    when the document has no PDF."""
+    import json
+    import os
+
+    from storage.store import get_path, load_ocr_lines
+
+    pdf = get_path(doc_id)
+    if pdf is None or not os.path.exists(pdf):
+        raise FileNotFoundError(doc_id)
+    cache = schedules_cache(doc_id)
+    stamp = f"{os.path.getsize(pdf)}:{int(os.path.getmtime(pdf))}:{SCHEDULES_VERSION}"
+    if cache.exists():
+        data = json.loads(cache.read_text(encoding="utf-8"))
+        if data.get("stamp") == stamp:
+            return data
+    schedules = find_schedules(str(pdf), load_ocr_lines(doc_id))   # the scanned pages' recognised lines, if any
+    data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
+            "review": sum(1 for s in schedules if not s["check"]["ok"])}
+    cache.write_text(json.dumps(data), encoding="utf-8")
+    return data

@@ -74,7 +74,7 @@ export default function ExplainPage({
               title={
                 m === "proxy"
                   ? "Explains the rule-based classifier: about a second"
-                  : "Every LIME sample is classified by the configured language model: a minute or more"
+                  : "Each of about 60 LIME samples is classified by the configured language model: about a minute on a hosted model, several on a laptop"
               }
             >
               {m === "proxy" ? "Rule-based (fast)" : "Language model"}
@@ -140,7 +140,7 @@ export default function ExplainPage({
                 <div className="flex flex-col items-center justify-center py-14 gap-4">
                   <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
                   <p className="text-xs font-mono text-text-muted">
-                    Classifying perturbation {state.done} of {state.total} with the language model…
+                    Classifying perturbation {state.done} of {state.total} with {mode === "llm" ? "the language model" : "the rule-based detector"}…
                   </p>
                   <div className="w-56 h-1 rounded-full bg-bg-elevated overflow-hidden">
                     <div

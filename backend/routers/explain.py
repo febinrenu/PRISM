@@ -11,8 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from config import LIME_NUM_SAMPLES
-from pipeline.lime_explainer import explain_clause, _cache_fingerprint
+from pipeline.lime_explainer import default_samples, explain_clause, _cache_fingerprint
 from services import job_manager
 from storage import store
 
@@ -49,8 +48,9 @@ def _find_clause(doc_id: str, clause_id: str):
     raise HTTPException(status_code=404, detail=f"Clause {clause_id} not found.")
 
 
-def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str, num_samples: Optional[int]):
-    job_key = f"lime:{doc_id}:{clause_id}:{mode}:{num_samples or LIME_NUM_SAMPLES}"
+def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str,
+                       num_samples: Optional[int], force: bool = False):
+    job_key = f"lime:{doc_id}:{clause_id}:{mode}:{num_samples or default_samples(mode)}"
     job = job_manager.get_job(job_key)
     if job is not None and job.status == "running":
         return job_key, job
@@ -67,7 +67,7 @@ def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str,
             )
 
         payload = await loop.run_in_executor(
-            None, explain_clause, doc_id, clause_id, clause_text, mode, num_samples, progress
+            None, explain_clause, doc_id, clause_id, clause_text, mode, num_samples, progress, force
         )
         job_manager.publish(job_key, {"stage": "explain_complete", **payload})
         return payload
@@ -81,21 +81,21 @@ async def get_explanation(
     clause_id: str,
     mode: str = Query("proxy", pattern="^(proxy|llm)$"),
     num_samples: Optional[int] = Query(None, ge=10, le=2000),
+    refresh: bool = Query(False, description="recompute even if a cached explanation exists"),
 ):
     clause = _find_clause(doc_id, clause_id)
 
     if clause.clause_type == "table":
         return _table_payload(clause_id, mode)
 
-    from config import LIME_NUM_SAMPLES
-    effective_samples = num_samples or LIME_NUM_SAMPLES
-    cached = store.load_lime(doc_id, clause_id, mode)
+    effective_samples = num_samples or default_samples(mode)
+    cached = None if refresh else store.load_lime(doc_id, clause_id, mode)
     if cached is not None and cached.get("fingerprint") == _cache_fingerprint(
         clause.text, mode, effective_samples
     ):
         return {**cached, "status": "complete", "cached": True}
 
-    job_key, job = _start_explain_job(doc_id, clause_id, clause.text, mode, num_samples)
+    job_key, job = _start_explain_job(doc_id, clause_id, clause.text, mode, num_samples, force=refresh)
 
     if job.status == "complete" and isinstance(job.result, dict):
         return {**job.result, "status": "complete"}

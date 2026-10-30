@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     title: "Rules, read by a model",
-    body: "On request, a language model reads clauses into structured rules. Every value it returns must quote the words it came from; anything it cannot ground is dropped.",
+    body: "On request, a language model reads clauses into structured rules. Every amount and rate it states is checked against the clause's own words; one the clause does not contain is flagged for review.",
   },
   {
     title: "Provenance",
