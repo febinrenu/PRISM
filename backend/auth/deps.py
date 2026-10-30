@@ -6,7 +6,7 @@ Phase 3, Module F — FastAPI auth dependencies.
                         (public /v1 API); logs usage for the meter.
 - `require_admin`     → gate admin-only routes.
 """
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, Request
 
 from auth import security, users
 
@@ -55,6 +55,73 @@ def can_manage(meta, user: dict | None) -> bool:
 def can_list(meta, user: dict | None) -> bool:
     return meta.owner_id is None or (bool(user) and (str(user.get("id")) == meta.owner_id
                                                      or user.get("role") == "admin"))
+
+
+def user_from_authorization(authorization: str | None) -> dict | None:
+    """The user behind a bearer JWT or a prism_sk_ API key, or None."""
+    token = _bearer(authorization)
+    if not token:
+        return None
+    if token.startswith("prism_sk_"):
+        return users.get_user_by_api_key(token)
+    payload = security.decode_token(token)
+    return users.get_user_by_id(payload["sub"]) if payload else None
+
+
+def ensure_readable(doc_id: str, user: dict | None) -> None:
+    """404 unless `user` may see this document: a private one does not exist for
+    anyone else (as in the document list). A shared (ownerless) one is open to
+    everyone; an unknown id passes, so the route answers its own 404."""
+    from storage import store
+
+    meta = store.get_meta(doc_id)
+    if meta is not None and not can_list(meta, user):
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+
+def ensure_all_readable(doc_ids: list[str] | None, user: dict | None) -> None:
+    for d in doc_ids or []:
+        ensure_readable(d, user)
+
+
+def readable_scope(requested: list[str] | None, user: dict | None) -> list[str] | None:
+    """The document filter a search may use for `user`.
+
+    Naming a private document the user cannot read is a 404. With no filter, the
+    search is narrowed to what the user may see, but only when some document is
+    hidden from them, so the common case still searches the whole corpus."""
+    from storage import store
+
+    ensure_all_readable(requested, user)
+    if requested:
+        return requested
+    docs = store.list_documents()
+    hidden = {m.doc_id for m in docs if not can_list(m, user)}
+    if not hidden:
+        return None
+    return [m.doc_id for m in docs if m.doc_id not in hidden]
+
+
+def filter_corpus_stats(stats: dict, user: dict | None) -> dict:
+    """Drop private documents of other users from a corpus listing."""
+    from storage import store
+
+    visible = []
+    for d in stats.get("documents", []):
+        meta = store.get_meta(d["doc_id"])
+        if meta is None or can_list(meta, user):
+            visible.append(d)
+    return {**stats, "documents": visible, "total_clauses": sum(d["clauses"] for d in visible)}
+
+
+async def enforce_doc_access(request: Request, authorization: str | None = Header(None),
+                             user: dict | None = Depends(optional_user)) -> None:
+    """App-wide guard: any route with a {doc_id} in its path is readable only by
+    the document's owner (or an admin) when the document is private. The user is
+    the signed-in one (a JWT) or, on the public /v1 API, the owner of the API key."""
+    doc_id = request.path_params.get("doc_id")
+    if doc_id:
+        ensure_readable(doc_id, user or user_from_authorization(authorization))
 
 
 async def api_key_user(authorization: str | None = Header(None)) -> dict:

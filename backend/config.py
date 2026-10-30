@@ -56,6 +56,9 @@ LLM_MAX_CLAUSE_CHARS = int(os.getenv("LLM_MAX_CLAUSE_CHARS", "3000"))
 # 50 samples gave seed-to-seed top-8 token overlap of only 0.10-0.18 (Jaccard);
 # 500 is the floor for a stable explanation on 70-110 word clauses.
 LIME_NUM_SAMPLES = int(os.getenv("LIME_NUM_SAMPLES", "500"))
+# Every LIME sample in "llm" mode is one model call, so it takes far fewer than the
+# rule-based mode: 60 calls is about a minute on a hosted model, a few on a laptop.
+LIME_LLM_NUM_SAMPLES = int(os.getenv("LIME_LLM_NUM_SAMPLES", "60"))
 LIME_NUM_FEATURES = int(os.getenv("LIME_NUM_FEATURES", "12"))
 
 # --- Phase 3: simulation calibration ---
@@ -83,6 +86,9 @@ LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")
 # a guard on first-token latency.
 LLM_GEN_TIMEOUT_S = float(os.getenv("LLM_GEN_TIMEOUT_S", "300"))
 OLLAMA_FT_MODEL = os.getenv("OLLAMA_FT_MODEL", "prism-legal")
+# When the configured generator fails (Ollama stopped, hosted model rate-limited), try
+# the other one if it is usable. Set to 0 to answer only from the configured backend.
+LLM_FALLBACK = os.getenv("LLM_FALLBACK", "1").strip().lower() not in ("0", "false", "no", "off")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 # Optional extra keys (comma-separated), used in rotation with GROQ_API_KEY.
 GROQ_API_KEYS = list(dict.fromkeys(
@@ -104,10 +110,45 @@ GEMINI_URL = os.getenv("GEMINI_URL", "https://generativelanguage.googleapis.com/
 CHROMA_DIR = BASE_DIR / "data" / "chromadb"
 CORPUS_COLLECTION = os.getenv("CORPUS_COLLECTION", "prism_legal_corpus")
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "8"))
+# Below this retrieval confidence (the re-ranker's top score on a 0-1 scale) Ask says
+# the corpus has no answer and does not call the model. Calibrated on the chat
+# evaluation (eval/v2/chat_eval.py); a section the question names is never gated.
+RAG_ABSTAIN_BELOW = float(os.getenv("RAG_ABSTAIN_BELOW", "0.05"))
+# Earlier turns kept for resolving a follow-up ("and for senior citizens?").
+RAG_HISTORY_TURNS = int(os.getenv("RAG_HISTORY_TURNS", "4"))
+# Seconds to wait for the model to rewrite a follow-up before using the plain join.
+RAG_CONDENSE_TIMEOUT_S = float(os.getenv("RAG_CONDENSE_TIMEOUT_S", "20"))
 
 # --- Phase 3: public API + auth (Module F) ---
 DATABASE_URL = os.getenv("DATABASE_URL", "")  # Neon Postgres; empty → SQLite fallback
-JWT_SECRET = os.getenv("JWT_SECRET", "prism-dev-secret-change-in-production")
+def _jwt_secret() -> str:
+    """The signing key: JWT_SECRET if set, else one generated for this install.
+
+    A key written in the source would let anyone mint a token for any account,
+    so the fallback is random and kept beside the data (never committed)."""
+    configured = os.getenv("JWT_SECRET", "").strip()
+    # The placeholders shipped in earlier versions are public, so they count as unset.
+    if configured and configured not in {"change-me-in-production", "prism-dev-secret-change-in-production"}:
+        return configured
+    import secrets
+    path = BASE_DIR / "data" / ".jwt_secret"
+    try:
+        if path.exists():
+            saved = path.read_text(encoding="utf-8").strip()
+            if len(saved) >= 32:
+                return saved
+        path.parent.mkdir(parents=True, exist_ok=True)
+        generated = secrets.token_urlsafe(48)
+        path.write_text(generated, encoding="utf-8")
+        return generated
+    except OSError:
+        return secrets.token_urlsafe(48)  # read-only disk: tokens last until restart
+
+
+JWT_SECRET = _jwt_secret()
+# NextAuth (or any trusted server) must send this in X-OAuth-Secret to use
+# /auth/oauth-upsert; unset, the route is disabled.
+OAUTH_UPSERT_SECRET = os.getenv("OAUTH_UPSERT_SECRET", "").strip()
 # First user (or any existing user) whose email matches is promoted to admin on
 # register/login — the bootstrap for reaching the /admin dashboard.
 PRISM_ADMIN_EMAIL = os.getenv("PRISM_ADMIN_EMAIL", "")

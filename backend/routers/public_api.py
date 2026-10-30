@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
 from auth import users
-from auth.deps import api_key_user
+from auth.deps import api_key_user, ensure_all_readable, filter_corpus_stats, readable_scope
 from auth.rate_limiter import PUBLIC_RATE_LIMIT, limiter
 from models.schemas import SimulationConfig
 from rag import query_engine
@@ -100,7 +100,7 @@ async def v1_document(request: Request, doc_id: str, user: dict = Depends(api_ke
     if meta is None:
         raise HTTPException(status_code=404, detail="Document not found.")
     _meter(user, "documents/get")
-    return meta.model_dump()
+    return meta.model_dump(exclude={"pdf_path", "owner_id"})
 
 
 @router.get("/v1/clauses/{doc_id}")
@@ -146,7 +146,8 @@ async def v1_rag_query(request: Request, body: RAGQueryBody, user: dict = Depend
     if not body.question.strip():
         raise HTTPException(status_code=400, detail="Empty question.")
     _meter(user, "rag/query")
-    return await query_engine.answer(body.question, doc_ids=body.doc_ids, strict=body.strict)
+    return await query_engine.answer(body.question, doc_ids=readable_scope(body.doc_ids, user),
+                                     strict=body.strict)
 
 
 @router.get("/v1/corpus/documents")
@@ -155,7 +156,7 @@ async def v1_corpus(request: Request, user: dict = Depends(api_key_user)):
     from rag import corpus_builder
 
     _meter(user, "corpus")
-    return corpus_builder.corpus_stats()
+    return filter_corpus_stats(corpus_builder.corpus_stats(), user)
 
 
 @router.post("/v1/simulate/{doc_id}")

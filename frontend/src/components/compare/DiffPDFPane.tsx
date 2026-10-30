@@ -1,10 +1,10 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { PDF_URL } from "@/lib/api";
+import { PDF_URL, authHeaders } from "@/lib/api";
 import { tokens, alpha } from "@/lib/tokens";
 import type { Clause } from "@/types";
 import type { DiffKind } from "./ClauseDiffList";
@@ -43,6 +43,7 @@ export default function DiffPDFPane({
   onPageChange: (page: number) => void;
   onSelectClause?: (clauseId: string) => void;
 }) {
+  const pdfFile = useMemo(() => ({ url: PDF_URL(docId), httpHeaders: authHeaders() }), [docId]);
   const [numPages, setNumPages] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -103,7 +104,7 @@ export default function DiffPDFPane({
         )}
 
         <Document
-          file={PDF_URL(docId)}
+          file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(err) => console.warn("PDF load error:", err.message)}
           loading=""

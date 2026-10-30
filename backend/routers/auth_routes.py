@@ -11,14 +11,47 @@ NextAuth on the frontend delegates its Credentials provider to register/login;
 OAuth (GitHub/Google) is handled by NextAuth and mapped to a PRISM user via
 these same endpoints (upsert-on-first-login).
 """
-from fastapi import APIRouter, Depends, HTTPException
+import hmac
+import time
+from collections import defaultdict, deque
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, EmailStr
 
 from auth import security, users
 from auth.deps import current_user
-from config import API_RATE_LIMIT
+from config import API_RATE_LIMIT, OAUTH_UPSERT_SECRET
 
 router = APIRouter()
+
+# Failed sign-ins and new accounts are throttled per client and per email, so a
+# password cannot be guessed at wire speed. In memory: one process, resets on restart.
+_WINDOW_S = 300
+_MAX_FAILED_LOGINS = 8
+_MAX_REGISTRATIONS = 10
+_failed: dict[str, deque] = defaultdict(deque)
+_registered: dict[str, deque] = defaultdict(deque)
+
+
+def _recent(bucket: deque, now: float) -> deque:
+    while bucket and now - bucket[0] > _WINDOW_S:
+        bucket.popleft()
+    return bucket
+
+
+def _client(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
+def _throttled(keys: list[str], limit: int, store: dict[str, deque]) -> bool:
+    now = time.time()
+    return any(len(_recent(store[k], now)) >= limit for k in keys)
+
+
+def _note(keys: list[str], store: dict[str, deque]) -> None:
+    now = time.time()
+    for k in keys:
+        store[k].append(now)
 
 
 class RegisterBody(BaseModel):
@@ -44,31 +77,46 @@ def _auth_response(user: dict) -> dict:
 
 
 @router.post("/auth/register")
-def register(body: RegisterBody):
+def register(body: RegisterBody, request: Request):
+    keys = [f"ip:{_client(request)}"]
+    if _throttled(keys, _MAX_REGISTRATIONS, _registered):
+        raise HTTPException(status_code=429, detail="Too many sign-ups from this address. Try again in a few minutes.")
     if len(body.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
     try:
         user = users.create_user(body.email, body.name or body.email.split("@")[0], body.password)
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
+    _note(keys, _registered)
     return _auth_response(user)
 
 
 @router.post("/auth/login")
-def login(body: LoginBody):
+def login(body: LoginBody, request: Request):
+    keys = [f"ip:{_client(request)}", f"email:{body.email.lower()}"]
+    if _throttled(keys, _MAX_FAILED_LOGINS, _failed):
+        raise HTTPException(status_code=429, detail="Too many failed sign-ins. Try again in a few minutes.")
     user = users.get_user_by_email(body.email)
     if not user or not user.get("password_hash") or not security.verify_password(
         body.password, user["password_hash"]
     ):
+        _note(keys, _failed)
         raise HTTPException(status_code=401, detail="Invalid email or password.")
     user = users.ensure_admin(user)  # promote if email matches PRISM_ADMIN_EMAIL
     return _auth_response(user)
 
 
 @router.post("/auth/oauth-upsert")
-async def oauth_upsert(body: OAuthUpsertBody):
+async def oauth_upsert(body: OAuthUpsertBody, x_oauth_secret: str = Header(default="")):
     """Called by NextAuth after a successful GitHub/Google login — create the
-    PRISM user on first sign-in, then return a PRISM JWT + API key."""
+    PRISM user on first sign-in, then return a PRISM JWT + API key.
+
+    It trusts the caller's word that the email is verified, so it answers only to
+    a server holding OAUTH_UPSERT_SECRET; with none configured it is switched off."""
+    if not OAUTH_UPSERT_SECRET:
+        raise HTTPException(status_code=404, detail="OAuth sign-in is not enabled.")
+    if not hmac.compare_digest(x_oauth_secret.encode(), OAUTH_UPSERT_SECRET.encode()):
+        raise HTTPException(status_code=401, detail="Invalid OAuth secret.")
     user = users.get_user_by_email(body.email)
     if not user:
         user = users.create_user(body.email, body.name or body.email.split("@")[0], password=None)

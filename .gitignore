@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.local
 !.env.example
+backend/data/.jwt_secret
 
 # Build output
 frontend/.next/

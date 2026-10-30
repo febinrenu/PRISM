@@ -5,6 +5,7 @@ import type {
   SimulationConfig, SimulationCreated, SimulationResult, SimulationRuleInfo, SimulationRunSummary,
   SimulationProvenance, SimParam, DeepReasoning,
   CorpusStats, LLMBackendInfo, AuthUser, DashboardData, AdminMetrics, AdminUser,
+  PolicyLaw, PolicyLawUnavailable, PolicyScenarioRequest, PolicyScenarioResult, PolicyValidation, PolicyYear,
 } from "@/types";
 
 // Unset → the local backend. 127.0.0.1, not localhost: another local server on
@@ -19,7 +20,7 @@ export const API_BASE = API;
 
 /** GET a JSON route; throws on a non-2xx response. */
 export async function getJSON<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API}${path}`, init);
+  const res = await fetch(`${API}${path}`, withAuth(init));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return res.json();
 }
@@ -37,6 +38,16 @@ export function authHeaders(): Record<string, string> {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
+/** Adds the signed-in user's token to a request, so a private document's routes
+ *  answer its owner. A header the caller already set wins. */
+function withAuth(init?: RequestInit): RequestInit | undefined {
+  const auth = authHeaders();
+  if (!auth.Authorization) return init;
+  const headers = new Headers(init?.headers);
+  if (!headers.has("Authorization")) headers.set("Authorization", auth.Authorization);
+  return { ...init, headers };
+}
+
 /** Thrown when a Phase 2 endpoint is missing/unreachable — pages render a
  *  graceful "module offline" state instead of a crash. */
 export class Phase2UnavailableError extends Error {
@@ -47,7 +58,7 @@ export class Phase2UnavailableError extends Error {
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API}${path}`, options);
+  const res = await fetch(`${API}${path}`, withAuth(options));
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(err.detail || `API error ${res.status}`);
@@ -58,7 +69,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 async function phase2Fetch<T>(path: string, options?: RequestInit): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API}${path}`, options);
+    res = await fetch(`${API}${path}`, withAuth(options));
   } catch {
     throw new Phase2UnavailableError("Backend unreachable");
   }
@@ -189,9 +200,9 @@ export const api = {
     }>(`/api/clauses/${docId}/llm`),
 
   // ── Phase 2: LIME explainability ────────────────────────────────────────
-  getExplanation: async (docId: string, clauseId: string, mode: "proxy" | "llm" = "proxy") =>
+  getExplanation: async (docId: string, clauseId: string, mode: "proxy" | "llm" = "proxy", refresh = false) =>
     phase2Fetch<LIMEExplanation & { status: "complete" | "running"; progress?: number; stream?: string }>(
-      `/api/explain/${docId}/${clauseId}?mode=${mode}`
+      `/api/explain/${docId}/${clauseId}?mode=${mode}${refresh ? "&refresh=true" : ""}`
     ),
 
   // ── Phase 3: transformer attention (second XAI lens) ─────────────────────
@@ -208,6 +219,24 @@ export const api = {
     ),
 
   // ── Phase 2: simulation ─────────────────────────────────────────────────
+  // ── Policy sandbox, statute mode: scenarios on the document's own rate table ──
+  policyYears: () => apiFetch<{ years: PolicyYear[] }>("/api/policy/years"),
+  policyLaw: (docId: string | null, ay?: string | null, schedule?: number | null) => {
+    const q = new URLSearchParams();
+    if (docId) q.set("doc_id", docId);
+    if (ay) q.set("ay", ay);
+    if (schedule != null) q.set("schedule", String(schedule));
+    return apiFetch<PolicyLaw | PolicyLawUnavailable>(`/api/policy/law?${q.toString()}`);
+  },
+  policyScenario: (body: PolicyScenarioRequest, signal?: AbortSignal) =>
+    apiFetch<PolicyScenarioResult>("/api/policy/scenario", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal,
+    }),
+  policyValidation: () => apiFetch<PolicyValidation>("/api/policy/validation"),
+
   listSimulationRules: async (docId: string) =>
     phase2Fetch<{ doc_id: string; rules_source: "llm" | "rule_based"; count: number; rules: SimulationRuleInfo[] }>(
       `/api/simulate/${docId}/rules`
@@ -320,6 +349,8 @@ export const DEEP_REASONING_STREAM_URL = (docId: string, clauseId: string) =>
   `${API}/api/explain/${docId}/${clauseId}/deep-reasoning/stream`;
 export const SIMULATE_STREAM_URL = (docId: string, simulationId: string) =>
   `${API}/api/simulate/${docId}/stream?simulation_id=${simulationId}`;
+/** The streaming answer. POST, so the earlier turns can go with the question. */
+export const RAG_STREAM_POST_URL = `${API}/api/rag/stream`;
 export const RAG_STREAM_URL = (q: string, docs: string[], strict: boolean) => {
   const params = new URLSearchParams({ q, strict: String(strict) });
   if (docs.length) params.set("docs", docs.join(","));

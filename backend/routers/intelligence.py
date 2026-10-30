@@ -4,8 +4,9 @@ document comparison, and domain detection.
 """
 import re
 import json
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from auth.deps import ensure_all_readable, optional_user
 from storage.store import get_result
 import numpy as np
 
@@ -176,12 +177,15 @@ def _build_report(doc_id: str, result, meta) -> dict:
 
     # ── Entity inventory
     entity_inv: dict[str, list[dict]] = {}
+    seen_text: dict[str, set[str]] = {}
     for c in clauses:
         for e in c.entities:
             if e.label not in entity_inv:
                 entity_inv[e.label] = []
-            # Deduplicate by text
-            if not any(x["text"] == e.text for x in entity_inv[e.label]):
+                seen_text[e.label] = set()
+            # Deduplicate by text (a set: a list scan made this quadratic on a big document)
+            if e.text not in seen_text[e.label]:
+                seen_text[e.label].add(e.text)
                 entity_inv[e.label].append({
                     "text": e.text,
                     "confidence": e.confidence,
@@ -457,11 +461,12 @@ class CompareRequest(BaseModel):
 
 
 @router.post("/compare")
-def compare_documents(req: CompareRequest):
+def compare_documents(req: CompareRequest, user: dict | None = Depends(optional_user)):
     """
     Compare two analyzed documents.
     Returns: new/removed obligations, entity deltas, shared vs unique entities.
     """
+    ensure_all_readable([req.doc_id_a, req.doc_id_b], user)
     result_a = _require_result(req.doc_id_a)
     result_b = _require_result(req.doc_id_b)
     from storage.store import get_meta

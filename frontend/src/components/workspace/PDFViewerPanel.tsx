@@ -1,12 +1,12 @@
 "use client";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, FileText } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useDocumentStore } from "@/hooks/useDocumentStore";
-import { PDF_URL } from "@/lib/api";
+import { PDF_URL, authHeaders } from "@/lib/api";
 import { alpha, entityStyle } from "@/lib/tokens";
 
 // Self-hosted PDF.js worker — copied from pdfjs-dist to public/ by the
@@ -43,7 +43,8 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
   const selectedClause = clauses.find((c) => c.clause_id === selectedClauseId);
   const pageAnnotations = clauses.filter((c) => c.page === currentPdfPage && c.bbox);
 
-  const pdfUrl = PDF_URL(docId);
+  // httpHeaders carry the sign-in token, so a private upload loads for its owner.
+  const pdfFile = useMemo(() => ({ url: PDF_URL(docId), httpHeaders: authHeaders() }), [docId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -98,7 +99,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
         )}
 
         <Document
-          file={pdfUrl}
+          file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(err) => {
             console.warn("PDF load error:", err.message);
