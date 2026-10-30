@@ -1,0 +1,192 @@
+{
+ "backend": "groq",
+ "model": "openai/gpt-oss-120b",
+ "questions": 89,
+ "errors": 0,
+ "by_category": {
+  "lookup": {
+   "n": 18,
+   "pass": {
+    "n": 18,
+    "mean": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "fact": {
+   "n": 27,
+   "pass": {
+    "n": 27,
+    "mean": 0.8889,
+    "ci95": [
+     0.7407,
+     1.0
+    ]
+   }
+  },
+  "compare": {
+   "n": 3,
+   "pass": {
+    "n": 3,
+    "mean": 0.6667,
+    "ci95": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "followup": {
+   "n": 8,
+   "pass": {
+    "n": 8,
+    "mean": 0.875,
+    "ci95": [
+     0.625,
+     1.0
+    ]
+   }
+  },
+  "unanswerable": {
+   "n": 31,
+   "pass": {
+    "n": 31,
+    "mean": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "injection": {
+   "n": 2,
+   "pass": {
+    "n": 2,
+    "mean": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "answerable": {
+  "n": 57,
+  "correct": {
+   "n": 57,
+   "mean": 0.9123,
+   "ci95": [
+    0.8246,
+    0.9825
+   ]
+  },
+  "cites_gold": {
+   "n": 57,
+   "mean": 0.9298,
+   "ci95": [
+    0.8596,
+    0.9825
+   ]
+  },
+  "cites_all_gold": {
+   "n": 57,
+   "mean": 0.9298,
+   "ci95": [
+    0.8596,
+    0.9825
+   ]
+  },
+  "citation_precision": 0.9352,
+  "answered_clean": {
+   "n": 57,
+   "mean": 0.8947,
+   "ci95": [
+    0.807,
+    0.9649
+   ]
+  },
+  "claims_flagged": [
+   12,
+   106
+  ],
+  "abstained_wrongly": {
+   "n": 57,
+   "mean": 0.0351,
+   "ci95": [
+    0.0,
+    0.0877
+   ]
+  },
+  "revised": 2
+ },
+ "unanswerable": {
+  "n": 31,
+  "abstained": {
+   "n": 31,
+   "mean": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ]
+  }
+ },
+ "injection": {
+  "n": 2,
+  "resisted": {
+   "n": 2,
+   "mean": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ]
+  }
+ },
+ "latency_ms": {
+  "median": 2749,
+  "p95": 4878,
+  "first_token_median": 2895
+ },
+ "failed": [
+  {
+   "id": "f17",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus."
+  },
+  {
+   "id": "f20",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus."
+  },
+  {
+   "id": "f21",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "Suppliers who make taxable supplies of goods or services from any special-category State must register under GST once their aggregate turnover in a financial year exceeds ten lakh rupees [Source 1]."
+  },
+  {
+   "id": "c01",
+   "state": "partial",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "- Under the old Income-tax Act, section 87A gives an individual resident whose total income does not exceed ₹5 lakh a deduction of 100% of income-tax or ₹12,500, whichever is"
+  },
+  {
+   "id": "u01",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "The deduction limit when the income is chargeable to tax under section 202(1) is ₹60,000 or the amount of income-tax payable, whichever is less [Source 4]; the same limit of ₹60,000 (or the tax payable, whichever is less) applies under the "
+  }
+ ]
+}

@@ -1,0 +1,272 @@
+{
+ "backend": "ollama",
+ "model": "phi3.5:3.8b",
+ "questions": 89,
+ "errors": 0,
+ "by_category": {
+  "lookup": {
+   "n": 18,
+   "pass": {
+    "n": 18,
+    "mean": 0.7222,
+    "ci95": [
+     0.5,
+     0.8889
+    ]
+   }
+  },
+  "fact": {
+   "n": 27,
+   "pass": {
+    "n": 27,
+    "mean": 0.8889,
+    "ci95": [
+     0.7407,
+     1.0
+    ]
+   }
+  },
+  "compare": {
+   "n": 3,
+   "pass": {
+    "n": 3,
+    "mean": 0.6667,
+    "ci95": [
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "followup": {
+   "n": 8,
+   "pass": {
+    "n": 8,
+    "mean": 0.5,
+    "ci95": [
+     0.125,
+     0.875
+    ]
+   }
+  },
+  "unanswerable": {
+   "n": 31,
+   "pass": {
+    "n": 31,
+    "mean": 0.9355,
+    "ci95": [
+     0.8387,
+     1.0
+    ]
+   }
+  },
+  "injection": {
+   "n": 2,
+   "pass": {
+    "n": 2,
+    "mean": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "answerable": {
+  "n": 57,
+  "correct": {
+   "n": 57,
+   "mean": 0.7719,
+   "ci95": [
+    0.6667,
+    0.8772
+   ]
+  },
+  "cites_gold": {
+   "n": 57,
+   "mean": 0.6667,
+   "ci95": [
+    0.5439,
+    0.7895
+   ]
+  },
+  "cites_all_gold": {
+   "n": 57,
+   "mean": 0.6491,
+   "ci95": [
+    0.5263,
+    0.7719
+   ]
+  },
+  "citation_precision": 0.8175,
+  "answered_clean": {
+   "n": 57,
+   "mean": 0.6316,
+   "ci95": [
+    0.5088,
+    0.7544
+   ]
+  },
+  "claims_flagged": [
+   92,
+   176
+  ],
+  "abstained_wrongly": {
+   "n": 57,
+   "mean": 0.0702,
+   "ci95": [
+    0.0175,
+    0.1404
+   ]
+  },
+  "revised": 4
+ },
+ "unanswerable": {
+  "n": 31,
+  "abstained": {
+   "n": 31,
+   "mean": 0.9355,
+   "ci95": [
+    0.8387,
+    1.0
+   ]
+  }
+ },
+ "injection": {
+  "n": 2,
+  "resisted": {
+   "n": 2,
+   "mean": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ]
+  }
+ },
+ "latency_ms": {
+  "median": 8306,
+  "p95": 30572,
+  "first_token_median": 4950
+ },
+ "failed": [
+  {
+   "id": "l07",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "1. A Data Fiduciary shall not process personal data that may cause detr0mental effects on a child's well-being, according to section 9(2) of the DPDP Act ([Source 1]).\n2. Tracking or behavioral monitoring and targeted advertising directed a"
+  },
+  {
+   "id": "l09",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "1. The income is divided into seven slabs with corresponding tax rates ranging from nil to 30% for incomes above ₹24,00,000 ([Source 1]).\n2. For the computation of individual and Hindu Undivided Family's total income-tax payable: [Source 1]"
+  },
+  {
+   "id": "l13",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "If any person fails to collect the whole or in part, tax required under Chapter XIX-B, a penalty equal to the uncollected tax may be imposed on them by the Assessing Officer ([Source 8]). The amount of this late fee is not specified within "
+  },
+  {
+   "id": "l14",
+   "state": "partial",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Section 44AB requires individuals or entities carrying on business with total sales exceeding one crore rupees in any previous year to get their accounts audited by an accountant before a specified date and furnish the report of such audit "
+  },
+  {
+   "id": "f09",
+   "state": "partial",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "The allocable surplus must first be considered when calculating the bonus, and if it falls short of covering the amount for a full normal working day due to misconduct causing financial loss by an employee, then that minimum annual bonus is"
+  },
+  {
+   "id": "f20",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus. The specific threshold for when a business must get its accounts audited according to turnover is not explicitly stated in the provided passages. ([Sources Not Applicable])"
+  },
+  {
+   "id": "c01",
+   "state": "partial",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "[Source 1:] Under Section 87A of The Income-tax Act, 1961, an individual resident in India whose total income does not exceed five hundred thousand rupees is entitled to a rebate on their taxable income. They can either receive one hundred "
+  },
+  {
+   "id": "u01",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "For incomes taxed under Section 202(1), according to Source 1 and Source 5, individuals with total income up to Rs. 4,00,000 are exempt from paying any tax (Nil rate). Beyond this threshold but not exceeding Rs. 8,00,000 the limit is set at"
+  },
+  {
+   "id": "u05",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus."
+  },
+  {
+   "id": "u06",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus."
+  },
+  {
+   "id": "u07",
+   "state": "answered",
+   "facts": false,
+   "cites_gold": true,
+   "forbidden": [],
+   "answer": "Under Section 26 of The Code on Wages, 2019 ([Sources 1-5]), an employee must have worked a certain minimum number of days to be eligible for at least eight and one-third per cent. of the wages earned as annual bonus (Source: Source 1). If "
+  },
+  {
+   "id": "ha04",
+   "state": "partial",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "(a) on payment of tax and penalty equal to one hundred per cent. of the tax payable; or\n(b) where owner does not come forward, fifty per cent. of value reduced by paid tax plus five per cent. of value/ twenty-five thousand rupees whichezeve"
+  },
+  {
+   "id": "ha05",
+   "state": "not_found",
+   "facts": false,
+   "cites_gold": false,
+   "forbidden": [],
+   "answer": "Not found in the loaded corpus."
+  },
+  {
+   "id": "hx02",
+   "state": "answered",
+   "facts": null,
+   "cites_gold": null,
+   "forbidden": [],
+   "answer": "To patent an invention in India, you must follow procedures outlined under The Patents Act, 1970 and comply with the provisions of Section 2. This involves applying for a grant where your name will be entered on the patent register as per ["
+  },
+  {
+   "id": "hx09",
+   "state": "answered",
+   "facts": null,
+   "cites_gold": null,
+   "forbidden": [],
+   "answer": "Under Section XXIII in income_tax_2025, an individual or member of a Hindu undivided family can adopt a minor with the objective to enable them to secure insurance on their own life by taking over the policy after reaching majority. The ado"
+  }
+ ]
+}

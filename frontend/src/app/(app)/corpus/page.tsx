@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Cloud, Cpu, FileText, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { BookOpen, Cloud, Cpu, FileText, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, Phase2UnavailableError } from "@/lib/api";
 import type { CorpusStats, DocumentMeta, LLMBackendInfo } from "@/types";
@@ -15,6 +15,7 @@ export default function CorpusPage() {
   const [backend, setBackend] = useState<LLMBackendInfo | null>(null);
   const [allDocs, setAllDocs] = useState<DocumentMeta[]>([]);
   const [offline, setOffline] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = async () => {
@@ -24,8 +25,10 @@ export default function CorpusPage() {
       setBackend(b);
       setAllDocs(docs.documents);
       setOffline(false);
+      setLoadError(null);
     } catch (e) {
       if (e instanceof Phase2UnavailableError || e instanceof TypeError) setOffline(true);
+      else setLoadError(e instanceof Error ? e.message : "The corpus could not be loaded.");
     }
   };
 
@@ -77,8 +80,9 @@ export default function CorpusPage() {
       </PageHeader>
 
       {offline && <ErrorState offline onRetry={load} />}
+      {!offline && loadError && <ErrorState title="The corpus could not be loaded" message={loadError} onRetry={load} />}
 
-      {!offline && !corpus && (
+      {!offline && !loadError && !corpus && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-44" />
@@ -94,43 +98,67 @@ export default function CorpusPage() {
 
       {corpus && corpus.documents.length > 0 && (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {corpus.documents.map((d) => (
-            <li key={d.doc_id} className="glass-card flex flex-col p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-2">
-                  <FileText className="h-4 w-4 shrink-0 text-text-dim" aria-hidden />
-                  <h2 className="truncate text-[15px] text-text-primary">{d.doc_name}</h2>
+          {corpus.documents.map((d) => {
+            // a statute is part of PRISM: read it in the statute reader, not removable
+            const statute = d.kind === "statute";
+            const key = statute ? d.doc_id.replace(/^statute:/, "").replace(":", "/") : "";
+            return (
+              <li key={d.doc_id} className="glass-card flex flex-col p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    {statute ? (
+                      <BookOpen className="h-4 w-4 shrink-0 text-text-dim" aria-hidden />
+                    ) : (
+                      <FileText className="h-4 w-4 shrink-0 text-text-dim" aria-hidden />
+                    )}
+                    <h2 className="truncate text-[15px] text-text-primary">{d.doc_name}</h2>
+                  </div>
+                  {!statute && (
+                    <button
+                      type="button"
+                      onClick={() => act(d.doc_id, () => api.removeFromCorpus(d.doc_id), "Removed from the corpus")}
+                      disabled={busy === d.doc_id}
+                      aria-label={`Remove ${d.doc_name} from the corpus`}
+                      className="text-text-dim transition-colors hover:text-status-error"
+                    >
+                      {busy === d.doc_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => act(d.doc_id, () => api.removeFromCorpus(d.doc_id), "Removed from the corpus")}
-                  disabled={busy === d.doc_id}
-                  aria-label={`Remove ${d.doc_name} from the corpus`}
-                  className="text-text-dim transition-colors hover:text-status-error"
-                >
-                  {busy === d.doc_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                </button>
-              </div>
-              <dl className="mt-5 flex gap-8">
-                <div>
-                  <dd className="font-serif text-[2rem] leading-none text-text-primary">{d.clauses.toLocaleString("en-IN")}</dd>
-                  <dt className="mt-1 text-[12px] text-text-muted">clauses</dt>
+                <dl className="mt-5 flex gap-8">
+                  <div>
+                    <dd className="font-serif text-[2rem] leading-none text-text-primary">{d.clauses.toLocaleString("en-IN")}</dd>
+                    <dt className="mt-1 text-[12px] text-text-muted">{statute ? "passages" : "clauses"}</dt>
+                  </div>
+                  {!statute && (
+                    <div>
+                      <dd className="font-serif text-[2rem] leading-none text-text-primary">{d.causal.toLocaleString("en-IN")}</dd>
+                      <dt className="mt-1 text-[12px] text-text-muted">clauses with a condition → consequence</dt>
+                    </div>
+                  )}
+                </dl>
+                <div className="mt-auto flex gap-2 pt-5">
+                  {statute ? (
+                    <Link
+                      href={`/statutes?s=${encodeURIComponent(key)}`}
+                      className={buttonVariants({ variant: "outline", size: "sm", className: "flex-1" })}
+                    >
+                      Read the statute
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href={`/analyze/${d.doc_id}`} className={buttonVariants({ variant: "outline", size: "sm", className: "flex-1" })}>
+                        Workspace
+                      </Link>
+                      <Link href={`/provenance/${d.doc_id}`} className={buttonVariants({ variant: "ghost", size: "sm", className: "flex-1" })}>
+                        Provenance
+                      </Link>
+                    </>
+                  )}
                 </div>
-                <div>
-                  <dd className="font-serif text-[2rem] leading-none text-text-primary">{d.causal.toLocaleString("en-IN")}</dd>
-                  <dt className="mt-1 text-[12px] text-text-muted">clauses with a condition → consequence</dt>
-                </div>
-              </dl>
-              <div className="mt-auto flex gap-2 pt-5">
-                <Link href={`/analyze/${d.doc_id}`} className={buttonVariants({ variant: "outline", size: "sm", className: "flex-1" })}>
-                  Workspace
-                </Link>
-                <Link href={`/provenance/${d.doc_id}`} className={buttonVariants({ variant: "ghost", size: "sm", className: "flex-1" })}>
-                  Provenance
-                </Link>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
 

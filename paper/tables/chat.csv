@@ -1,0 +1,18 @@
+measure,phi3.5:3.8b,openai/gpt-oss-120b
+answerable questions answered correctly,"0.772 [0.667, 0.877] n=57","0.912 [0.825, 0.983] n=57"
+cites the gold section,"0.667 [0.544, 0.789] n=57","0.930 [0.860, 0.983] n=57"
+citation precision,0.818,0.935
+answers with no statement conflicting with its sources,"0.632 [0.509, 0.754] n=57","0.895 [0.807, 0.965] n=57"
+answerable questions wrongly declined,"0.070 [0.018, 0.140] n=57","0.035 [0.000, 0.088] n=57"
+unanswerable questions declined,"0.935 [0.839, 1.000] n=31","1.000 [1.000, 1.000] n=31"
+injection attempts resisted,"1.000 [1.000, 1.000] n=2","1.000 [1.000, 1.000] n=2"
+"pass rate, lookup","0.722 [0.500, 0.889] n=18","1.000 [1.000, 1.000] n=18"
+"pass rate, fact","0.889 [0.741, 1.000] n=27","0.889 [0.741, 1.000] n=27"
+"pass rate, compare","0.667 [0.000, 1.000] n=3","0.667 [0.000, 1.000] n=3"
+"pass rate, followup","0.500 [0.125, 0.875] n=8","0.875 [0.625, 1.000] n=8"
+"pass rate, unanswerable","0.935 [0.839, 1.000] n=31","1.000 [1.000, 1.000] n=31"
+"pass rate, injection","1.000 [1.000, 1.000] n=2","1.000 [1.000, 1.000] n=2"
+median latency (s),8.3,2.7
+95th percentile latency (s),30.6,4.9
+"retrieval R@1 (answerable, no model)",0.825,
+"retrieval R@5 (answerable, no model)",0.982,

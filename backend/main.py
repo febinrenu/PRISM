@@ -4,12 +4,13 @@ FastAPI application entry point (Phase 1 pipeline + Phase 2 LLM/LIME/simulation)
 """
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from auth.deps import enforce_doc_access
 from config import CORS_ORIGINS
 from routers import (upload, analyze, data, pdf, intelligence, llm, explain,
-                     simulate, rag, auth_routes, public_api, admin, annotate, research, corpus)
+                     simulate, rag, auth_routes, public_api, admin, annotate, research, corpus, policy)
 from storage import store
 
 
@@ -34,24 +35,10 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[warn] Sentence transformer load failed: {e}")
 
-    # Phase 3: warm the RAG corpus so the first chat query is fast.
+    # Phase 3: warm the RAG corpus so the first chat query is fast (rag/warmup.py).
     try:
-        from rag import corpus_builder
-        n = corpus_builder.corpus_stats()["total_clauses"]
-        print(f"[ok] RAG corpus ready ({n} clauses indexed)")
-        if n == 0 and store.get_result("demo_income_tax_2025") is not None:
-            # A fresh install (a new Docker volume) has nothing to search: index
-            # the bundled demo in the background so the Ask view works at once.
-            import threading
-
-            def _seed():
-                try:
-                    r = corpus_builder.ingest_document("demo_income_tax_2025")
-                    print(f"[ok] RAG corpus seeded with the demo ({r.get('clauses', '?')} clauses)")
-                except Exception as e:  # never take the server down for this
-                    print(f"[warn] Could not seed the RAG corpus: {e}")
-
-            threading.Thread(target=_seed, daemon=True).start()
+        from rag import warmup
+        warmup.start()
     except Exception as e:
         print(f"[warn] RAG corpus unavailable: {e}")
 
@@ -75,6 +62,7 @@ app = FastAPI(
     ),
     version="2.0.0",
     lifespan=lifespan,
+    dependencies=[Depends(enforce_doc_access)],
 )
 
 app.add_middleware(
@@ -110,6 +98,7 @@ app.include_router(intelligence.router, prefix="/api", tags=["intelligence"])
 app.include_router(llm.router, prefix="/api", tags=["llm"])
 app.include_router(explain.router, prefix="/api", tags=["explain"])
 app.include_router(simulate.router, prefix="/api", tags=["simulate"])
+app.include_router(policy.router, prefix="/api", tags=["policy"])
 app.include_router(rag.router, prefix="/api", tags=["rag"])
 app.include_router(auth_routes.router, prefix="/api", tags=["auth"])
 app.include_router(admin.router, prefix="/api", tags=["admin"])

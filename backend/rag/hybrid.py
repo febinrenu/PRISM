@@ -50,6 +50,13 @@ class BM25:
         weights = tf.data * (k1 + 1) / (tf.data + norm[tf.row])
         self.w = csr_matrix((weights, (tf.row, tf.col)), shape=shape).tocsc()
 
+    def document_frequency(self, term: str) -> Optional[int]:
+        """How many texts contain `term`; None when it is not in the vocabulary."""
+        i = self.vocab.get(term.lower())
+        if i is None:
+            return None
+        return int(self.w.indptr[i + 1] - self.w.indptr[i])       # self.w is column-compressed
+
     def scores(self, query: str) -> np.ndarray:
         ids = [self.vocab[w] for w in set(tokens(query)) if w in self.vocab]
         if not ids:

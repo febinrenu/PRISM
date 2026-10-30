@@ -3,22 +3,51 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Send, Square, Sparkles, Database, Loader2, RefreshCw,
-  Cpu, Cloud, ShieldCheck, AlertTriangle,
+  Send, Square, Sparkles, Database, Loader2, RefreshCw, Cpu, Cloud, ShieldCheck, BookOpen, FileText,
 } from "lucide-react";
 import PrismMark from "@/components/brand/PrismMark";
 import { cn } from "@/lib/utils";
-import CitationCard from "@/components/chat/CitationCard";
+import AssistantMessage from "@/components/chat/AssistantMessage";
 import { useRAGChat } from "@/hooks/useRAGChat";
 import { api, Phase2UnavailableError } from "@/lib/api";
-import type { CorpusStats, LLMBackendInfo } from "@/types";
+import type { CorpusDoc, CorpusStats, LLMBackendInfo } from "@/types";
 
+// Each shows a different thing the answer can do: an exact section, a comparison
+// across Acts, a rate, a condition, a limit.
 const SUGGESTIONS = [
-  "What are the penalties for late filing of income tax returns?",
-  "Who is exempt from income tax under the rebate provisions?",
-  "What thresholds trigger a tax audit obligation?",
-  "What is the consequence of failing to deduct TDS?",
+  "What is the rebate under section 156?",
+  "Compare the rebate in section 87A of the old Income-tax Act with the new Act",
+  "What is the penalty for failing to deduct tax at source?",
+  "When can input tax credit be claimed under section 16 of the CGST Act?",
 ];
+
+function DocButton({ d, selected, on, onToggle }: { d: CorpusDoc; selected: boolean; on: boolean; onToggle: () => void }) {
+  const statute = d.kind === "statute";
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onToggle}
+      className={cn(
+        "rounded-[4px] border p-3 text-left transition-colors",
+        selected ? "border-signal/45 bg-signal/[0.06]" : "border-border hover:border-border-light",
+        !on && "opacity-50"
+      )}
+    >
+      <div className="flex items-start gap-1.5">
+        {statute ? (
+          <BookOpen className="mt-0.5 h-3 w-3 shrink-0 text-text-muted" aria-hidden />
+        ) : (
+          <FileText className="mt-0.5 h-3 w-3 shrink-0 text-text-muted" aria-hidden />
+        )}
+        <span className="font-mono text-micro leading-snug text-text-primary">{d.doc_name}</span>
+      </div>
+      <div className="mt-1 font-mono text-micro uppercase tracking-wider text-text-muted">
+        {statute ? `${d.clauses.toLocaleString()} passages` : `${d.clauses} clauses · ${d.causal} with cause → effect`}
+      </div>
+    </button>
+  );
+}
 
 export default function ChatPage() {
   const { messages, busy, send, stop, reset } = useRAGChat();
@@ -46,6 +75,14 @@ export default function ChatPage() {
     loadCorpus();
   }, []);
 
+  // statutes are indexed in the background on a first run: follow the progress
+  const indexing = corpus?.indexing ?? 0;
+  useEffect(() => {
+    if (!indexing) return;
+    const t = setInterval(loadCorpus, 5000);
+    return () => clearInterval(t);
+  }, [indexing]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
@@ -69,13 +106,21 @@ export default function ChatPage() {
       return next;
     });
 
+  const ask = (q: string) => {
+    if (!q.trim() || busy) return;
+    send(q, Array.from(selected), strict);
+  };
+
   const submit = () => {
     if (!input.trim() || busy) return;
-    send(input, Array.from(selected), strict);
+    ask(input);
     setInput("");
   };
 
-  const empty = corpus && corpus.total_clauses === 0;
+  const empty = !!corpus && corpus.total_clauses === 0 && !indexing;
+  const statutes = corpus?.documents.filter((d) => d.kind === "statute") ?? [];
+  const documents = corpus?.documents.filter((d) => d.kind !== "statute") ?? [];
+  const fallback = backend?.fallback;
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col">
@@ -83,14 +128,19 @@ export default function ChatPage() {
         <div>
           <h1 className="font-serif text-[22px] leading-none text-text-primary">Ask the corpus</h1>
           <p className="mt-1 text-[12.5px] text-text-muted">
-            Answers built from retrieved statute clauses, each cited · {strict ? "corpus only" : "corpus and general knowledge"}
+            Answers from the statutes and analysed documents, each statement cited and checked ·{" "}
+            {strict ? "corpus only" : "corpus and general knowledge"}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {backend && (
-            <span className="hidden items-center gap-1.5 rounded-[4px] border border-border px-2.5 py-1.5 font-mono text-[12px] text-text-secondary sm:inline-flex">
+            <span
+              className="hidden items-center gap-1.5 rounded-[4px] border border-border px-2.5 py-1.5 font-mono text-[12px] text-text-secondary sm:inline-flex"
+              title={fallback ? `If it fails, ${fallback.model} answers instead` : undefined}
+            >
               {backend.cloud ? <Cloud className="h-3.5 w-3.5" /> : <Cpu className="h-3.5 w-3.5" />}
               {backend.model}
+              {fallback && <span className="text-text-dim">· backup {fallback.model}</span>}
             </span>
           )}
           {messages.length > 0 && (
@@ -113,7 +163,7 @@ export default function ChatPage() {
             Corpus
             {corpus && (
               <span className="ml-auto normal-case tracking-normal text-text-secondary">
-                {corpus.total_clauses.toLocaleString()} clauses
+                {corpus.total_clauses.toLocaleString()} passages
               </span>
             )}
           </div>
@@ -121,6 +171,13 @@ export default function ChatPage() {
           {offline && (
             <div className="rounded-md border border-border p-3 text-[12px] text-text-muted">
               The analysis server is not answering. Start it with start.bat and refresh.
+            </div>
+          )}
+
+          {indexing > 0 && !offline && (
+            <div role="status" className="flex items-start gap-2 rounded-md border border-border p-3 text-[12px] text-text-muted">
+              <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+              Indexing the statutes ({indexing} left). You can ask now; more of the law becomes searchable as it finishes.
             </div>
           )}
 
@@ -140,45 +197,51 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            {corpus?.documents.map((d) => {
-              const on = selected.size === 0 || selected.has(d.doc_id);
-              return (
-                <button
+          {documents.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="font-mono text-micro uppercase tracking-widest text-text-dim">Analysed documents</p>
+              {documents.map((d) => (
+                <DocButton
                   key={d.doc_id}
-                  type="button"
-                  aria-pressed={selected.has(d.doc_id)}
-                  onClick={() => toggleDoc(d.doc_id)}
-                  className={cn(
-                    "rounded-[4px] border p-3 text-left transition-colors",
-                    selected.has(d.doc_id) ? "border-signal/45 bg-signal/[0.06]" : "border-border hover:border-border-light",
-                    !on && "opacity-50"
-                  )}
-                >
-                  <div className="font-mono text-micro text-text-primary truncate">{d.doc_name}</div>
-                  <div className="mt-1 font-mono text-micro uppercase tracking-wider text-text-muted">
-                    {d.clauses} clauses · {d.causal} with cause → effect
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  d={d}
+                  selected={selected.has(d.doc_id)}
+                  on={selected.size === 0 || selected.has(d.doc_id)}
+                  onToggle={() => toggleDoc(d.doc_id)}
+                />
+              ))}
+            </div>
+          )}
 
-          {corpus && corpus.documents.length > 0 && (
+          {statutes.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="font-mono text-micro uppercase tracking-widest text-text-dim">Statutes</p>
+              {statutes.map((d) => (
+                <DocButton
+                  key={d.doc_id}
+                  d={d}
+                  selected={selected.has(d.doc_id)}
+                  on={selected.size === 0 || selected.has(d.doc_id)}
+                  onToggle={() => toggleDoc(d.doc_id)}
+                />
+              ))}
+            </div>
+          )}
+
+          {documents.length > 0 && (
             <button
               onClick={ingestAll}
               disabled={ingesting}
               className="mt-auto inline-flex items-center justify-center gap-2 font-mono text-micro uppercase tracking-widest px-3 py-2 rounded-sm border border-border text-text-muted hover:text-text-primary transition-colors disabled:opacity-60"
             >
               {ingesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-              Re-index corpus
+              Re-index documents
             </button>
           )}
 
           <p className="font-mono text-micro leading-relaxed text-text-dim">
             {selected.size === 0
-              ? "Searching all documents. Select docs to filter retrieval."
-              : `Filtering to ${selected.size} document${selected.size > 1 ? "s" : ""}.`}
+              ? "Searching everything. Select some to filter retrieval."
+              : `Filtering to ${selected.size} source${selected.size > 1 ? "s" : ""}.`}
           </p>
         </aside>
 
@@ -190,8 +253,9 @@ export default function ChatPage() {
                 <PrismMark size={56} />
                 <h2 className="mt-6 font-serif text-title text-text-primary">What does the law say about…</h2>
                 <p className="mt-3 text-sm text-text-secondary leading-relaxed">
-                  Every answer is built from retrieved statute clauses and cites them. When the corpus does not support an
-                  answer, it says so instead of guessing.
+                  Name a section and it is fetched exactly; ask a question and the best passages are retrieved. Every
+                  statement cites its source, and every amount, rate and quotation is checked against it. When the
+                  corpus has no answer, it says so.
                 </p>
                 <div className="mt-8 grid gap-2 w-full">
                   {SUGGESTIONS.map((s) => (
@@ -219,50 +283,7 @@ export default function ChatPage() {
                         {m.content}
                       </div>
                     ) : (
-                      <div className="max-w-[92%] w-full">
-                        <div className="rounded-lg rounded-tl-sm border border-border bg-bg-surface p-4">
-                          {m.content ? (
-                            <p className="text-[14px] leading-relaxed text-text-primary whitespace-pre-wrap">
-                              {m.content}
-                              {m.streaming && <span className="ml-0.5 animate-pulse text-signal">▊</span>}
-                            </p>
-                          ) : m.error ? (
-                            <p className="flex items-center gap-2 text-[13px] text-status-error">
-                              <AlertTriangle className="w-4 h-4" /> {m.error}
-                            </p>
-                          ) : (
-                            <p className="flex items-center gap-2 text-[13px] text-text-muted">
-                              <Loader2 className="w-4 h-4 animate-spin" /> Retrieving sources…
-                            </p>
-                          )}
-
-                          {typeof m.retrievalConfidence === "number" && !m.error && (
-                            <div className="mt-3 flex items-center gap-2 font-mono text-micro uppercase tracking-widest">
-                              {m.grounded === false ? (
-                                <span className="flex items-center gap-1.5 text-status-warning">
-                                  <AlertTriangle className="w-3 h-3" /> Not in corpus
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1.5 text-status-success">
-                                  <ShieldCheck className="w-3 h-3" />
-                                  Grounded in {m.citations?.length ?? 0} sources
-                                </span>
-                              )}
-                              <span className="text-text-dim">
-                                · retrieval {Math.round((m.retrievalConfidence ?? 0) * 100)}%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {m.citations && m.citations.length > 0 && (
-                          <div className="mt-2.5 grid gap-2">
-                            {m.citations.map((c) => (
-                              <CitationCard key={c.index} citation={c} />
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <AssistantMessage message={m} onFollowUp={i === messages.length - 1 && !busy ? ask : undefined} />
                     )}
                   </motion.div>
                 ))}
@@ -287,7 +308,7 @@ export default function ChatPage() {
                   {strict ? "Corpus only" : "Extended"}
                 </button>
                 <span className="font-mono text-micro text-text-dim">
-                  {strict ? "Answers only from corpus sources" : "Corpus + general legal knowledge"}
+                  {strict ? "Answers only from corpus sources, checked" : "Corpus + general legal knowledge (not checked)"}
                 </span>
               </div>
               <div className="flex items-end gap-2">
@@ -301,8 +322,9 @@ export default function ChatPage() {
                     }
                   }}
                   rows={1}
-                  placeholder={empty ? "Index a document first…" : "Ask a question about the loaded statutes…"}
-                  disabled={!!empty || offline}
+                  maxLength={2000}
+                  placeholder={empty ? "Index a document first…" : messages.length ? "Ask a follow-up…" : "Ask a question, or name a section…"}
+                  disabled={empty || offline}
                   aria-label="Your question"
                   className="max-h-32 flex-1 resize-none rounded-[4px] border border-border-light bg-bg-surface px-4 py-3 text-[15px] text-text-primary placeholder:text-text-dim hover:border-glow focus:border-signal focus:outline-none disabled:opacity-50"
                 />
@@ -317,7 +339,7 @@ export default function ChatPage() {
                 ) : (
                   <button
                     onClick={submit}
-                    disabled={!input.trim() || !!empty || offline}
+                    disabled={!input.trim() || empty || offline}
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] bg-signal text-ink transition-opacity disabled:opacity-40"
                     aria-label="Send"
                   >
@@ -327,8 +349,8 @@ export default function ChatPage() {
               </div>
               <p className="mt-2 flex items-center gap-1.5 font-mono text-micro text-text-dim">
                 <Sparkles className="w-3 h-3" />
-                Retrieval finds the right section in its top five about three times in four. Check the cited clauses
-                before relying on an answer.
+                Amounts, rates and quotations are matched to the cited text. Read the cited provision before relying on
+                an answer: whether a paraphrase is faithful is not something a check can settle.
               </p>
             </div>
           </div>

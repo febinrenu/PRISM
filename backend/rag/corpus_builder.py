@@ -17,6 +17,10 @@ import numpy as np
 from config import CHROMA_DIR, CORPUS_COLLECTION
 from storage import store
 
+# A clause shorter than this that is followed by another on the same or next page is a
+# heading ("156. Rebate of income-tax ..."); it is indexed with the clause it heads.
+HEADING_ONLY_CHARS = 90
+
 _client = None
 _collection = None
 _lock = threading.Lock()
@@ -78,16 +82,23 @@ def ingest_document(doc_id: str) -> dict:
         pass
 
     ids, embs, docs, metas = [], [], [], []
+    heading = ""        # a heading-only clause ("156. Rebate of income-tax …") waits for its body
     for i, clause in enumerate(clauses):
         if clause.clause_type == "table" or not clause.text.strip():
             continue  # tables aren't prose — excluded from semantic QA
+        text = clause.text
+        if len(text.strip()) < HEADING_ONLY_CHARS and i + 1 < len(clauses) and clauses[i + 1].page - clause.page <= 1:
+            heading = f"{heading}\n{text.strip()}".strip()
+            continue       # as a passage on its own it matches a question by its title and says nothing
+        if heading:
+            text, heading = f"{heading}\n{text}", ""
         entity_labels = sorted({e.label for e in clause.entities})
         has_causal = bool(clause.llm_extraction and clause.llm_extraction.is_causal) or bool(
             clause.causal_patterns
         )
         ids.append(f"{doc_id}::{clause.clause_id}")
         embs.append(embeddings[i].astype(float).tolist())
-        docs.append(clause.text)
+        docs.append(text)
         metas.append({
             "doc_id": doc_id,
             "doc_name": name,
