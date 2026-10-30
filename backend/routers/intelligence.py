@@ -2,6 +2,7 @@
 Intelligence endpoints: semantic search, Q&A, report generation,
 document comparison, and domain detection.
 """
+import html
 import re
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -148,6 +149,9 @@ def _synthesize_answer(query: str, hits: list[dict]) -> str:
 
 # ─── Report Generation ────────────────────────────────────────────────────────
 
+_report_cache: dict[str, tuple] = {}     # doc_id -> (the AnalysisResult it was built from, the report)
+
+
 @router.get("/report/{doc_id}")
 async def generate_report(doc_id: str, fmt: str = Query("json", pattern="^(json|html)$")):
     """
@@ -159,7 +163,16 @@ async def generate_report(doc_id: str, fmt: str = Query("json", pattern="^(json|
     from storage.store import get_meta
     meta = get_meta(doc_id)
 
-    report = _build_report(doc_id, result, meta)
+    # Building the report walks every clause and entity; the same analysis gives the same report,
+    # so it is built once per loaded analysis (a re-analysis loads a new object and rebuilds).
+    cached = _report_cache.get(doc_id)
+    if cached is not None and cached[0] is result:
+        report = cached[1]
+    else:
+        report = _build_report(doc_id, result, meta)
+        _report_cache[doc_id] = (result, report)
+        while len(_report_cache) > 8:
+            _report_cache.pop(next(iter(_report_cache)))
 
     if fmt == "html":
         html = _render_html_report(report)
@@ -297,7 +310,6 @@ def _detect_domain(clauses) -> str:
     Hyphens are read as spaces ("income-tax" is "income tax"), and terms are
     counted, not just found, so a stray "employee" in a tax Act's table of
     contents does not outvote hundreds of uses of "assessee"."""
-    import re
     text = " ".join(c.text[:400] for c in clauses).lower().replace("-", " ")
 
     domain_signals = {
@@ -324,17 +336,25 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _css_word(value) -> str:
+    """A value that goes into a class name: letters only."""
+    return re.sub(r"[^a-z]", "", str(value).lower())
+
+
 def _render_html_report(report: dict) -> str:
+    # Everything that came from the PDF or the upload (its name, clause text, entities) is escaped:
+    # the report is opened as a page, so an uploaded file named "<script>...</script>.pdf" must not run.
+    esc = lambda v: html.escape(str(v), quote=True)  # noqa: E731
     es = report["executive_summary"]
-    domain = report["domain"]
-    filename = report["filename"]
-    generated = report["generated_at"]
+    domain = esc(report["domain"])
+    filename = esc(report["filename"])
+    generated = esc(report["generated_at"])
 
     checklist_rows = "".join(
         f"""<tr>
-          <td><span class="badge badge-{item['priority'].lower()}">{item['priority']}</span></td>
-          <td>{item['item']}</td>
-          <td>{item['action']}</td>
+          <td><span class="badge badge-{_css_word(item['priority'])}">{esc(item['priority'])}</span></td>
+          <td>{esc(item['item'])}</td>
+          <td>{esc(item['action'])}</td>
         </tr>"""
         for item in report["compliance_checklist"]
     )
@@ -344,20 +364,20 @@ def _render_html_report(report: dict) -> str:
     for tier in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
         for p in risk[tier][:3]:
             risk_rows += f"""<tr>
-              <td><span class="badge badge-{tier.lower()}">{tier}</span></td>
-              <td>{p.get('section','—')}</td>
-              <td>{p['condition_span'][:120]}…</td>
-              <td>{p['action_span'][:120]}…</td>
+              <td><span class="badge badge-{_css_word(tier)}">{esc(tier)}</span></td>
+              <td>{esc(p.get('section','—'))}</td>
+              <td>{esc(p['condition_span'][:120])}…</td>
+              <td>{esc(p['action_span'][:120])}…</td>
             </tr>"""
 
     entity_rows = ""
     for label, items in report["entity_inventory"].items():
         for e in items[:3]:
             entity_rows += f"""<tr>
-              <td><span class="ent-{label.lower()}">{label}</span></td>
-              <td>{e['text']}</td>
-              <td>{e['confidence']}</td>
-              <td>p.{e['page']}</td>
+              <td><span class="ent-{_css_word(label)}">{esc(label)}</span></td>
+              <td>{esc(e['text'])}</td>
+              <td>{esc(e['confidence'])}</td>
+              <td>p.{esc(e['page'])}</td>
             </tr>"""
 
     return f"""<!DOCTYPE html>
@@ -414,7 +434,7 @@ def _render_html_report(report: dict) -> str:
 <div class="container">
   <h1>PRISM Analysis Report <span class="domain-tag">{domain}</span></h1>
   <div class="meta">
-    Document: {filename} &nbsp;|&nbsp; Generated: {generated} &nbsp;|&nbsp; ID: {report['doc_id'][:12]}
+    Document: {filename} &nbsp;|&nbsp; Generated: {generated} &nbsp;|&nbsp; ID: {esc(report['doc_id'][:12])}
   </div>
 
   <h2>Executive Summary</h2>

@@ -14,13 +14,16 @@
 services:
   backend:
     build: ./backend
-    ports: ["${BACKEND_PORT:-8000}:8000"]
+    # loopback only: the public way in is nginx, which sets the client address the throttles use
+    ports: ["127.0.0.1:${BACKEND_PORT:-8000}:8000"]
     volumes:
       # first start copies the bundled demo analysis from the image into the volume
       - prism-data:/app/data
     environment:
       - OLLAMA_URL=http://host.docker.internal:11434
       - LLM_BACKEND=${LLM_BACKEND:-ollama}
+      # nginx overwrites X-Forwarded-For with the real client address; the backend reads it
+      - TRUSTED_PROXY=1
       # browser origins allowed to call the API directly (the nginx origin needs none)
       - CORS_ORIGINS=${CORS_ORIGINS:-}
       # - GROQ_API_KEY=${GROQ_API_KEY}

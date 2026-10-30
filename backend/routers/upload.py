@@ -5,7 +5,8 @@ POST /api/upload → returns doc_id + metadata
 import asyncio
 import uuid
 from auth.deps import optional_user
-from fastapi import Depends, APIRouter, UploadFile, File, HTTPException
+from auth.rate_limiter import UPLOAD_LIMIT, limiter
+from fastapi import Depends, APIRouter, UploadFile, File, HTTPException, Request
 
 from config import UPLOAD_DIR, MAX_FILE_SIZE_MB, MAX_PDF_PAGES
 from models.schemas import DocumentMeta
@@ -87,7 +88,8 @@ async def ingest_pdf(filename: str, content: bytes, owner_id: str | None = None)
 
 
 @router.post("/upload")
-async def upload_pdf(file: UploadFile = File(...), user: dict | None = Depends(optional_user)) -> dict:
+@limiter.limit(UPLOAD_LIMIT)
+async def upload_pdf(request: Request, file: UploadFile = File(...), user: dict | None = Depends(optional_user)) -> dict:
     content = await read_capped(file)
     doc_id, meta = await ingest_pdf(file.filename or "", content, owner_id=str(user["id"]) if user else None)
     if user:

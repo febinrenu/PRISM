@@ -47,6 +47,7 @@ export default function StatutesPage() {
   const [node, setNode] = useState<NodeView | null>(null);
   const [filter, setFilter] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [nodeError, setNodeError] = useState<string | null>(null);
   const [sel, select] = useSelection();
 
   useEffect(() => {
@@ -66,9 +67,17 @@ export default function StatutesPage() {
   }, [sel.s]);
 
   useEffect(() => {
+    setNodeError(null);
     if (!sel.s || !sel.p) { setNode(null); return; }
-    get(`/api/corpus/${sel.s}/node?path=${encodeURIComponent(sel.p)}`).then(setNode)
-      .catch(() => setNode(null));
+    let stale = false;
+    get(`/api/corpus/${sel.s}/node?path=${encodeURIComponent(sel.p)}`)
+      .then((n) => !stale && setNode(n))
+      .catch((e) => {
+        if (stale) return;
+        setNode(null);
+        setNodeError(String(e.message) === "404" ? "That provision is not in this statute." : "That provision could not be loaded. Try again.");
+      });
+    return () => { stale = true; };
   }, [sel.s, sel.p]);
 
   const groups = useMemo(() => {
@@ -203,7 +212,12 @@ export default function StatutesPage() {
           </aside>
 
           <section aria-live="polite" className="min-w-0">
-            {!node && (
+            {!node && nodeError && (
+              <p role="alert" className="rounded-[4px] border border-status-error/40 bg-status-error/[0.07] px-4 py-3 text-[13px] text-status-error">
+                {nodeError}
+              </p>
+            )}
+            {!node && !nodeError && (
               <div className="rounded-[6px] border border-border bg-bg-surface">
                 <EmptyState title="Choose a provision">
                   Pick a section from the outline, or filter by its number (87A, for example) or a word in its heading.

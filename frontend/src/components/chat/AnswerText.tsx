@@ -1,21 +1,17 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
+import { splitAnswer } from "@/components/chat/answerParts";
 
-// A [Source N] marker (named groups: the whole marker, and the numbers inside it).
-const CITE = String.raw`\[\s*Sources?\s+(?<nums>[\d,\s]+)\]`;
-
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+const NONE: never[] = []; // a stable default, so the memo below holds
 
 /** An answer with its [Source N] markers drawn as small buttons that open the
  *  source they point at, and any amount or rate the verifier could not find in
  *  the cited text underlined, so a flagged figure is visible where it is stated. */
 export default function AnswerText({
   text,
-  unsupported = [],
-  invalid = [],
+  unsupported = NONE,
+  invalid = NONE,
   onCite,
   streaming,
 }: {
@@ -25,27 +21,7 @@ export default function AnswerText({
   onCite: (n: number) => void;
   streaming?: boolean;
 }) {
-  const parts = useMemo(() => {
-    const flagged = unsupported.filter(Boolean).map(escapeRegExp);
-    const re = new RegExp(`${CITE}${flagged.length ? `|(?<flag>${flagged.join("|")})` : ""}`, "gi");
-    const out: { kind: "text" | "cite" | "flag"; value: string; nums?: number[] }[] = [];
-    let last = 0;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text)) !== null) {
-      if (m[0] === "") { re.lastIndex++; continue; }
-      const at = m.index;
-      if (at > last) out.push({ kind: "text", value: text.slice(last, at) });
-      if (m.groups?.nums !== undefined) {
-        const nums = m.groups.nums.split(/[,\s]+/).filter((x: string) => /^\d+$/.test(x)).map(Number);
-        out.push({ kind: "cite", value: m[0], nums });
-      } else {
-        out.push({ kind: "flag", value: m[0] });
-      }
-      last = at + m[0].length;
-    }
-    if (last < text.length) out.push({ kind: "text", value: text.slice(last) });
-    return out;
-  }, [text, unsupported]);
+  const parts = useMemo(() => splitAnswer(text, unsupported), [text, unsupported]);
 
   return (
     <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-text-primary">

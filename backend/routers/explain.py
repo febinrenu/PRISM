@@ -8,9 +8,11 @@ import asyncio
 import json
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
+from auth.rate_limiter import LIME_LIMIT, limiter
+from config import LIME_LLM_MAX_SAMPLES
 from pipeline.lime_explainer import default_samples, explain_clause, _cache_fingerprint
 from services import job_manager
 from storage import store
@@ -48,8 +50,16 @@ def _find_clause(doc_id: str, clause_id: str):
     raise HTTPException(status_code=404, detail=f"Clause {clause_id} not found.")
 
 
+def capped_samples(mode: str, requested: Optional[int]) -> int:
+    """The perturbation count to use: what was asked, but never more than LIME_LLM_MAX_SAMPLES in
+    model mode (each sample is a model call)."""
+    n = requested or default_samples(mode)
+    return min(n, LIME_LLM_MAX_SAMPLES) if mode == "llm" else n
+
+
 def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str,
                        num_samples: Optional[int], force: bool = False):
+    num_samples = capped_samples(mode, num_samples)
     job_key = f"lime:{doc_id}:{clause_id}:{mode}:{num_samples or default_samples(mode)}"
     job = job_manager.get_job(job_key)
     if job is not None and job.status == "running":
@@ -76,7 +86,9 @@ def _start_explain_job(doc_id: str, clause_id: str, clause_text: str, mode: str,
 
 
 @router.get("/explain/{doc_id}/{clause_id}")
+@limiter.limit(LIME_LIMIT)
 async def get_explanation(
+    request: Request,
     doc_id: str,
     clause_id: str,
     mode: str = Query("proxy", pattern="^(proxy|llm)$"),
@@ -88,7 +100,8 @@ async def get_explanation(
     if clause.clause_type == "table":
         return _table_payload(clause_id, mode)
 
-    effective_samples = num_samples or default_samples(mode)
+    num_samples = capped_samples(mode, num_samples)
+    effective_samples = num_samples
     cached = None if refresh else store.load_lime(doc_id, clause_id, mode)
     if cached is not None and cached.get("fingerprint") == _cache_fingerprint(
         clause.text, mode, effective_samples
@@ -215,7 +228,9 @@ async def get_attention(doc_id: str, clause_id: str):
 
 
 @router.get("/explain/{doc_id}/{clause_id}/stream")
+@limiter.limit(LIME_LIMIT)
 async def stream_explanation(
+    request: Request,
     doc_id: str,
     clause_id: str,
     mode: str = Query("proxy", pattern="^(proxy|llm)$"),

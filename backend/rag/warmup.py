@@ -52,8 +52,11 @@ def start(log=print) -> list[threading.Thread]:
         from pipeline import llm_backend
         from rag import hybrid
 
+        from simulation import templates
+
         hybrid.rerank("warm", ["up"])
         corpus_builder._lexical_index()
+        templates._ensure_exemplars()        # the sandbox's template matcher: its first use embeds every exemplar
         if asyncio.run(llm_backend.warm()):
             log("[ok] language model loaded")
 

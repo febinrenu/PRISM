@@ -12,8 +12,9 @@ GET  /api/rag/backend           → active LLM backend descriptor
 import json
 from typing import Optional
 
-from auth.deps import can_list, can_manage, filter_corpus_stats, optional_user, readable_scope
-from fastapi import Depends, APIRouter, HTTPException, Query
+from auth.rate_limiter import ASK_LIMIT, limiter
+from auth.deps import ensure_can_modify, filter_corpus_stats, optional_user, readable_scope
+from fastapi import Depends, APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -35,7 +36,7 @@ class Turn(BaseModel):
 
 class QueryBody(BaseModel):
     question: str = Field(..., max_length=2000)
-    doc_ids: Optional[list[str]] = None
+    doc_ids: Optional[list[str]] = Field(default=None, max_length=50)
     strict: bool = True
     history: list[Turn] = Field(default_factory=list, max_length=20)
 
@@ -62,8 +63,16 @@ async def get_corpus(user: dict | None = Depends(optional_user)):
 
 @router.post("/rag/ingest/{doc_id}")
 def ingest(doc_id: str, user: dict | None = Depends(optional_user)):
-    if not can_list(store.get_meta(doc_id), user):
-        raise HTTPException(status_code=403, detail="Only the owner can add a private document to the corpus.")
+    """Add an analysed document to the Ask corpus. Everyone's answers draw on the shared corpus, so a
+    document is added by its owner (or an admin), never anonymously: an anonymous upload could
+    otherwise put its own text, under its own title, in front of every other user's questions."""
+    meta = store.get_meta(doc_id)
+    if meta is None:
+        raise HTTPException(status_code=404, detail="Document not found.")
+    admin = bool(user) and user.get("role") == "admin"
+    owner = bool(user) and meta.owner_id is not None and str(user.get("id")) == meta.owner_id
+    if not (admin or owner or doc_id.startswith("demo_")):
+        raise HTTPException(status_code=403, detail="Sign in to add your own documents to the Ask corpus.")
     if store.get_result(doc_id) is None:
         raise HTTPException(status_code=404, detail=f"No analysis results for {doc_id}.")
     try:
@@ -74,10 +83,13 @@ def ingest(doc_id: str, user: dict | None = Depends(optional_user)):
 
 @router.post("/rag/ingest-all")
 def ingest_all(user: dict | None = Depends(optional_user)):
-    """Index every analysed document the caller may see: shared ones and their own."""
+    """Index every analysed document the caller may add: their own (an admin: all) and the curated
+    demo. Anonymous uploads are never added to the shared corpus."""
+    admin = bool(user) and user.get("role") == "admin"
     results = []
     for meta in store.list_documents():
-        if not can_list(meta, user) or store.get_result(meta.doc_id) is None:
+        mine = bool(user) and meta.owner_id is not None and str(user.get("id")) == meta.owner_id
+        if not (admin or mine or meta.doc_id.startswith("demo_")) or store.get_result(meta.doc_id) is None:
             continue
         try:
             results.append(corpus_builder.ingest_document(meta.doc_id))
@@ -88,18 +100,16 @@ def ingest_all(user: dict | None = Depends(optional_user)):
 
 @router.delete("/rag/corpus/{doc_id}")
 def remove(doc_id: str, user: dict | None = Depends(optional_user)):
-    from storage import store
     if statute_index.is_statute_doc(doc_id):
         raise HTTPException(status_code=400, detail="The statutes are part of PRISM; they cannot be removed from the corpus.")
-    meta = store.get_meta(doc_id)
-    if meta is not None and not can_manage(meta, user):
-        raise HTTPException(status_code=403, detail="Only the document's owner can remove it.")
+    ensure_can_modify(doc_id, store.get_meta(doc_id), user, "removed from the corpus")
     corpus_builder.remove_document(doc_id)
     return {"removed": doc_id, "corpus": corpus_builder.corpus_stats()}
 
 
 @router.post("/rag/query")
-async def query(body: QueryBody, user: dict | None = Depends(optional_user)):
+@limiter.limit(ASK_LIMIT)
+async def query(request: Request, body: QueryBody, user: dict | None = Depends(optional_user)):
     if not body.question.strip():
         raise HTTPException(status_code=400, detail="Empty question.")
     scope = readable_scope(body.doc_ids, user)
@@ -127,7 +137,9 @@ def _stream_response(question: str, doc_ids: Optional[list[str]], strict: bool, 
 
 
 @router.get("/rag/stream")
+@limiter.limit(ASK_LIMIT)
 async def stream(
+    request: Request,
     q: str = Query(..., min_length=1, max_length=2000),
     docs: Optional[str] = Query(None, description="comma-separated doc_ids to filter"),
     strict: bool = Query(True),
@@ -138,7 +150,8 @@ async def stream(
 
 
 @router.post("/rag/stream")
-async def stream_with_history(body: QueryBody, user: dict | None = Depends(optional_user)):
+@limiter.limit(ASK_LIMIT)
+async def stream_with_history(request: Request, body: QueryBody, user: dict | None = Depends(optional_user)):
     """The streaming answer with the earlier turns, so a follow-up is understood."""
     if not body.question.strip():
         raise HTTPException(status_code=400, detail="Empty question.")

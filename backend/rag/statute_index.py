@@ -16,7 +16,6 @@ import re
 import threading
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Optional
 
 from config import CHROMA_DIR
 from pipeline.statute.corpus import CORPUS_DIR

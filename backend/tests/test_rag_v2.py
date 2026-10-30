@@ -820,6 +820,8 @@ def test_startup_warmup_starts_every_background_job(monkeypatch):
     monkeypatch.setattr(corpus_builder, "_lexical_index", lambda: ran.append("bm25"))
     monkeypatch.setattr(statute_index, "ensure_indexed", lambda log=print: ran.append("statutes") or {})
     monkeypatch.setattr(hybrid, "rerank", lambda q, t: ran.append("rerank"))
+    from simulation import templates
+    monkeypatch.setattr(templates, "_ensure_exemplars", lambda: ran.append("templates"))
 
     async def warm():
         ran.append("llm")
@@ -831,7 +833,7 @@ def test_startup_warmup_starts_every_background_job(monkeypatch):
     threads = warmup.start(logs.append)
     for t in threads:
         t.join(timeout=10)
-    assert {("seed", warmup.DEMO), "statutes", "rerank", "bm25", "llm"} <= set(ran)
+    assert {("seed", warmup.DEMO), "statutes", "rerank", "bm25", "templates", "llm"} <= set(ran)
     assert not any("failed" in l for l in logs) and any("language model loaded" in l for l in logs)
 
 
@@ -843,6 +845,8 @@ def test_a_failing_warmup_job_is_a_warning_not_a_crash(monkeypatch):
     monkeypatch.setattr(corpus_builder, "_lexical_index", lambda: None)
     from rag import hybrid
     monkeypatch.setattr(hybrid, "rerank", lambda q, t: None)
+    from simulation import templates
+    monkeypatch.setattr(templates, "_ensure_exemplars", lambda: None)
     from pipeline import llm_backend
 
     async def no_model():
@@ -911,3 +915,114 @@ def test_the_wait_is_bounded_and_a_second_429_is_raised(monkeypatch):
     with pytest.raises(httpx.HTTPStatusError):
         asyncio.run(llm_backend._generate_on("groq", "m", "p", None, 0.1, 10, None))
     assert waits == [llm_backend.MAX_RATE_WAIT_S]                 # one bounded wait, not 120 s
+
+
+# ── which clauses are indexed, and with what text ────────────────────────────
+
+class _C:
+    def __init__(self, text, page=1, kind="prose"):
+        self.text, self.page, self.clause_type = text, page, kind
+
+
+def test_a_heading_is_joined_to_the_clause_it_heads():
+    from rag.corpus_builder import index_rows
+    clauses = [_C("156. Rebate of income-tax"), _C("(1) An assessee, being an individual resident in India, shall be entitled to a rebate " * 3)]
+    rows = index_rows(clauses)
+    assert len(rows) == 1 and rows[0][0] == 1 and rows[0][2] is True
+    assert rows[0][1].startswith("156. Rebate of income-tax\n(1) An assessee")
+
+
+def test_consecutive_headings_join_and_the_body_follows():
+    from rag.corpus_builder import index_rows
+    body = "The body of the provision states what is allowed and under what conditions, in full. " * 2
+    rows = index_rows([_C("CHAPTER VIII"), _C("80C. Deduction"), _C(body)])
+    assert len(rows) == 1 and rows[0][1].startswith("CHAPTER VIII\n80C. Deduction\n") and rows[0][2]
+
+
+def test_a_heading_before_a_table_or_at_the_end_is_kept_on_its_own_not_lost_or_glued():
+    from rag.corpus_builder import index_rows
+    prose = "A clause of ordinary prose that has nothing to do with the heading above the table. " * 2
+    rows = index_rows([_C("Schedule I"), _C("| a | b |", kind="table"), _C(prose)])
+    assert [(i, m) for i, _, m in rows] == [(0, False), (2, False)]
+    assert rows[0][1] == "Schedule I" and rows[1][1] == prose            # the heading is not glued onto the prose
+    last = index_rows([_C(prose), _C("Last heading")])
+    assert last[-1][1] == "Last heading"
+    assert index_rows([_C("Short", page=1), _C("x" * 200, page=9)])[0][2] is False   # a page gap: not a heading's body
+
+
+def test_tables_and_empty_clauses_are_not_indexed():
+    from rag.corpus_builder import index_rows
+    assert index_rows([_C("   "), _C("| x |", kind="table")]) == []
+
+
+def test_a_merged_clause_is_embedded_from_its_merged_text(monkeypatch):
+    """The stored vector is of the body alone; a clause merged with its heading is re-embedded."""
+    import numpy as np
+    from rag import corpus_builder
+    from pipeline import embedder
+
+    added = {}
+
+    class Coll:
+        def delete(self, **k): pass
+        def add(self, ids, embeddings, documents, metadatas): added.update(ids=ids, embs=embeddings, docs=documents)
+
+    class Clause(_C):
+        def __init__(self, cid, text, page=1):
+            super().__init__(text, page)
+            self.clause_id, self.entities, self.llm_extraction, self.causal_patterns = cid, [], None, []
+            self.section_hierarchy = ["156"]
+
+    clauses = [Clause("c0", "156. Rebate of income-tax"), Clause("c1", "(1) A resident individual is entitled to a rebate. " * 3)]
+    stored = np.array([[1.0, 0.0], [0.0, 1.0]])
+    calls = []
+    monkeypatch.setattr(corpus_builder, "_get_collection", lambda: Coll())
+    monkeypatch.setattr(corpus_builder.store, "get_result", lambda d: type("R", (), {"clauses": clauses})())
+    monkeypatch.setattr(corpus_builder.store, "load_embeddings", lambda d: stored)
+    monkeypatch.setattr(corpus_builder, "doc_name_for", lambda d: "Doc")
+    monkeypatch.setattr(embedder, "embed_texts", lambda texts: calls.append(texts) or np.array([[0.5, 0.5]] * len(texts)))
+    out = corpus_builder.ingest_document("d")
+    assert out["indexed"] == 1 and added["docs"][0].startswith("156. Rebate of income-tax\n(1) A resident")
+    assert added["embs"][0] == [0.5, 0.5] and calls and calls[0][0].startswith("156. Rebate")     # not the body's [0, 1]
+
+
+def test_a_section_fetched_whole_is_not_repeated_as_a_search_piece(monkeypatch):
+    whole = _hit(1, "156. full section text " * 5, id="statute:X:v::X/s156", match="section", kind="statute", doc_id="statute:X:v")
+    piece = _hit(2, "156. a piece of the same section " * 3, id="statute:X:v::X/s156#0", kind="statute")
+    other = _hit(3, "capital gains on the transfer of a long term capital asset are taxed at a flat rate of twelve and a half percent", id="statute:X:v::X/s197#0")
+    monkeypatch.setattr(query_engine.lookup, "lookup", lambda plan, doc_ids=None: [whole])
+    monkeypatch.setattr(query_engine.corpus_builder, "hybrid_search", lambda *a, **k: [piece, other])
+    hits = query_engine.retrieve("section 156", plan=query_plan.make_plan("section 156"))
+    assert [h["id"] for h in hits] == [whole["id"], other["id"]]
+    # a section too long to fetch whole keeps its pieces: they may hold the part the question needs
+    cut = {**whole, "truncated": True}
+    monkeypatch.setattr(query_engine.lookup, "lookup", lambda plan, doc_ids=None: [cut])
+    assert piece["id"] in [h["id"] for h in query_engine.retrieve("section 156", plan=query_plan.make_plan("section 156"))]
+
+
+def test_the_scope_check_does_not_block_the_event_loop(monkeypatch):
+    import time as _t
+    monkeypatch.setattr(query_engine, "retrieve", lambda q, d=None, k=8, plan=None: [_strong(1, SOURCES[0])])
+
+    def slow_assess(plan, hits, strict=True):
+        _t.sleep(0.4)
+        return 0.9, False, None
+
+    monkeypatch.setattr(query_engine, "assess", slow_assess)
+    _stub(monkeypatch, [_strong(1, SOURCES[0])], ["The rebate is ₹12,500 [Source 1]."])
+
+    async def run():
+        ticks = []
+
+        async def ticker():
+            for _ in range(40):
+                ticks.append(1)
+                await asyncio.sleep(0.01)
+
+        t = asyncio.create_task(ticker())
+        events = [e async for e in query_engine.answer_stream("What is the rebate?")]
+        await t
+        return events, len(ticks)
+
+    events, ticks = asyncio.run(run())
+    assert events[-1]["stage"] == "done" and ticks == 40        # the ticker ran throughout: the loop was free

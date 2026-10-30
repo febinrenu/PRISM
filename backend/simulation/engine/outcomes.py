@@ -41,7 +41,7 @@ def suits(tax: np.ndarray, income: np.ndarray, weights: np.ndarray) -> float:
     """Suits index: 1 − 2·area under the tax-share curve plotted against
     cumulative income share (units ranked by income)."""
     o = np.argsort(income, kind="stable")
-    inc, t, w = income[o] * weights[o], tax[o] * weights[o], weights[o]
+    inc, t = income[o] * weights[o], tax[o] * weights[o]
     if inc.sum() <= 0 or t.sum() <= 0:
         return 0.0
     x = np.concatenate([[0.0], np.cumsum(inc) / inc.sum()])

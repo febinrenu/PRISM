@@ -86,3 +86,71 @@ def test_template_semantic_match_optional():
     assert m is not None
     assert m.key == "percentage_tax_above_threshold"
     assert 0.0 <= m.score <= 1.0
+
+
+# ── matching many clauses at once ────────────────────────────────────────────
+
+def test_batch_template_matching_agrees_with_one_at_a_time_and_embeds_once(monkeypatch):
+    from simulation import templates
+    from pipeline import embedder
+
+    texts = ["A late fee of Rs. 200 per day shall be payable for each day of default.",
+             "", "The weather in Delhi is pleasant in October.",
+             "A surcharge of ten percent of the income-tax shall be levied where total income exceeds fifty lakh rupees."]
+    singles = [templates.match_template(t) for t in texts]
+    calls = []
+    real = embedder.embed_texts
+    monkeypatch.setattr(embedder, "embed_texts", lambda xs: calls.append(len(xs)) or real(xs))
+    batch = templates.match_templates(texts)
+    assert calls == [3]                                  # one call, for the three non-empty texts
+    assert [(m.key, m.score) if m else None for m in batch] == [(m.key, m.score) if m else None for m in singles]
+    assert batch[1] is None and templates.match_templates([]) == []
+
+
+def test_only_the_family_that_is_used_is_built(monkeypatch):
+    """With model readings present the rule-based patterns are not built (they were built and discarded)."""
+    from simulation import rules as R
+    built = []
+    real = R._rule_from_pattern
+    monkeypatch.setattr(R, "_rule_from_pattern", lambda *a, **k: built.append(1) or real(*a, **k))
+
+    class Clause:
+        def __init__(self, cid, llm, patterns):
+            self.clause_id, self.text, self.entities = cid, "A fee of Rs. 500 is payable.", []
+            self.llm_extraction = llm
+            self.causal_patterns = patterns
+
+    class Llm:
+        is_causal = True
+        def model_dump(self):
+            return {"is_causal": True, "condition": "x", "action": "pay", "thresholds": ["Rs. 500"], "actors": [], "confidence": 0.9}
+
+    class Pat:
+        impact_score, confidence, condition_span, action_span = 0.5, 0.5, "if x", "pay"
+
+    res = type("Res", (), {"clauses": [Clause("a", Llm(), [Pat()]), Clause("b", None, [Pat()])]})()
+    rules, source = R.build_simulation_rules(res)
+    assert source == "llm" and [r.clause_id for r in rules] == ["a"] and built == []
+    only_patterns = type("Res", (), {"clauses": [Clause("b", None, [Pat()])]})()
+    rules2, source2 = R.build_simulation_rules(only_patterns)
+    assert source2 == "rule_based" and [r.clause_id for r in rules2] == ["b"] and built == [1]
+
+
+# ── adversarial text ─────────────────────────────────────────────────────────
+
+def test_a_long_run_of_digits_and_commas_is_scanned_in_linear_time():
+    import time
+    from simulation import rules as R
+    for text in ("1," * 20000, "1" * 40000, "9,9," * 10000 + " rupees", "₹" + "1," * 20000):
+        t = time.perf_counter()
+        R.parse_threshold_string(text)
+        assert time.perf_counter() - t < 1.0, text[:12]
+
+
+def test_ordinary_amounts_still_parse_after_bounding_the_patterns():
+    from simulation.rules import parse_threshold_string as p
+    assert p("Rs. 5,00,000") == {"kind": "amount", "value": 500000.0}
+    assert p("5 lakh") == {"kind": "amount", "value": 500000.0}
+    assert p("2.5 crore") == {"kind": "amount", "value": 25000000.0}
+    assert p("12500 rupees") == {"kind": "amount", "value": 12500.0}
+    assert p("20%") == {"kind": "percent", "value": 20.0} and p("8.33 per cent") == {"kind": "percent", "value": 8.33}

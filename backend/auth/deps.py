@@ -52,7 +52,25 @@ def can_manage(meta, user: dict | None) -> bool:
     return bool(user) and (str(user.get("id")) == meta.owner_id or user.get("role") == "admin")
 
 
+def is_demo(doc_id: str) -> bool:
+    """The bundled demo and any other curated shared document (ids start "demo_")."""
+    return str(doc_id).startswith("demo_")
+
+
+def ensure_can_modify(doc_id: str, meta, user: dict | None, what: str = "changed") -> None:
+    """403 unless `user` may change this document or what is stored about it. The shared demo is
+    changed by an admin only; any other document by its owner or an admin (an anonymous upload,
+    which has no owner, by anyone, as before)."""
+    admin = bool(user) and user.get("role") == "admin"
+    if is_demo(doc_id) and not admin:
+        raise HTTPException(status_code=403, detail=f"The shared demo cannot be {what}.")
+    if meta is not None and not can_manage(meta, user):
+        raise HTTPException(status_code=403, detail=f"Only the document's owner can have it {what}.")
+
+
 def can_list(meta, user: dict | None) -> bool:
+    if meta is None:
+        return False            # no such document: nothing to show
     return meta.owner_id is None or (bool(user) and (str(user.get("id")) == meta.owner_id
                                                      or user.get("role") == "admin"))
 
@@ -99,7 +117,12 @@ def readable_scope(requested: list[str] | None, user: dict | None) -> list[str] 
     hidden = {m.doc_id for m in docs if not can_list(m, user)}
     if not hidden:
         return None
-    return [m.doc_id for m in docs if m.doc_id not in hidden]
+    # An allow-list, so it names the statutes too: they are in the corpus but have no
+    # document record, and leaving them out would make Ask forget the law.
+    from rag import statute_index
+
+    statutes = [statute_index.doc_id_for(s, v) for s, v in statute_index.available()]
+    return statutes + [m.doc_id for m in docs if m.doc_id not in hidden]
 
 
 def filter_corpus_stats(stats: dict, user: dict | None) -> dict:

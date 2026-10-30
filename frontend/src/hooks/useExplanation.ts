@@ -20,11 +20,18 @@ export function useExplanation(docId: string, clauseId: string, mode: "proxy" | 
   const [state, setState] = useState<ExplainState>({ status: "loading" });
   const sseRef = useRef<SSEHandle | null>(null);
   const [nonce, setNonce] = useState(0);
+  // "Rerun" recomputes once. Later loads (another clause, the other mode) use the cache again.
+  const refreshNext = useRef(false);
 
-  const rerun = useCallback(() => setNonce((n) => n + 1), []);
+  const rerun = useCallback(() => {
+    refreshNext.current = true;
+    setNonce((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    const refresh = refreshNext.current;
+    refreshNext.current = false;
     setState({ status: "loading" });
     sseRef.current?.abort();
 
@@ -53,7 +60,7 @@ export function useExplanation(docId: string, clauseId: string, mode: "proxy" | 
 
     (async () => {
       try {
-        const result = await api.getExplanation(docId, clauseId, mode, nonce > 0);
+        const result = await api.getExplanation(docId, clauseId, mode, refresh);
         if (cancelled) return;
         if (result.status === "complete") {
           setState({ status: "complete", explanation: result });

@@ -14,10 +14,10 @@ POST /v1/simulate/{doc_id}     POST /v1/rag/query
 GET  /v1/corpus/documents
 """
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from auth import users
-from auth.deps import api_key_user, ensure_all_readable, filter_corpus_stats, readable_scope
+from auth.deps import api_key_user, ensure_can_modify, filter_corpus_stats, readable_scope
 from auth.rate_limiter import PUBLIC_RATE_LIMIT, limiter
 from models.schemas import SimulationConfig
 from rag import query_engine
@@ -70,6 +70,8 @@ async def v1_analyze(request: Request, doc_id: str, force: bool = False, user: d
     pdf_path = store.get_path(doc_id)
     if not meta or not pdf_path:
         raise HTTPException(status_code=404, detail="Document not found.")
+    if force:
+        ensure_can_modify(doc_id, meta, user, "re-analysed")       # a re-run rewrites the stored analysis
 
     existing = store.get_result(doc_id)
     if existing is not None and not force:
@@ -135,8 +137,8 @@ async def v1_explain(request: Request, doc_id: str, clause_id: str, user: dict =
 
 
 class RAGQueryBody(BaseModel):
-    question: str
-    doc_ids: list[str] | None = None
+    question: str = Field(..., max_length=2000)
+    doc_ids: list[str] | None = Field(default=None, max_length=50)
     strict: bool = True
 
 

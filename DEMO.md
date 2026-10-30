@@ -28,8 +28,8 @@ Pre-flight (5 minutes before):
 Optional, to show the checks are green:
 
 ```bash
-cd backend && python -m pytest -q          # 480 tests
-cd frontend && npx vitest run              # 31 tests
+cd backend && python -m pytest -q          # 525 tests
+cd frontend && npx vitest run              # 38 tests
 cd frontend && node scripts/e2e.mjs        # 12-step walk through the running app
 cd frontend && node scripts/delete-check.mjs <a small PDF>   # upload and delete, workspace and dashboard
 ```
@@ -61,7 +61,7 @@ The Income-tax Bill, 2025 (624 pages), already analysed.
     one. One reading is marked **"Needs review: fifty crore rupees is not in
     the clause"**. Every amount and rate a model states is checked against
     the clause's own text.
-  - *Rates*: every rate table in the document, read row by row into bands
+  - *Rates*: the rate tables the document's text lets PRISM read (the demo has one complete schedule, on page 247), read row by row into bands
     and checked (starts at zero, no gaps, open top band, rates do not fall),
     each band next to the row as printed. Click "p.247" to jump to it.
   - *Search*, *Entities* (co-occurrence network), *UMAP* (semantic map;

@@ -120,7 +120,6 @@ def _page_fragments(segs: list, width: float, pno: int) -> list[_Fragment]:
     if not segs:
         return []
     size = sorted(s.size for s in segs)[len(segs) // 2]
-    tol = 0.6 * size
     anchors = sorted((s for s in segs if _ANCHOR_RE.match(s.text) and s.x0 < 0.45 * width), key=lambda s: s.y0)
     # Runs of rows numbered n, n+1, n+2 … with no long vertical break. A run
     # starts at (1), or at any number when it opens the page (a table

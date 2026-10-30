@@ -9,12 +9,20 @@ from auth import security
 from db import database
 
 
+def normalise_email(email: str) -> str:
+    """The one spelling an address is stored and looked up under. Addresses are compared
+    case-insensitively everywhere, so "Admin@x.com" and "admin@x.com" are one account (they were
+    two, and the admin bootstrap, which is case-insensitive, promoted both)."""
+    return (email or "").strip().lower()
+
+
 def _is_admin_email(email: str) -> bool:
     from config import PRISM_ADMIN_EMAIL
-    return bool(PRISM_ADMIN_EMAIL) and email.strip().lower() == PRISM_ADMIN_EMAIL.strip().lower()
+    return bool(PRISM_ADMIN_EMAIL) and normalise_email(email) == normalise_email(PRISM_ADMIN_EMAIL)
 
 
 def create_user(email: str, name: str, password: Optional[str], role: str = "user") -> dict:
+    email = normalise_email(email)
     if get_user_by_email(email):
         raise ValueError("Email already registered")
     uid = security.new_user_id()
@@ -40,7 +48,8 @@ def ensure_admin(user: dict) -> dict:
 
 
 def get_user_by_email(email: str) -> Optional[dict]:
-    return database.fetchone("SELECT * FROM users WHERE email = ?", (email,))
+    # lower(): rows made before addresses were normalised may be stored in mixed case
+    return database.fetchone("SELECT * FROM users WHERE lower(email) = ?", (normalise_email(email),))
 
 
 def get_user_by_id(uid: str) -> Optional[dict]:

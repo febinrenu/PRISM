@@ -277,6 +277,10 @@ def retrieve(question: str, doc_ids: Optional[list[str]] = None, top_k: int = RA
     if not found and scoped != doc_ids:
         found = corpus_builder.hybrid_search(plan.standalone, n_results=top_k + 4, doc_ids=doc_ids)
     found = _drop_fragments(found)
+    # a section fetched whole is not also wanted as a piece of itself from the search (a section
+    # too long to fetch whole keeps its search pieces: they may be what the question needs)
+    whole = {h["id"] for h in exact if not h.get("truncated")}
+    found = [h for h in found if h["id"].split("#")[0] not in whole]
     return dedupe(exact + found)[: top_k + len(exact)]
 
 
@@ -431,9 +435,8 @@ async def answer_stream(
     except Exception as e:
         yield {"stage": "error", "message": f"Search failed: {e}"}
         return
-    t_search = time.perf_counter()
-    conf, exact, why = assess(plan, hits, strict)
-    timings = {"search": int((t_search - t0) * 1000)}
+    conf, exact, why = await loop.run_in_executor(None, lambda: assess(plan, hits, strict))
+    timings = {"search": int((time.perf_counter() - t0) * 1000)}
 
     if not hits or why:
         closest = citations(hits[:3])

@@ -265,11 +265,4 @@ async def get_schedules(doc_id: str):
         return await asyncio.get_running_loop().run_in_executor(None, schedules_for_doc, doc_id)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"No PDF stored for {doc_id}.")
-    from pipeline.schedules import find_schedules
-    ocr_pages = load_ocr_lines(doc_id)          # the scanned pages' recognised lines, if any
-    schedules = await asyncio.get_running_loop().run_in_executor(None, find_schedules, str(pdf), ocr_pages)
-    data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
-            "review": sum(1 for s in schedules if not s["check"]["ok"])}
-    cache.write_text(json.dumps(data), encoding="utf-8")
-    return data
 

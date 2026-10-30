@@ -59,6 +59,9 @@ LIME_NUM_SAMPLES = int(os.getenv("LIME_NUM_SAMPLES", "500"))
 # Every LIME sample in "llm" mode is one model call, so it takes far fewer than the
 # rule-based mode: 60 calls is about a minute on a hosted model, a few on a laptop.
 LIME_LLM_NUM_SAMPLES = int(os.getenv("LIME_LLM_NUM_SAMPLES", "60"))
+# The most a caller may ask for in model mode (one model call each): the query allows more for the
+# rule-based mode, and an unchecked request for 2000 would be 2000 model calls.
+LIME_LLM_MAX_SAMPLES = int(os.getenv("LIME_LLM_MAX_SAMPLES", "120"))
 LIME_NUM_FEATURES = int(os.getenv("LIME_NUM_FEATURES", "12"))
 
 # --- Phase 3: simulation calibration ---

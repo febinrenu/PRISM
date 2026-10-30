@@ -24,7 +24,9 @@ _UNITS = {
     "a": 1, "half": 0.5, "one-half": 0.5,
 }
 _NUMBER_WORD = r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|lakhs?|crores?|million|billion|and|a)"
-_WORDS_RE = rf"(?:{_NUMBER_WORD}(?:[\s-]+{_NUMBER_WORD})*)"
+# At most 20 number words in a row: the longest real amount ("ninety-nine crore ... nine hundred and
+# ninety-nine") has 14. Unbounded, a long run of number words was scanned from every word of it.
+_WORDS_RE = rf"(?:{_NUMBER_WORD}(?:[\s-]+{_NUMBER_WORD}){{0,19}})"
 
 
 def words_to_number(phrase: str) -> Optional[float]:
@@ -72,7 +74,7 @@ class Quantity:
 
 
 _CUR = r"(?:Rs\.?|INR|₹)"
-_NUM = r"\d[\d,]*(?:\.\d+)?"
+_NUM = r"\d[\d,]{0,24}(?:\.\d{1,10})?"   # bounded: a run of digits and commas must not be rescanned from each digit
 _SCALE_WORD = r"(?:thousand|lakhs?|crores?|million|billion)"
 
 _PATTERNS: list[tuple[str, re.Pattern]] = [
@@ -108,10 +110,10 @@ def _comparator(text: str, start: int) -> Optional[str]:
 
 def extract_quantities(text: str) -> list[Quantity]:
     found: list[Quantity] = []
-    taken: list[tuple[int, int]] = []
+    covered = bytearray(len(text) + 1)        # characters already part of a quantity
 
     def overlaps(a: int, b: int) -> bool:
-        return any(not (b <= s or a >= e) for s, e in taken)
+        return any(covered[a:b])
 
     for name, rx in _PATTERNS:
         for m in rx.finditer(text):
@@ -150,7 +152,7 @@ def extract_quantities(text: str) -> list[Quantity]:
             if per and q.kind == "amount_inr":
                 q.per = per.group(1).lower()
             found.append(q)
-            taken.append((s, e))
+            covered[s:e] = bytes([1]) * (e - s)
 
     found.sort(key=lambda q: q.start)
     # "exceeds Rs. 3,00,000 but does not exceed Rs. 7,00,000" → one range.

@@ -86,6 +86,16 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    """The API serves JSON, PDFs and a downloadable report: never let a browser guess a type or frame it."""
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    return response
+
+
 @app.exception_handler(store.InvalidDocId)
 async def _invalid_doc_id(request: Request, exc: store.InvalidDocId):
     return JSONResponse(status_code=404, content={"detail": "Document not found."})

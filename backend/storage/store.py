@@ -346,7 +346,14 @@ def save_simulation(result: SimulationResult) -> None:
     )
 
 
+_SIM_ID_RE = re.compile(r"^sim_[0-9a-f]{8}$")
+
+
 def load_simulation(doc_id: str, simulation_id: str) -> Optional[SimulationResult]:
+    # The id is part of a path: only the ids this app issues are read ("../../<other>/simulations/x"
+    # would otherwise reach another document's runs).
+    if not _SIM_ID_RE.match(str(simulation_id)):
+        return None
     path = _doc_dir(doc_id) / "simulations" / f"{simulation_id}.json"
     if path.exists():
         return SimulationResult.model_validate_json(path.read_text(encoding="utf-8"))

@@ -83,12 +83,14 @@ class SimulationRule:
 _LAKH = 1.0e5
 _CRORE = 1.0e7
 
+# A figure is at most 24 digits and separators: the unbounded "\d[\d,]*" made a string like
+# "1,1,1,..." quadratic to scan (6,000 characters took 8 s), and a model's free text can be anything.
 _AMOUNT_RE = re.compile(
-    r"(?i)(?:Rs\.?|INR|₹|rupees?)\s*(\d[\d,]*(?:\.\d+)?)\s*(lakh|lakhs|crore|crores|thousand)?"
+    r"(?i)(?:Rs\.?|INR|₹|rupees?)\s*(\d[\d,]{0,24}(?:\.\d{1,6})?)\s*(lakh|lakhs|crore|crores|thousand)?"
 )
-_UNIT_AMOUNT_RE = re.compile(r"(?i)\b(\d[\d,]*(?:\.\d+)?)\s*(lakh|lakhs|crore|crores)\b")
-_PLAIN_RUPEES_RE = re.compile(r"(?i)\b(\d[\d,]{3,}(?:\.\d+)?)\s*rupees?\b")
-_PERCENT_RE = re.compile(r"(?i)\b(\d+(?:\.\d+)?)\s*(?:percent|per\s*cent|%)")
+_UNIT_AMOUNT_RE = re.compile(r"(?i)\b(\d[\d,]{0,24}(?:\.\d{1,6})?)\s*(lakh|lakhs|crore|crores)\b")
+_PLAIN_RUPEES_RE = re.compile(r"(?i)\b(\d[\d,]{3,24}(?:\.\d{1,6})?)\s*rupees?\b")
+_PERCENT_RE = re.compile(r"(?i)\b(\d{1,12}(?:\.\d{1,8})?)\s*(?:percent|per\s*cent|%)")
 _DURATION_RE = re.compile(r"(?i)\b(\d+)\s*(days?|months?|years?)\b")
 
 _UNIT_MULTIPLIER = {
@@ -165,19 +167,21 @@ def map_actors_to_agent_types(actors: list[str]) -> list[str]:
 
 # ─── Template translation (Module C novelty) ──────────────────────────────────
 
-def _apply_template(rule: SimulationRule, text: str) -> SimulationRule:
+def _apply_template(rule: SimulationRule, text: str, match=None, matched: bool = False) -> SimulationRule:
     """Try to recognize a known policy-rule template from the clause text and,
     if confident, override the rule's parameters with the template's structured
     reading. Falls through unchanged (matched_template=None) when no template is
-    confident, so the regex/keyword parse remains the safety net.
+    confident, so the regex/keyword parse remains the safety net. A caller that has
+    already matched many texts at once passes the result (`matched=True`).
 
     Import is local + guarded because the matcher needs the MiniLM embedder,
     which isn't available in every context (e.g. some unit tests)."""
-    try:
-        from simulation.templates import match_template
-        match = match_template(text)
-    except Exception:
-        match = None
+    if not matched:
+        try:
+            from simulation.templates import match_template
+            match = match_template(text)
+        except Exception:
+            match = None
     if match is None:
         return rule
 
@@ -259,32 +263,34 @@ def build_simulation_rules(
     Returns (rules, rules_source).
     """
     wanted = set(rule_clause_ids) if rule_clause_ids else None
-    llm_rules: list[SimulationRule] = []
-    pattern_rules: list[SimulationRule] = []
-
-    for clause in result.clauses:
-        if wanted is not None and clause.clause_id not in wanted:
-            continue
-
-        actor_mentions = [e.text for e in clause.entities if e.label in ("ACTOR", "BENEFICIARY")]
-
-        if clause.llm_extraction is not None and clause.llm_extraction.is_causal:
+    chosen = [c for c in result.clauses if wanted is None or c.clause_id in wanted]
+    llm_clauses = [c for c in chosen if c.llm_extraction is not None and c.llm_extraction.is_causal]
+    # Only one family is used: the model's readings when there are any, else the rule-based
+    # patterns. Build only that one (the other used to be built and thrown away).
+    if llm_clauses:
+        built, source = [], "llm"
+        for clause in llm_clauses:
+            mentions = [e.text for e in clause.entities if e.label in ("ACTOR", "BENEFICIARY")]
             extraction = clause.llm_extraction.model_dump()
             if not extraction.get("actors"):
-                extraction["actors"] = actor_mentions
-            rule = _rule_from_llm(clause.clause_id, extraction)
-            # Match against the whole clause text (richer signal than the
-            # truncated description) for the template translator.
-            llm_rules.append(_apply_template(rule, clause.text))
-        elif clause.causal_patterns:
-            best = max(clause.causal_patterns, key=lambda p: p.impact_score)
-            rule = _rule_from_pattern(clause.clause_id, best, clause.text, actor_mentions)
-            pattern_rules.append(_apply_template(rule, clause.text))
-
-    if llm_rules:
-        rules, source = llm_rules, "llm"
+                extraction["actors"] = mentions
+            built.append((_rule_from_llm(clause.clause_id, extraction), clause.text))
     else:
-        rules, source = pattern_rules, "rule_based"
+        built, source = [], "rule_based"
+        for clause in chosen:
+            if clause.causal_patterns:
+                best = max(clause.causal_patterns, key=lambda p: p.impact_score)
+                mentions = [e.text for e in clause.entities if e.label in ("ACTOR", "BENEFICIARY")]
+                built.append((_rule_from_pattern(clause.clause_id, best, clause.text, mentions), clause.text))
+
+    # Match against the whole clause text (richer signal than the truncated description) for
+    # the template translator, all clauses in one embedding call.
+    try:
+        from simulation.templates import match_templates
+        matches = match_templates([text for _, text in built])
+    except Exception:
+        matches = [None] * len(built)
+    rules = [_apply_template(rule, text, m, matched=True) for (rule, text), m in zip(built, matches)]
 
     # Highest-impact rules first; cap so a 1,000-pattern bill stays simulable.
     rules.sort(key=lambda r: (r.rate_percent or 0.0, r.confidence), reverse=True)

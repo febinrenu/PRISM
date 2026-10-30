@@ -46,7 +46,6 @@ import numpy as np
 from simulation.backtest.run import ANNOUNCED_COST, Settings, age, forecast_protocol, in_sample, income_year, macro, reform_cost
 from simulation.behaviour import compliance
 from simulation.engine.outcomes import summarise
-from simulation.engine.sensitivity import PROBLEM
 from simulation.engine.static import StaticResult, simulate
 from simulation.population.taxpayers import Population, build
 from simulation.rac import gold
@@ -57,7 +56,11 @@ CRORE = 1e7
 LAKH = 1e5
 BASE_POP_AY = "2023-24"                    # the latest year with published tax statistics
 DEFAULT_GROWTH = Settings().nominal_growth_after_2023_24
-BOUNDS = {n: (float(lo), float(hi)) for n, (lo, hi) in zip(PROBLEM["names"], PROBLEM["bounds"])}
+# The ranges of the global sensitivity analysis (simulation/engine/sensitivity.PROBLEM; a test holds
+# the two equal). Kept here so the API does not import SALib, which only the research tools need.
+BOUNDS = {"optimal_share": (0.25, 1.0), "via_scale": (0.5, 1.5), "top_alpha": (1.5, 3.0),
+          "senior_share": (0.0, 0.2), "growth": (0.07, 0.12)}
+MAX_BANDS = 12                           # as many bands as the editor offers
 NO_CHANGE = 0.5                            # rupees: a change smaller than this is no change
 MAX_EXACT_LEVERS = 8
 HIGH_MARGINAL = 0.6
@@ -274,6 +277,8 @@ def baseline_from_expert(ay: str) -> Baseline:
 # ── a scenario: changes to the baseline ─────────────────────────────────────
 
 def _num(v, what: str, lo: float, hi: float) -> float:
+    if isinstance(v, bool):
+        raise ScenarioError(f"{what} must be a number")
     try:
         x = float(v)
     except (TypeError, ValueError):
@@ -290,8 +295,18 @@ def apply_changes(base: PITParams, changes: dict) -> tuple[PITParams, list[str]]
               "standard_deduction": x, "cess_rate": x}; a key left out stays as in the baseline."""
     p = base.model_copy(deep=True)
     new = p.regimes["new"]
-    changes = changes or {}
+    if changes is None:
+        changes = {}
+    if not isinstance(changes, dict):
+        raise ScenarioError("changes must be an object")
+    unknown = sorted(set(changes) - {"slabs", "rebate", "standard_deduction", "cess_rate"})
+    if unknown:
+        raise ScenarioError(f"unknown change: {', '.join(map(str, unknown))}")
     if changes.get("slabs") is not None:
+        if not isinstance(changes["slabs"], list) or not 2 <= len(changes["slabs"]) <= MAX_BANDS:
+            raise ScenarioError(f"slabs must be a list of 2 to {MAX_BANDS} bands")
+        if not all(isinstance(r, dict) for r in changes["slabs"]):
+            raise ScenarioError("each band must be an object with lower, upper and rate")
         rows = []
         for i, r in enumerate(changes["slabs"]):
             upper = r.get("upper")
@@ -305,6 +320,8 @@ def apply_changes(base: PITParams, changes: dict) -> tuple[PITParams, list[str]]
         new.slabs, new.same_for_all_ages = {"below_60": slabs}, True
     if "rebate" in changes:
         r = changes["rebate"]
+        if r is not None and not isinstance(r, dict):
+            raise ScenarioError("rebate must be an object, or null to remove it")
         new.rebate = None if r is None else Rebate(
             max_income=_num(r.get("max_income"), "rebate income limit", 0, 1e11),
             max_rebate=_num(r.get("max_rebate"), "rebate amount", 0, 1e11),

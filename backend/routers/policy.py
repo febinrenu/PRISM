@@ -7,13 +7,13 @@ GET  /api/policy/law          the baseline law of a document (or of one assessme
 POST /api/policy/scenario     change the law and price the change
 GET  /api/policy/validation   the model against published statistics and Budget speeches
 """
-import re
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from auth.deps import ensure_readable, optional_user
+from auth.rate_limiter import SCENARIO_LIMIT, limiter
 from pipeline.schedules import schedules_for_doc
 from simulation import scenario
 from storage import store
@@ -42,7 +42,7 @@ class ScenarioBody(BaseModel):
     changes: dict = Field(default_factory=dict)
     assumptions: AssumptionsBody = Field(default_factory=AssumptionsBody)
     behaviour: Optional[BehaviourBody] = None
-    uncertainty: int = Field(0, ge=0, le=200)
+    uncertainty: int = Field(0, ge=0, le=100)
 
 
 def _prefer_law(filename: str) -> Optional[str]:
@@ -117,7 +117,8 @@ def law(doc_id: Optional[str] = Query(None), ay: Optional[str] = Query(None), sc
 
 
 @router.post("/policy/scenario")
-def run_scenario(body: ScenarioBody, user: dict | None = Depends(optional_user)):
+@limiter.limit(SCENARIO_LIMIT)
+def run_scenario(request: Request, body: ScenarioBody, user: dict | None = Depends(optional_user)):
     b, _ = _baseline(body.doc_id, body.ay, body.schedule, user)
     try:
         return scenario.run(

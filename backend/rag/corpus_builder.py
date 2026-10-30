@@ -51,6 +51,42 @@ def doc_name_for(doc_id: str) -> str:
     return doc_id
 
 
+def index_rows(clauses) -> list[tuple[int, str, bool]]:
+    """What to index for a document's clauses: (clause index, text, whether it was merged).
+
+    Tables and empty clauses are not prose and are left out. A heading-only clause
+    ("156. Rebate of income-tax ...") matches a question by its title and says nothing, so it is
+    joined to the clause that follows it (on the same or the next page); consecutive headings
+    join together. A heading with no clause after it, or followed by a table, stays a passage of
+    its own rather than vanishing or being glued onto unrelated text."""
+    rows: list[tuple[int, str, bool]] = []
+    pending: Optional[tuple[int, str]] = None
+    n = len(clauses)
+    for i, c in enumerate(clauses):
+        text = c.text.strip()
+        prose = c.clause_type != "table" and bool(text)
+        if not prose:
+            if pending is not None:
+                rows.append((pending[0], pending[1], False))
+                pending = None
+            continue
+        is_heading = len(text) < HEADING_ONLY_CHARS and i + 1 < n and clauses[i + 1].page - c.page <= 1
+        if pending is not None:
+            if is_heading:
+                pending = (pending[0], pending[1] + "\n" + text)
+                continue
+            rows.append((i, pending[1] + "\n" + c.text, True))
+            pending = None
+            continue
+        if is_heading:
+            pending = (i, text)
+            continue
+        rows.append((i, c.text, False))
+    if pending is not None:
+        rows.append((pending[0], pending[1], False))
+    return rows
+
+
 def ingest_document(doc_id: str) -> dict:
     """(Re)index all clauses of an analysed document into the corpus.
 
@@ -81,23 +117,26 @@ def ingest_document(doc_id: str) -> dict:
     except Exception:
         pass
 
+    rows = index_rows(clauses)
+    # A clause merged with its heading has new text, so it gets a new embedding (the stored one
+    # is of the body alone); the rest keep theirs.
+    merged = [k for k, (_, _, m) in enumerate(rows) if m]
+    fresh: dict[int, list[float]] = {}
+    if merged:
+        from pipeline.embedder import embed_texts
+
+        vectors = embed_texts([rows[k][1] for k in merged])
+        fresh = {k: v.astype(float).tolist() for k, v in zip(merged, vectors)}
+
     ids, embs, docs, metas = [], [], [], []
-    heading = ""        # a heading-only clause ("156. Rebate of income-tax …") waits for its body
-    for i, clause in enumerate(clauses):
-        if clause.clause_type == "table" or not clause.text.strip():
-            continue  # tables aren't prose — excluded from semantic QA
-        text = clause.text
-        if len(text.strip()) < HEADING_ONLY_CHARS and i + 1 < len(clauses) and clauses[i + 1].page - clause.page <= 1:
-            heading = f"{heading}\n{text.strip()}".strip()
-            continue       # as a passage on its own it matches a question by its title and says nothing
-        if heading:
-            text, heading = f"{heading}\n{text}", ""
+    for k, (i, text, _) in enumerate(rows):
+        clause = clauses[i]
         entity_labels = sorted({e.label for e in clause.entities})
         has_causal = bool(clause.llm_extraction and clause.llm_extraction.is_causal) or bool(
             clause.causal_patterns
         )
         ids.append(f"{doc_id}::{clause.clause_id}")
-        embs.append(embeddings[i].astype(float).tolist())
+        embs.append(fresh.get(k) or embeddings[i].astype(float).tolist())
         docs.append(text)
         metas.append({
             "doc_id": doc_id,

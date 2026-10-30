@@ -97,13 +97,13 @@ export default function CorpusPage() {
       )}
 
       {corpus && corpus.documents.length > 0 && (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {corpus.documents.map((d) => {
             // a statute is part of PRISM: read it in the statute reader, not removable
             const statute = d.kind === "statute";
             const key = statute ? d.doc_id.replace(/^statute:/, "").replace(":", "/") : "";
             return (
-              <li key={d.doc_id} className="glass-card flex flex-col p-5">
+              <li key={d.doc_id} className="glass-card flex min-w-0 flex-col p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     {statute ? (

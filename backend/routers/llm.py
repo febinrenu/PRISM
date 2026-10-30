@@ -7,10 +7,11 @@ GET  /api/clauses/{doc_id}/llm   → instant cache read with job status
 import json
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from auth.deps import ensure_can_modify, optional_user
 from pipeline.llm_extractor import extract_document
 from services import job_manager
 from storage import store
@@ -32,7 +33,11 @@ async def run_llm_extraction(
     scope: str = "auto",
     force: bool = False,
     body: Optional[LLMExtractRequest] = None,
+    user: dict | None = Depends(optional_user),
 ):
+    if force:
+        # re-reading every clause rewrites the stored extractions and spends model quota
+        ensure_can_modify(doc_id, store.get_meta(doc_id), user, "re-read")
     if store.get_result(doc_id) is None:
         raise HTTPException(
             status_code=404,

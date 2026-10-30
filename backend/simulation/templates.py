@@ -239,19 +239,27 @@ def _ensure_exemplars() -> np.ndarray:
     return _exemplar_matrix
 
 
-def match_template(text: str) -> Optional[TemplateMatch]:
-    """Return the best-matching template for a clause/rule text, or None when no
-    template clears MATCH_THRESHOLD. Score is cosine similarity in [0, 1]."""
-    if not text or not text.strip():
-        return None
+def match_templates(texts: list[str]) -> list[Optional[TemplateMatch]]:
+    """match_template for many texts with one embedding call (a call per text is what made
+    building a document's rules take tens of seconds)."""
+    live = [i for i, t in enumerate(texts) if t and t.strip()]
+    out: list[Optional[TemplateMatch]] = [None] * len(texts)
+    if not live:
+        return out
     from pipeline.embedder import embed_texts
 
     mat = _ensure_exemplars()
-    q = embed_texts([text])[0]  # normalized (384,)
-    sims = mat @ q  # (T,)
-    idx = int(np.argmax(sims))
-    score = float(sims[idx])
-    if score < MATCH_THRESHOLD:
-        return None
-    tpl = TEMPLATES[idx]
-    return TemplateMatch(key=tpl.key, score=round(score, 4), params=tpl.extract(text, {}))
+    sims = embed_texts([texts[i] for i in live]) @ mat.T      # (N, T): rows are normalised
+    for row, i in zip(sims, live):
+        idx = int(np.argmax(row))
+        score = float(row[idx])
+        if score >= MATCH_THRESHOLD:
+            tpl = TEMPLATES[idx]
+            out[i] = TemplateMatch(key=tpl.key, score=round(score, 4), params=tpl.extract(texts[i], {}))
+    return out
+
+
+def match_template(text: str) -> Optional[TemplateMatch]:
+    """Return the best-matching template for a clause/rule text, or None when no
+    template clears MATCH_THRESHOLD. Score is cosine similarity in [0, 1]."""
+    return match_templates([text])[0]

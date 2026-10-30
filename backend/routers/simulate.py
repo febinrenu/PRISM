@@ -9,10 +9,11 @@ import asyncio
 import json
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from auth.deps import optional_user
+from auth.rate_limiter import SIMULATE_LIMIT, limiter
 from models.schemas import SimulationConfig
 from simulation.model import PRISMSimulationModel
 from simulation.params import param_table
@@ -78,7 +79,8 @@ async def list_simulation_rules(doc_id: str):
 
 
 @router.post("/simulate/{doc_id}")
-async def create_simulation(doc_id: str, config: Optional[SimulationConfig] = None,
+@limiter.limit(SIMULATE_LIMIT)
+async def create_simulation(request: Request, doc_id: str, config: Optional[SimulationConfig] = None,
                             user: dict | None = Depends(optional_user)):
     result = store.get_result(doc_id)
     if result is None:

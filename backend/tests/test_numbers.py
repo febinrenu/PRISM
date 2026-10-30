@@ -145,3 +145,73 @@ def test_cached_readings_endpoint_carries_the_check():
     by = {e["clause_id"]: e["extraction"] for e in d["extractions"]}
     assert by["demo_income_tax_2025_c1800"]["unsupported_numbers"] == ["fifty crore rupees"]
     assert all("unsupported_numbers" in e for e in by.values())
+
+
+# ── the schedules cache ──────────────────────────────────────────────────────
+
+@pytest.fixture
+def cached_doc(tmp_path, monkeypatch):
+    from pipeline import schedules
+    pdf = tmp_path / "x.pdf"
+    pdf.write_bytes(b"%PDF-1.4 stub")
+    monkeypatch.setattr("storage.store.get_path", lambda d: str(pdf))
+    monkeypatch.setattr("storage.store.load_ocr_lines", lambda d: None)
+    monkeypatch.setattr(schedules, "schedules_cache", lambda d: tmp_path / "schedules.json")
+    calls = []
+    monkeypatch.setattr(schedules, "find_schedules", lambda path, ocr=None: calls.append(path) or [])
+    return schedules, tmp_path / "schedules.json", calls
+
+
+def test_a_truncated_cache_is_recomputed_not_fatal(cached_doc):
+    schedules, cache, calls = cached_doc
+    schedules.schedules_for_doc("d")
+    cache.write_text('{"doc_id": "d", "stamp": "x', encoding="utf-8")          # a crash mid-write
+    out = schedules.schedules_for_doc("d")
+    assert out["schedules"] == [] and len(calls) == 2
+    assert schedules.schedules_for_doc("d") == out and len(calls) == 2          # and it is whole again
+
+
+def test_concurrent_first_requests_compute_once_and_never_see_half_a_file(cached_doc):
+    import threading
+    schedules, cache, calls = cached_doc
+    results, errors = [], []
+
+    def go():
+        try:
+            results.append(schedules.schedules_for_doc("d"))
+        except Exception as e:           # noqa: BLE001
+            errors.append(e)
+
+    threads = [threading.Thread(target=go) for _ in range(8)]
+    [t.start() for t in threads]
+    [t.join(timeout=20) for t in threads]
+    assert not errors and len(results) == 8 and len(calls) == 1
+    assert not list(cache.parent.glob("*.tmp"))                                  # no temp file left behind
+
+
+def test_a_document_without_a_pdf_raises_file_not_found(monkeypatch):
+    from pipeline import schedules
+    monkeypatch.setattr("storage.store.get_path", lambda d: None)
+    with pytest.raises(FileNotFoundError):
+        schedules.schedules_for_doc("nope")
+
+
+# ── adversarial text and long amounts ────────────────────────────────────────
+
+def test_the_extractor_is_linear_on_long_runs_of_numbers_and_number_words():
+    import time
+    from pipeline.quantities import extract_quantities
+    for text in ("1," * 20000, "₹" + "1," * 20000, "one " * 8000, "one " * 8000 + "rupees", "₹5 " * 20000):
+        t = time.perf_counter()
+        extract_quantities(text)
+        assert time.perf_counter() - t < 2.0, text[:10]
+
+
+def test_the_longest_real_amounts_still_parse():
+    from pipeline.quantities import extract_quantities as q
+    words = "ninety-nine crore ninety-nine lakh ninety-nine thousand nine hundred and ninety-nine rupees"
+    (x,) = q(words)
+    assert x.kind == "amount_inr" and x.value == 99_99_99_999
+    assert q("Rs. 1,23,45,67,890.50")[0].value == 1234567890.5
+    assert q("twelve hundred thousand rupees")[0].value == 1_200_000
+    assert [round(v.value, 2) for v in q("5% and 8.33 per cent and ten per cent")] == [5.0, 8.33, 10.0]

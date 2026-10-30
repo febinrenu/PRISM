@@ -3,12 +3,10 @@ validated changes, exact attribution, who pays more and less, uncertainty, behav
 validation numbers, and the routes."""
 import copy
 
-import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
 from simulation import scenario as sc
-from simulation.rac import gold
 
 L = 100_000
 
@@ -437,3 +435,39 @@ def test_the_result_has_the_shape_the_page_reads(base):
         assert len(out[k]["deciles"]) == 10 and {"revenue_crore", "kakwani", "gini_post"} <= set(out[k])
     import json
     json.dumps(out)                                                  # JSON-safe: no inf or nan anywhere
+
+
+# ── input shapes and independence from the research tools ────────────────────
+
+@pytest.mark.parametrize("changes,message", [
+    ({"slabs": 5}, "list of 2 to"),
+    ({"slabs": [1, 2, 3]}, "each band must be an object"),
+    ({"slabs": [{"lower": 0, "upper": None, "rate": 0.1}]}, "list of 2 to"),
+    ({"slabs": [{"lower": 0, "upper": 5, "rate": 0}] * 40}, "list of 2 to"),
+    ({"rebate": 7}, "rebate must be an object"),
+    ({"rebate": {"max_income": True, "max_rebate": 1}}, "must be a number"),
+    ({"cess_rate": "x"}, "must be a number"),
+    ({"cess_rate": float("nan")}, "must be between"),
+    ({"slab": []}, "unknown change: slab"),
+    ([1], "changes must be an object"),
+    ("slabs", "changes must be an object"),
+])
+def test_malformed_changes_are_a_scenario_error_not_a_crash(base, changes, message):
+    with pytest.raises(sc.ScenarioError, match=message):
+        sc.apply_changes(base.params, changes)
+
+
+def test_the_route_answers_422_for_a_malformed_body(client, stub_document):
+    for changes in ({"slabs": 5}, {"rebate": 7}, {"slabs": [1, 2, 3]}, {"unknown": 1}):
+        r = client.post("/api/policy/scenario", json={"doc_id": stub_document, "changes": changes})
+        assert r.status_code == 422 and isinstance(r.json()["detail"], str), changes
+
+
+def test_the_scenario_module_does_not_need_salib_and_its_ranges_match_the_analysis():
+    import subprocess, sys
+    code = ("import sys, types; sys.modules['SALib'] = None; "          # importing SALib now raises ImportError
+            "import simulation.scenario as s; print(sorted(s.BOUNDS))")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=str(__import__("pathlib").Path(__file__).parent.parent))
+    assert out.returncode == 0, out.stderr[-300:]
+    from simulation.engine.sensitivity import PROBLEM
+    assert sc.BOUNDS == {n: (float(lo), float(hi)) for n, (lo, hi) in zip(PROBLEM["names"], PROBLEM["bounds"])}

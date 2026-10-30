@@ -17,7 +17,10 @@ Two kinds of table are read:
 Every band comes from the words of its own row, so its numbers are in the
 document by construction; the row text is returned with it.
 """
+import json
+import os
 import re
+import threading
 from typing import Optional
 
 from models.rules import SlabRow
@@ -155,13 +158,31 @@ def schedules_cache(doc_id: str):
     return _doc_dir(doc_id) / "schedules.json"
 
 
+_locks: dict[str, threading.Lock] = {}
+_locks_guard = threading.Lock()
+
+
+def _lock_for(doc_id: str) -> threading.Lock:
+    """One lock per document: a slow scanned one does not make the others wait."""
+    with _locks_guard:
+        return _locks.setdefault(doc_id, threading.Lock())
+
+
+def _read_cache(path, stamp: str) -> Optional[dict]:
+    """The cached schedules when the file is whole and current; None for a missing, stale or
+    unreadable one (a crash mid-write leaves a truncated file: it is recomputed, not fatal)."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) and data.get("stamp") == stamp else None
+
+
 def schedules_for_doc(doc_id: str) -> dict:
     """A stored document's rate schedules, from its cache when the PDF is unchanged
     (the Rates tab and the policy sandbox both read them). Raises FileNotFoundError
-    when the document has no PDF."""
-    import json
-    import os
-
+    when the document has no PDF. Concurrent first requests compute once, and the cache
+    is written atomically so a reader never sees half a file."""
     from storage.store import get_path, load_ocr_lines
 
     pdf = get_path(doc_id)
@@ -169,12 +190,17 @@ def schedules_for_doc(doc_id: str) -> dict:
         raise FileNotFoundError(doc_id)
     cache = schedules_cache(doc_id)
     stamp = f"{os.path.getsize(pdf)}:{int(os.path.getmtime(pdf))}:{SCHEDULES_VERSION}"
-    if cache.exists():
-        data = json.loads(cache.read_text(encoding="utf-8"))
-        if data.get("stamp") == stamp:
-            return data
-    schedules = find_schedules(str(pdf), load_ocr_lines(doc_id))   # the scanned pages' recognised lines, if any
-    data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
-            "review": sum(1 for s in schedules if not s["check"]["ok"])}
-    cache.write_text(json.dumps(data), encoding="utf-8")
-    return data
+    hit = _read_cache(cache, stamp)
+    if hit is not None:
+        return hit
+    with _lock_for(doc_id):
+        hit = _read_cache(cache, stamp)               # another request may have finished meanwhile
+        if hit is not None:
+            return hit
+        schedules = find_schedules(str(pdf), load_ocr_lines(doc_id))   # the scanned pages' recognised lines, if any
+        data = {"doc_id": doc_id, "stamp": stamp, "schedules": schedules,
+                "review": sum(1 for s in schedules if not s["check"]["ok"])}
+        tmp = cache.with_suffix(f".{os.getpid()}.tmp")
+        tmp.write_text(json.dumps(data), encoding="utf-8")
+        os.replace(tmp, cache)
+        return data
