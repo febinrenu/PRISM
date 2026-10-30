@@ -90,6 +90,7 @@ export default function ProvenancePage({ params }: { params: { docId: string } }
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
+      <h1 className="sr-only">Provenance graph of {filename || "the document"}</h1>
       <DocContextBar docId={docId} filename={filename} view="provenance">
         {webgl && (
           <div role="group" aria-label="Graph view" className="flex overflow-hidden rounded-[4px] border border-border-light">

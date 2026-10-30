@@ -61,21 +61,24 @@ export default function AnalyzePage({ params }: { params: { docId: string } }) {
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden">
       <ProcessingOverlay />
+      <h1 className="sr-only">Analysis of {filename || "the document"}</h1>
       <DocContextBar docId={docId} filename={filename} view="analyze" status={<StatusTag status={status} />}>
         {isComplete && (
-          <dl className="hidden items-center gap-5 xl:flex">
-            {figures.map(([k, v]) => (
-              <div key={k} className="flex items-baseline gap-1.5">
-                <dd className="font-mono text-[13px] text-text-primary">{typeof v === "number" ? v.toLocaleString("en-IN") : v}</dd>
-                <dt className="text-[12px] text-text-muted">{k}</dt>
-              </div>
-            ))}
+          <div className="hidden items-center gap-5 xl:flex">
+            <dl className="flex items-center gap-5">
+              {figures.map(([k, v]) => (
+                <div key={k} className="flex items-baseline gap-1.5">
+                  <dd className="font-mono text-[13px] text-text-primary">{typeof v === "number" ? v.toLocaleString("en-IN") : v}</dd>
+                  <dt className="text-[12px] text-text-muted">{k}</dt>
+                </div>
+              ))}
+            </dl>
             {stats?.domain && stats.domain !== "General Legislation" && (
-              <div className="text-[12px] text-text-muted" title="A keyword guess, not a classification">
+              <p className="text-[12px] text-text-muted" title="A keyword guess, not a classification">
                 reads as <span className="text-text-secondary">{stats.domain}</span>
-              </div>
+              </p>
             )}
-          </dl>
+          </div>
         )}
         {isComplete && (
           <Link

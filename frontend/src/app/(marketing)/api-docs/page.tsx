@@ -60,10 +60,10 @@ export default function ApiDocsPage() {
 
         {/* Auth */}
         <div className="glass-card p-6 mb-6">
-          <h3 className="font-display text-sm mb-3">Authentication</h3>
+          <h2 className="font-display text-sm mb-3">Authentication</h2>
           <p className="text-[13px] text-text-secondary leading-relaxed mb-3">
             Every request needs your API key (find it on your{" "}
-            <a href="/dashboard" className="text-accent-primary hover:text-accent-bright">Dashboard</a>) as a bearer token:
+            <a href="/dashboard" className="text-accent-primary underline underline-offset-2 hover:text-accent-bright">Dashboard</a>) as a bearer token:
           </p>
           <div className="rounded-md border border-border bg-bg-surface p-3 flex items-center justify-between gap-2">
             <code className="font-mono text-micro text-text-secondary">Authorization: Bearer prism_sk_...</code>
@@ -73,7 +73,7 @@ export default function ApiDocsPage() {
         {/* Example */}
         <div className="glass-card p-6 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display text-sm">Example — RAG query</h3>
+            <h2 className="font-display text-sm">Example — RAG query</h2>
             <button
               onClick={() => {
                 navigator.clipboard.writeText(curl);
@@ -93,7 +93,7 @@ export default function ApiDocsPage() {
 
         {/* Endpoint reference */}
         <div className="glass-card p-6">
-          <h3 className="font-display text-sm mb-4">Endpoints</h3>
+          <h2 className="font-display text-sm mb-4">Endpoints</h2>
           <ul className="flex flex-col divide-y divide-border">
             {ENDPOINTS.map((e) => (
               <li key={e.path} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">

@@ -124,6 +124,7 @@ rich==15.0.0
 rpds-py==2026.6.3
 s3transfer==0.19.1
 safetensors==0.7.0
+SALib==1.6.0
 scikit-image==0.26.0
 scikit-learn==1.8.0
 scipy==1.17.1

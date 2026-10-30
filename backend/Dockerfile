@@ -1,7 +1,7 @@
 # PRISM backend — FastAPI + pipeline (Module F).
 FROM python:3.12-slim
 
-ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 HF_HOME=/app/.cache/huggingface
 
 WORKDIR /app
 
@@ -23,6 +23,11 @@ RUN python -m spacy download en_core_web_sm
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 COPY . .
+
+# The server runs as an unprivileged user that owns the app directory (and so the data volume,
+# which takes its ownership from the image on first use).
+RUN useradd --system --no-create-home --home-dir /app prism && chown -R prism:prism /app
+USER prism
 
 EXPOSE 8000
 

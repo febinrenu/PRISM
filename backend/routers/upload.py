@@ -90,6 +90,9 @@ async def ingest_pdf(filename: str, content: bytes, owner_id: str | None = None)
 @router.post("/upload")
 @limiter.limit(UPLOAD_LIMIT)
 async def upload_pdf(request: Request, file: UploadFile = File(...), user: dict | None = Depends(optional_user)) -> dict:
+    if user is None and request.headers.get("authorization"):
+        # a token was sent but is not valid any more: storing the upload as shared would hand it to everyone
+        raise HTTPException(status_code=401, detail="Your session has expired. Sign in again to upload.")
     content = await read_capped(file)
     doc_id, meta = await ingest_pdf(file.filename or "", content, owner_id=str(user["id"]) if user else None)
     if user:

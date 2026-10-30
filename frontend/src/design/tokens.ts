@@ -48,12 +48,12 @@ export const signal = {
 
 /** Categorical hues on ink (validated) and their on-ink text tints. */
 const hue = {
-  blue: { base: "#4F7FE6", text: "#9DB8F5", paper: "#2F62C8" },
-  teal: { base: "#1C9C82", text: "#72D1BC", paper: "#00876A" },
-  violet: { base: "#8D6BE3", text: "#BFAAF3", paper: "#6E4CC9" },
-  magenta: { base: "#D24F98", text: "#EE95C6", paper: "#B83A7E" },
-  ochre: { base: "#B8852A", text: "#E3C07A", paper: "#94650F" },
-  cyan: { base: "#2C98BF", text: "#80C9E3", paper: "#0479AD" },
+  blue: { base: "#4F7FE6", text: "#9DB8F5", paper: "#2D5DBE" },
+  teal: { base: "#1C9C82", text: "#72D1BC", paper: "#006F57" },
+  violet: { base: "#8D6BE3", text: "#BFAAF3", paper: "#6544B9" },
+  magenta: { base: "#D24F98", text: "#EE95C6", paper: "#A73573" },
+  ochre: { base: "#B8852A", text: "#E3C07A", paper: "#845A0D" },
+  cyan: { base: "#2C98BF", text: "#80C9E3", paper: "#036895" },
 } as const;
 
 export const tokens = {
@@ -238,7 +238,7 @@ export const light = {
   bg: { deep: "#E8E3D7", base: "#F3EFE7", surface: "#FAF8F3", elevated: "#FFFFFF", overlay: "#FFFFFF" },
   text: { primary: "#121314", secondary: "#34353A", muted: "#55555A", dim: "#66645F", inverse: paper[100] },
   border: { DEFAULT: "rgba(18, 19, 20, 0.12)", light: "rgba(18, 19, 20, 0.2)", glow: "rgba(18, 19, 20, 0.36)" },
-  accent: { primary: "#C2410C", secondary: "#A8360B", bright: "#B23A0B" },
+  accent: { primary: "#B43A0A", secondary: "#A8360B", bright: "#B23A0B" },
   status: { success: "#1A6E47", error: "#B0213A", warning: "#7D550A", info: "#2A5BBF", critical: "#B81C3F" },
 } as const;
 

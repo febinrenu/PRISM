@@ -11,6 +11,7 @@ interface Statute { key: string; title: string; sections: number; chapters: numb
 interface OutlineSection { path: string; number: string; heading: string }
 interface OutlineGroup { path: string; label: string; heading: string; sections: OutlineSection[] }
 interface Outline { title: string; groups: OutlineGroup[]; schedules: { path: string; label: string; heading: string }[] }
+interface TextHit { path: string; number: string; heading: string; snippet: string }
 interface NodeView {
   path: string; kind: string; label: string; heading: string; page: number | null; text: string;
   parent: string | null; children: { path: string; kind: string; label: string; preview: string }[];
@@ -48,6 +49,7 @@ export default function StatutesPage() {
   const [filter, setFilter] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [nodeError, setNodeError] = useState<string | null>(null);
+  const [textHits, setTextHits] = useState<{ q: string; hits: TextHit[]; more: boolean } | null>(null);
   const [sel, select] = useSelection();
 
   useEffect(() => {
@@ -79,6 +81,19 @@ export default function StatutesPage() {
       });
     return () => { stale = true; };
   }, [sel.s, sel.p]);
+
+  // what the provisions say, not only what they are called: asked of the server once typing pauses
+  useEffect(() => {
+    const q = filter.trim();
+    if (!sel.s || q.length < 3) { setTextHits(null); return; }
+    let stale = false;
+    const t = setTimeout(() => {
+      get(`/api/corpus/${sel.s}/search?q=${encodeURIComponent(q)}`)
+        .then((d: { hits: TextHit[]; more: boolean }) => !stale && setTextHits({ q, hits: d.hits, more: d.more }))
+        .catch(() => !stale && setTextHits(null));
+    }, 350);
+    return () => { stale = true; clearTimeout(t); };
+  }, [filter, sel.s]);
 
   const groups = useMemo(() => {
     if (!outline) return [];
@@ -136,7 +151,7 @@ export default function StatutesPage() {
                 <input
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  placeholder="Section number or heading"
+                  placeholder="Section number, heading or words"
                   aria-label="Filter sections"
                   className={cn(inputClass, "py-2 pl-9 text-[14px]")}
                 />
@@ -155,7 +170,7 @@ export default function StatutesPage() {
                   ))}
                 </div>
               )}
-              {outline && groups.length === 0 && (
+              {outline && groups.length === 0 && (!textHits || textHits.hits.length === 0) && (
                 <p className="p-3 text-[13px] text-text-muted">No section matches “{filter}”.</p>
               )}
               {groups.map((g) => (
@@ -194,6 +209,32 @@ export default function StatutesPage() {
                   </ul>
                 </details>
               ))}
+              {textHits && textHits.q === filter.trim() && textHits.hits.length > 0 && (
+                <div className="mt-2 border-t border-border pt-2">
+                  <p className="px-2 pb-1 font-mono text-micro uppercase tracking-[0.14em] text-text-dim">
+                    In the text{textHits.more ? " · first 30" : ""}
+                  </p>
+                  <ul>
+                    {textHits.hits.map((h) => (
+                      <li key={h.path}>
+                        <button
+                          type="button"
+                          onClick={() => select(sel.s, h.path)}
+                          aria-current={sel.p === h.path ? "page" : undefined}
+                          className={cn(
+                            "block w-full rounded-[4px] px-2 py-1.5 text-left hover:bg-bg-elevated",
+                            sel.p === h.path ? "bg-signal/10" : ""
+                          )}
+                        >
+                          <span className="font-mono text-[12.5px] text-signal">s.{h.number}</span>
+                          <span className="ml-2 text-text-primary">{h.heading}</span>
+                          <span className="mt-0.5 line-clamp-2 block text-[12.5px] text-text-muted">{h.snippet}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {outline && outline.schedules.length > 0 && !filter && (
                 <div className="mt-2 border-t border-border pt-2">
                   {outline.schedules.map((x) => (
@@ -220,7 +261,7 @@ export default function StatutesPage() {
             {!node && !nodeError && (
               <div className="rounded-[6px] border border-border bg-bg-surface">
                 <EmptyState title="Choose a provision">
-                  Pick a section from the outline, or filter by its number (87A, for example) or a word in its heading.
+                  Pick a section from the outline, or filter by its number (87A, for example), a word in its heading, or words from its text.
                 </EmptyState>
               </div>
             )}

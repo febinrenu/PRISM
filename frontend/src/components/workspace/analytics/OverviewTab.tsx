@@ -178,6 +178,8 @@ export default function OverviewTab() {
         <div className="rounded-xl p-4 bg-bg-surface/70 border border-border">
           <p className="text-xs font-mono uppercase tracking-widest mb-3 text-text-muted">Entity Distribution</p>
           <div className="flex items-center gap-4">
+            {/* the list beside it gives every figure, so the donut is decoration for a screen reader */}
+            <div aria-hidden="true" {...({ inert: "" } as object)} className="shrink-0">
             <ResponsiveContainer width={120} height={120}>
               <PieChart>
                 <Pie
@@ -194,6 +196,7 @@ export default function OverviewTab() {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
+            </div>
             <div className="flex-1 space-y-1.5">
               {entityData.map((d) => (
                 <div key={d.name} className="flex items-center justify-between gap-2">

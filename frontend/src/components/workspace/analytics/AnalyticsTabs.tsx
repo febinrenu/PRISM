@@ -75,13 +75,13 @@ export default function AnalyticsTabs() {
             transition={{ duration: 0.15 }}
             className="h-full"
           >
-            {activeTab === "overview"  && <div className="h-full overflow-y-auto"><OverviewTab /></div>}
-            {activeTab === "causal"    && <div className="h-full overflow-y-auto"><CausalTab /></div>}
-            {activeTab === "llm"       && <div className="h-full overflow-y-auto"><LLMCompareTab /></div>}
-            {activeTab === "rates"     && <div className="h-full overflow-y-auto"><RatesTab /></div>}
-            {activeTab === "search"    && <div className="h-full overflow-y-auto"><SearchTab /></div>}
-            {activeTab === "network"   && <div className="h-full overflow-y-auto"><EntityNetworkTab /></div>}
-            {activeTab === "embedding" && <div className="h-full overflow-y-auto"><EmbeddingTab /></div>}
+            {activeTab === "overview"  && <div tabIndex={0} role="tabpanel" aria-label="Overview" className="h-full overflow-y-auto"><OverviewTab /></div>}
+            {activeTab === "causal"    && <div tabIndex={0} role="tabpanel" aria-label="Condition and consequence" className="h-full overflow-y-auto"><CausalTab /></div>}
+            {activeTab === "llm"       && <div tabIndex={0} role="tabpanel" aria-label="Language model comparison" className="h-full overflow-y-auto"><LLMCompareTab /></div>}
+            {activeTab === "rates"     && <div tabIndex={0} role="tabpanel" aria-label="Rates" className="h-full overflow-y-auto"><RatesTab /></div>}
+            {activeTab === "search"    && <div tabIndex={0} role="tabpanel" aria-label="Search" className="h-full overflow-y-auto"><SearchTab /></div>}
+            {activeTab === "network"   && <div tabIndex={0} role="tabpanel" aria-label="Entity network" className="h-full overflow-y-auto"><EntityNetworkTab /></div>}
+            {activeTab === "embedding" && <div tabIndex={0} role="tabpanel" aria-label="Clause map" className="h-full overflow-y-auto"><EmbeddingTab /></div>}
           </motion.div>
         </AnimatePresence>
       </div>

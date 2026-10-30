@@ -397,6 +397,7 @@ html[data-theme="light"] body {
   --shadow-strength: 0.18;
   color-scheme: light;
 }
+html[data-theme="light"] body .kicker:not(.story-root *),
 html[data-theme="light"] body .text-signal:not(.story-root *),
 html[data-theme="light"] body .text-signal-soft:not(.story-root *) {
   --tw-text-opacity: 1;

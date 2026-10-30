@@ -4,7 +4,6 @@ document comparison, and domain detection.
 """
 import html
 import re
-import json
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from auth.deps import ensure_all_readable, optional_user

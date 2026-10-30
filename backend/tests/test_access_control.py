@@ -386,3 +386,9 @@ def test_the_report_is_built_once_per_loaded_analysis(client, monkeypatch):
     current["r"] = result_b                                     # re-analysed: a new object
     assert client.get("/api/report/shared").json()["n"] == 2
     intelligence._report_cache.clear()
+
+
+def test_an_upload_with_an_expired_token_is_refused_rather_than_stored_as_shared(client):
+    pdf = {"file": ("a.pdf", b"%PDF-1.4\n", "application/pdf")}
+    r = client.post("/api/upload", files=pdf, headers={"Authorization": "Bearer not-a-valid-token"})
+    assert r.status_code == 401 and "expired" in r.json()["detail"]

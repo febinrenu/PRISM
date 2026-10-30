@@ -4,8 +4,10 @@ Read-only browsing of the parsed statute corpus.
     GET /api/corpus/statutes                          parsed statutes with counts
     GET /api/corpus/{statute}/{version}/outline       chapters / parts / schedules → sections
     GET /api/corpus/{statute}/{version}/node?path=…   one node: its text and its children
+    GET /api/corpus/{statute}/{version}/search?q=…    sections whose own words contain the query
 """
 import json
+import re
 from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Query
@@ -36,6 +38,14 @@ def _get(statute: str, version: str) -> tuple[dict, str, dict]:
         raise HTTPException(status_code=404, detail="Unknown statute")
     path = CORPUS_DIR / statute / version / "ast.json"
     return _load(statute, version, path.stat().st_mtime)
+
+
+@lru_cache(maxsize=8)
+def _section_texts(statute: str, version: str, mtime: float) -> list[tuple[str, str, str, str]]:
+    """(path, number, heading, text) for every enacted section, once per statute."""
+    ast, text, _ = _load(statute, version, mtime)
+    return [(n["path"], n["number"], n.get("heading") or "", text[n["start"]:n["end"]])
+            for n in ast["nodes"] if n["kind"] == "section" and not n["quoted"]]
 
 
 def _label(n: dict) -> str:
@@ -117,3 +127,37 @@ def node(statute: str, version: str, path: str = Query(..., max_length=300)):
                       "preview": text[c["start"]:min(c["end"], c["start"] + 140)]
                       or "(its words open the provision above)"} for c in children[:400]],
     }
+
+
+_MAX_HITS = 30
+
+
+@router.get("/corpus/{statute}/{version}/search")
+def search(statute: str, version: str, q: str = Query(..., min_length=3, max_length=100)):
+    """Sections whose text holds every word of the query, those with the whole phrase first."""
+    _get(statute, version)
+    words = [w for w in re.findall(r"[\w'.-]+", q.lower()) if len(w) > 1][:6]
+    if not words:
+        return {"query": q, "hits": [], "more": False}
+    phrase = " ".join(words)
+    mtime = (CORPUS_DIR / statute / version / "ast.json").stat().st_mtime
+    scored = []
+    for path, number, heading, body in _section_texts(statute, version, mtime):
+        low = f"{heading}. {body}".lower()           # the heading is not part of the section's own text
+        if not all(w in low for w in words):
+            continue
+        whole = low.count(phrase)
+        scored.append((-whole, -sum(low.count(w) for w in words), path, number, heading, body, low))
+    scored.sort(key=lambda t: t[:3])
+    hits = []
+    for _, _, path, number, heading, body, low in scored[:_MAX_HITS]:
+        # a snippet comes from the section's words; when only its heading matches, from the opening
+        own = body.lower()
+        at = own.find(phrase)
+        if at < 0:
+            found = [own.find(w) for w in words if w in own]
+            at = min(found) if len(found) == len(words) else 0
+        start = max(0, at - 70)
+        hits.append({"path": path, "number": number, "heading": heading,
+                     "snippet": ("…" if start else "") + re.sub(r"\s+", " ", body[start:start + 190]).strip()})
+    return {"query": q, "hits": hits, "more": len(scored) > _MAX_HITS}

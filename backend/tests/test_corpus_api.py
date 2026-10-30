@@ -37,3 +37,15 @@ def test_inspect_rule_baseline_spans_point_into_the_provision(client):
     for e in unit["effects"]:
         a, b = e["span"]
         assert unit["text"][a:b] == e["quote"]
+
+
+def test_provision_text_search_finds_words_inside_a_section(client):
+    r = client.get("/api/corpus/ITA2025/amended_fa2026/search", params={"q": "rebate"}).json()
+    assert r["hits"] and "156" in {h["number"] for h in r["hits"]}
+    assert all(h["snippet"] for h in r["hits"])
+    phrase = client.get("/api/corpus/ITA2025/amended_fa2026/search", params={"q": "rebate of income-tax"}).json()
+    assert phrase["hits"][0]["number"] == "156"          # the section headed with the phrase comes first
+    assert client.get("/api/corpus/ITA2025/amended_fa2026/search", params={"q": "zzzqxjwv"}).json()["hits"] == []
+    assert client.get("/api/corpus/ITA2025/amended_fa2026/search", params={"q": "ab"}).status_code == 422
+    assert client.get("/api/corpus/nope/x/search", params={"q": "rebate"}).status_code == 404
+

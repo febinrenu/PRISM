@@ -126,7 +126,7 @@ function InjectionMap({ rows }: { rows: InjRow[] }) {
   const cell = (e: string, s: string) =>
     rows.filter((r) => r.error === e && r.set === s).sort((a, b) => b.flip_rate - a.flip_rate)[0];
   return (
-    <div className="relative overflow-x-auto">
+    <div tabIndex={0} role="region" aria-label="Conclusions flipped by each injected error, scrollable" className="relative overflow-x-auto">
       <table className="w-full min-w-[760px] border-separate border-spacing-[3px] text-[12.5px]">
         <caption className="sr-only">Share of conclusions flipped by each injected error, per reform</caption>
         <thead>
@@ -149,15 +149,19 @@ function InjectionMap({ rows }: { rows: InjRow[] }) {
                 const c = cell(e, s);
                 if (!c) return <td key={s} className="text-center text-text-dim">·</td>;
                 const a = Math.min(1, c.flip_rate / 0.65);
+                // light text up to 70% vermilion, dark text from 85%: both read at 4.5:1 or better in either
+                // theme, whereas dark text on the in-between fills does not
+                const strong = a > 0.55;
+                const fill = strong ? 0.85 + 0.15 * ((a - 0.55) / 0.45) : 0.18 + 0.52 * (a / 0.55);
                 return (
                   <td key={s}>
                     <div
                       title={`${fmtCr(c.revenue_error_crore)} revenue error${c.flipped.length ? " · " + c.flipped.join(", ") : ""}`}
                       className={cn(
                         "flex h-7 min-w-[3.5rem] items-center justify-center rounded-[3px] font-mono",
-                        c.flip_rate === 0 ? "bg-ink-800 text-text-dim" : a > 0.45 ? "text-ink" : "text-text-primary"
+                        c.flip_rate === 0 ? "bg-ink-800 text-text-dim" : strong ? "text-ink" : "text-text-primary"
                       )}
-                      style={c.flip_rate > 0 ? { background: `rgb(var(--signal-rgb) / ${0.18 + 0.82 * a})` } : undefined}
+                      style={c.flip_rate > 0 ? { background: `rgb(var(--signal-rgb) / ${fill})` } : undefined}
                     >
                       {(c.flip_rate * 100).toFixed(0)}%
                     </div>
@@ -291,7 +295,7 @@ export default function ResearchPage() {
         </div>
         {/* relative: the tiles' screen-reader labels are absolutely positioned and must be
             clipped by this scroller, not placed against the page (they widened it on phones) */}
-        <div className="relative overflow-x-auto rounded-[6px] border border-border">
+        <div tabIndex={0} role="region" aria-label="Conclusions flipped per reform and reader, scrollable" className="relative overflow-x-auto rounded-[6px] border border-border">
           <table className="w-full min-w-[820px] text-[13px]">
             <caption className="sr-only">Share of pre-registered conclusions flipped, per reform and reader</caption>
             <thead className="bg-bg-surface">
@@ -428,7 +432,7 @@ export default function ResearchPage() {
               {stats.draws} re-draws of the population assumptions. Persistence: share of draws where a flip remains. Noise
               floor: how often the expert&apos;s own conclusions move.
             </p>
-            <div className="max-h-80 overflow-y-auto scroll-thin">
+            <div tabIndex={0} role="region" aria-label="Re-draw results, scrollable" className="max-h-80 overflow-y-auto scroll-thin">
               <table className="w-full text-[13px]">
                 <thead className="sticky top-0 bg-bg-surface text-text-muted">
                   <tr>

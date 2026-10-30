@@ -29,8 +29,7 @@ Each period every agent is audited with probability p; an agent's subjective
 probability moves towards the audit rate it observes among itself and its
 network neighbours (small world, neighbours close in income).
 """
-from dataclasses import dataclass, field, replace
-from typing import Optional
+from dataclasses import dataclass
 
 import mesa
 import networkx as nx

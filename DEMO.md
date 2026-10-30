@@ -28,7 +28,7 @@ Pre-flight (5 minutes before):
 Optional, to show the checks are green:
 
 ```bash
-cd backend && python -m pytest -q          # 525 tests
+cd backend && python -m pytest -q          # 527 tests
 cd frontend && npx vitest run              # 38 tests
 cd frontend && node scripts/e2e.mjs        # 12-step walk through the running app
 cd frontend && node scripts/delete-check.mjs <a small PDF>   # upload and delete, workspace and dashboard
@@ -115,6 +115,8 @@ Twelve parsed statute texts (eleven Acts; the Income-tax Act 2025 both as enacte
   map (a plain extractor returns control characters); PRISM decodes the text
   exactly from the fonts' glyph names. Open s.87A.
 - **The Income-tax Act, 2025**, s.156 or s.202.
+- **Search the text**: type words from a provision (for example `rebate of income-tax`) in the outline filter. Sections whose
+  own words match are listed below the outline with a snippet; the ones holding the whole phrase come first.
 
 ## 8. Ask (4 min) - `/chat`
 

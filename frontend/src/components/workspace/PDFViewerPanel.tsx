@@ -188,6 +188,7 @@ export default function PDFViewerPanel({ docId }: { docId: string }) {
             </span>
             <input
               type="number"
+              aria-label="Page number"
               min={1}
               max={numPages}
               value={currentPdfPage}

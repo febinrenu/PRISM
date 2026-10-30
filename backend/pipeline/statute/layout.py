@@ -18,7 +18,6 @@ Bills, Gazette Acts, CBIC consolidations and India Code PDFs.
 import re
 from collections import Counter
 from dataclasses import dataclass, field
-from statistics import median
 
 import fitz  # PyMuPDF
 
