@@ -12,7 +12,7 @@ from this folder, and none of it is valid evidence.
 | `training_data/` | v1 fine-tuning set (1,167 examples) | Self-distilled from rule-NER and LLM output, overlaps the eval sets, and includes extractions attached to the wrong clause. |
 | `demo_store/llm_extractions.json` | v1 Phi-3.5 extraction cache for the demo statute | Keyed by positional clause ID; 39 of 78 entries were attached to the wrong clause after re-segmentation. Generated with a prompt that silently truncated clauses at 1,200 characters. |
 | `demo_store/lime/`, `demo_store/deep_reasoning/` | Cached explanations | Their fingerprints no longer match the clause text; the LIME files used 50 samples. |
-| `demo_store/simulations/` | Stored simulation runs | Produced by the v1 engine, which divides annual cost by monthly ability-to-pay and accumulates effective rates over the run length. |
+| `demo_store/simulations/` | Stored simulation runs | Produced by the v1 engine, which divides annual cost by monthly ability-to-pay and accumulates effective rates over the run length (four more runs, e.g. `sim_5fc69fd4` with a 103.6% low-income rate, were moved here on 30 Oct 2026 when the rate became annual; the corrected run is `store/demo_income_tax_2025/simulations/sim_fd6ef940.json`). |
 
 The replacement data lives under `backend/data/eval/v2/` (frozen evaluation
 sets), `backend/data/annotations/` (human annotation) and `backend/data/runs/`
