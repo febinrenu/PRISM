@@ -9,12 +9,14 @@ the corpus is fast and never recomputes anything.
 Every clause is stored with metadata that powers filtered retrieval and the
 citation cards: doc_id, doc_name, section path, page, entity types, has_causal.
 """
+import gzip
+import json
 import threading
 from typing import Optional
 
 import numpy as np
 
-from config import CHROMA_DIR, CORPUS_COLLECTION
+from config import BASE_DIR, CHROMA_DIR, CORPUS_COLLECTION, DEMO_MODE
 from storage import store
 
 # A clause shorter than this that is followed by another on the same or next page is a
@@ -26,11 +28,59 @@ _collection = None
 _lock = threading.Lock()
 
 
+class _LiteCollection:
+    """The corpus without a vector database, for the hosted demo.
+
+    It holds the same passages and metadata as the Chroma collection (loaded from
+    data/demo/passages.jsonl.gz, written by tools/export_demo_corpus.py) in memory and answers the
+    calls the app makes of a collection. There are no embeddings, so search is lexical (BM25)."""
+
+    def __init__(self) -> None:
+        self.rows: dict[str, tuple[str, dict]] = {}
+        path = BASE_DIR / "data" / "demo" / "passages.jsonl.gz"
+        if path.exists():
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                for line in f:
+                    r = json.loads(line)
+                    self.rows[r["id"]] = (r["text"], r["meta"])
+
+    @staticmethod
+    def _wanted(where: Optional[dict]) -> Optional[set]:
+        if not where:
+            return None
+        cond = where.get("doc_id")
+        if isinstance(cond, dict):
+            return set(cond.get("$in", []))
+        return {cond} if cond is not None else None
+
+    def count(self) -> int:
+        return len(self.rows)
+
+    def get(self, include=None, where=None, ids=None) -> dict:
+        wanted = self._wanted(where)
+        picked = [(i, t, m) for i, (t, m) in self.rows.items()
+                  if (wanted is None or m.get("doc_id") in wanted) and (ids is None or i in ids)]
+        return {"ids": [p[0] for p in picked], "documents": [p[1] for p in picked], "metadatas": [p[2] for p in picked]}
+
+    def delete(self, where=None, ids=None) -> None:
+        wanted = self._wanted(where)
+        for i in [i for i, (_, m) in self.rows.items()
+                  if (wanted is not None and m.get("doc_id") in wanted) or (ids is not None and i in ids)]:
+            del self.rows[i]
+
+    def add(self, ids, embeddings=None, documents=None, metadatas=None) -> None:
+        for i, d, m in zip(ids, documents or [], metadatas or []):
+            self.rows[i] = (d, m)
+
+
 def _get_collection():
-    """Lazily open the persistent Chroma collection (cosine space)."""
+    """Lazily open the persistent Chroma collection (cosine space); the hosted demo uses a
+    lexical in-memory stand-in."""
     global _client, _collection
     if _collection is None:
         with _lock:
+            if _collection is None and DEMO_MODE:
+                _collection = _LiteCollection()
             if _collection is None:
                 import chromadb
 
@@ -97,6 +147,8 @@ def ingest_document(doc_id: str) -> dict:
     if result is None:
         raise ValueError(f"No analysis results for {doc_id}")
     embeddings = store.load_embeddings(doc_id)
+    if DEMO_MODE and embeddings is None:
+        embeddings = np.zeros((len(result.clauses), 1), dtype=np.float32)   # lexical index: vectors unused
     if embeddings is None or len(embeddings) == 0:
         raise ValueError(f"No embeddings stored for {doc_id}")
 
@@ -120,7 +172,7 @@ def ingest_document(doc_id: str) -> dict:
     rows = index_rows(clauses)
     # A clause merged with its heading has new text, so it gets a new embedding (the stored one
     # is of the body alone); the rest keep theirs.
-    merged = [k for k, (_, _, m) in enumerate(rows) if m]
+    merged = [k for k, (_, _, m) in enumerate(rows) if m and not DEMO_MODE]
     fresh: dict[int, list[float]] = {}
     if merged:
         from pipeline.embedder import embed_texts
@@ -156,6 +208,8 @@ def ingest_document(doc_id: str) -> dict:
 
 def semantic_search(query: str, n_results: int = 8, doc_ids: Optional[list[str]] = None) -> list[dict]:
     """Embed the query with the same MiniLM encoder and retrieve top-k clauses."""
+    if DEMO_MODE:
+        return []                       # no encoder in the hosted demo: hybrid_search falls back to BM25 alone
     from pipeline.embedder import embed_texts
 
     collection = _get_collection()
@@ -190,11 +244,12 @@ def semantic_search(query: str, n_results: int = 8, doc_ids: Optional[list[str]]
     return hits
 
 
-_lexical = {"count": -1, "index": None, "ids": [], "texts": {}, "metas": {}}
+_lexical = {"count": -1, "index": None, "ids": [], "texts": {}, "metas": {}, "search": {}}
 
 
 def _lexical_index():
     """BM25 over every clause in the corpus, rebuilt when the corpus changes."""
+    from rag import hybrid
     from rag.hybrid import BM25
     collection = _get_collection()
     n = collection.count()
@@ -202,8 +257,17 @@ def _lexical_index():
         if _lexical["count"] != n:
             got = collection.get(include=["documents", "metadatas"]) if n else {"ids": [], "documents": [], "metadatas": []}
             ids, docs, metas = got.get("ids", []), got.get("documents", []), got.get("metadatas", [])
+            if DEMO_MODE:
+                # no dense retrieval to bridge the wording: index each passage with its heading and place,
+                # and stem the words (what the embedding of the passage carries in the full system)
+                search = [f"{(m or {}).get('heading', '')} {(m or {}).get('heading', '')} {(m or {}).get('doc_name', '')} "
+                          f"section {(m or {}).get('section', '')} {d}" for d, m in zip(docs, metas)]
+                index = BM25(search, tokenizer=hybrid.stem_tokens) if docs else None
+                hybrid.use_lexical_index(index)
+            else:
+                search, index = list(docs), (BM25(list(docs)) if docs else None)
             _lexical.update(count=n, ids=list(ids), texts=dict(zip(ids, docs)), metas=dict(zip(ids, metas)),
-                            index=BM25(list(docs)) if docs else None)
+                            index=index, search=dict(zip(ids, search)))
     return _lexical
 
 
@@ -227,11 +291,12 @@ def hybrid_search(query: str, n_results: int = 8, doc_ids: Optional[list[str]] =
                 lexical.append(cid)
             if len(lexical) >= 50:
                 break
-    texts = {**lex["texts"], **{h["id"]: h["text"] for h in dense}}
+    texts = {**(lex["search"] if DEMO_MODE else lex["texts"]), **{h["id"]: h["text"] for h in dense}}
     by_id = {h["id"]: h for h in dense}
     out = []
     for cid, score in fuse_and_rerank(query, [h["id"] for h in dense], lexical, texts, n_results, depth):
-        hit = dict(by_id.get(cid) or {"id": cid, "text": texts[cid], "similarity": None, **lex["metas"].get(cid, {})})
+        hit = dict(by_id.get(cid) or {"id": cid, "text": lex["texts"].get(cid) or texts[cid], "similarity": None,
+                                       **lex["metas"].get(cid, {})})
         hit["rerank_score"] = round(score, 4)
         out.append(hit)
     return out

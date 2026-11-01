@@ -310,7 +310,7 @@ def test_a_model_rewrite_that_drops_the_section_is_rejected(monkeypatch):
     assert asyncio.run(query_engine.condense(q, query_engine.clean_history(HISTORY))) is None
 
 
-def test_the_model_failing_before_any_token_is_an_error_event(monkeypatch):
+def test_the_model_failing_before_any_token_falls_back_to_quoting_the_passages(monkeypatch):
     monkeypatch.setattr(query_engine, "retrieve", lambda q, d=None, k=8, plan=None: [_strong(1, SOURCES[0])])
 
     async def broken(*a, **k):
@@ -319,7 +319,11 @@ def test_the_model_failing_before_any_token_is_an_error_event(monkeypatch):
 
     monkeypatch.setattr(query_engine.llm_backend, "stream_generate", broken)
     events = _run(query_engine.answer_stream("What is the rebate?"))
-    assert events[-1]["stage"] == "error" and "not running" in events[-1]["message"]
+    done = events[-1]
+    assert done["stage"] == "done" and not any(e["stage"] == "error" for e in events)
+    assert done["backend_used"]["kind"] == "extractive" and "not running" in done["backend_used"]["reason"]
+    assert "[Source 1]" in done["answer"] and done["state"] != "not_found"      # quoted from the passage, cited
+    assert done["unsupported_numbers"] == []                                    # nothing in it that the source lacks
 
 
 def test_the_non_streaming_answer_carries_the_verdict_and_citations(monkeypatch):

@@ -28,7 +28,7 @@ import numpy as np
 from config import BASE_DIR
 from simulation.experiment.harness import RESULTS_DIR
 
-ROOT = BASE_DIR.parent
+ROOT = BASE_DIR / "repo" if (BASE_DIR / "repo").is_dir() else BASE_DIR.parent      # a deployed bundle carries what it reads
 NUMBERS_TEX = ROOT / "paper" / "tables" / "numbers.tex"
 FRONTEND = ROOT / "frontend"
 CORE_OUT = FRONTEND / "src" / "content" / "story.core.json"

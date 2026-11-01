@@ -17,7 +17,7 @@ import threading
 from dataclasses import dataclass
 from functools import lru_cache
 
-from config import CHROMA_DIR
+from config import CHROMA_DIR, DEMO_MODE
 from pipeline.statute.corpus import CORPUS_DIR
 
 CHUNKER_VERSION = 2
@@ -187,6 +187,8 @@ def _write_stamps(stamps: dict) -> None:
 
 def pending() -> int:
     """How many statutes are not (yet) in the index, for a progress note in the UI."""
+    if DEMO_MODE:
+        return 0                        # the hosted demo's passages are loaded whole, nothing is indexed in the background
     stamps = _read_stamps()
     return sum(1 for s, v in available() if stamps.get(doc_id_for(s, v)) != _stamp(s, v))
 

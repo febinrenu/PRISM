@@ -13,7 +13,7 @@ the caller falls back to the regex segmenter.
 """
 from typing import Optional
 
-import fitz
+from pipeline._fitz import fitz
 
 from pipeline.clause_segmenter import RawClause
 from pipeline.extraction.units import build_units

@@ -23,6 +23,7 @@ import re
 import threading
 from typing import Optional
 
+from config import DEMO_MODE
 from models.rules import SlabRow
 from pipeline.extraction.rule_based import _slab_from_line
 from pipeline.statute.tables import _RATE_RE, Row, Table, boxed_tables, pdf_tables
@@ -170,12 +171,16 @@ def _lock_for(doc_id: str) -> threading.Lock:
 
 def _read_cache(path, stamp: str) -> Optional[dict]:
     """The cached schedules when the file is whole and current; None for a missing, stale or
-    unreadable one (a crash mid-write leaves a truncated file: it is recomputed, not fatal)."""
+    unreadable one (a crash mid-write leaves a truncated file: it is recomputed, not fatal).
+    The hosted demo cannot read a PDF again, and file times change when it is deployed, so it
+    takes whatever whole cache ships with the document."""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    return data if isinstance(data, dict) and data.get("stamp") == stamp else None
+    if not isinstance(data, dict):
+        return None
+    return data if DEMO_MODE or data.get("stamp") == stamp else None
 
 
 def schedules_for_doc(doc_id: str) -> dict:

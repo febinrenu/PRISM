@@ -19,10 +19,10 @@ from typing import Any, Optional
 
 import httpx
 
-from config import BASE_DIR, OLLAMA_URL
+from config import BASE_DIR, DATA_DIR, OLLAMA_URL
 from prism_version import versions
 
-RUNS_DIR = BASE_DIR / "data" / "runs"
+RUNS_DIR = DATA_DIR / "runs"
 
 _PACKAGES = [
     "fastapi", "pydantic", "numpy", "scipy", "pandas", "torch", "transformers",

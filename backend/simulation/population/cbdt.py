@@ -18,7 +18,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Optional
 
-import fitz
+from pipeline._fitz import fitz
 
 from config import BASE_DIR
 

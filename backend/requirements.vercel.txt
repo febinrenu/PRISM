@@ -1,0 +1,25 @@
+# The hosted demo (Vercel): everything the API serves without a language model, a GPU or the
+# heavy ML stack. Dense retrieval, local models, OCR and the analysis pipeline for new uploads run
+# in the full deployment (requirements.txt); this one is what fits a serverless function.
+#
+# Not listed on purpose:
+#   pymupdf  reads PDFs; the demo only serves documents that are already analysed (pipeline/_fitz.py)
+#   lime, SALib  their metadata pulls in matplotlib, scikit-image and Pillow (about 100 MB) that the
+#       parts used here never import; tools/build_hosted_bundle.py copies the two packages in instead
+fastapi>=0.111.0
+pydantic>=2.7.0
+python-multipart>=0.0.9
+httpx>=0.27.0
+python-dotenv>=1.0.0
+numpy>=1.26.0
+pandas>=2.2.0
+scipy>=1.13.0
+scikit-learn>=1.4.0
+networkx>=3.3
+rapidfuzz>=3.9
+mesa>=3.1,<4
+multiprocess>=0.70
+PyJWT>=2.8.0
+bcrypt>=4.1.0
+slowapi>=0.1.9
+email-validator>=2.0.0

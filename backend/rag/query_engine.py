@@ -26,6 +26,7 @@ import time
 from typing import AsyncIterator, Optional
 
 from config import (
+    DEMO_MODE,
     LLM_NUM_CTX,
     RAG_ABSTAIN_BELOW,
     RAG_CONDENSE_TIMEOUT_S,
@@ -33,7 +34,7 @@ from config import (
     RAG_TOP_K,
 )
 from pipeline import llm_backend
-from rag import corpus_builder, lookup, query_plan, scope, statute_index, verify
+from rag import corpus_builder, extractive, lookup, query_plan, recorded, scope, statute_index, verify
 
 NOT_FOUND = "Not found in the loaded corpus."
 
@@ -425,7 +426,14 @@ async def answer_stream(
     final done event with the verdict. The router serialises these to `data:` frames."""
     t0 = time.perf_counter()
     history = clean_history(history)
-    standalone = await condense(question, history) if query_plan.needs_context(question, history) else None
+    if DEMO_MODE:
+        rec = recorded.find(question, history, self_contained=not query_plan.needs_context(question, history))
+        if rec:                                     # an answer the full system gave, replayed
+            async for ev in recorded.replay(rec):
+                yield ev
+            return
+    standalone = (await condense(question, history)
+                  if query_plan.needs_context(question, history) and not DEMO_MODE else None)
     plan = query_plan.make_plan(question, history, standalone)
     yield plan.as_event()
 
@@ -460,19 +468,31 @@ async def answer_stream(
 
     parts: list[str] = []
     trace: dict = {}
-    try:
-        async for tok in llm_backend.stream_generate(prompt, system=system, temperature=0.1,
-                                                     num_predict=max_answer_tokens(), trace=trace):
+    use_model = not DEMO_MODE
+    if use_model:
+        try:
+            async for tok in llm_backend.stream_generate(prompt, system=system, temperature=0.1,
+                                                         num_predict=max_answer_tokens(), trace=trace):
+                if not parts:
+                    timings["first_token"] = int((time.perf_counter() - t0) * 1000)
+                parts.append(tok)
+                yield {"stage": "token", "token": tok}
+        except Exception as e:  # backend down
             if not parts:
-                timings["first_token"] = int((time.perf_counter() - t0) * 1000)
-            parts.append(tok)
-            yield {"stage": "token", "token": tok}
-    except Exception as e:  # backend down → honest surfaced error
-        if not parts:
-            yield {"stage": "error", "message": f"No model could answer: {e}"}
-            return
-        # tokens already shown: keep the partial answer and say it was cut
-        yield {"stage": "warning", "message": f"The answer was cut short: {llm_backend.friendly_error(e)}"}
+                use_model = False       # no model answered: quote the passages instead of failing
+                trace = {"kind": "extractive", "model": "quoted passages", "reason": llm_backend.friendly_error(e)}
+            else:
+                # tokens already shown: keep the partial answer and say it was cut
+                yield {"stage": "warning", "message": f"The answer was cut short: {llm_backend.friendly_error(e)}"}
+    if not use_model:
+        text = extractive.compose(used)
+        timings["first_token"] = int((time.perf_counter() - t0) * 1000)
+        pieces = re.findall(r"\S+\s*", text)
+        for i in range(0, len(pieces), 4):
+            yield {"stage": "token", "token": "".join(pieces[i:i + 4])}
+            await asyncio.sleep(0.01)
+        parts = [text]
+        trace = trace or {"kind": "extractive", "model": "quoted passages"}
 
     answer = verify.normalise_markers("".join(parts)).strip()
     if not answer:
@@ -483,7 +503,7 @@ async def answer_stream(
     verdict = verify.verify(answer, source_texts, source_titles)
     revised = False
 
-    if strict and verify.needs_revision(verdict):
+    if use_model and strict and verify.needs_revision(verdict):
         yield {"stage": "revising", "reason": "; ".join(verdict["unsupported_numbers"] + verdict.get("unsupported_acts", []))
                or "a claim did not match its source"}
         try:

@@ -8,7 +8,7 @@ from auth.deps import optional_user
 from auth.rate_limiter import UPLOAD_LIMIT, limiter
 from fastapi import Depends, APIRouter, UploadFile, File, HTTPException, Request
 
-from config import UPLOAD_DIR, MAX_FILE_SIZE_MB, MAX_PDF_PAGES
+from config import DEMO_MODE, UPLOAD_DIR, MAX_FILE_SIZE_MB, MAX_PDF_PAGES
 from models.schemas import DocumentMeta
 from storage.store import save_meta, save_path
 from pipeline.pdf_parser import get_page_count
@@ -45,6 +45,10 @@ async def read_capped(file: UploadFile) -> bytes:
 async def ingest_pdf(filename: str, content: bytes, owner_id: str | None = None) -> tuple[str, DocumentMeta]:
     """Persist an uploaded PDF and its metadata. Shared by the web upload route
     and the public /v1 API so both take exactly the same ingest path."""
+    if DEMO_MODE:
+        raise HTTPException(status_code=403, detail="Uploads are switched off in the hosted demo, which has no "
+                            "analysis pipeline. Run PRISM locally or with Docker to analyse your own PDF; the "
+                            "demo document is already analysed.")
     if not filename or not filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
     if len(content) > _MAX_BYTES:

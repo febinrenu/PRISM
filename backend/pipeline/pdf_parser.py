@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-import fitz  # PyMuPDF
+from pipeline._fitz import fitz  # PyMuPDF, imported when first used
 
 from pipeline.pdftext import ocr
 from pipeline.pdftext.glyphs import font_maps

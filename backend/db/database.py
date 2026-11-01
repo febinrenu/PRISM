@@ -13,9 +13,9 @@ import threading
 from contextlib import contextmanager
 from typing import Any, Optional
 
-from config import BASE_DIR, DATABASE_URL
+from config import DATA_DIR, DATABASE_URL
 
-_SQLITE_PATH = BASE_DIR / "data" / "prism.db"
+_SQLITE_PATH = DATA_DIR / "prism.db"
 _lock = threading.Lock()
 _initialized = False
 

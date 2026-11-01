@@ -19,12 +19,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import TypeAdapter, ValidationError
 
 from auth.deps import current_user
-from config import BASE_DIR
+from config import DATA_DIR
 from models.annotation import GUIDELINE_VERSION, Annotation
 from models.rules import Effect
 
 router = APIRouter()
-ANNOTATION_DIR = BASE_DIR / "data" / "annotations"
+ANNOTATION_DIR = DATA_DIR / "annotations"
 _EFFECT = TypeAdapter(Effect)
 
 EFFECT_FIELDS = {

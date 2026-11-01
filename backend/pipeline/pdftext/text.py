@@ -11,7 +11,7 @@ in these fonts is some other glyph.
 """
 from collections import Counter, defaultdict
 
-import fitz
+from pipeline._fitz import fitz
 
 from pipeline.pdftext.glyphs import font_maps, font_weights
 

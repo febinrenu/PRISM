@@ -67,3 +67,9 @@ backend/data/store/*/lime/
 PRISM.txt
 guide.md
 DEMO.md
+
+review/
+
+# Hosted-demo bundle and Vercel links, built by tools/build_hosted_bundle.py
+deploy/
+.vercel

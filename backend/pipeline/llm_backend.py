@@ -97,6 +97,10 @@ def chain() -> list[tuple[str, str]]:
 
 def active_backend() -> dict:
     """Status descriptor for /health, admin dashboard, and chat UI."""
+    from config import DEMO_MODE
+    if DEMO_MODE:
+        return {"backend": "demo", "kind": "recorded", "model": "recorded answers, quoted passages", "cloud": False,
+                "configured": True, "fallback": None, "demo": True}
     kind, model = _resolve()
     order = chain()
     return {
@@ -319,6 +323,13 @@ async def _stream_on(kind, model, prompt, system, temperature, num_predict, clie
     raise last or RuntimeError("no hosted-model key is configured")
 
 
+def _refuse_in_demo() -> None:
+    from config import DEMO_MODE
+    if DEMO_MODE:
+        raise RuntimeError("language models are switched off in the hosted demo; recorded answers and saved "
+                           "extractions are shown instead")
+
+
 async def generate(
     prompt: str,
     system: Optional[str] = None,
@@ -329,6 +340,7 @@ async def generate(
 ) -> str:
     """One-shot generation from the active backend, falling back to the other one
     when it fails. `trace`, if given, is filled with which backend answered."""
+    _refuse_in_demo()
     own = client is None
     client = client or httpx.AsyncClient()
     failures: list[str] = []
@@ -362,6 +374,7 @@ async def stream_generate(
     """Token stream from the active backend. If it fails before producing a token,
     the other backend is tried; once tokens have flowed, a failure is raised (the
     caller already has a partial answer). `trace` records which backend answered."""
+    _refuse_in_demo()
     own = client is None
     client = client or httpx.AsyncClient()
     failures: list[str] = []

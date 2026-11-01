@@ -19,7 +19,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-import fitz  # PyMuPDF
+from pipeline._fitz import fitz  # PyMuPDF, imported when first used
 
 from pipeline.pdftext.text import text_dict
 

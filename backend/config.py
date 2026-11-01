@@ -6,13 +6,44 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).parent
-UPLOAD_DIR = BASE_DIR / "data" / "uploads"
+
+# Hosted demo (PRISM_DEMO=1, e.g. a serverless deployment): the API serves the analysed demo documents,
+# the parsed statutes and the recorded research without a language model, a GPU or the heavy ML
+# libraries; uploads, new analyses and model calls are switched off and say so.
+DEMO_MODE = os.getenv("PRISM_DEMO", "").strip().lower() in ("1", "true", "yes")
+
+# Where the app writes (accounts, uploads, results, caches). The code and the data it ships with stay
+# under BASE_DIR/data, read-only on a serverless host; PRISM_DATA_DIR points the writable state
+# elsewhere (e.g. /tmp/prism) and is seeded from what ships.
+DATA_DIR = Path(os.getenv("PRISM_DATA_DIR", "").strip() or (BASE_DIR / "data"))
+UPLOAD_DIR = DATA_DIR / "uploads"
 DEMO_DIR = BASE_DIR / "data" / "demo"
-STORE_DIR = BASE_DIR / "data" / "store"
+STORE_DIR = DATA_DIR / "store"
 DEMO_PDF_NAME = "income_tax_2025.pdf"
 
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-STORE_DIR.mkdir(parents=True, exist_ok=True)
+for _d in (UPLOAD_DIR, STORE_DIR):
+    try:
+        _d.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+
+
+def _seed_data_dir() -> None:
+    """Copy the analysed documents that ship with the app into a separate writable data directory."""
+    import shutil
+
+    shipped = BASE_DIR / "data" / "store"
+    if DATA_DIR == BASE_DIR / "data" or not shipped.is_dir():
+        return
+    for doc in shipped.iterdir():
+        if doc.is_dir() and not (STORE_DIR / doc.name).exists():
+            try:
+                shutil.copytree(doc, STORE_DIR / doc.name)
+            except OSError:
+                pass
+
+
+_seed_data_dir()
 
 _DEFAULT_CORS = [
     "http://localhost:3000",
@@ -110,13 +141,13 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 GEMINI_URL = os.getenv("GEMINI_URL", "https://generativelanguage.googleapis.com/v1beta")
 
 # --- Phase 3: RAG corpus (Module D) ---
-CHROMA_DIR = BASE_DIR / "data" / "chromadb"
+CHROMA_DIR = DATA_DIR / "chromadb"
 CORPUS_COLLECTION = os.getenv("CORPUS_COLLECTION", "prism_legal_corpus")
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "8"))
 # Below this retrieval confidence (the re-ranker's top score on a 0-1 scale) Ask says
 # the corpus has no answer and does not call the model. Calibrated on the chat
 # evaluation (eval/v2/chat_eval.py); a section the question names is never gated.
-RAG_ABSTAIN_BELOW = float(os.getenv("RAG_ABSTAIN_BELOW", "0.05"))
+RAG_ABSTAIN_BELOW = float(os.getenv("RAG_ABSTAIN_BELOW", "0.15" if DEMO_MODE else "0.05"))   # the word-overlap scorer needs a higher bar
 # Earlier turns kept for resolving a follow-up ("and for senior citizens?").
 RAG_HISTORY_TURNS = int(os.getenv("RAG_HISTORY_TURNS", "4"))
 # Seconds to wait for the model to rewrite a follow-up before using the plain join.
@@ -134,7 +165,7 @@ def _jwt_secret() -> str:
     if configured and configured not in {"change-me-in-production", "prism-dev-secret-change-in-production"}:
         return configured
     import secrets
-    path = BASE_DIR / "data" / ".jwt_secret"
+    path = DATA_DIR / ".jwt_secret"
     try:
         if path.exists():
             saved = path.read_text(encoding="utf-8").strip()

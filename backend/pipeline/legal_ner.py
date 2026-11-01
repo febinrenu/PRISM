@@ -14,8 +14,6 @@ Entity types:
   BENEFICIARY - Who benefits (senior citizen, widow)
 """
 import re
-import spacy
-from spacy.matcher import Matcher, PhraseMatcher
 from models.schemas import Entity
 
 
@@ -151,6 +149,8 @@ def _init_nlp():
     global _nlp, _matcher, _phrase_matcher
     if _nlp is not None:
         return
+    import spacy                      # imported here: the hosted demo has no spaCy and never reads a new document
+    from spacy.matcher import Matcher, PhraseMatcher
 
     _nlp = spacy.load("en_core_web_sm", disable=["ner", "lemmatizer"])
     _matcher = Matcher(_nlp.vocab)

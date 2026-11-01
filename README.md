@@ -17,6 +17,7 @@
 ![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)
 ![WCAG](https://img.shields.io/badge/axe--core-0%20violations-2ea44f)
 
+**[Live demo](https://prism-law.vercel.app)** ·
 [Product tour](#product-tour) ·
 [Architecture](#architecture) ·
 [Subsystems](#subsystems) ·
@@ -24,6 +25,7 @@
 [Public API](#public-api) ·
 [Security](#security-model) ·
 [Run it](#getting-started) ·
+[Hosted demo](#hosted-demo) ·
 [Licence](#ownership-and-licence)
 
 <br />
@@ -48,9 +50,10 @@
 10. [Technology stack](#technology-stack)
 11. [Repository layout](#repository-layout)
 12. [Getting started](#getting-started)
-13. [Reproducing the research](#reproducing-the-research)
-14. [Status and known limits](#status-and-known-limits)
-15. [Ownership and licence](#ownership-and-licence)
+13. [Hosted demo](#hosted-demo)
+14. [Reproducing the research](#reproducing-the-research)
+15. [Status and known limits](#status-and-known-limits)
+16. [Ownership and licence](#ownership-and-licence)
 
 ---
 
@@ -450,7 +453,7 @@ prism-p1/
 ├── training/                      QLoRA fine-tuning and Ollama export
 ├── paper/                         manuscript, generated tables, figures
 ├── docs/                          ODD+D protocol, annotation guidelines, threats to validity, assets
-├── tools/                         third-party licence generator
+├── tools/                         licence generator; hosted-demo recorder, corpus export and bundle builder
 ├── nginx.conf  docker-compose.yml  start.bat
 └── DATA.md  NOTICE  LICENSE  THIRD_PARTY_LICENSES.md  CITATION.cff
 ```
@@ -498,7 +501,32 @@ Everything is an environment variable in `backend/.env` (see `.env.example`).
 | `API_RATE_LIMIT` | `100/hour` | Per-key limit on `/v1` |
 | `R2_ENDPOINT`, `CLOUDFLARE_R2_*` | empty | Object storage; empty keeps files on disk |
 | `SEGMENTATION_MODE` | `statute` | `statute`, `structural` or `semantic` |
-| `RAG_ABSTAIN_BELOW` | `0.05` | Re-ranker score below which Ask declines |
+| `RAG_ABSTAIN_BELOW` | `0.05` (`0.15` in hosted mode) | Re-ranker score below which Ask declines |
+| `PRISM_DEMO` | off | Hosted-demo mode: no model, no PDF reader, no uploads (see below) |
+| `PRISM_DATA_DIR` | `backend/data` | Where the app writes; set it (e.g. `/tmp/prism`) on a read-only host |
+
+## Hosted demo
+
+**[prism-law.vercel.app](https://prism-law.vercel.app)** is the product deployed on Vercel (a Next.js frontend and a FastAPI function) so that it can be explored without installing anything. A serverless function cannot carry PyTorch, a vector database and a local language model, so the hosted build runs in demo mode (`PRISM_DEMO=1`): everything that can be computed without them is computed live, and the rest is replaced by something real and labelled as such.
+
+| | In the hosted demo |
+|---|---|
+| **Live** | The 12 parsed statutes with search inside provisions, comparison of any two Acts, the workspace for the analysed demo documents (clauses, entities, causal patterns, rates, provenance, report, explanations), the policy sandbox in both modes with the validation and sensitivity panels, the research results, accounts and the dashboard |
+| **Ask** | Answers recorded from the full system for 22 common questions and follow-ups (the model, its citations and its verification, replayed event by event and labelled as recorded). Any other question is answered by exact section lookup and lexical retrieval, quoting the best-matching provisions, each cited |
+| **Switched off** | Uploads and new analyses (no OCR, PDF reader or encoder in the bundle), language-model extraction and explanations, dense retrieval and the re-ranker |
+
+A corner note on every page says so. Recorded answers come from `tools/record_ask.py`, which runs the real engine with the hosted model and keeps only answers whose every figure and quotation checked out against their sources; `tools/export_demo_corpus.py` writes the passages that lexical search reads; `tools/build_hosted_bundle.py` assembles the function (about 60 MB of code and data on top of a lightweight `requirements.vercel.txt`) and `vercel deploy --prod` ships it.
+
+Retrieval without the encoder and re-ranker was measured on the Ask evaluation set before shipping, not assumed. Both columns run the same protocol (retrieval and the abstention gate only, no model; the 49 answerable single-turn questions with a gold section and the 32 unanswerable ones):
+
+| | Full system (dense + re-ranker) | Hosted demo (lexical) |
+|---|---:|---:|
+| Gold section in the top 1 | 0.837 | 0.837 |
+| Gold section in the top 5 | 0.980 | 0.959 |
+| Answerable questions wrongly declined | 0.000 | 0.061 |
+| Unanswerable questions declined | 0.84 (27 of 32) | 0.75 (24 of 32) |
+
+Section lookups are the same in both (the section tree is read exactly); the difference is in open-ended questions and in telling that a question is out of scope, which is where a language model and a re-ranker earn their cost. The hosted bundle ships without PyMuPDF (AGPL), so the licence note for that component applies to the full deployment only.
 
 ## Reproducing the research
 
@@ -527,7 +555,7 @@ PRISM is a research-grade system with a complete product around it. What it does
 - **Local Ask model.** Phi-3.5 3.8B writes rambling answers and misses some retrievals; the cited provision is exact either way, and the verifier flags figures the cited text lacks. The hosted model is materially better (see [results](#measured-results)).
 - **Evaluation.** The Ask question set has no second independent reader yet, and the earlier gold sets were bulk-accepted, so their in-domain scores are circular. The new frozen sets are double-annotated in the app.
 - **Hardening still open.** Next.js 14 has advisories that need a major upgrade; API keys are stored in plain text; the session token lives in `localStorage` with no revocation; the Content-Security-Policy still allows inline scripts, which Next's bootstrap needs; registering an existing email reveals that the account exists.
-- **Deployment.** The Docker images and compose file are written but have not been built and run end to end, and the project has not been run as a long-lived public service.
+- **Deployment.** The hosted demo runs on Vercel's free tier: the first request after a quiet period takes several seconds, accounts live in a function's temporary storage and can vanish when it restarts, and the Docker images and compose file for the full system are written but have not been built and run end to end.
 - **Fine-tuning.** The QLoRA pipeline (`training/`) is complete; the model has not been trained, so the paper's fine-tuned row is empty.
 
 ## Ownership and licence
