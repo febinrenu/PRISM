@@ -22,7 +22,7 @@ export default function TokenBarChart({ topTokens }: Props) {
     .map(([token, weight]) => ({ token, weight }));
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(180, data.length * 26)}>
+    <ResponsiveContainer width="100%" height={Math.max(180, data.length * 30)}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
         <XAxis
           type="number"
@@ -34,6 +34,7 @@ export default function TokenBarChart({ topTokens }: Props) {
           type="category"
           dataKey="token"
           width={90}
+          interval={0}
           tick={{ fill: tokens.text.secondary, fontSize: 12, fontFamily: "monospace" }}
           stroke="transparent"
         />
@@ -50,9 +51,9 @@ export default function TokenBarChart({ topTokens }: Props) {
           formatter={(value) => [Number(value).toFixed(4), "LIME weight"]}
         />
         <Bar dataKey="weight" radius={[0, 2, 2, 0]} isAnimationActive={false}>
-          {data.map((entry) => (
+          {data.map((entry, i) => (
             <Cell
-              key={entry.token}
+              key={`${entry.token}-${i}`}
               fill={entry.weight >= 0 ? alpha(tokens.status.success, 0.75) : alpha(tokens.status.error, 0.75)}
             />
           ))}
