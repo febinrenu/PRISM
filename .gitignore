@@ -62,3 +62,8 @@ backend/data/store/*/simulations/
 backend/data/store/*/schedules.json
 # caches written while using the app (explanations, sandbox runs)
 backend/data/store/*/lime/
+
+# Working notes, kept locally only
+PRISM.txt
+guide.md
+DEMO.md
