@@ -5,6 +5,7 @@ import re
 import pytest
 
 from simulation.experiment import story
+from tests.corpus_marks import needs_parsed_corpus
 
 needs_results = pytest.mark.skipif(
     not (story.RESULTS_DIR / f"{story.FOCUS_SET}__{story.FOCUS_SYSTEM}.json").exists(),
@@ -18,6 +19,7 @@ def pipe():
     return story.pipeline()
 
 
+@needs_parsed_corpus
 def test_pipeline_numbers_are_the_document_stats(pipe):
     part, _ = pipe
     stats = json.loads(story.DEMO_RESULT.read_text(encoding="utf-8"))["stats"]
@@ -31,6 +33,7 @@ def test_pipeline_numbers_are_the_document_stats(pipe):
         assert (story.ROOT / entry["source"]["file"]).exists()
 
 
+@needs_parsed_corpus
 def test_pipeline_samples_quote_their_clauses(pipe):
     part, _ = pipe
     assert len(part["samples"]) == 3
@@ -44,6 +47,7 @@ def test_pipeline_samples_quote_their_clauses(pipe):
     assert story.pipeline()[0]["samples"] == part["samples"]
 
 
+@needs_parsed_corpus
 def test_pipeline_graph_sample_is_a_forest(pipe):
     _, graph = pipe
     assert len(graph["nodes"]) <= story.GRAPH_CAP

@@ -8,6 +8,7 @@ from pipeline.extraction.rule_based import _slab_from_line
 from pipeline.quantities import extract_quantities, words_to_number
 from simulation.rac import gold
 from simulation.translate.assemble import assemble, build_schedule
+from tests.corpus_marks import needs_parsed_corpus
 
 L = 100_000
 
@@ -182,6 +183,7 @@ def test_key_pool_rotates_cools_and_retires():
         pool.pick("m")
 
 
+@needs_parsed_corpus
 def test_batch_export_import_round_trip(tmp_path, monkeypatch):
     import json
     from pipeline.extraction import batch, cache

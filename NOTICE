@@ -1,0 +1,17 @@
+PRISM: Policy Rule Interpretation and Socioeconomic Impact Modelling
+Copyright 2026 Febin K Renu. All rights not granted by the Apache License 2.0 are reserved.
+
+This product was designed and written by Febin K Renu (github.com/febinrenu).
+
+Licensed under the Apache License, Version 2.0 (see LICENSE). The names "PRISM" and
+"Policy Rule Interpretation and Socioeconomic Impact Modelling", and the project's visual identity,
+are not licensed for use as the name of a derived product (Apache License 2.0, section 6).
+
+Third-party components keep their own licences. THIRD_PARTY_LICENSES.md lists them, generated from
+the installed package metadata (python tools/third_party_licenses.py). Two need particular care:
+
+  PyMuPDF   AGPL-3.0, or a commercial licence from Artifex Software, Inc.
+  GSAP      the GSAP "Standard 'no charge' licence", which is not an OSI-approved licence.
+
+Data sources, including the statute texts and official statistics PRISM reads, are described in
+DATA.md. Human annotations produced for the project are released under CC BY 4.0.

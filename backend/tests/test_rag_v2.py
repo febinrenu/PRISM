@@ -587,6 +587,7 @@ def test_post_stream_rejects_an_empty_question():
 # ── scope: is the question about what the corpus covers? ─────────────────────
 
 from rag import scope  # noqa: E402
+from tests.corpus_marks import needs_parsed_corpus  # noqa: E402
 
 
 @pytest.mark.parametrize("q,expected", [
@@ -664,6 +665,7 @@ def test_a_state_or_country_is_out_of_scope_only_when_retrieval_is_unsure():
     assert scope.check(plan, _hits("Stamp duty is mentioned."), 0.9, idx) is None
 
 
+@needs_parsed_corpus
 def test_an_unknown_act_is_out_of_scope_unless_a_known_one_is_named_too():
     plan = query_plan.make_plan("What are the rules under the Customs Act?")
     v = scope.check(plan, _hits("x"), 0.99, _Index({}))

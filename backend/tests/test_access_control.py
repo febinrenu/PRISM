@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from auth import security, users
 from models.schemas import DocumentMeta
+from tests.corpus_marks import needs_parsed_corpus
 
 
 def _meta(doc_id, owner):
@@ -76,6 +77,7 @@ def test_ask_cannot_name_a_private_document(client):
     assert _hidden(r)
 
 
+@needs_parsed_corpus
 def test_unfiltered_search_is_narrowed_to_readable_documents(client):
     from auth.deps import readable_scope
 
