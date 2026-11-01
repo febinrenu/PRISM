@@ -93,7 +93,7 @@ export default function DiffPDFPane({
       </div>
 
       {/* PDF */}
-      <div ref={containerRef} className="flex-1 overflow-auto bg-bg-base/50 relative">
+      <div ref={containerRef} tabIndex={0} role="region" aria-label={`Document ${label}, scrollable`} className="flex-1 overflow-auto bg-bg-base/50 relative">
         {!isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-text-muted">

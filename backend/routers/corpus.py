@@ -5,6 +5,8 @@ Read-only browsing of the parsed statute corpus.
     GET /api/corpus/{statute}/{version}/outline       chapters / parts / schedules → sections
     GET /api/corpus/{statute}/{version}/node?path=…   one node: its text and its children
     GET /api/corpus/{statute}/{version}/search?q=…    sections whose own words contain the query
+    GET /api/corpus/compare?a=…&b=…                   two statutes matched section by section
+    GET /api/corpus/compare/pair?a=…&pa=…&b=…&pb=…    one matched pair: both texts with what changed marked
 """
 import json
 import re
@@ -43,9 +45,11 @@ def _get(statute: str, version: str) -> tuple[dict, str, dict]:
 @lru_cache(maxsize=8)
 def _section_texts(statute: str, version: str, mtime: float) -> list[tuple[str, str, str, str]]:
     """(path, number, heading, text) for every enacted section, once per statute."""
+    from pipeline.statute.compare import strip_heading_bleed
+
     ast, text, _ = _load(statute, version, mtime)
-    return [(n["path"], n["number"], n.get("heading") or "", text[n["start"]:n["end"]])
-            for n in ast["nodes"] if n["kind"] == "section" and not n["quoted"]]
+    return strip_heading_bleed([(n["path"], n["number"], n.get("heading") or "", text[n["start"]:n["end"]])
+                                for n in ast["nodes"] if n["kind"] == "section" and not n["quoted"]])
 
 
 def _label(n: dict) -> str:
@@ -161,3 +165,63 @@ def search(statute: str, version: str, q: str = Query(..., min_length=3, max_len
         hits.append({"path": path, "number": number, "heading": heading,
                      "snippet": ("…" if start else "") + re.sub(r"\s+", " ", body[start:start + 190]).strip()})
     return {"query": q, "hits": hits, "more": len(scored) > _MAX_HITS}
+
+
+@lru_cache(maxsize=12)
+def _compare(key_a: str, key_b: str, mtime_a: float, mtime_b: float) -> dict:
+    from pipeline.statute.compare import compare_sections
+
+    out = {}
+    for tag, key, mt in (("a", key_a, mtime_a), ("b", key_b, mtime_b)):
+        statute, version = key.split("/")
+        out[tag] = (key, _section_texts(statute, version, mt), _load(statute, version, mt)[2].get("title", statute))
+    secs = {t: [{"path": p, "number": n, "heading": h, "text": x} for p, n, h, x in v[1]] for t, v in out.items()}
+    result = compare_sections(secs["a"], secs["b"])
+    result["a"] = {"key": out["a"][0], "title": out["a"][2]}
+    result["b"] = {"key": out["b"][0], "title": out["b"][2]}
+    return result
+
+
+@router.get("/corpus/compare")
+def compare(a: str = Query(..., max_length=80), b: str = Query(..., max_length=80)):
+    """Match the sections of two parsed statutes by what they say and report what changed."""
+    avail = _available()
+    for key in (a, b):
+        if key not in avail:
+            raise HTTPException(status_code=404, detail="Unknown statute")
+    if a == b:
+        raise HTTPException(status_code=422, detail="Choose two different statutes")
+    mt = lambda k: (CORPUS_DIR / k / "ast.json").stat().st_mtime
+    return _compare(a, b, mt(a), mt(b))
+
+
+def _section(key: str, path: str) -> tuple[str, str, str, str]:
+    statute, version = key.split("/")
+    mtime = (CORPUS_DIR / key / "ast.json").stat().st_mtime
+    for row in _section_texts(statute, version, mtime):
+        if row[0] == path:
+            return row
+    raise HTTPException(status_code=404, detail="Unknown provision path")
+
+
+@router.get("/corpus/compare/pair")
+def compare_pair(a: str = Query(..., max_length=80), pa: str = Query(..., max_length=300),
+                 b: str = Query(..., max_length=80), pb: str = Query(..., max_length=300)):
+    """One matched pair of sections: each text with the character ranges that the other lacks."""
+    from rapidfuzz import fuzz
+
+    from pipeline.statute.compare import compact, diff_ranges, figure_changes
+
+    avail = _available()
+    for key in (a, b):
+        if key not in avail:
+            raise HTTPException(status_code=404, detail="Unknown statute")
+    path_a, number_a, heading_a, text_a = _section(a, pa)
+    path_b, number_b, heading_b, text_b = _section(b, pb)
+    deleted, inserted = diff_ranges(text_a, text_b)
+    return {
+        "a": {"path": path_a, "number": number_a, "heading": heading_a, "text": text_a, "marked": deleted},
+        "b": {"path": path_b, "number": number_b, "heading": heading_b, "text": text_b, "marked": inserted},
+        "similarity": round(fuzz.ratio(compact(text_a), compact(text_b)) / 100.0, 4),
+        "figures": figure_changes(text_a, text_b),
+    }

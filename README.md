@@ -76,6 +76,7 @@ Answering it takes a complete chain, and PRISM builds every link of it: a parser
 | **Ask** | Question answering over 12 parsed statutes and your documents: exact section lookup, hybrid retrieval, an abstention gate, and a verifier that checks every figure and quotation against the cited text. | `rag/` |
 | **Explainability** | LIME, attention attribution and a stepwise reasoning trace for any clause, in rule-based and language-model modes. | `pipeline/lime_explainer.py`, `attention_explainer.py` |
 | **Provenance** | A graph from each simulated outcome back to the clause, page and words behind it, as a tree or as 3D strata. | `pipeline/graph_builder.py` |
+| **Compare** | Two uploaded documents clause by clause, or any two Acts or versions of one in the corpus section by section: sections are matched by what they say (TF-IDF with heading and number bonuses), formatting differences between sources are told apart from real changes, and every changed rate or amount is called out. | `pipeline/statute/compare.py` |
 | **Research harness** | Ten income-tax reforms across six systems, pre-registered conclusion flips, exact Shapley attribution, typed error injection, sensitivity analysis. Every table in the paper regenerates offline. | `simulation/experiment/` |
 | **Public API** | Versioned `/v1` REST API with per-user keys and rate limits. | `routers/public_api.py` |
 
@@ -93,6 +94,9 @@ Answering it takes a complete chain, and PRISM builds every link of it: a parser
 <tr>
 <td width="50%"><img src="docs/assets/research.webp" alt="Research page with the expert-versus-extracted results" /><br /><b>Research.</b> Expert coding against each system's extraction, per reform, with validation and sensitivity.</td>
 <td width="50%"><img src="docs/assets/provenance.webp" alt="Provenance graph" /><br /><b>Provenance.</b> From a simulated outcome back to the provision, page and words it rests on.</td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/assets/compare.webp" alt="Statute compare: the Income-tax Act 2025 as enacted against the version amended by the Finance Act 2026" /><br /><b>Compare.</b> The Income-tax Act 2025 as enacted against the version amended by the Finance Act 2026: 530 sections matched by meaning, the changed rates and amounts listed, and the words that differ marked on each side. The same view compares the 1961 and 2025 Acts, and exports the changes as CSV.</td>
 </tr>
 </table>
 

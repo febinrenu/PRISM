@@ -154,7 +154,7 @@ export default function ComparativeSimPanel({
         <button
           onClick={handleRun}
           disabled={running}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 bg-accent-primary/15 border border-accent-primary/35 text-accent-primary hover:bg-accent-primary/25"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 bg-signal/10 border border-signal/35 text-signal hover:bg-signal/20"
         >
           {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
           {running ? "Simulating…" : started ? "Re-run comparative simulation" : "Run comparative simulation"}

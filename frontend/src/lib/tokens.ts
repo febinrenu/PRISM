@@ -32,6 +32,8 @@ export const tokens = {
   risk: Object.fromEntries(
     Object.entries(base.risk).map(([k, e]) => [k, { base: e.base, text: v(`risk-${k.toLowerCase()}-text`) }])
   ) as unknown as typeof base.risk,
+  // diff marks follow the theme: the fixed dark-theme tints fail contrast on paper
+  diff: { added: v("status-success"), removed: v("status-error"), modified: v("status-warning") },
   node: { ...base.node, document: v("node-document"), chapter: v("node-chapter"), section: v("node-section") },
 } as unknown as typeof base;
 

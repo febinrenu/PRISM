@@ -142,6 +142,16 @@ await step("compare: two documents, clause diff", async () => {
   return new URL(page.url()).search;
 });
 
+await step("compare, statutes: two Acts matched section by section", async () => {
+  await page.goto(`${BASE}/compare?mode=statutes&sa=FA2024N2%2Fenacted&sb=FA2025%2Fenacted`, { waitUntil: "networkidle2" });
+  await waitText(/found a counterpart/, 90000);
+  await page.evaluate(() => document.querySelector("ul[role=list] li button")?.click());
+  await waitText(/Baseline · /, 30000);
+  const marks = await page.evaluate(() => document.querySelectorAll("article del, article ins").length);
+  if (!marks) throw new Error("no changed words were marked");
+  return `${marks} changed spans marked`;
+});
+
 await step("ask: a cited answer streams", async () => {
   await page.goto(`${BASE}/chat`, { waitUntil: "networkidle2" });
   const box = await page.waitForSelector("textarea, input[placeholder*='Ask' i]", { timeout: 20000 });

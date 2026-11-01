@@ -11,6 +11,8 @@ import DiffSummaryPanel from "@/components/compare/DiffSummaryPanel";
 import ClauseDiffList, { type DiffKind, type DiffRow } from "@/components/compare/ClauseDiffList";
 import DiffPDFPane from "@/components/compare/DiffPDFPane";
 import ComparativeSimPanel from "@/components/compare/ComparativeSimPanel";
+import StatuteCompare from "@/components/compare/StatuteCompare";
+import { cn } from "@/lib/utils";
 import { tokens } from "@/lib/tokens";
 import type { Clause, CompareResult } from "@/types";
 
@@ -230,9 +232,16 @@ function Arena({ docIdA, docIdB }: { docIdA: string; docIdB: string }) {
 
 function CompareArenaPage() {
   const searchParams = useSearchParams();
+  const statutes = searchParams.get("mode") === "statutes";
   const a = searchParams.get("a");
   const b = searchParams.get("b");
   const ready = Boolean(a && b && a !== b);
+
+  const tab = (active: boolean) =>
+    cn(
+      "-mb-px border-b-2 px-1 pb-3 text-[15px] transition-colors",
+      active ? "border-signal text-text-primary" : "border-transparent text-text-muted hover:text-text-primary"
+    );
 
   return (
     <div>
@@ -240,22 +249,39 @@ function CompareArenaPage() {
         <header className="flex flex-col gap-4 pb-6 pt-10 sm:pt-14 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <div className="kicker mb-3">Compare</div>
-            <h1 className="font-serif text-headline text-text-primary">Two statutes, clause by clause</h1>
+            <h1 className="font-serif text-headline text-text-primary">
+              {statutes ? "Two statutes, section by section" : "Two documents, clause by clause"}
+            </h1>
             <p className="mt-4 text-[15px] leading-relaxed text-text-secondary">
-              Clauses are matched by meaning, so a renumbered or reworded provision still finds its counterpart. Added,
-              removed and changed clauses are marked, with both PDFs side by side.
+              {statutes
+                ? "Pick any two parsed Acts or two versions of one. Sections are matched by what they say, so a renumbered or rewritten provision still finds its counterpart, and every changed rate or amount is called out."
+                : "Clauses are matched by meaning, so a renumbered or reworded provision still finds its counterpart. Added, removed and changed clauses are marked, with both PDFs side by side."}
             </p>
           </div>
-          {ready && (
+          {!statutes && ready && (
             <Link href="/compare" className="text-[14px] text-text-secondary underline-offset-4 hover:text-text-primary hover:underline">
               Choose other documents
             </Link>
           )}
         </header>
+        <nav aria-label="What to compare" className="mb-8 flex gap-6 border-b border-border">
+          <Link href="/compare" aria-current={!statutes ? "page" : undefined} className={tab(!statutes)}>
+            Your documents
+          </Link>
+          <Link href="/compare?mode=statutes" aria-current={statutes ? "page" : undefined} className={tab(statutes)}>
+            Statutes in the corpus
+          </Link>
+        </nav>
       </div>
 
       <div>
-        {ready ? <Arena docIdA={a as string} docIdB={b as string} /> : <DocPicker initialA={a} initialB={b} />}
+        {statutes ? (
+          <StatuteCompare initialA={searchParams.get("sa")} initialB={searchParams.get("sb")} initialRow={searchParams.get("row")} />
+        ) : ready ? (
+          <Arena docIdA={a as string} docIdB={b as string} />
+        ) : (
+          <DocPicker initialA={a} initialB={b} />
+        )}
       </div>
     </div>
   );
