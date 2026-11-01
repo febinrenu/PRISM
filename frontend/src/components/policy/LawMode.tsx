@@ -31,6 +31,7 @@ function changesOf(base: PolicyLawParams, edit: PolicyLawParams): PolicyChanges 
   if (JSON.stringify(base.rebate) !== JSON.stringify(edit.rebate)) c.rebate = edit.rebate;
   if (base.standard_deduction !== edit.standard_deduction) c.standard_deduction = edit.standard_deduction;
   if (Math.abs(base.cess_rate - edit.cess_rate) > 1e-9) c.cess_rate = edit.cess_rate;
+  if (JSON.stringify(base.surcharge) !== JSON.stringify(edit.surcharge)) c.surcharge = edit.surcharge;
   return c;
 }
 

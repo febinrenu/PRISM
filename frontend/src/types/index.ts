@@ -300,6 +300,9 @@ export interface SimulationConfig {
   calibration_mode?: CalibrationMode | null;
 }
 
+/** What a Clause-dynamics verdict rests on: a stated rate of tax on income, only fixed sums, or nothing charged. */
+export type VerdictBasis = "income_rates" | "fixed_sums" | "nothing_charged";
+
 export interface SimulationRuleInfo {
   clause_id: string;
   description: string;
@@ -313,6 +316,10 @@ export interface SimulationRuleInfo {
   source: "llm" | "rule_based";
   matched_template?: string | null;
   match_score?: number | null;
+  /** false when the clause states no sum or rate of tax, so no agent is charged for it */
+  priced?: boolean;
+  /** set when the clause's percentage is interest, a penalty, a cess or an instalment, not a rate on income */
+  rate_note?: string | null;
 }
 
 // Model-assumptions transparency table (GET /api/simulate/params)
@@ -404,6 +411,7 @@ export interface SimulationResult {
   effective_rate_low?: number;
   effective_rate_high?: number;
   final_revenue?: number;
+  verdict_basis?: VerdictBasis | null;
   narrative?: string;
   config: SimulationConfig;
 }
@@ -567,11 +575,17 @@ export interface PolicyRebate {
   marginal_relief: boolean;
 }
 
+export interface PolicySurchargeBand {
+  threshold: number;
+  rate: number;
+}
+
 export interface PolicyLawParams {
   slabs: PolicySlab[];
   rebate: PolicyRebate | null;
   standard_deduction: number;
   cess_rate: number;
+  surcharge: PolicySurchargeBand[];
 }
 
 export interface PolicyProvenanceRow {
@@ -630,6 +644,7 @@ export interface PolicyChanges {
   rebate?: PolicyRebate | null;
   standard_deduction?: number;
   cess_rate?: number;
+  surcharge?: PolicySurchargeBand[];
 }
 
 export interface PolicyAssumptions {

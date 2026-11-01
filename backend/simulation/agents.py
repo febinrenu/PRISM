@@ -117,6 +117,8 @@ class PolicyAgent(Agent):
     # ── rule evaluation ──────────────────────────────────────────────────────
 
     def _rule_applies(self, rule) -> bool:
+        if not getattr(rule, "priced", True):
+            return False
         if self.agent_type.value not in rule.affected_agent_types:
             return False
         if rule.threshold_value is not None and rule.threshold_kind == "amount":

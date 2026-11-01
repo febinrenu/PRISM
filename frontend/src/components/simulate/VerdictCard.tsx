@@ -4,12 +4,19 @@ import { motion } from "framer-motion";
 import { Download, Loader2 } from "lucide-react";
 import { alpha, tokens } from "@/lib/tokens";
 import { formatRupees } from "./SimulationCharts";
-import type { PolicyVerdict, SimulationStep } from "@/types";
+import type { PolicyVerdict, SimulationStep, VerdictBasis } from "@/types";
 
-const VERDICT_STYLE: Record<PolicyVerdict, { color: string; emoji: string; title: string }> = {
-  progressive: { color: tokens.status.success, emoji: "🟢", title: "Progressive" },
-  neutral: { color: tokens.status.warning, emoji: "🟡", title: "Neutral" },
-  regressive: { color: tokens.status.error, emoji: "🔴", title: "Regressive" },
+const VERDICT_STYLE: Record<PolicyVerdict, { color: string; title: string }> = {
+  progressive: { color: tokens.status.success, title: "Progressive" },
+  neutral: { color: tokens.status.warning, title: "Neutral" },
+  regressive: { color: tokens.status.error, title: "Regressive" },
+};
+
+/** Said under the verdict when it is not a finding about a rate of tax on income. */
+const BASIS_NOTE: Partial<Record<VerdictBasis, string>> = {
+  fixed_sums:
+    "Fixed sums only: a flat sum takes a bigger share of a small income, so this reading is built in. It is not a finding about the tax rates.",
+  nothing_charged: "No clause here charges anyone, so there is no burden to compare.",
 };
 
 interface Props {
@@ -18,6 +25,7 @@ interface Props {
   nRules: number;
   rulesSource: "llm" | "rule_based";
   narrative?: string | null;
+  verdictBasis?: VerdictBasis | null;
   effectiveRateLow?: number | null;
   effectiveRateHigh?: number | null;
   exporting: boolean;
@@ -26,7 +34,7 @@ interface Props {
 
 /** Post-simulation verdict with the backend-generated, data-grounded narrative. */
 const VerdictCard = forwardRef<HTMLDivElement, Props>(function VerdictCard(
-  { verdict, steps, nRules, rulesSource, narrative, effectiveRateLow, effectiveRateHigh, exporting, onExport },
+  { verdict, steps, nRules, rulesSource, narrative, verdictBasis, effectiveRateLow, effectiveRateHigh, exporting, onExport },
   ref
 ) {
   const style = VERDICT_STYLE[verdict];
@@ -67,8 +75,11 @@ const VerdictCard = forwardRef<HTMLDivElement, Props>(function VerdictCard(
         <div className="flex-shrink-0">
           <p className="kicker !text-micro mb-2">Simulation verdict</p>
           <p className="font-display text-5xl leading-none" style={{ color: style.color }}>
-            {style.emoji} {style.title}
+            {style.title}
           </p>
+          {verdictBasis && BASIS_NOTE[verdictBasis] && (
+            <p className="mt-3 max-w-[16rem] text-micro leading-relaxed text-text-muted">{BASIS_NOTE[verdictBasis]}</p>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm text-text-secondary leading-relaxed">{insight}</p>

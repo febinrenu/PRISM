@@ -92,6 +92,13 @@ def verdict_for(steps: list[SimulationStep]) -> str:
     return "neutral"
 
 
+def verdict_basis(rules: list[SimulationRule]) -> str:
+    """What the incidence verdict of these rules rests on."""
+    if any(r.rate_percent is not None for r in rules):
+        return "income_rates"
+    return "fixed_sums" if any(getattr(r, "priced", True) for r in rules) else "nothing_charged"
+
+
 def _fmt_rupees(x: float) -> str:
     """Compact ₹ formatting (lakh/crore) for narrative prose."""
     x = float(x)
@@ -135,20 +142,20 @@ def build_narrative(
 
     if verdict == "regressive":
         verdict_clause = (
-            f"This is **regressive**: {_TYPE_LABELS['low_income']} face an effective rate of "
+            f"This is regressive: {_TYPE_LABELS['low_income']} face an effective rate of "
             f"{eff_low * 100:.2f}% of gross income versus {eff_high * 100:.2f}% for "
             f"{_TYPE_LABELS['high_income']} — the levy takes a larger share from those least "
             f"able to bear it."
         )
     elif verdict == "progressive":
         verdict_clause = (
-            f"This is **progressive**: {_TYPE_LABELS['low_income']} face {eff_low * 100:.2f}% "
+            f"This is progressive: {_TYPE_LABELS['low_income']} face {eff_low * 100:.2f}% "
             f"versus {eff_high * 100:.2f}% for {_TYPE_LABELS['high_income']}, so the burden "
             f"rises with income."
         )
     else:
         verdict_clause = (
-            f"This is **broadly neutral**: effective rates are similar across income bands "
+            f"This is broadly neutral: effective rates are similar across income bands "
             f"({eff_low * 100:.2f}% low vs {eff_high * 100:.2f}% high)."
         )
 
@@ -176,10 +183,34 @@ def build_narrative(
     household_rates = [last.effective_rate_by_type.get(t, 0.0) for t in ("low_income", "middle_income", "high_income")]
     if any(r > IMPLAUSIBLE_RATE for r in household_rates):
         incidence_clause += (
-            f" **Implausibly high:** a household is paying more than {IMPLAUSIBLE_RATE * 100:.0f}% of its income. "
+            f" Implausibly high: a household is paying more than {IMPLAUSIBLE_RATE * 100:.0f}% of its income. "
             f"Every selected clause is applied as a separate levy and they add up, so overlapping rules (several "
             f"clauses describing the same tax) inflate the total. Select fewer, non-overlapping rules, or use "
             f"the Statute mode, which prices the law's own rate table without double counting.")
+
+    levies = [r for r in rules if r.rate_percent is not None]
+    fixed = [r for r in rules if r.rate_percent is None and getattr(r, "priced", True)]
+    unpriced = [r for r in rules if not getattr(r, "priced", True)]
+    set_aside = [r for r in unpriced if getattr(r, "rate_note", None)]
+    basis_clause = f"Of the {n_rules} rules, {len(levies)} charge a stated rate on income and {len(fixed)} a stated sum"
+    if unpriced:
+        basis_clause += (
+            f"; {len(unpriced)} charge nothing because the clause states no sum or rate of tax on income"
+            + (f" ({len(set_aside)} give a percentage that is interest, a penalty, a cess or an instalment)" if set_aside else "")
+        )
+    basis_clause += "."
+    if not levies and fixed:
+        basis_clause += (
+            " No selected clause states a rate of tax on income, so what is measured is fixed sums. A fixed sum is a "
+            "larger share of a small income, so a regressive reading is built in and says nothing about this "
+            "document's tax rates; use the Statute mode to price the rate table itself."
+        )
+    elif not levies:
+        basis_clause += (
+            " Nothing here charges anyone, so there is no burden to compare; use the Statute mode to price the "
+            "rate table itself."
+        )
+    incidence_clause += " " + basis_clause
 
     compliance_clause = (
         f"Compliance settles at {corp_comp}% for large corporates and {low_comp}% for "
@@ -224,6 +255,7 @@ def finalize(
         final_gini=steps[-1].gini_coefficient if steps else 0.0,
         final_compliance_rate=steps[-1].compliance_rate if steps else 1.0,
         policy_verdict=policy_verdict,  # type: ignore[arg-type]
+        verdict_basis=verdict_basis(rules),
         effective_rate_low=round(eff_low, 6),
         effective_rate_high=round(eff_high, 6),
         final_revenue=steps[-1].revenue_total if steps else 0.0,

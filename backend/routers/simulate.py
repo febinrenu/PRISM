@@ -50,6 +50,8 @@ def _rule_dict(r) -> dict:
         "source": r.source,
         "matched_template": getattr(r, "matched_template", None),
         "match_score": getattr(r, "match_score", None),
+        "rate_note": getattr(r, "rate_note", None),
+        "priced": getattr(r, "priced", True),
     }
 
 
@@ -196,6 +198,7 @@ async def stream_simulation(doc_id: str, simulation_id: str):
             "final_gini": result.final_gini,
             "final_compliance_rate": result.final_compliance_rate,
             "final_revenue": result.final_revenue,
+            "verdict_basis": result.verdict_basis,
             "effective_rate_low": result.effective_rate_low,
             "effective_rate_high": result.effective_rate_high,
             "policy_verdict": result.policy_verdict,

@@ -430,7 +430,7 @@ def test_the_result_has_the_shape_the_page_reads(base):
     assert out["law_code"] == "ITA2025"                             # the Act; "law" holds the two laws
     assert set(out["law"]) == {"baseline", "scenario"}
     assert out["law"]["scenario"]["standard_deduction"] == 100_000 and out["law"]["baseline"]["standard_deduction"] == 75_000
-    assert {"slabs", "rebate", "standard_deduction", "cess_rate"} == set(out["law"]["baseline"])
+    assert {"slabs", "rebate", "standard_deduction", "cess_rate", "surcharge"} == set(out["law"]["baseline"])
     for k in ("baseline", "scenario"):
         assert len(out[k]["deciles"]) == 10 and {"revenue_crore", "kakwani", "gini_post"} <= set(out[k])
     import json
@@ -471,3 +471,52 @@ def test_the_scenario_module_does_not_need_salib_and_its_ranges_match_the_analys
     assert out.returncode == 0, out.stderr[-300:]
     from simulation.engine.sensitivity import PROBLEM
     assert sc.BOUNDS == {n: (float(lo), float(hi)) for n, (lo, hi) in zip(PROBLEM["names"], PROBLEM["bounds"])}
+
+
+# ── the surcharge ───────────────────────────────────────────────────────────
+
+def _bands(base):
+    return [b.model_dump() for b in sorted(base.params.regimes["new"].surcharge, key=lambda b: b.threshold)]
+
+
+def test_the_law_view_carries_the_surcharge(base):
+    assert sc.law_view(base.params)["surcharge"] == _bands(base) and len(_bands(base)) >= 2
+
+
+def test_the_same_surcharge_is_no_change(base):
+    r = sc.run(base, {"surcharge": _bands(base)})
+    assert r["changes_applied"] == [] and r["delta"]["revenue_crore"] == 0
+
+
+def test_a_higher_surcharge_raises_revenue_and_only_the_rich_pay_more(base):
+    bands = _bands(base)
+    bands[-1]["rate"] += 0.05
+    r = sc.run(base, {"surcharge": bands})
+    assert r["delta"]["revenue_crore"] > 0
+    assert [l["id"] for l in r["attribution"]["levers"]] == ["surcharge"] and r["attribution"]["matches_total"]
+    first_hit = min(b["threshold"] for b in bands)
+    for g in r["impact"]["bands"]:
+        if g["upper"] is not None and g["upper"] <= first_hit:
+            assert g["share_pay_more"] == 0 and g["share_pay_less"] == 0
+
+
+def test_removing_the_surcharge_costs_revenue_and_nobody_pays_more(base):
+    r = sc.run(base, {"surcharge": []})
+    assert r["delta"]["revenue_crore"] < 0 and r["impact"]["overall"]["share_pay_more"] == 0
+
+
+@pytest.mark.parametrize("bands,message", [
+    ([{"threshold": 5e6, "rate": 0.1}, {"threshold": 5e6, "rate": 0.2}], "different"),
+    ([{"threshold": 5e6, "rate": 0.9}], "between 0 and 0.5"),
+    ([{"threshold": -1, "rate": 0.1}], "between 0"),
+    ([{"threshold": 1e6 * (i + 1), "rate": 0.1} for i in range(7)], "at most 6"),
+    ("ten percent", "list"),
+])
+def test_a_surcharge_that_is_not_a_law_is_refused(base, bands, message):
+    with pytest.raises(sc.ScenarioError, match=message):
+        sc.apply_changes(base.params, {"surcharge": bands})
+
+
+def test_the_combined_marginal_rate_guard_includes_the_new_surcharge(base):
+    with pytest.raises(sc.ScenarioError, match="exceed 100%"):
+        sc.apply_changes(base.params, {"slabs": slabs_with({6: 0.8}), "surcharge": [{"threshold": 5e6, "rate": 0.5}]})

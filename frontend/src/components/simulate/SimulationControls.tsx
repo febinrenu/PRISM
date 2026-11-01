@@ -193,6 +193,7 @@ export default function SimulationControls({ running, availableRules, prefilterC
           <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
             {availableRules.map((rule) => {
               const active = selectedRules === null || selectedRules.has(rule.clause_id);
+              const free = rule.priced === false;
               return (
                 <button
                   key={rule.clause_id}
@@ -203,10 +204,14 @@ export default function SimulationControls({ running, availableRules, prefilterC
                       ? "border-accent-primary/50 bg-accent-primary/10 text-accent-primary"
                       : "border-border text-text-dim hover:text-text-muted"
                   }`}
-                  title={rule.description}
+                  title={
+                    free
+                      ? `${rule.description}\n\nNo charge: ${rule.rate_note ?? "the clause states no sum or rate of tax, so nothing is made up."}`
+                      : rule.description
+                  }
                 >
-                  <span className="truncate">
-                    {rule.rate_percent != null ? `${rule.rate_percent}% · ` : ""}
+                  <span className={`truncate ${free ? "opacity-60" : ""}`}>
+                    {free ? "no charge · " : rule.rate_percent != null ? `${rule.rate_percent}% · ` : ""}
                     {rule.description.slice(0, 42)}
                   </span>
                 </button>

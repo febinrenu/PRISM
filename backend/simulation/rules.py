@@ -56,6 +56,12 @@ class SimulationRule:
     # and its cosine score. None = fell back to the regex/keyword parser.
     matched_template: Optional[str] = None
     match_score: Optional[float] = None
+    # Set when the clause states a percentage that is not a levy on income (interest, a penalty, cess,
+    # an instalment): the rate is set aside and the rule is priced as a flat obligation, with this note.
+    rate_note: Optional[str] = None
+    # False when the clause states no sum of money and no rate of tax: the sandbox has nothing to charge, and
+    # does not make a figure up. The rule stays in the list, marked, and no agent is billed for it.
+    priced: bool = True
 
     def compliance_cost_for(self, income: float) -> float:
         """Annual ₹ cost of complying with this rule."""
@@ -193,6 +199,57 @@ def _apply_template(rule: SimulationRule, text: str, match=None, matched: bool =
     return rule
 
 
+# ─── Is a stated percentage a levy on income? ─────────────────────────────────
+
+# A percentage in a statute is often not a rate of tax on income: interest is charged on an unpaid
+# amount, a penalty on the tax evaded, cess on the tax, an instalment is a share of tax already due.
+# Applying any of these to income, as the sandbox does for a rate, would tax every agent for it.
+_NON_LEVY_TEMPLATES = {"compounding_interest", "advance_tax_installment", "cess_on_tax"}
+_NON_LEVY_WORDS = re.compile(
+    r"(?i)\b(interest|advance\s+tax|penalt(?:y|ies)|fines?|cess|instal+ments?|late\s+fee|prosecution|imprisonment|"
+    r"per\s+month|per\s+annum|a\s+month|refund)\b")
+_CONTEXT = 70      # characters either side of the percentage that say what it is a percentage of
+
+
+def percent_is_income_levy(text: str) -> bool:
+    """False when every percentage in `text` sits next to words that make it an interest rate, a
+    penalty, a cess or an instalment. No percentage, or no such words: True (the sandbox's reading)."""
+    found = False
+    for m in _PERCENT_RE.finditer(text or ""):
+        found = True
+        around = text[max(0, m.start() - _CONTEXT): m.end() + _CONTEXT]
+        if not _NON_LEVY_WORDS.search(around):
+            return True
+    return not found
+
+
+def settle_rate(rule: SimulationRule, text: str) -> SimulationRule:
+    """Keep a rule's rate only when it is a levy on income; otherwise set it aside and say so."""
+    if rule.rate_percent is None:
+        return rule
+    if rule.matched_template in _NON_LEVY_TEMPLATES:
+        what = "the clause is about interest, an instalment or a cess"
+    elif not percent_is_income_levy(text):
+        what = "it is next to interest, a penalty, a cess or an instalment"
+    else:
+        return rule
+    rule.rate_note = (f"The clause states {rule.rate_percent:g}%, but {what}, not a rate of tax on income: "
+                      f"it is priced as a flat obligation.")
+    rule.rate_percent, rule.marginal, rule.full_base = None, False, False
+    return rule
+
+
+def states_money(text: str) -> bool:
+    """Does the clause give a sum of money or a percentage at all?"""
+    p = parse_threshold_string(text or "")
+    return bool(p) and p["kind"] in ("amount", "percent")
+
+
+def settle_pricing(rule: SimulationRule, text: str) -> SimulationRule:
+    rule.priced = rule.rate_percent is not None or (states_money(text) and not rule.rate_note)
+    return rule
+
+
 # ─── Rule construction ────────────────────────────────────────────────────────
 
 def _rule_from_llm(clause_id: str, extraction: dict) -> SimulationRule:
@@ -290,8 +347,9 @@ def build_simulation_rules(
         matches = match_templates([text for _, text in built])
     except Exception:
         matches = [None] * len(built)
-    rules = [_apply_template(rule, text, m, matched=True) for (rule, text), m in zip(built, matches)]
+    rules = [settle_pricing(settle_rate(_apply_template(rule, text, m, matched=True), text), text)
+             for (rule, text), m in zip(built, matches)]
 
     # Highest-impact rules first; cap so a 1,000-pattern bill stays simulable.
-    rules.sort(key=lambda r: (r.rate_percent or 0.0, r.confidence), reverse=True)
+    rules.sort(key=lambda r: (r.priced, r.rate_percent or 0.0, r.confidence), reverse=True)
     return rules[:max_rules], source

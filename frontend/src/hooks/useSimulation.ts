@@ -7,6 +7,7 @@ import type {
   SimulationCreated,
   SimulationStep,
   PolicyVerdict,
+  VerdictBasis,
 } from "@/types";
 
 export type SimulationPhase = "idle" | "starting" | "running" | "complete" | "offline" | "error";
@@ -22,6 +23,7 @@ export interface SimulationState {
   effectiveRateLow: number | null;
   effectiveRateHigh: number | null;
   narrative: string | null;
+  verdictBasis: VerdictBasis | null;
   error: string | null;
 }
 
@@ -36,6 +38,7 @@ const INITIAL: SimulationState = {
   effectiveRateLow: null,
   effectiveRateHigh: null,
   narrative: null,
+  verdictBasis: null,
   error: null,
 };
 
@@ -85,6 +88,7 @@ export function useSimulation(docId: string) {
               effectiveRateLow: event.effective_rate_low ?? null,
               effectiveRateHigh: event.effective_rate_high ?? null,
               narrative: event.narrative ?? null,
+              verdictBasis: (event.verdict_basis as VerdictBasis | null | undefined) ?? null,
             }));
             sseRef.current?.abort();
           } else if (event.metrics) {
@@ -135,6 +139,7 @@ export function useSimulation(docId: string) {
           effectiveRateLow: r.effective_rate_low ?? null,
           effectiveRateHigh: r.effective_rate_high ?? null,
           narrative: r.narrative ?? null,
+          verdictBasis: r.verdict_basis ?? null,
         });
       } catch (error) {
         setState({ ...INITIAL, phase: "error", error: error instanceof Error ? error.message : String(error) });

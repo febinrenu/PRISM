@@ -212,6 +212,7 @@ export default function DynamicsMode({ docId, prefilterClause }: { docId: string
                   nRules={state.created.active_rules.length}
                   rulesSource={state.created.rules_source}
                   narrative={state.narrative}
+                  verdictBasis={state.verdictBasis}
                   effectiveRateLow={state.effectiveRateLow}
                   effectiveRateHigh={state.effectiveRateHigh}
                   exporting={exporting}

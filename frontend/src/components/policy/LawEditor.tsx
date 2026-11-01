@@ -5,7 +5,7 @@ import { Minus, Plus, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NumField from "@/components/policy/NumField";
 import { inr, pct, slabTax } from "@/components/policy/format";
-import type { PolicyLawParams, PolicySlab } from "@/types";
+import type { PolicyLawParams, PolicySlab, PolicySurchargeBand } from "@/types";
 
 const LAKH = 1e5;
 
@@ -72,6 +72,19 @@ function presetsFor(base: PolicyLawParams): Preset[] {
       },
     });
   }
+  const topSur = base.surcharge[base.surcharge.length - 1];
+  if (topSur && topSur.rate < 0.5) {
+    const to = Math.min(0.5, topSur.rate + 0.05);
+    out.push({
+      id: "surcharge",
+      label: `Raise the top surcharge from ${pct(topSur.rate, 0)} to ${pct(to, 0)}`,
+      apply: (b) => {
+        const p = clone(b);
+        p.surcharge[p.surcharge.length - 1].rate = to;
+        return p;
+      },
+    });
+  }
   if (base.rebate) {
     out.push({
       id: "norebate",
@@ -95,6 +108,14 @@ export function countChanges(base: PolicyLawParams, edit: PolicyLawParams): numb
   if (JSON.stringify(base.rebate) !== JSON.stringify(edit.rebate)) n += 1;
   if (base.standard_deduction !== edit.standard_deduction) n += 1;
   if (Math.abs(base.cess_rate - edit.cess_rate) > 1e-9) n += 1;
+  if (JSON.stringify(base.surcharge) !== JSON.stringify(edit.surcharge)) {
+    if (base.surcharge.length !== edit.surcharge.length) n += 1;
+    else
+      base.surcharge.forEach((b, i) => {
+        if (Math.abs(b.rate - edit.surcharge[i].rate) > 1e-9) n += 1;
+        if (b.threshold !== edit.surcharge[i].threshold) n += 1;
+      });
+  }
   return n;
 }
 
@@ -136,6 +157,29 @@ export default function LawEditor({
     const next = clone(value);
     next.slabs.pop();
     next.slabs[next.slabs.length - 1].upper = null;
+    onChange(next);
+  };
+
+  const sur = value.surcharge;
+  const setSur = (i: number, patch: Partial<PolicySurchargeBand>) => {
+    const next = clone(value);
+    Object.assign(next.surcharge[i], patch);
+    onChange(next);
+  };
+  const addSur = () => {
+    const next = clone(value);
+    const l = next.surcharge[next.surcharge.length - 1];
+    next.surcharge.push(
+      l
+        ? { threshold: Math.round((l.threshold * 2) / LAKH) * LAKH, rate: Math.min(0.5, l.rate + 0.05) }
+        : { threshold: 50 * LAKH, rate: 0.1 }
+    );
+    onChange(next);
+  };
+  const removeSur = () => {
+    if (!sur.length) return;
+    const next = clone(value);
+    next.surcharge.pop();
     onChange(next);
   };
 
@@ -352,6 +396,89 @@ export default function LawEditor({
               onCommit={(v) => onChange({ ...value, cess_rate: v })}
             />
           </label>
+        </div>
+      </div>
+
+      <div className="mt-6 border-t border-border pt-5">
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="whitespace-nowrap text-[13px] text-text-primary">Surcharge on the tax</span>
+          <span className="whitespace-nowrap font-mono text-micro text-text-dim">₹ lakh; rates in %</span>
+        </div>
+        {sur.length === 0 ? (
+          <p className="text-[12.5px] text-text-muted">No surcharge in this law.</p>
+        ) : (
+          <table className="w-full table-fixed text-[13px]">
+            <caption className="sr-only">Surcharge bands: income above (in lakh rupees), surcharge as a share of the tax</caption>
+            <thead>
+              <tr className="text-left font-mono text-micro uppercase tracking-wider text-text-dim">
+                <th className="w-9 pb-2 pr-2 font-normal">Band</th>
+                <th className="pb-2 pr-2 text-right font-normal">Income above</th>
+                <th className="pb-2 text-right font-normal">Surcharge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sur.map((b, i) => {
+                const was = baseline.surcharge[i];
+                const thrChanged = !was || changed(was.threshold, b.threshold);
+                const rateChanged = !was || changed(was.rate, b.rate);
+                return (
+                  <tr key={i} className="border-t border-border">
+                    <td className="py-1.5 pr-2 font-mono text-text-muted">{i + 1}</td>
+                    <td className="py-1.5 pr-2">
+                      <NumField
+                        label={`Surcharge band ${i + 1} income limit in lakh rupees`}
+                        value={b.threshold}
+                        scale={1 / LAKH}
+                        min={0.01}
+                        step={5}
+                        disabled={disabled}
+                        className={cn("w-full rounded-[4px]", mark(thrChanged))}
+                        onCommit={(v) => setSur(i, { threshold: v })}
+                      />
+                      {thrChanged && was && (
+                        <span className="mt-0.5 block text-right font-mono text-[11px] text-text-dim">was {Number((was.threshold / LAKH).toFixed(2))}</span>
+                      )}
+                    </td>
+                    <td className="py-1.5 text-right">
+                      <NumField
+                        label={`Surcharge band ${i + 1} rate in percent`}
+                        value={b.rate}
+                        scale={100}
+                        min={0}
+                        max={50}
+                        step={1}
+                        suffix="%"
+                        disabled={disabled}
+                        className={cn("w-full rounded-[4px]", mark(rateChanged))}
+                        onCommit={(v) => setSur(i, { rate: v })}
+                      />
+                      {rateChanged && was && (
+                        <span className="mt-0.5 block text-right font-mono text-[11px] text-text-dim">was {pct(was.rate, 0)}</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={addSur}
+            disabled={disabled || sur.length >= 6}
+            className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary disabled:opacity-40"
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden /> Add a surcharge band
+          </button>
+          <button
+            type="button"
+            onClick={removeSur}
+            disabled={disabled || sur.length === 0}
+            className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-border-light px-3 text-[13px] text-text-secondary hover:border-glow hover:text-text-primary disabled:opacity-40"
+          >
+            <Minus className="h-3.5 w-3.5" aria-hidden /> Remove the top band
+          </button>
         </div>
       </div>
 

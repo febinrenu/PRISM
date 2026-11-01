@@ -85,7 +85,7 @@ def _turnover_levy(text: str, ex: dict) -> dict:
     from simulation.rules import _PERCENT_RE
     m = _PERCENT_RE.search(text)
     # A turnover levy applies to the whole turnover, not a taxable slice.
-    return {"rate_percent": min(float(m.group(1)), 40.0) if m else 5.0,
+    return {"rate_percent": min(float(m.group(1)), 40.0) if m else None,
             "full_base": True,
             "affected_agent_types": ["small_business", "large_corporate"],
             "penalty_probability": 0.5}
@@ -101,7 +101,7 @@ def _deadline(text: str, ex: dict) -> dict:
 def _withholding(text: str, ex: dict) -> dict:
     from simulation.rules import _PERCENT_RE
     m = _PERCENT_RE.search(text)
-    return {"rate_percent": min(float(m.group(1)), 40.0) if m else 10.0,
+    return {"rate_percent": min(float(m.group(1)), 40.0) if m else None,
             "penalty_probability": 0.5}
 
 
@@ -114,10 +114,8 @@ def _exemption(text: str, ex: dict) -> dict:
 
 
 def _interest(text: str, ex: dict) -> dict:
-    from simulation.rules import _PERCENT_RE
-    m = _PERCENT_RE.search(text)
-    return {"rate_percent": min(float(m.group(1)), 24.0) if m else 12.0,
-            "penalty_probability": 0.55}
+    # interest is charged on an unpaid amount, not on income: the rate is not a levy (see rules._settle_rate)
+    return {"penalty_probability": 0.55}
 
 
 def _registration(text: str, ex: dict) -> dict:
@@ -149,17 +147,13 @@ def _audit(text: str, ex: dict) -> dict:
 
 
 def _advance_tax(text: str, ex: dict) -> dict:
-    from simulation.rules import _PERCENT_RE
-    m = _PERCENT_RE.search(text)
-    return {"rate_percent": min(float(m.group(1)), 40.0) if m else 15.0,
-            "penalty_probability": 0.45}
+    # an instalment is a date on which tax already due is paid; its percentage is a share of that tax
+    return {"penalty_probability": 0.45}
 
 
 def _cess(text: str, ex: dict) -> dict:
-    from simulation.rules import _PERCENT_RE
-    m = _PERCENT_RE.search(text)
-    return {"rate_percent": min(float(m.group(1)), 10.0) if m else 4.0,
-            "penalty_probability": 0.5}
+    # cess is a percentage of the tax, which the sandbox does not compute per clause
+    return {"penalty_probability": 0.5}
 
 
 def _rebate(text: str, ex: dict) -> dict:

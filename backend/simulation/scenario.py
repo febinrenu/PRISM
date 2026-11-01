@@ -49,7 +49,7 @@ from simulation.engine.outcomes import summarise
 from simulation.engine.static import StaticResult, simulate
 from simulation.population.taxpayers import Population, build
 from simulation.rac import gold
-from simulation.rac.types import PITParams, Rebate, Slab
+from simulation.rac.types import PITParams, Rebate, Slab, SurchargeBand
 from simulation.translate.assemble import build_schedule
 
 CRORE = 1e7
@@ -61,6 +61,7 @@ DEFAULT_GROWTH = Settings().nominal_growth_after_2023_24
 BOUNDS = {"optimal_share": (0.25, 1.0), "via_scale": (0.5, 1.5), "top_alpha": (1.5, 3.0),
           "senior_share": (0.0, 0.2), "growth": (0.07, 0.12)}
 MAX_BANDS = 12                           # as many bands as the editor offers
+MAX_SURCHARGE_BANDS = 6
 NO_CHANGE = 0.5                            # rupees: a change smaller than this is no change
 MAX_EXACT_LEVERS = 8
 HIGH_MARGINAL = 0.6
@@ -175,7 +176,17 @@ def law_view(p: PITParams) -> dict:
         "rebate": new.rebate.model_dump() if new.rebate else None,
         "standard_deduction": new.standard_deduction,
         "cess_rate": p.cess_rate,
+        "surcharge": [b.model_dump() for b in sorted(new.surcharge, key=lambda b: b.threshold)],
     }
+
+
+def _surcharge_key(bands) -> list[tuple]:
+    return [(round(b.threshold), round(b.rate, 6)) for b in sorted(bands, key=lambda b: b.threshold)]
+
+
+def _surcharge_text(bands) -> str:
+    bands = sorted(bands, key=lambda b: b.threshold)
+    return "none" if not bands else ", ".join(f"{pct(b.rate)} above {inr(b.threshold)}" for b in bands)
 
 
 def _slab_key(slabs: list[Slab]) -> list[tuple]:
@@ -292,14 +303,15 @@ def apply_changes(base: PITParams, changes: dict) -> tuple[PITParams, list[str]]
     """The baseline with `changes` applied, or a ScenarioError saying why it is not a law.
 
     changes: {"slabs": [{lower, upper, rate}, ...], "rebate": {max_income, max_rebate, marginal_relief} | None,
-              "standard_deduction": x, "cess_rate": x}; a key left out stays as in the baseline."""
+              "standard_deduction": x, "cess_rate": x,
+              "surcharge": [{threshold, rate}, ...]}; a key left out stays as in the baseline."""
     p = base.model_copy(deep=True)
     new = p.regimes["new"]
     if changes is None:
         changes = {}
     if not isinstance(changes, dict):
         raise ScenarioError("changes must be an object")
-    unknown = sorted(set(changes) - {"slabs", "rebate", "standard_deduction", "cess_rate"})
+    unknown = sorted(set(changes) - {"slabs", "rebate", "standard_deduction", "cess_rate", "surcharge"})
     if unknown:
         raise ScenarioError(f"unknown change: {', '.join(map(str, unknown))}")
     if changes.get("slabs") is not None:
@@ -326,6 +338,19 @@ def apply_changes(base: PITParams, changes: dict) -> tuple[PITParams, list[str]]
             max_income=_num(r.get("max_income"), "rebate income limit", 0, 1e11),
             max_rebate=_num(r.get("max_rebate"), "rebate amount", 0, 1e11),
             marginal_relief=bool(r.get("marginal_relief", False)))
+    if changes.get("surcharge") is not None:
+        rows = changes["surcharge"]
+        if not isinstance(rows, list) or len(rows) > MAX_SURCHARGE_BANDS:
+            raise ScenarioError(f"surcharge must be a list of at most {MAX_SURCHARGE_BANDS} bands (empty for none)")
+        if not all(isinstance(r, dict) for r in rows):
+            raise ScenarioError("each surcharge band must be an object with threshold and rate")
+        bands = [SurchargeBand(threshold=_num(r.get("threshold"), f"surcharge band {i + 1} threshold", 0, 1e11),
+                               rate=_num(r.get("rate"), f"surcharge band {i + 1} rate", 0, 0.5))
+                 for i, r in enumerate(rows)]
+        bands.sort(key=lambda b: b.threshold)
+        if any(a.threshold >= b.threshold for a, b in zip(bands, bands[1:])):
+            raise ScenarioError("surcharge thresholds must all be different")
+        new.surcharge = bands
     if changes.get("standard_deduction") is not None:
         new.standard_deduction = _num(changes["standard_deduction"], "standard deduction", 0, 1e9)
     if changes.get("cess_rate") is not None:
@@ -384,6 +409,10 @@ def levers(base: PITParams, reform: PITParams) -> list[Lever]:
     if abs(bn.standard_deduction - rn.standard_deduction) > NO_CHANGE:
         out.append(Lever("standard_deduction", f"Standard deduction: {inr(bn.standard_deduction)} to {inr(rn.standard_deduction)}",
                          lambda t, s: setattr(t.regimes["new"], "standard_deduction", s.regimes["new"].standard_deduction)))
+    if _surcharge_key(bn.surcharge) != _surcharge_key(rn.surcharge):
+        def sur(target, source):
+            target.regimes["new"].surcharge = [b.model_copy() for b in source.regimes["new"].surcharge]
+        out.append(Lever("surcharge", f"Surcharge: {_surcharge_text(bn.surcharge)} to {_surcharge_text(rn.surcharge)}", sur))
     if abs(base.cess_rate - reform.cess_rate) > 1e-9:
         out.append(Lever("cess", f"Cess: {pct(base.cess_rate)} to {pct(reform.cess_rate)}",
                          lambda t, s: setattr(t, "cess_rate", s.cess_rate)))

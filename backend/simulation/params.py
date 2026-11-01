@@ -199,7 +199,8 @@ PARAM_REGISTRY: list[ParamInfo] = [
               "Random slack on the comply/defect boundary so identical agents don't act identically.",
               "illustrative", "Behaviour"),
     ParamInfo("BASE_COMPLIANCE_COST", "Flat compliance cost fallback (₹)", BASE_COMPLIANCE_COST,
-              "Used when a rule carries no rate; scales sub-linearly with income.",
+              "Used when a clause states a sum of money but no rate; scales sub-linearly with income. A clause that "
+              "states neither a sum nor a rate is not charged at all.",
               "illustrative", "Costs"),
     ParamInfo("PENALTY_COST_MULTIPLE", "Penalty ÷ compliance cost", PENALTY_COST_MULTIPLE,
               "Expected penalty for defaulting, relative to the cost of complying.",

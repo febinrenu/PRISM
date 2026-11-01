@@ -174,5 +174,8 @@ class SimulationResult(BaseModel):
     effective_rate_low: float = 0.0
     effective_rate_high: float = 0.0
     final_revenue: float = 0.0
+    # What the verdict rests on: "income_rates" (a clause states a rate of tax on income), "fixed_sums"
+    # (only stated sums, which are a bigger share of a small income by construction) or "nothing_charged".
+    verdict_basis: Optional[Literal["income_rates", "fixed_sums", "nothing_charged"]] = None
     narrative: str = ""  # backend-generated, data-grounded explanation
     config: SimulationConfig
